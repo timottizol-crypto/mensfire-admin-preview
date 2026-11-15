@@ -6586,6 +6586,20 @@ html.light-theme .booking-client-match{background:#fbf8ef}
 @media(max-width:600px){.crm-task-audit-item{grid-template-columns:8px minmax(0,1fr)}.crm-task-audit-item time{grid-column:2}}
 
 
+/* CRM · employee task analytics */
+.crm-task-employee-summary{margin:14px 0 16px;padding:13px;border:1px solid var(--border-color,rgba(255,255,255,.1));border-radius:12px;background:var(--surface-2,rgba(255,255,255,.025))}
+.crm-task-employee-summary-heading{display:flex;align-items:baseline;justify-content:space-between;gap:12px;margin-bottom:10px}
+.crm-task-employee-summary-heading strong{font-size:11px;color:var(--text-primary)}
+.crm-task-employee-summary-heading span{font-size:9px;color:var(--text-muted);text-align:right}
+.crm-task-employee-summary-list{display:grid;gap:6px}
+.crm-task-employee-summary-row{display:grid;grid-template-columns:minmax(110px,1.5fr) repeat(4,minmax(58px,1fr));align-items:center;gap:8px;padding:8px 9px;border-radius:8px;background:var(--surface-1,rgba(255,255,255,.025))}
+.crm-task-employee-summary-row>strong{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:10px;color:var(--text-primary)}
+.crm-task-employee-summary-row>span{display:grid;gap:2px;text-align:center}
+.crm-task-employee-summary-row>span b{font-size:12px;font-variant-numeric:tabular-nums;color:var(--text-primary)}
+.crm-task-employee-summary-row>span small{font-size:8px;color:var(--text-muted)}
+.crm-task-employee-summary-row>span.is-overdue b{color:#d58b70}
+@media(max-width:600px){.crm-task-employee-summary{padding:10px}.crm-task-employee-summary-heading{display:grid;gap:4px}.crm-task-employee-summary-heading span{text-align:left;line-height:1.4}.crm-task-employee-summary-row{grid-template-columns:minmax(0,1.4fr) repeat(4,minmax(42px,1fr));gap:4px;padding:8px 5px}.crm-task-employee-summary-row>strong{font-size:9px}.crm-task-employee-summary-row>span b{font-size:11px}.crm-task-employee-summary-row>span small{font-size:7px}}
+
 /* CRM · task audit filters */
 .crm-task-audit-filters{display:flex;align-items:end;flex-wrap:wrap;gap:8px;margin:12px 0 8px}
 .crm-task-audit-filters select,.crm-task-audit-filters input{min-height:32px;max-width:100%;padding:6px 9px;border:1px solid var(--border-color,rgba(255,255,255,.12));border-radius:8px;background:var(--surface-2,rgba(255,255,255,.035));color:var(--text-primary);font:inherit;font-size:10px}
