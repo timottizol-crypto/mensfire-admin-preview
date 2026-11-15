@@ -767,6 +767,34 @@ let expenses = (() => {
     }
 })();
 
+// Отдельный реестр розничных продаж. Визиты не считаются покупками товаров.
+// Схема поддерживает будущую связь продажи с визитом, товаром и движением склада.
+let clientRetailSales = (() => {
+    try {
+        const saved = JSON.parse(localStorage.getItem(appStorageKey('mensfire_client_retail_sales')) || '[]');
+        if (!Array.isArray(saved)) return [];
+        return saved.filter(sale => sale && typeof sale === 'object' && sale.id).map(sale => ({
+            id: String(sale.id), clientProfileKey: String(sale.clientProfileKey || ''),
+            clientPhone: String(sale.clientPhone || ''), clientNameSnapshot: String(sale.clientNameSnapshot || ''),
+            soldAt: String(sale.soldAt || sale.createdAt || ''), bookingId: sale.bookingId == null ? '' : String(sale.bookingId),
+            staffId: sale.staffId == null ? '' : String(sale.staffId),
+            paymentStatus: ['paid','partial','refunded','unpaid'].includes(sale.paymentStatus) ? sale.paymentStatus : 'paid',
+            paymentMethod: String(sale.paymentMethod || ''), total: Math.max(0, Number(sale.total) || 0),
+            items: (Array.isArray(sale.items) ? sale.items : []).filter(item => item && typeof item === 'object').map(item => ({
+                productId: String(item.productId || ''), sku: String(item.sku || ''),
+                titleSnapshot: String(item.titleSnapshot || item.title || 'Товар'),
+                quantity: Math.max(0, Number(item.quantity) || 0), unitPrice: Math.max(0, Number(item.unitPrice) || 0),
+                lineTotal: Math.max(0, Number(item.lineTotal) || 0), stockMovementId: String(item.stockMovementId || '')
+            })),
+            notes: String(sale.notes || ''), source: String(sale.source || 'retail'), createdAt: String(sale.createdAt || sale.soldAt || '')
+        }));
+    } catch (error) { console.error('Не удалось прочитать историю продаж товаров:', error); return []; }
+})();
+
+function persistClientRetailSales() {
+    localStorage.setItem(appStorageKey('mensfire_client_retail_sales'), JSON.stringify(clientRetailSales));
+}
+
 let clientProfiles = (() => {
     try {
         const saved = JSON.parse(localStorage.getItem(appStorageKey('mensfire_client_profiles')) || '{}');
@@ -3796,6 +3824,34 @@ function findClientProfile(name, barberId) {
     };
 }
 
+function renderClientRetailPurchases(clientBookings = []) {
+    const root = document.getElementById('clientRetailPurchases');
+    if (!root || !selectedClientProfileKey) return;
+    const profile = clientProfiles[selectedClientProfileKey] || {};
+    const phone = normalizeClientPhone(profile.phone);
+    const sales = clientRetailSales.filter(sale => {
+        if (sale.clientProfileKey && sale.clientProfileKey === selectedClientProfileKey) return true;
+        const salePhone = normalizeClientPhone(sale.clientPhone);
+        if (phone.length >= 7 && salePhone.length >= 7) return phone === salePhone;
+        return !salePhone && !phone && sale.clientNameSnapshot && sale.clientNameSnapshot.trim().toLowerCase() === String(profile.clientName || '').trim().toLowerCase();
+    }).sort((a,b) => new Date(b.soldAt || 0) - new Date(a.soldAt || 0));
+    const fmt = value => Math.round(Number(value) || 0).toLocaleString('ru-RU') + ' ₽';
+    const dateLabel = value => {
+        const date = new Date(value || '');
+        return Number.isNaN(date.getTime()) ? 'Дата не указана' : date.toLocaleString('ru-RU',{day:'2-digit',month:'short',year:'numeric',hour:'2-digit',minute:'2-digit'});
+    };
+    const total = sales.reduce((sum,sale) => sum + (sale.paymentStatus === 'refunded' ? 0 : sale.total),0);
+    const units = sales.reduce((sum,sale) => sum + sale.items.reduce((n,item) => n + item.quantity,0),0);
+    root.innerHTML = sales.length ?
+        '<div class="client-retail-summary"><span><b>' + sales.length + '</b> покупок</span><span><b>' + units + '</b> ед. товаров</span><strong>' + fmt(total) + '</strong></div>' +
+        '<div class="client-retail-list">' + sales.map(sale => {
+            const booking = sale.bookingId ? (clientBookings || []).find(item => String(item.id) === sale.bookingId) : null;
+            const statusLabels = {paid:'Оплачено',partial:'Частично',unpaid:'Не оплачено',refunded:'Возврат'};
+            const items = sale.items.map(item => '<div class="client-retail-item"><span>' + escapeBookingHtml(item.titleSnapshot) + (item.sku ? ' · ' + escapeBookingHtml(item.sku) : '') + ' <small>× ' + item.quantity + '</small></span><b>' + fmt(item.lineTotal || item.unitPrice * item.quantity) + '</b></div>').join('');
+            return '<article class="client-retail-sale"><div class="client-retail-sale-head"><div><strong>' + dateLabel(sale.soldAt) + '</strong><span>' + (booking ? 'Связано с визитом · ' + escapeBookingHtml(booking.date + ' в ' + booking.time) : sale.bookingId ? 'Визит: ' + escapeBookingHtml(sale.bookingId) : 'Отдельная покупка') + '</span></div><b class="client-retail-status status-' + sale.paymentStatus + '">' + statusLabels[sale.paymentStatus] + '</b></div>' + (items || '<div class="client-retail-empty-items">Состав покупки не указан</div>') + '<div class="client-retail-sale-total"><span>Итого</span><strong>' + fmt(sale.total) + '</strong></div>' + (sale.notes ? '<p>' + escapeBookingHtml(sale.notes) + '</p>' : '') + '</article>';
+        }).join('') + '</div>' : '<div class="client-retail-empty"><span class="client-retail-empty-icon">▧</span><strong>Покупок товаров пока нет</strong><p>Здесь появятся продажи из отдельного товарного чека. Услуги и оплаты визитов не дублируются в этой истории.</p></div>';
+}
+
 function renderClientInteractionHistory() {
     const root = document.getElementById('clientInteractionHistory');
     if (!root || !selectedClientProfileKey) return;
@@ -4674,6 +4730,7 @@ function showClientDetails(name, barberId) {
         `;
     }
 
+    renderClientRetailPurchases(myBookings);
     renderClientLoyaltyPanel(myBookings);
     renderClientInsights(myBookings);
     renderClientLifetimeValue(myBookings);
