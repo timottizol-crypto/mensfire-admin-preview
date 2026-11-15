@@ -6456,3 +6456,11 @@ html.light-theme .booking-client-match{background:#fbf8ef}
 .client-retail-refund{display:flex;justify-content:space-between;gap:8px;color:var(--text-muted);font-size:9px}
 .client-retail-refund b{flex:0 0 auto;color:#e58b8b}
 @media(max-width:480px){.client-retail-summary{grid-template-columns:repeat(2,minmax(0,1fr))}.client-retail-summary>div:last-child{grid-column:1/-1}}
+
+
+/* CRM · переходы из истории товарных покупок */
+.client-retail-link{display:inline-flex;align-items:center;width:max-content;margin:5px 6px 0 0;padding:4px 8px;border:1px solid var(--border-color,rgba(255,255,255,.12));border-radius:7px;background:rgba(198,158,91,.08);color:var(--gold);font:inherit;font-size:10px;line-height:1.3;cursor:pointer;transition:background .18s,border-color .18s}
+.client-retail-link:hover{background:rgba(198,158,91,.16);border-color:var(--gold)}
+.client-retail-item>span{min-width:0}
+.client-retail-sale-head>div{display:grid;justify-items:start;gap:3px}
+@media(max-width:480px){.client-retail-link{min-height:28px;padding:5px 8px}}
