@@ -4344,16 +4344,24 @@ function renderClientTasksHub() {
             const safeTitle = escapeBookingHtml(row.task.title || 'Задача без названия');
             const dueLabel = row.task.dueDate ? escapeBookingHtml(row.task.dueDate) : 'Без срока';
             const master = mockStaff.find(item => String(item.id) === row.barberId)?.name || '';
+            const assignee = mockStaff.find(item => String(item.id) === String(row.task.assigneeId || ''))?.name || '';
             return `<article class="crm-task-row ${row.overdue?'is-overdue':''} ${row.task.done?'is-done':''}">
                 <button type="button" class="crm-task-client" data-crm-open-client="${profileArg}" aria-label="Открыть клиента ${escapeBookingHtml(row.name)}">
                     <span class="crm-task-avatar">${escapeBookingHtml(row.name.charAt(0).toUpperCase())}</span>
-                    <span><b>${escapeBookingHtml(row.name)}</b><small>${master ? escapeBookingHtml(master)+' · ' : ''}${dueLabel}${row.overdue?' · Просрочено':row.task.done?' · Выполнено':''}</small></span>
+                    <span><b>${escapeBookingHtml(row.name)}</b><small>${assignee ? 'Ответственный: '+escapeBookingHtml(assignee)+' · ' : ''}${master ? escapeBookingHtml(master)+' · ' : ''}${dueLabel}${row.overdue?' · Просрочено':row.task.done?' · Выполнено':''}</small></span>
                 </button>
                 <div class="crm-task-description"><strong>${safeTitle}</strong><small>${escapeBookingHtml(row.task.author || 'Сотрудник')}</small></div>
                 <div class="crm-task-actions">
+                    <button type="button" data-crm-task-edit="${profileArg}" data-task-id="${taskId}">Изменить</button>
                     ${!row.task.done ? `<button type="button" data-crm-task-done="${profileArg}" data-task-id="${taskId}">Готово</button>` : ''}
                     <button type="button" class="delete" data-crm-task-delete="${profileArg}" data-task-id="${taskId}" aria-label="Удалить задачу">×</button>
                 </div>
+                <form class="crm-task-edit-form" data-crm-task-form="${profileArg}" data-task-id="${taskId}" hidden>
+                    <label>Задача<input name="title" maxlength="180" required value="${safeTitle}"></label>
+                    <label>Срок (ДД.ММ.ГГГГ)<input name="dueDate" inputmode="numeric" placeholder="Без срока" value="${escapeBookingHtml(row.task.dueDate || '')}"></label>
+                    <label>Ответственный<select name="assigneeId"><option value="">Не назначен</option>${(mockStaff || []).filter(staff => currentUser?.role !== 'barber' || String(staff.id) === String(currentUser.id)).map(staff => '<option value="' + escapeBookingHtml(String(staff.id)) + '"' + (String(row.task.assigneeId || '') === String(staff.id) ? ' selected' : '') + '>' + escapeBookingHtml(staff.name) + '</option>').join('')}</select></label>
+                    <div class="crm-task-edit-actions"><button type="submit">Сохранить</button><button type="button" data-crm-task-cancel>Отмена</button></div>
+                </form>
             </article>`;
         }).join('') : '<div class="crm-tasks-empty">По выбранным условиям задач нет</div>'}</div>`;
     const searchInput = root.querySelector('#crmTasksSearch');
@@ -4373,6 +4381,20 @@ function renderClientTasksHub() {
         const profile = clientProfiles[button.dataset.crmOpenClient] || {};
         if (profile.clientName && profile.barberId) showClientDetails(profile.clientName, profile.barberId);
         else showToast('Не удалось определить карточку клиента для этой задачи', 'info');
+    }));
+    root.querySelectorAll('[data-crm-task-edit]').forEach(button => button.addEventListener('click', () => {
+        const form = root.querySelector('[data-crm-task-form="' + CSS.escape(button.dataset.crmTaskEdit) + '"][data-task-id="' + CSS.escape(button.dataset.taskId) + '"]');
+        if (form) { form.hidden = !form.hidden; if (!form.hidden) form.querySelector('[name="title"]')?.focus(); }
+    }));
+    root.querySelectorAll('[data-crm-task-cancel]').forEach(button => button.addEventListener('click', () => { button.closest('form').hidden = true; }));
+    root.querySelectorAll('[data-crm-task-form]').forEach(form => form.addEventListener('submit', event => {
+        event.preventDefault();
+        const data = new FormData(form);
+        saveClientTaskFromHub(form.dataset.crmTaskForm, form.dataset.taskId, {
+            title: String(data.get('title') || '').trim(),
+            dueDate: String(data.get('dueDate') || '').trim(),
+            assigneeId: String(data.get('assigneeId') || '')
+        });
     }));
     root.querySelectorAll('[data-crm-task-done]').forEach(button => button.addEventListener('click', () => updateClientTaskFromHub(button.dataset.crmTaskDone, button.dataset.taskId, 'done')));
     root.querySelectorAll('[data-crm-task-delete]').forEach(button => button.addEventListener('click', () => updateClientTaskFromHub(button.dataset.crmTaskDelete, button.dataset.taskId, 'delete')));
@@ -4399,6 +4421,29 @@ function updateClientTaskFromHub(profileKey, taskId, action) {
     localStorage.setItem(appStorageKey('mensfire_client_profiles'), JSON.stringify(clientProfiles));
     renderClientTasksHub();
     if (selectedClientProfileKey === profileKey) renderClientTasks();
+}
+
+function saveClientTaskFromHub(profileKey, taskId, changes) {
+    const profile = clientProfiles[profileKey];
+    const task = profile?.tasks?.find(item => String(item.id) === String(taskId));
+    if (!task) return showToast('Задача не найдена', 'error');
+    if (!changes.title) return showToast('Название задачи не может быть пустым', 'error');
+    if (changes.dueDate && !parseClientTaskDate(changes.dueDate)) return showToast('Укажите срок в формате ДД.ММ.ГГГГ', 'error');
+    const allowedStaff = (mockStaff || []).filter(staff => currentUser?.role !== 'barber' || String(staff.id) === String(currentUser.id));
+    if (changes.assigneeId && !allowedStaff.some(staff => String(staff.id) === changes.assigneeId)) {
+        return showToast('Выбранный ответственный недоступен', 'error');
+    }
+    task.title = changes.title.slice(0, 180);
+    task.dueDate = changes.dueDate;
+    task.assigneeId = changes.assigneeId;
+    task.updatedAt = new Date().toISOString();
+    localStorage.setItem(appStorageKey('mensfire_client_profiles'), JSON.stringify(clientProfiles));
+    renderClientTasksHub();
+    if (selectedClientProfileKey === profileKey) {
+        renderClientTasks();
+        refreshSelectedClientActivity();
+    }
+    showToast('Задача обновлена', 'success');
 }
 
 function toggleClientsDataQuality() {
