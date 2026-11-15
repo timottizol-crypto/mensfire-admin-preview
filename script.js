@@ -4014,6 +4014,8 @@ function addClientInteraction() {
     localStorage.setItem(appStorageKey('mensfire_client_profiles'), JSON.stringify(clientProfiles));
     if (textInput) textInput.value = '';
     renderClientInteractionHistory();
+    clientTimelineFilter = 'all';
+    renderClientTimeline(myBookings);
     renderClientTasks();
     showToast('Контакт добавлен в историю', 'success');
 }
@@ -4896,6 +4898,85 @@ function parseClientDateTime(booking) {
         date.getDate() !== day) return 0;
     const timestamp = date.getTime();
     return Number.isFinite(timestamp) ? timestamp : 0;
+}
+
+
+let clientTimelineFilter = 'all';
+
+function renderClientTimeline(clientBookings = []) {
+    const root = document.getElementById('clientUnifiedTimeline');
+    if (!root || !selectedClientProfileKey) return;
+    const profile = clientProfiles[selectedClientProfileKey] || {};
+    const phone = normalizeClientPhone(profile.phone);
+    const events = [];
+    const addEvent = (type, timestamp, title, detail, amount, id) => {
+        const time = timestamp ? new Date(timestamp).getTime() : 0;
+        if (!time || !Number.isFinite(time)) return;
+        events.push({ type, time, title, detail: detail || '', amount: Number.isFinite(Number(amount)) && amount !== null ? Number(amount) : null, id: String(id || '') });
+    };
+    (clientBookings || []).forEach(booking => {
+        const timestamp = parseClientDateTime(booking);
+        if (!timestamp) return;
+        const status = String(booking.status || '').toLowerCase();
+        const serviceNames = (Array.isArray(booking.services) ? booking.services : []).map(item => item?.title).filter(Boolean).join(', ');
+        const statusLabel = status === 'completed' ? 'Визит завершён' :
+            status === 'cancelled' ? 'Запись отменена' :
+            ['no_show','missed'].includes(status) ? 'Неявка' : 'Запись';
+        addEvent('visit', timestamp, statusLabel, [serviceNames, mockStaff.find(staff => String(staff.id) === String(booking.barberId))?.name].filter(Boolean).join(' · '), null, 'booking-' + booking.id);
+        const serviceTotal = getBookingServiceTotal(booking);
+        const payment = getBookingPaymentState(booking, serviceTotal);
+        if (payment && Number(payment.paid) > 0) {
+            addEvent('payment', timestamp, 'Оплата услуг', (payment.methodLabel || 'Способ не указан') + ' · по визиту', payment.paid, 'booking-payment-' + booking.id);
+        }
+    });
+    const sales = clientRetailSales.filter(sale => {
+        if (sale.clientProfileKey && sale.clientProfileKey === selectedClientProfileKey) return true;
+        const salePhone = normalizeClientPhone(sale.clientPhone);
+        if (phone.length >= 7 && salePhone.length >= 7) return phone === salePhone;
+        return !salePhone && !phone && sale.clientNameSnapshot &&
+            sale.clientNameSnapshot.trim().toLowerCase() === String(profile.clientName || '').trim().toLowerCase();
+    });
+    sales.forEach(sale => {
+        const total = getRetailSaleNetTotal(sale);
+        const paid = Math.max(0, Number(sale.paidAmount) || 0);
+        const itemNames = (sale.items || []).map(item => item.titleSnapshot || item.title || '').filter(Boolean).join(', ');
+        addEvent('purchase', sale.soldAt, 'Покупка товаров', itemNames || 'Товарный чек', total, 'sale-' + sale.id);
+        (Array.isArray(sale.refunds) ? sale.refunds : []).forEach(refund => {
+            addEvent('refund', refund.createdAt, 'Возврат товара', refund.notes || refund.reason || 'Возврат по товарному чеку', refund.value, 'refund-' + sale.id + '-' + refund.id);
+        });
+        if (paid > 0 && sale.paymentStatus === 'partial') {
+            // Показываем фактически полученную сумму в событии покупки, не создавая отдельную фиктивную оплату.
+        }
+    });
+    (Array.isArray(profile.interactions) ? profile.interactions : []).forEach(item => {
+        const labels = { call:'Звонок', message:'Сообщение', meeting:'Личная встреча', note:'Заметка', other:'Взаимодействие' };
+        addEvent('interaction', item.createdAt, labels[item.type] || 'Взаимодействие', item.text || '', null, 'interaction-' + item.id);
+    });
+    (Array.isArray(profile.tasks) ? profile.tasks : []).forEach(task => {
+        addEvent('task', task.createdAt, 'Создана задача', task.title || 'Напоминание', null, 'task-created-' + task.id);
+        if (task.done && task.completedAt) {
+            addEvent('task', task.completedAt, 'Задача выполнена', task.title || 'Напоминание', null, 'task-done-' + task.id);
+        }
+    });
+    events.sort((a,b) => b.time - a.time || a.id.localeCompare(b.id));
+    const filter = ['all','visit','payment','purchase','refund','interaction','task'].includes(clientTimelineFilter) ? clientTimelineFilter : 'all';
+    const filtered = filter === 'all' ? events : events.filter(event => event.type === filter);
+    const labels = { visit:'Визиты', payment:'Оплаты', purchase:'Покупки', refund:'Возвраты', interaction:'Общение', task:'Задачи' };
+    const dateLabel = timestamp => new Date(timestamp).toLocaleString('ru-RU',{day:'2-digit',month:'short',year:'numeric',hour:'2-digit',minute:'2-digit'});
+    root.innerHTML = '<div class="client-timeline-toolbar"><label for="clientTimelineFilter">Показать</label><select id="clientTimelineFilter">' +
+        [['all','Все события'],['visit','Визиты и записи'],['payment','Оплаты услуг'],['purchase','Покупки товаров'],['refund','Возвраты'],['interaction','Общение'],['task','Задачи']].map(([value,label]) => '<option value="' + value + '"' + (filter === value ? ' selected' : '') + '>' + label + '</option>').join('') +
+        '</select><span>' + filtered.length + ' событий</span></div>' +
+        (filtered.length ? '<div class="client-timeline-list">' + filtered.map(event =>
+            '<article class="client-timeline-item timeline-' + event.type + '"><i></i><div class="client-timeline-body"><div class="client-timeline-meta"><b>' + escapeBookingHtml(event.title) + '</b><time>' + escapeBookingHtml(dateLabel(event.time)) + '</time></div>' +
+            (event.detail ? '<p>' + escapeBookingHtml(event.detail) + '</p>' : '') +
+            (event.amount !== null ? '<strong class="client-timeline-amount">' + Math.round(event.amount).toLocaleString('ru-RU') + ' ₽</strong>' : '') +
+            '<small>' + escapeBookingHtml(labels[event.type] || 'Событие') + '</small></div></article>'
+        ).join('') + '</div>' : '<div class="client-timeline-empty">Событий этого типа пока нет</div>');
+    const select = root.querySelector('#clientTimelineFilter');
+    if (select) select.addEventListener('change', () => {
+        clientTimelineFilter = select.value;
+        renderClientTimeline(clientBookings);
+    });
 }
 
 function showClientDetails(name, barberId) {
