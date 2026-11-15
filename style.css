@@ -6592,6 +6592,13 @@ html.light-theme .booking-client-match{background:#fbf8ef}
 .crm-task-employee-summary-heading strong{font-size:11px;color:var(--text-primary)}
 .crm-task-employee-summary-heading span{font-size:9px;color:var(--text-muted);text-align:right}
 .crm-task-employee-summary-list{display:grid;gap:6px}
+.crm-task-employee-summary-totals{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:7px;margin:0 0 10px}
+.crm-task-employee-summary-totals article{display:grid;gap:3px;min-width:0;padding:9px 10px;border-radius:8px;background:var(--surface-1,rgba(255,255,255,.025))}
+.crm-task-employee-summary-totals b{font-size:17px;line-height:1.1;font-variant-numeric:tabular-nums;color:var(--text-primary)}
+.crm-task-employee-summary-totals span{font-size:9px;color:var(--text-muted)}
+.crm-task-employee-summary-totals .is-overdue b{color:#d58b70}
+@media(max-width:600px){.crm-task-employee-summary-totals{grid-template-columns:repeat(2,minmax(0,1fr));gap:6px}.crm-task-employee-summary-totals article{padding:8px}.crm-task-employee-summary-totals b{font-size:15px}}
+
 .crm-task-employee-summary-row{display:grid;grid-template-columns:minmax(110px,1.5fr) repeat(4,minmax(58px,1fr));align-items:center;gap:8px;padding:8px 9px;border-radius:8px;background:var(--surface-1,rgba(255,255,255,.025))}
 .crm-task-employee-summary-row>strong{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:10px;color:var(--text-primary)}
 .crm-task-employee-summary-row>span{display:grid;gap:2px;text-align:center}
