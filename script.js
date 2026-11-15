@@ -3883,11 +3883,9 @@ function findClientProfile(name, barberId) {
 }
 
 function openRetailHistoryProduct(productId, sku, title) {
-    const product = inventoryProducts.find(item =>
-        (productId && String(item.id) === String(productId)) ||
-        (sku && String(item.sku || '').toLowerCase() === String(sku).toLowerCase()) ||
-        (!productId && !sku && title && String(item.title || '').toLowerCase() === String(title).toLowerCase())
-    );
+    const product = (productId ? inventoryProducts.find(item => String(item.id) === String(productId)) : null) ||
+        (sku ? inventoryProducts.find(item => String(item.sku || '').toLowerCase() === String(sku).toLowerCase()) : null) ||
+        (!productId && !sku && title ? inventoryProducts.find(item => String(item.title || '').toLowerCase() === String(title).toLowerCase()) : null);
     if (!product) {
         showToast('Товар больше не найден на складе', 'error');
         return;
@@ -3950,7 +3948,7 @@ function renderClientRetailPurchases(clientBookings = []) {
             '<div><span>Задолженность</span><b class="' + (totals.debt > 0 ? 'is-debt' : 'is-received') + '">' + fmt(totals.debt) + '</b></div>' +
         '</div>' +
         '<div class="client-retail-list">' + sales.map(sale => {
-            const booking = sale.bookingId ? (clientBookings || []).find(item => String(item.id) === sale.bookingId) : null;
+            const booking = sale.bookingId ? ((clientBookings || []).find(item => String(item.id) === String(sale.bookingId)) || bookings.find(item => String(item.id) === String(sale.bookingId))) : null;
             const statusLabels = {paid:'Оплачено',partial:'Частично',unpaid:'Не оплачено',refunded:'Возврат'};
             const net = getRetailSaleNetTotal(sale);
             const received = Math.min(net,Math.max(0,Number(sale.paidAmount ?? (sale.paymentStatus === 'paid' ? sale.total : 0)) || 0));
@@ -3958,11 +3956,9 @@ function renderClientRetailPurchases(clientBookings = []) {
             const items = (sale.items || []).map(item => {
                 const returned=Number(item.refundedQuantity)||0;
                 const remaining=Math.max(0,(Number(item.quantity)||0)-returned);
-                const product = inventoryProducts.find(product =>
-                    (item.productId && String(product.id) === String(item.productId)) ||
-                    (item.sku && String(product.sku || '').toLowerCase() === String(item.sku).toLowerCase()) ||
-                    (!item.productId && !item.sku && String(product.title || '').toLowerCase() === String(item.titleSnapshot || '').toLowerCase())
-                );
+                const product = (item.productId ? inventoryProducts.find(product => String(product.id) === String(item.productId)) : null) ||
+                    (item.sku ? inventoryProducts.find(product => String(product.sku || '').toLowerCase() === String(item.sku).toLowerCase()) : null) ||
+                    (!item.productId && !item.sku ? inventoryProducts.find(product => String(product.title || '').toLowerCase() === String(item.titleSnapshot || '').toLowerCase()) : null);
                 const productAction = product
                     ? '<button type="button" class="client-retail-link" onclick="openRetailHistoryProduct(\\'' + escapeBookingHtml(String(product.id)) + '\\',\\'' + escapeBookingHtml(String(item.sku || product.sku || '')) + '\\',\\'' + escapeBookingHtml(String(item.titleSnapshot || product.title || '')) + '\\')">Открыть товар</button>'
                     : '';
