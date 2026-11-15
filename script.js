@@ -4014,8 +4014,7 @@ function addClientInteraction() {
     localStorage.setItem(appStorageKey('mensfire_client_profiles'), JSON.stringify(clientProfiles));
     if (textInput) textInput.value = '';
     renderClientInteractionHistory();
-    clientTimelineFilter = 'all';
-    renderClientTimeline(myBookings);
+    refreshSelectedClientActivity();
     renderClientTasks();
     showToast('Контакт добавлен в историю', 'success');
 }
@@ -4079,6 +4078,7 @@ function addClientTask() {
     if (titleInput) titleInput.value = '';
     if (dateInput) dateInput.value = '';
     renderClientTasks();
+    refreshSelectedClientActivity();
     showToast('Напоминание добавлено', 'success');
 }
 function completeClientTask(taskId) {
@@ -4090,6 +4090,7 @@ function completeClientTask(taskId) {
     task.completedAt = new Date().toISOString();
     localStorage.setItem(appStorageKey('mensfire_client_profiles'), JSON.stringify(clientProfiles));
     renderClientTasks();
+    refreshSelectedClientActivity();
     showToast('Задача отмечена выполненной', 'success');
 }
 function deleteClientTask(taskId) {
@@ -4098,6 +4099,7 @@ function deleteClientTask(taskId) {
     profile.tasks = (profile.tasks || []).filter(item => item.id !== taskId);
     localStorage.setItem(appStorageKey('mensfire_client_profiles'), JSON.stringify(clientProfiles));
     renderClientTasks();
+    refreshSelectedClientActivity();
     showToast('Задача удалена', 'success');
 }
 
@@ -4979,6 +4981,93 @@ function renderClientTimeline(clientBookings = []) {
     });
 }
 
+
+function getSelectedClientBookings() {
+    if (!selectedClientProfileKey) return [];
+    const profile = clientProfiles[selectedClientProfileKey] || {};
+    const phone = normalizeClientPhone(profile.phone);
+    return bookings.filter(booking => {
+        if (String(booking.clientName || '') === String(profile.clientName || '') &&
+            String(booking.barberId || '') === String(profile.barberId || '')) return true;
+        if (phone.length < 7) return false;
+        const linkedProfile = findClientProfile(booking.clientName, booking.barberId).profile;
+        return normalizeClientPhone(linkedProfile.phone) === phone;
+    });
+}
+
+function refreshSelectedClientActivity(resetTimelineFilter = false) {
+    const clientBookings = getSelectedClientBookings();
+    if (resetTimelineFilter) clientTimelineFilter = 'all';
+    renderClientTimeline(clientBookings);
+    renderClientActivitySignals(clientBookings);
+}
+
+function renderClientActivitySignals(clientBookings = []) {
+    const root = document.getElementById('clientActivitySignals');
+    if (!root || !selectedClientProfileKey) return;
+    const profile = clientProfiles[selectedClientProfileKey] || {};
+    const now = new Date();
+    const today = new Date(now.getFullYear(), now.getMonth(), now.getDate()).getTime();
+    const signals = [];
+    const addSignal = (level, title, detail) => signals.push({ level, title, detail });
+    const overdueTasks = (Array.isArray(profile.tasks) ? profile.tasks : []).filter(task => {
+        if (task.done || !task.dueDate) return false;
+        const due = parseClientTaskDate(task.dueDate);
+        return due && due.getTime() < today;
+    });
+    const dueSoonTasks = (Array.isArray(profile.tasks) ? profile.tasks : []).filter(task => {
+        if (task.done || !task.dueDate) return false;
+        const due = parseClientTaskDate(task.dueDate);
+        return due && due.getTime() >= today && due.getTime() <= today + 7 * 86400000;
+    });
+    if (overdueTasks.length) addSignal('urgent', 'Просроченные задачи', overdueTasks.length + ' · ' + overdueTasks.slice(0,2).map(task => task.title).join(', '));
+    else if (dueSoonTasks.length) addSignal('info', 'Ближайшие задачи', dueSoonTasks.length + ' на ближайшие 7 дней');
+
+    const unpaid = clientBookings.filter(booking => !['cancelled','no_show','missed'].includes(String(booking.status || '').toLowerCase()))
+        .map(booking => {
+            const total = getBookingServiceTotal(booking);
+            const payment = getBookingPaymentState(booking, total);
+            return { balance: Math.max(0,total-(Number(payment?.paid)||0)), timestamp: parseClientDateTime(booking) };
+        }).filter(item => item.balance > 0 && item.timestamp > 0 && item.timestamp < Date.now());
+    const overdueAmount = unpaid.reduce((sum,item) => sum + item.balance,0);
+    if (overdueAmount > 0) addSignal('urgent','Есть задолженность',Math.round(overdueAmount).toLocaleString('ru-RU') + ' ₽ · ' + unpaid.length + ' прошедших записей');
+
+    const completed = clientBookings.filter(booking => booking.status === 'completed' && parseClientDateTime(booking) > 0)
+        .sort((a,b) => parseClientDateTime(b)-parseClientDateTime(a));
+    if (completed.length) {
+        const days = Math.floor((Date.now()-parseClientDateTime(completed[0]))/86400000);
+        if (days >= 90) addSignal('warning','Давно не посещал','Последний визит ' + days + ' дн. назад');
+        else if (days >= 45) addSignal('info','Пора напомнить','Последний визит ' + days + ' дн. назад');
+    }
+
+    const datedBookings = clientBookings.filter(booking => parseClientDateTime(booking) > 0);
+    const cancelled = datedBookings.filter(booking => String(booking.status || '').toLowerCase() === 'cancelled').length;
+    if (datedBookings.length >= 3 && cancelled >= 3 && cancelled / datedBookings.length >= 0.3) {
+        addSignal('warning','Частые отмены',cancelled + ' из ' + datedBookings.length + ' записей');
+    }
+
+    if (profile.birthday) {
+        const match = String(profile.birthday).match(/^(\d{4})-(\d{2})-(\d{2})$/);
+        if (match) {
+            const month = Number(match[2])-1, day = Number(match[3]);
+            let next = new Date(now.getFullYear(),month,day);
+            if (next.getTime() < today) next = new Date(now.getFullYear()+1,month,day);
+            const days = Math.round((next.getTime()-today)/86400000);
+            if (days <= 30) addSignal('positive',days === 0 ? 'Сегодня день рождения' : 'Скоро день рождения',days === 0 ? 'Можно поздравить клиента сегодня' : 'Через ' + days + ' дн.');
+        }
+    }
+
+    const activeTasks = (Array.isArray(profile.tasks) ? profile.tasks : []).filter(task => !task.done).length;
+    if (activeTasks && !overdueTasks.length && !dueSoonTasks.length) addSignal('neutral','Открытые задачи',activeTasks + ' без ближайшего срока');
+
+    const priority = { urgent:0, warning:1, info:2, positive:3, neutral:4 };
+    signals.sort((a,b) => priority[a.level]-priority[b.level]);
+    root.innerHTML = '<div class="client-activity-heading"><div><strong>Сигналы внимания</strong><span>Что важно не упустить по этому клиенту</span></div><span>' + signals.length + '</span></div>' +
+        (signals.length ? '<div class="client-activity-grid">' + signals.map(signal =>
+            '<article class="client-activity-signal is-' + signal.level + '"><b>' + escapeBookingHtml(signal.title) + '</b><span>' + escapeBookingHtml(signal.detail) + '</span></article>'
+        ).join('') + '</div>' : '<div class="client-activity-empty">Срочных вопросов нет — по этому клиенту всё спокойно</div>');
+}
+
 function showClientDetails(name, barberId) {
     const selectedProfile = findClientProfile(name, barberId);
     const selectedPhone = normalizeClientPhone(selectedProfile.profile.phone);
@@ -5119,6 +5208,8 @@ function showClientDetails(name, barberId) {
     renderClientInsights(myBookings);
     renderClientLifetimeValue(myBookings);
     renderClientInteractionHistory();
+    refreshSelectedClientActivity(true);
+    renderClientTasks();
 
     const historyContainer = document.getElementById('clientDetailsHistory');
     if (historyContainer) {
