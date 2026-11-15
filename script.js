@@ -4489,6 +4489,30 @@ function renderClientTasksHub() {
                             clientName
                         });
                     });
+                    // Старые платежи могли быть сохранены до появления booking.history.
+                    // Добавляем их в аудит, только если соответствующее событие ещё не записано.
+                    (Array.isArray(booking.payments) ? booking.payments : []).forEach((payment, paymentIndex) => {
+                        const paymentDate = String(payment?.createdAt || '');
+                        const alreadyLogged = (Array.isArray(booking.history) ? booking.history : []).some(event => {
+                            if (!String(event.action || '').toLocaleLowerCase('ru-RU').includes('оплат')) return false;
+                            if (!paymentDate || !event.at) return false;
+                            return Math.abs(new Date(event.at).getTime() - new Date(paymentDate).getTime()) < 5000;
+                        });
+                        if (alreadyLogged) return;
+                        const amount = Number(payment?.amount);
+                        const amountLabel = Number.isFinite(amount) ? amount.toLocaleString('ru-RU') + ' ₽' : 'Сумма не указана';
+                        const methodLabel = PAYMENT_METHOD_LABELS[payment?.method] || payment?.method || 'Способ не указан';
+                        history.push({
+                            id: 'legacy_payment_' + String(booking.id) + '_' + paymentIndex,
+                            action: 'payment_received',
+                            taskTitle: 'Получена оплата · ' + amountLabel,
+                            details: [methodLabel, serviceNames ? 'Услуги: ' + serviceNames : ''].join(' · '),
+                            actor: String(payment?.by || 'Сотрудник'),
+                            actorId: '',
+                            createdAt: paymentDate || booking.createdAt || '',
+                            clientName
+                        });
+                    });
                 });
                 history.sort((a,b) => new Date(b.createdAt || 0) - new Date(a.createdAt || 0));
                 const actors = [...new Map(history.map(event => {
