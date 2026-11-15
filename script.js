@@ -3947,13 +3947,26 @@ function renderClientRetailPurchases(clientBookings = []) {
         sum.units += (sale.items || []).reduce((n,item) => n + Math.max(0,(Number(item.quantity)||0)-(Number(item.refundedQuantity)||0)),0);
         return sum;
     },{purchases:0,received:0,debt:0,units:0});
+    const averagePurchase = totals.purchases / Math.max(1, sales.length);
+    const productFrequency = new Map();
+    sales.forEach(sale => (sale.items || []).forEach(item => {
+        const remaining = Math.max(0, (Number(item.quantity) || 0) - (Number(item.refundedQuantity) || 0));
+        if (!remaining) return;
+        const title = String(item.titleSnapshot || 'Товар').trim() || 'Товар';
+        productFrequency.set(title, (productFrequency.get(title) || 0) + remaining);
+    }));
+    const favoriteProduct = [...productFrequency.entries()].sort((a,b) => b[1] - a[1] || a[0].localeCompare(b[0], 'ru'))[0];
+    const lastPurchaseLabel = dateLabel(sales[0].soldAt).replace(/,?\\s*\\d{2}:\\d{2}$/, '');
     root.innerHTML = sales.length ?
         '<div class="client-retail-summary">' +
             '<div><span>Покупок</span><b>' + sales.length + '</b></div>' +
             '<div><span>Товаров</span><b>' + totals.units + ' ед.</b></div>' +
             '<div><span>Стоимость покупок</span><b>' + fmt(totals.purchases) + '</b></div>' +
+            '<div><span>Средний чек</span><b>' + fmt(averagePurchase) + '</b></div>' +
             '<div><span>Получено</span><b class="is-received">' + fmt(totals.received) + '</b></div>' +
             '<div><span>Задолженность</span><b class="' + (totals.debt > 0 ? 'is-debt' : 'is-received') + '">' + fmt(totals.debt) + '</b></div>' +
+            '<div><span>Последняя покупка</span><b>' + escapeBookingHtml(lastPurchaseLabel) + '</b></div>' +
+            '<div><span>Частый товар</span><b title="' + escapeBookingHtml(favoriteProduct ? favoriteProduct[0] : '—') + '">' + escapeBookingHtml(favoriteProduct ? favoriteProduct[0] + ' · ' + favoriteProduct[1] + ' ед.' : '—') + '</b></div>' +
         '</div>' +
         '<div class="client-retail-list">' + sales.map(sale => {
             const booking = sale.bookingId ? ((clientBookings || []).find(item => String(item.id) === String(sale.bookingId)) || bookings.find(item => String(item.id) === String(sale.bookingId))) : null;
