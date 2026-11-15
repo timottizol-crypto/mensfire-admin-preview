@@ -6412,3 +6412,15 @@ html.light-theme .booking-client-match{background:#fbf8ef}
 .client-directory-workspace #clientsList{margin-top:12px}
 .client-directory-workspace #clientsSegmentContainer{margin-bottom:14px}
 @media(max-width:767px){.client-directory-workspace{display:none!important}}
+
+
+/* Стили карточек после переноса списка в отдельную desktop-вкладку */
+#viewClientDirectory #clientsList{min-width:0}
+#viewClientDirectory .client-card{box-sizing:border-box;width:100%;min-width:0;align-items:flex-start;gap:12px;padding:14px}
+#viewClientDirectory .client-avatar{flex:0 0 44px}
+#viewClientDirectory .client-info{flex:1 1 0%;min-width:0;overflow:hidden}
+#viewClientDirectory .client-name{display:flex;flex-wrap:wrap;align-items:center;gap:6px;min-width:0;line-height:1.35;overflow-wrap:anywhere}
+#viewClientDirectory .client-tag-badge{display:inline-flex;align-items:center;flex:0 0 auto;white-space:nowrap}
+#viewClientDirectory .client-meta{display:block;max-width:100%;line-height:1.5;overflow-wrap:anywhere;word-break:normal}
+#viewClientDirectory .client-meta+.client-meta{margin-top:3px}
+#viewClientDirectory .client-meta[style*="color: var(--gold)"]{margin-top:5px}
