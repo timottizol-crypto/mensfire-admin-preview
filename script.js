@@ -316,6 +316,7 @@ function buildBottomNav() {
                 { id: 'viewInventory', title: 'Склад', icon: '<path d="M3 7 12 3l9 4-9 4-9-4zm0 5 9 4 9-4M3 17l9 4 9-4"/>' },
                 { id: 'viewSales', title: 'Продажи', icon: '<path d="M4 5h16v14H4zM8 9h8M8 13h5"/>' },
                 { id: 'viewInventoryAnalytics', title: 'Аналитика', icon: '<path d="M3 3v18h18M8 16v-5m5 5V6m5 10V9"/>' },
+                { id: 'viewPurchases', title: 'Закупки', icon: '<path d="M3 7h18l-2 13H5L3 7zm4 0 2-4h6l2 4M9 11v5m6-5v5"/>' },
                 { id: 'viewProfile', title: 'Профиль', icon: clientsIcon }
             );
         } else {
@@ -5057,6 +5058,7 @@ const MENSFIRE_BACKUP_KEYS = [
     'mensfire_client_profiles',
     'mensfire_inventory_products',
     'mensfire_inventory_movements',
+    'mensfire_inventory_purchase_orders',
     'mensfire_client_retail_sales'
 ];
 
@@ -5109,6 +5111,7 @@ function importMensfireBackup(input) {
             // Совместимость со старыми копиями, в которых ещё не было склада.
             if (backup.data.mensfire_inventory_products === undefined) backup.data.mensfire_inventory_products = [];
             if (backup.data.mensfire_inventory_movements === undefined) backup.data.mensfire_inventory_movements = [];
+            if (backup.data.mensfire_inventory_purchase_orders === undefined) backup.data.mensfire_inventory_purchase_orders = [];
             if (backup.data.mensfire_client_retail_sales === undefined) backup.data.mensfire_client_retail_sales = [];
             const expected = {
                 mensfire_admin_bookings: Array.isArray,
@@ -5117,6 +5120,7 @@ function importMensfireBackup(input) {
                 mensfire_admin_staff: Array.isArray,
                 mensfire_inventory_products: Array.isArray,
                 mensfire_inventory_movements: Array.isArray,
+                mensfire_inventory_purchase_orders: Array.isArray,
                 mensfire_client_retail_sales: Array.isArray,
                 mensfire_client_profiles: value => value && typeof value === 'object' && !Array.isArray(value)
             };
@@ -5208,6 +5212,7 @@ switchView = function(viewId, navElement) {
     if (viewId === 'viewClients') renderClients();
     if (viewId === 'viewInventory' && currentUser.role === 'admin') renderInventory();
     if (viewId === 'viewInventoryAnalytics' && currentUser.role === 'admin') renderInventoryAnalytics();
+    if (viewId === 'viewPurchases' && currentUser.role === 'admin') renderPurchaseOrders();
 
     if (viewId === 'viewProfile') {
         renderBarberRevenue();
@@ -5249,6 +5254,127 @@ let inventoryProducts = (() => {
         return [];
     }
 })();
+
+let inventoryPurchaseOrders = (() => {
+    try {
+        const saved=JSON.parse(localStorage.getItem(appStorageKey('mensfire_inventory_purchase_orders'))||'[]');
+        return Array.isArray(saved)?saved.filter(order=>order&&order.id).map(order=>({
+            id:String(order.id),supplier:String(order.supplier||''),createdAt:String(order.createdAt||''),
+            expectedAt:String(order.expectedAt||''),note:String(order.note||''),
+            status:['draft','ordered','partial','received','cancelled'].includes(order.status)?order.status:'draft',
+            items:(Array.isArray(order.items)?order.items:[]).map(item=>({
+                productId:String(item.productId||''),titleSnapshot:String(item.titleSnapshot||'Товар'),
+                quantity:Math.max(1,Number(item.quantity)||1),receivedQuantity:Math.max(0,Number(item.receivedQuantity)||0),
+                unitCost:Math.max(0,Number(item.unitCost)||0)
+            }))
+        })): [];
+    }catch(error){console.warn('Не удалось загрузить заказы поставщикам:',error);return [];}
+})();
+function persistPurchaseOrders(){localStorage.setItem(appStorageKey('mensfire_inventory_purchase_orders'),JSON.stringify(inventoryPurchaseOrders));}
+let purchaseOrderDraft=[];
+let activeReceivingOrderId=null;
+function renderPurchaseOrderDraft(){
+    const root=document.getElementById('purchaseOrderDraftRows');if(!root)return;
+    root.innerHTML=purchaseOrderDraft.length?purchaseOrderDraft.map((row,index)=>{
+        const product=inventoryProducts.find(item=>item.id===row.productId);
+        return '<div class="purchase-draft-row"><div><strong>'+escapeBookingHtml(product?.title||'Товар не найден')+'</strong><small>'+escapeBookingHtml(product?.sku||'')+'</small></div><span>'+row.quantity+' × '+Number(row.unitCost).toLocaleString('ru-RU')+' ₽</span><button type="button" onclick="removePurchaseDraftItem('+index+')" aria-label="Убрать товар">×</button></div>';
+    }).join(''):'<div class="inventory-empty compact">Добавь товары в заказ</div>';
+    const total=purchaseOrderDraft.reduce((sum,row)=>sum+row.quantity*row.unitCost,0);
+    const totalNode=document.getElementById('purchaseOrderDraftTotal');if(totalNode)totalNode.textContent=Math.round(total).toLocaleString('ru-RU')+' ₽';
+}
+function addPurchaseDraftItem(){
+    const productId=document.getElementById('purchaseOrderProduct')?.value||'';
+    const quantity=Number(document.getElementById('purchaseOrderQuantity')?.value);
+    const unitCost=Number(document.getElementById('purchaseOrderUnitCost')?.value);
+    const product=inventoryProducts.find(item=>item.id===productId&&item.active);
+    if(!product||!Number.isInteger(quantity)||quantity<=0||!Number.isFinite(unitCost)||unitCost<0)return showToast('Проверь товар, количество и закупочную цену','error');
+    const existing=purchaseOrderDraft.find(row=>row.productId===productId);
+    if(existing){existing.quantity+=quantity;existing.unitCost=unitCost;}else purchaseOrderDraft.push({productId,quantity,unitCost});
+    document.getElementById('purchaseOrderQuantity').value='1';renderPurchaseOrderDraft();
+}
+function removePurchaseDraftItem(index){purchaseOrderDraft.splice(index,1);renderPurchaseOrderDraft();}
+function openPurchaseOrderModal(){
+    if(!requireAdminAction('Создавать заказы поставщикам может только Али'))return;
+    purchaseOrderDraft=[];
+    const supplier=document.getElementById('purchaseOrderSupplier');if(supplier)supplier.value='';
+    const expected=document.getElementById('purchaseOrderExpected');if(expected)expected.value='';
+    const note=document.getElementById('purchaseOrderNote');if(note)note.value='';
+    const product=document.getElementById('purchaseOrderProduct');
+    if(product)product.innerHTML='<option value="">Выбери товар</option>'+inventoryProducts.filter(item=>item.active).map(item=>'<option value="'+escapeBookingHtml(item.id)+'">'+escapeBookingHtml(item.title)+' · остаток '+item.stock+'</option>').join('');
+    renderPurchaseOrderDraft();openModal('purchaseOrderModal');
+}
+function savePurchaseOrder(){
+    if(!requireAdminAction('Создавать заказы поставщикам может только Али'))return;
+    const supplier=document.getElementById('purchaseOrderSupplier').value.trim();
+    if(!supplier)return showToast('Укажи поставщика','error');
+    if(!purchaseOrderDraft.length)return showToast('Добавь хотя бы один товар','error');
+    const now=new Date().toISOString();
+    inventoryPurchaseOrders.unshift({
+        id:'po_'+Date.now()+'_'+Math.random().toString(36).slice(2,7),supplier,
+        createdAt:now,expectedAt:document.getElementById('purchaseOrderExpected').value||'',
+        note:document.getElementById('purchaseOrderNote').value.trim(),status:'ordered',
+        items:purchaseOrderDraft.map(row=>({productId:row.productId,titleSnapshot:inventoryProducts.find(item=>item.id===row.productId)?.title||'Товар',quantity:row.quantity,receivedQuantity:0,unitCost:row.unitCost}))
+    });
+    persistPurchaseOrders();closeModal('purchaseOrderModal');renderPurchaseOrders();
+    showToast('Заказ поставщику создан','success');
+}
+function openPurchaseReceiving(orderId){
+    if(!requireAdminAction('Принимать поставки может только Али'))return;
+    const order=inventoryPurchaseOrders.find(item=>item.id===orderId);if(!order||['received','cancelled','draft'].includes(order.status))return;
+    activeReceivingOrderId=orderId;
+    const root=document.getElementById('purchaseReceivingRows');if(!root)return;
+    root.innerHTML=order.items.map((item,index)=>{
+        const remaining=Math.max(0,item.quantity-item.receivedQuantity);
+        if(!remaining)return '';
+        return '<div class="purchase-receive-row" data-line="'+index+'"><div><strong>'+escapeBookingHtml(item.titleSnapshot)+'</strong><small>Осталось принять: '+remaining+'</small></div><label>Принять<input type="number" min="0" max="'+remaining+'" step="1" value="'+remaining+'" data-receive-qty="'+index+'"></label><label>Цена за ед., ₽<input type="number" min="0" step="0.01" value="'+item.unitCost+'" data-receive-cost="'+index+'"></label></div>';
+    }).join('')||'<div class="inventory-empty">Все позиции уже приняты</div>';
+    document.getElementById('purchaseReceivingTitle').textContent='Приёмка · '+order.supplier;
+    openModal('purchaseReceivingModal');
+}
+function receivePurchaseOrder(){
+    if(!requireAdminAction('Принимать поставки может только Али'))return;
+    const order=inventoryPurchaseOrders.find(item=>item.id===activeReceivingOrderId);if(!order)return;
+    const root=document.getElementById('purchaseReceivingRows'),now=new Date().toISOString(),receipts=[];
+    for(const input of root.querySelectorAll('[data-receive-qty]')){
+        const index=Number(input.dataset.receiveQty),line=order.items[index],qty=Number(input.value),costInput=root.querySelector('[data-receive-cost="'+index+'"]'),unitCost=Number(costInput?.value);
+        const remaining=line.quantity-line.receivedQuantity;
+        if(!Number.isInteger(qty)||qty<0||qty>remaining||!Number.isFinite(unitCost)||unitCost<0)return showToast('Проверь количество и закупочную цену каждой позиции','error');
+        if(qty>0){const product=inventoryProducts.find(item=>item.id===line.productId);if(!product)return showToast('Один из товаров больше не найден. Приёмка отменена','error');receipts.push({index,line,product,qty,unitCost});}
+    }
+    if(!receipts.length)return showToast('Укажи количество хотя бы для одной позиции','error');
+    receipts.forEach(({index,line,product,qty,unitCost})=>{
+        const previousStock=product.stock,previousCost=Number(product.purchasePrice)||0;
+        product.stock+=qty;
+        product.purchasePrice=previousStock>0&&previousCost>0?((previousStock*previousCost)+(qty*unitCost))/(previousStock+qty):unitCost;
+        product.updatedAt=now;line.receivedQuantity+=qty;
+        inventoryMovements.push({id:'mov_'+Date.now()+'_'+Math.random().toString(36).slice(2,8),productId:product.id,productTitle:product.title,type:'receipt',quantity:qty,supplier:order.supplier,unitCost,totalCost:qty*unitCost,note:'Приёмка заказа '+order.id+' · '+(order.note||'Заказ поставщику'),purchaseOrderId:order.id,createdAt:now});
+    });
+    const complete=order.items.every(item=>item.receivedQuantity>=item.quantity);
+    order.status=complete?'received':'partial';order.updatedAt=now;
+    persistInventory();persistPurchaseOrders();closeModal('purchaseReceivingModal');renderPurchaseOrders();
+    showToast(complete?'Заказ полностью принят':'Частичная поставка зафиксирована','success');
+}
+function cancelPurchaseOrder(orderId){
+    if(!requireAdminAction('Отменять заказы может только Али'))return;
+    const order=inventoryPurchaseOrders.find(item=>item.id===orderId);
+    if(!order||order.status==='received'||order.status==='cancelled'||order.items.some(item=>item.receivedQuantity>0))return showToast('Нельзя отменить уже принятую поставку','error');
+    order.status='cancelled';order.updatedAt=new Date().toISOString();persistPurchaseOrders();renderPurchaseOrders();showToast('Заказ отменён','success');
+}
+function renderPurchaseOrders(){
+    const root=document.getElementById('purchaseOrdersList');if(!root)return;
+    const fmt=value=>Math.round(value).toLocaleString('ru-RU')+' ₽';
+    const labels={draft:'Черновик',ordered:'Ожидается',partial:'Частично принят',received:'Принят',cancelled:'Отменён'};
+    const active=inventoryPurchaseOrders.filter(order=>['ordered','partial'].includes(order.status)).length;
+    const pending=inventoryPurchaseOrders.filter(order=>['ordered','partial'].includes(order.status)).reduce((sum,order)=>sum+order.items.reduce((sub,item)=>sub+Math.max(0,item.quantity-item.receivedQuantity)*item.unitCost,0),0);
+    const kpis=document.getElementById('purchaseOrdersOverview');
+    if(kpis)kpis.innerHTML='<div class="inventory-kpi"><span>Ожидают поставки</span><strong>'+active+'</strong></div><div class="inventory-kpi"><span>Стоимость ожидаемых товаров</span><strong>'+fmt(pending)+'</strong></div><div class="inventory-kpi"><span>Всего заказов</span><strong>'+inventoryPurchaseOrders.length+'</strong></div>';
+    root.innerHTML=inventoryPurchaseOrders.length?inventoryPurchaseOrders.map(order=>{
+        const total=order.items.reduce((sum,item)=>sum+item.quantity*item.unitCost,0);
+        const remaining=order.items.reduce((sum,item)=>sum+Math.max(0,item.quantity-item.receivedQuantity),0);
+        return '<article class="purchase-order-card"><div class="purchase-order-top"><div><span class="purchase-order-status status-'+order.status+'">'+labels[order.status]+'</span><h3>'+escapeBookingHtml(order.supplier)+'</h3><small>'+new Date(order.createdAt).toLocaleDateString('ru-RU')+' · № '+escapeBookingHtml(order.id.slice(-8))+(order.expectedAt?' · Ожидается: '+escapeBookingHtml(order.expectedAt):'')+'</small></div><strong>'+fmt(total)+'</strong></div><div class="purchase-order-lines">'+order.items.map(item=>'<div><span>'+escapeBookingHtml(item.titleSnapshot)+'</span><small>'+item.receivedQuantity+' / '+item.quantity+' шт.</small></div>').join('')+'</div>'+(order.note?'<p class="purchase-order-note">'+escapeBookingHtml(order.note)+'</p>':'')+'<div class="purchase-order-actions">'+(['ordered','partial'].includes(order.status)?'<button type="button" class="inventory-sync-btn" onclick="openPurchaseReceiving(\''+order.id+'\')">Принять поставку · осталось '+remaining+'</button>':'')+(order.status==='ordered'&&order.items.every(item=>!item.receivedQuantity)?'<button type="button" class="purchase-order-cancel" onclick="cancelPurchaseOrder(\''+order.id+'\')">Отменить</button>':'')+'</div></article>';
+    }).join(''):'<div class="inventory-empty">Заказов поставщикам пока нет. Создай первый заказ, чтобы контролировать ожидаемые поставки.</div>';
+}
+
 let inventoryMovements = (() => {
     try {
         const saved = JSON.parse(localStorage.getItem(appStorageKey('mensfire_inventory_movements')) || '[]');
