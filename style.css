@@ -6356,3 +6356,9 @@ html.light-theme .booking-client-match{background:#fbf8ef}
 @media(max-width:1000px) and (min-width:768px){.inventory-catalog-grid{grid-template-columns:1fr}.inventory-overview-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
 @media(max-width:767px){.inventory-workspace{display:none!important}}
 @media(max-width:520px){.inventory-overview-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}.inventory-kpi{padding:12px}.inventory-kpi strong{font-size:18px}.inventory-toolbar{grid-template-columns:1fr}.inventory-catalog-grid{grid-template-columns:1fr}.inventory-catalog-panel,.inventory-history-panel{padding:14px}.inventory-product-metrics{grid-template-columns:repeat(2,minmax(0,1fr))}.inventory-form-grid{grid-template-columns:1fr}}
+
+
+.inventory-sync-btn{flex-shrink:0;padding:9px 12px;border:1px solid var(--glass-border,rgba(255,255,255,.14));border-radius:10px;background:rgba(255,255,255,.035);color:var(--text-main);font:inherit;font-size:10px;font-weight:700;cursor:pointer}
+.inventory-sync-btn:hover{border-color:var(--gold);color:var(--gold)}
+.inventory-product-description{margin:8px 0 0;color:var(--text-muted);font-size:10px;line-height:1.45}
+@media(max-width:520px){.inventory-sync-btn{width:100%}}
