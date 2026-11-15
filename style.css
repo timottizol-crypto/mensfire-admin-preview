@@ -6399,3 +6399,16 @@ html.light-theme .booking-client-match{background:#fbf8ef}
 
 /* Справочник поставщиков — отдельный desktop-раздел */
 .suppliers-panel{padding:20px;margin-top:16px}.suppliers-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}.supplier-card{min-width:0;padding:17px;border:1px solid var(--glass-border,rgba(255,255,255,.08));border-radius:13px;background:var(--glass-bg,rgba(255,255,255,.025))}.supplier-card-top{display:flex;justify-content:space-between;align-items:flex-start;gap:12px}.supplier-card h3{margin:8px 0 5px;color:var(--text-main);font-size:14px}.supplier-card-top small,.supplier-contacts,.supplier-last-order{color:var(--text-muted);font-size:10px;line-height:1.6}.supplier-contacts{display:flex;flex-direction:column;margin-top:12px;gap:3px}.supplier-order-history{margin-top:14px;padding-top:12px;border-top:1px solid var(--glass-border,rgba(255,255,255,.08));font-size:10px}.supplier-order-history>strong{display:block;margin-bottom:8px;color:var(--text-main)}.supplier-order-history>div{display:flex;justify-content:space-between;gap:10px;padding:5px 0;color:var(--text-muted)}.supplier-order-history b{color:var(--text-main);white-space:nowrap}.supplier-last-order{display:block;margin-top:8px}.supplier-modal-content{max-width:560px!important}.supplier-form-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}.suppliers-workspace{padding-bottom:30px}@media(max-width:1000px) and (min-width:768px){.suppliers-grid{grid-template-columns:1fr}}@media(max-width:767px){.suppliers-workspace{display:none!important}}@media(max-width:520px){.supplier-form-grid{grid-template-columns:1fr}}
+
+
+/* Одно рабочее пространство для закупок и поставщиков */
+.purchase-workspace-tabs{display:flex;gap:8px;margin:0 0 18px;padding:5px;border:1px solid var(--glass-border,rgba(255,255,255,.08));border-radius:12px;background:var(--glass-bg,rgba(255,255,255,.025));width:max-content;max-width:100%}
+.purchase-workspace-tab{border:0;border-radius:9px;padding:10px 18px;background:transparent;color:var(--text-muted);font:inherit;font-size:12px;cursor:pointer;transition:.2s}
+.purchase-workspace-tab.active{background:var(--gold);color:#17130b;font-weight:700}
+.purchase-subview[hidden]{display:none!important}
+.client-directory-workspace{padding-bottom:30px}
+.client-directory-scope{margin-bottom:14px}
+.client-directory-workspace .clients-search-wrap{margin:12px 0}
+.client-directory-workspace #clientsList{margin-top:12px}
+.client-directory-workspace #clientsSegmentContainer{margin-bottom:14px}
+@media(max-width:767px){.client-directory-workspace{display:none!important}}
