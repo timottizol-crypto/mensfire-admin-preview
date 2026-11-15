@@ -4450,7 +4450,7 @@ function renderClientTasksHub() {
             </article>`;
         }).join('') : '<div class="crm-tasks-empty">По выбранным условиям задач нет</div>'}</div>
         <section class="crm-task-audit">
-            <div class="crm-task-audit-heading"><strong>История действий</strong><span>Последние изменения задач</span></div>
+            <div class="crm-task-audit-heading"><strong>История действий CRM</strong><span>Задачи, записи и полученные оплаты</span></div>
             ${(() => {
                 const history = [];
                 const seen = new Set();
@@ -4463,12 +4463,39 @@ function renderClientTasksHub() {
                         history.push({ ...event, clientName: profile.clientName || 'Клиент' });
                     });
                 });
+                (bookings || []).forEach(booking => {
+                    const client = findClientProfile(booking.clientName || '', booking.barberId);
+                    const profile = client.profile || {};
+                    if (currentUser?.role === 'barber' && String(booking.barberId || '') !== String(currentUser.id)) return;
+                    const clientName = String(booking.clientName || profile.clientName || 'Клиент');
+                    const serviceNames = (Array.isArray(booking.services) ? booking.services : []).map(service => service.title).filter(Boolean).join(', ');
+                    (Array.isArray(booking.history) ? booking.history : []).forEach((event, index) => {
+                        const actionText = String(event.action || '');
+                        const normalized = actionText.toLocaleLowerCase('ru-RU');
+                        let action = 'booking_updated';
+                        if (normalized.includes('оплат')) action = 'payment_received';
+                        else if (normalized.includes('создан')) action = 'booking_created';
+                        else if (normalized.includes('отмен')) action = 'booking_cancelled';
+                        else if (normalized.includes('заверш')) action = 'booking_completed';
+                        const actor = String(event.by || 'Система');
+                        history.push({
+                            id: 'booking_' + String(booking.id) + '_' + index,
+                            action,
+                            taskTitle: actionText || 'Изменение записи',
+                            details: [event.details, serviceNames ? 'Услуги: ' + serviceNames : ''].filter(Boolean).join(' · '),
+                            actor,
+                            actorId: '',
+                            createdAt: event.at || booking.createdAt || '',
+                            clientName
+                        });
+                    });
+                });
                 history.sort((a,b) => new Date(b.createdAt || 0) - new Date(a.createdAt || 0));
                 const actors = [...new Map(history.map(event => {
                     const key = String(event.actorId || event.actor || 'unknown');
                     return [key, {key, label: event.actor || 'Сотрудник'}];
                 })).values()].sort((a,b) => a.label.localeCompare(b.label,'ru'));
-                const actionOptions = [{id:'all',label:'Все действия'},{id:'created',label:'Создание'},{id:'updated',label:'Изменение'},{id:'completed',label:'Выполнение'},{id:'deleted',label:'Удаление'}];
+                const actionOptions = [{id:'all',label:'Все действия'},{id:'created',label:'Создание задачи'},{id:'updated',label:'Изменение задачи'},{id:'completed',label:'Выполнение задачи'},{id:'deleted',label:'Удаление задачи'},{id:'booking_created',label:'Создание записи'},{id:'booking_updated',label:'Изменение записи'},{id:'booking_cancelled',label:'Отмена записи'},{id:'booking_completed',label:'Завершение визита'},{id:'payment_received',label:'Получение оплаты'}];
                 const actorOptions = actors.map(actor => '<option value="'+escapeBookingHtml(actor.key)+'"'+(clientsTaskAuditActorFilter===actor.key?' selected':'')+'>'+escapeBookingHtml(actor.label)+'</option>').join('');
                 const localDateKey = value => {
                     const date = new Date(value || '');
@@ -4526,7 +4553,7 @@ function renderClientTasksHub() {
                     '<div class="crm-task-employee-summary-totals"><article><b>'+totals.created+'</b><span>создано за период</span></article><article><b>'+totals.completed+'</b><span>выполнено за период</span></article><article><b>'+totals.deleted+'</b><span>удалено за период</span></article><article class="is-overdue"><b>'+currentOverdueTotal+'</b><span>просрочено сейчас</span></article></div>'+
                     (employeeSummary.length ? '<div class="crm-task-employee-summary-list">'+employeeSummary.map(stat => '<article class="crm-task-employee-summary-row"><strong>'+escapeBookingHtml(stat.name)+'</strong><span><b>'+stat.created+'</b><small>создано</small></span><span><b>'+stat.completed+'</b><small>выполнено</small></span><span><b>'+stat.deleted+'</b><small>удалено</small></span><span class="'+(stat.overdue?'is-overdue':'')+'"><b>'+stat.overdue+'</b><small>просрочено</small></span></article>').join('')+'</div>' : '<div class="crm-tasks-empty">Нет данных по сотрудникам за выбранный период</div>')+'</div>';
                 auditExportRows = filtered.slice(0, 50);
-                const labels = {created:'Создал задачу',updated:'Изменил задачу',completed:'Выполнил задачу',deleted:'Удалил задачу'};
+                const labels = {created:'Создал задачу',updated:'Изменил задачу',completed:'Выполнил задачу',deleted:'Удалил задачу',booking_created:'Создал запись',booking_updated:'Изменил запись',booking_cancelled:'Отменил запись',booking_completed:'Завершил визит',payment_received:'Принял оплату'};
                 return summaryMarkup+'<div class="crm-task-audit-filters">'+
                     '<select id="crmTaskAuditAction" aria-label="Тип действия">'+actionOptions.map(item=>'<option value="'+item.id+'"'+(clientsTaskAuditActionFilter===item.id?' selected':'')+'>'+item.label+'</option>').join('')+'</select>'+
                     '<select id="crmTaskAuditActor" aria-label="Сотрудник"><option value="all">Все сотрудники</option>'+actorOptions+'</select>'+
@@ -4597,7 +4624,7 @@ function renderClientTasksHub() {
 }
 
 function exportClientTaskAuditCsv(events) {
-    const actionLabels = {created:'Создание',updated:'Изменение',completed:'Выполнение',deleted:'Удаление'};
+    const actionLabels = {created:'Создание задачи',updated:'Изменение задачи',completed:'Выполнение задачи',deleted:'Удаление задачи',booking_created:'Создание записи',booking_updated:'Изменение записи',booking_cancelled:'Отмена записи',booking_completed:'Завершение визита',payment_received:'Получение оплаты'};
     const columns = ['Дата и время','Клиент','Действие','Задача','Сотрудник','Подробности'];
     const cell = value => {
         const text = String(value ?? '');
@@ -5457,6 +5484,8 @@ function showClientDetails(name, barberId) {
     };
 
     const profile = clientProfiles[selectedClientProfileKey] || {};
+    // Открываем карточку до построения вторичных блоков: сбой аналитики не должен блокировать доступ к клиенту.
+    openModal('clientDetailsModal');
 
     document.getElementById('clientDetailsPhone').value = profile.phone || '';
     const birthdayInput = document.getElementById('clientDetailsBirthday');
@@ -5510,22 +5539,34 @@ function showClientDetails(name, barberId) {
         `;
     }
 
-    renderClientRetailPurchases(myBookings);
-    renderClientProductRecommendations();
-    renderClientLoyaltyPanel(myBookings);
-    renderClientInsights(myBookings);
-    renderClientLifetimeValue(myBookings);
-    renderClientInteractionHistory();
-    refreshSelectedClientActivity(true);
-    renderClientTasks();
+    const clientSectionRenderers = [
+        ['покупки товаров', () => renderClientRetailPurchases(myBookings)],
+        ['рекомендации товаров', () => renderClientProductRecommendations()],
+        ['лояльность', () => renderClientLoyaltyPanel(myBookings)],
+        ['аналитика', () => renderClientInsights(myBookings)],
+        ['ценность клиента', () => renderClientLifetimeValue(myBookings)],
+        ['история общения', () => renderClientInteractionHistory()],
+        ['активность', () => refreshSelectedClientActivity(true)],
+        ['задачи', () => renderClientTasks()]
+    ];
+    clientSectionRenderers.forEach(([sectionName, renderSection]) => {
+        try {
+            renderSection();
+        } catch (error) {
+            console.error('Не удалось отобразить раздел карточки клиента (' + sectionName + '):', error);
+        }
+    });
 
     const historyContainer = document.getElementById('clientDetailsHistory');
     if (historyContainer) {
         historyContainer.innerHTML = historyHTML || '<div style="color: var(--text-muted); font-size: 13px; text-align: center; padding: 20px 0;">История пуста</div>';
     }
 
-    renderClientMessageDraft('return');
-    openModal('clientDetailsModal');
+    try {
+        renderClientMessageDraft('return');
+    } catch (error) {
+        console.error('Не удалось отобразить шаблон сообщения клиента:', error);
+    }
 }
 
 
