@@ -2396,6 +2396,10 @@ function openNewBookingModal(barberId = '', time = '', date = selectedScheduleDa
     if (!requireAdminAction('Создавать записи может только Али')) return;
     editingBookingId = null;
     editingWaitlistId = null;
+    const repeatToggle = document.getElementById('repeatBookingWeekly');
+    if (repeatToggle) repeatToggle.checked = false;
+    const repeatCountWrap = document.getElementById('bookingRepeatCountWrap');
+    if (repeatCountWrap) repeatCountWrap.hidden = true;
 
     document.querySelector('#newBookingModal h2').textContent = 'Новая запись';
     document.querySelector('#newBookingModal .checkout-btn').textContent = 'Создать запись';
