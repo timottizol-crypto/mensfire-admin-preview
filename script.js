@@ -2315,7 +2315,26 @@ function moveBookingToSlot(event, barberId, date) {
     booking.date = date; booking.barberId = String(barberId); booking.time = time;
     addBookingHistoryEntry(booking, 'Запись перенесена', previous + ' → ' + next);
     localStorage.setItem(appStorageKey('mensfire_admin_bookings'), JSON.stringify(bookings));
-    selectedScheduleDate = date; renderSchedule(); showToast('Запись перенесена', 'success');
+    // Сохраняем позицию страницы и прокрутку календаря до полного перерендера.
+    const scrollState = {
+        page: document.scrollingElement?.scrollTop || window.scrollY || 0,
+        view: document.getElementById('viewSchedule')?.scrollTop || 0,
+        calendarTop: document.querySelector('#desktopSchedule .desktop-calendar-scroll')?.scrollTop || 0,
+        calendarLeft: document.querySelector('#desktopSchedule .desktop-calendar-scroll')?.scrollLeft || 0
+    };
+    selectedScheduleDate = date;
+    renderSchedule();
+    const restoreScroll = () => {
+        if (document.scrollingElement) document.scrollingElement.scrollTop = scrollState.page;
+        window.scrollTo(0, scrollState.page);
+        const view = document.getElementById('viewSchedule');
+        if (view) view.scrollTop = scrollState.view;
+        const calendarScroll = document.querySelector('#desktopSchedule .desktop-calendar-scroll');
+        if (calendarScroll) { calendarScroll.scrollTop = scrollState.calendarTop; calendarScroll.scrollLeft = scrollState.calendarLeft; }
+    };
+    requestAnimationFrame(() => { restoreScroll(); requestAnimationFrame(restoreScroll); });
+    setTimeout(restoreScroll, 80);
+    showToast('Запись перенесена', 'success');
 }
 function openNewBookingAtExactSlot(event, barberId, date, time) {
     event.preventDefault();
