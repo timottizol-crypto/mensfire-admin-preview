@@ -4430,6 +4430,7 @@ function showClientDetails(name, barberId) {
     }
 
     renderClientLoyaltyPanel(myBookings);
+    renderClientInsights(myBookings);
 
     const historyContainer = document.getElementById('clientDetailsHistory');
     if (historyContainer) {
@@ -4438,6 +4439,75 @@ function showClientDetails(name, barberId) {
 
     renderClientMessageDraft('return');
     openModal('clientDetailsModal');
+}
+
+
+function renderClientInsights(clientBookings) {
+    const root = document.getElementById('clientDetailsInsights');
+    if (!root) return;
+    const completed = (clientBookings || []).filter(booking => booking.status === 'completed');
+    const serviceCounts = new Map();
+    const masterCounts = new Map();
+    completed.forEach(booking => {
+        (Array.isArray(booking.services) ? booking.services : []).forEach(service => {
+            const title = String(service?.title || 'Услуга').trim();
+            if (title) serviceCounts.set(title, (serviceCounts.get(title) || 0) + 1);
+        });
+        const master = mockStaff.find(staff => String(staff.id) === String(booking.barberId))?.name || 'Мастер';
+        masterCounts.set(master, (masterCounts.get(master) || 0) + 1);
+    });
+    const topService = [...serviceCounts.entries()].sort((a,b) => b[1] - a[1])[0];
+    const topMaster = [...masterCounts.entries()].sort((a,b) => b[1] - a[1])[0];
+    const now = new Date();
+    const months = [];
+    for (let offset = 5; offset >= 0; offset--) {
+        const date = new Date(now.getFullYear(), now.getMonth() - offset, 1);
+        months.push({
+            key: date.getFullYear() + '-' + String(date.getMonth() + 1).padStart(2, '0'),
+            label: date.toLocaleDateString('ru-RU', { month: 'short' }).replace('.', ''),
+            revenue: 0
+        });
+    }
+    const monthLookup = new Map(months.map(month => [month.key, month]));
+    completed.forEach(booking => {
+        const timestamp = parseClientDateTime(booking);
+        if (!timestamp) return;
+        const date = new Date(timestamp);
+        const key = date.getFullYear() + '-' + String(date.getMonth() + 1).padStart(2, '0');
+        const month = monthLookup.get(key);
+        if (month) month.revenue += getBookingCollectedAmount(booking);
+    });
+    const maxRevenue = Math.max(1, ...months.map(month => month.revenue));
+    const recentRevenue = months.slice(3).reduce((sum, month) => sum + month.revenue, 0);
+    const previousRevenue = months.slice(0, 3).reduce((sum, month) => sum + month.revenue, 0);
+    let trendLabel = 'Пока недостаточно данных';
+    let trendClass = 'neutral';
+    if (recentRevenue > previousRevenue) {
+        trendLabel = previousRevenue ? 'Рост на ' + Math.round((recentRevenue - previousRevenue) / previousRevenue * 100) + '%' : 'Есть расходы за последние 3 месяца';
+        trendClass = 'positive';
+    } else if (recentRevenue < previousRevenue) {
+        trendLabel = 'Снижение на ' + (recentRevenue ? Math.round((previousRevenue - recentRevenue) / previousRevenue * 100) : 100) + '%';
+        trendClass = 'negative';
+    } else if (recentRevenue > 0) {
+        trendLabel = 'Без изменений';
+    }
+    root.innerHTML = `
+        <div class="client-insights-heading">
+            <div><strong>Аналитика клиента</strong><span>По завершённым визитам</span></div>
+            <span class="client-insights-period">6 месяцев</span>
+        </div>
+        <div class="client-insights-favorites">
+            <div class="client-insight-favorite"><span>Любимая услуга</span><strong>${topService ? escapeBookingHtml(topService[0]) : '—'}</strong><small>${topService ? topService[1] + ' визит(а)' : 'Нет данных'}</small></div>
+            <div class="client-insight-favorite"><span>Частый мастер</span><strong>${topMaster ? escapeBookingHtml(topMaster[0]) : '—'}</strong><small>${topMaster ? topMaster[1] + ' визит(а)' : 'Нет данных'}</small></div>
+        </div>
+        <div class="client-insights-chart-head"><span>Расходы по месяцам</span><b class="${trendClass}">${trendLabel}</b></div>
+        <div class="client-insights-bars">${months.map(month => `
+            <div class="client-insights-month" title="${month.label}: ${Math.round(month.revenue).toLocaleString('ru-RU')} ₽">
+                <div class="client-insights-bar-track"><i style="height:${month.revenue ? Math.max(5, month.revenue / maxRevenue * 100) : 0}%"></i></div>
+                <span>${escapeBookingHtml(month.label)}</span>
+                <small>${month.revenue ? Math.round(month.revenue).toLocaleString('ru-RU') : '—'}</small>
+            </div>`).join('')}</div>
+    `;
 }
 
 function renderClientMessageDraft(mode = 'return') {
