@@ -5183,6 +5183,9 @@ let inventoryProducts = (() => {
         return Array.isArray(saved) ? saved.map(item => ({
             id: String(item.id || ''),
             title: String(item.title || 'Товар'),
+            description: String(item.description || ''),
+            brand: String(item.brand || ''),
+            sourceProductId: String(item.sourceProductId || ''),
             sku: String(item.sku || ''),
             category: String(item.category || 'Без категории'),
             unit: String(item.unit || 'шт.'),
@@ -5204,6 +5207,267 @@ let inventoryMovements = (() => {
         return Array.isArray(saved) ? saved : [];
     } catch (error) { return []; }
 })();
+const clientAppNishmanCatalog = [
+    {
+        "id": "st1",
+        "category": "Укладка и стайлинг",
+        "title": "Матовая паста M1 Agran",
+        "description": "Сильная фиксация, матовый финиш, 100 мл",
+        "price": 1200
+    },
+    {
+        "id": "st2",
+        "category": "Укладка и стайлинг",
+        "title": "Матовая глина M2 Matte Clay",
+        "description": "Для густых волос, текстура и объем, 100 мл",
+        "price": 1250
+    },
+    {
+        "id": "st3",
+        "category": "Укладка и стайлинг",
+        "title": "Матовая паста M9 Matte Paste",
+        "description": "Гибкая фиксация, не склеивает волосы, 100 мл",
+        "price": 1300
+    },
+    {
+        "id": "st4",
+        "category": "Укладка и стайлинг",
+        "title": "Воск-паутина S1 Blackwidow",
+        "description": "Эффект художественного беспорядка, 150 мл",
+        "price": 1400
+    },
+    {
+        "id": "st5",
+        "category": "Укладка и стайлинг",
+        "title": "Воск-паутина S3 Blueweb",
+        "description": "Сильная фиксация, паутинообразная текстура, 150 мл",
+        "price": 1400
+    },
+    {
+        "id": "st6",
+        "category": "Укладка и стайлинг",
+        "title": "Воск на водной основе 02 Sport",
+        "description": "Легкая фиксация, подходит для ежедневного использования, 100 мл",
+        "price": 1100
+    },
+    {
+        "id": "st7",
+        "category": "Укладка и стайлинг",
+        "title": "Воск на водной основе 05 Keratin",
+        "description": "Укрепление и блеск, 150 мл",
+        "price": 1200
+    },
+    {
+        "id": "st8",
+        "category": "Укладка и стайлинг",
+        "title": "Матовая пудра P1 Sport",
+        "description": "Придает объем, 20 г",
+        "price": 900
+    },
+    {
+        "id": "st9",
+        "category": "Укладка и стайлинг",
+        "title": "Солевой спрей Sea Salt Spray 01",
+        "description": "Создает эффект пляжных волн, 200 мл",
+        "price": 1000
+    },
+    {
+        "id": "st10",
+        "category": "Укладка и стайлинг",
+        "title": "Гель для укладки Gum Effect 5+",
+        "description": "Ультрафиксация, 300 мл",
+        "price": 1150
+    },
+    {
+        "id": "st11",
+        "category": "Укладка и стайлинг",
+        "title": "Крем для укладки Styling Cream Blue",
+        "description": "Подвижный контроль, легкая фиксация, 100 мл",
+        "price": 1050
+    },
+    {
+        "id": "hc1",
+        "category": "Уход за волосами",
+        "title": "Шампунь Pro-Hair Paragon Free",
+        "description": "Без соли и парабенов, для ежедневного использования, 400 мл",
+        "price": 1300
+    },
+    {
+        "id": "hc2",
+        "category": "Уход за волосами",
+        "title": "Шампунь 01 Keratin Complex",
+        "description": "Восстановление поврежденных волос, 400 мл",
+        "price": 1350
+    },
+    {
+        "id": "hc3",
+        "category": "Уход за волосами",
+        "title": "Кондиционер 2 Phase Keratin Complex",
+        "description": "Двухфазный, не требует смывания, 400 мл",
+        "price": 1450
+    },
+    {
+        "id": "hc4",
+        "category": "Уход за волосами",
+        "title": "Кондиционер 2 Phase Argan",
+        "description": "Питание и увлажнение, для волос и бороды, 400 мл",
+        "price": 1500
+    },
+    {
+        "id": "hc5",
+        "category": "Уход за волосами",
+        "title": "Тоник для волос Hair Tonic 1 Chilly",
+        "description": "Стимулирует рост, укрепляет фолликулы, 200 мл",
+        "price": 1200
+    },
+    {
+        "id": "hc6",
+        "category": "Уход за волосами",
+        "title": "Парфюм для бороды Adonis",
+        "description": "Аромат и уход, 75 мл",
+        "price": 1100
+    },
+    {
+        "id": "sh1",
+        "category": "Бритье и уход",
+        "title": "Гель для бритья Easy Shave",
+        "description": "Скольжение и защита от раздражения, 400 мл",
+        "price": 1250
+    },
+    {
+        "id": "sh2",
+        "category": "Бритье и уход",
+        "title": "Гель для бритья 03-04 Transparent",
+        "description": "Прозрачный, без горячих полотенец, 1000 мл",
+        "price": 1800
+    },
+    {
+        "id": "sh3",
+        "category": "Бритье и уход",
+        "title": "Крем-одеколон после бритья Gold One",
+        "description": "Успокаивает и освежает, 200 мл",
+        "price": 1200
+    },
+    {
+        "id": "sh4",
+        "category": "Бритье и уход",
+        "title": "Крем-одеколон после бритья City Senior",
+        "description": "2 в 1, защита от раздражения, 400 мл",
+        "price": 1400
+    },
+    {
+        "id": "sh5",
+        "category": "Бритье и уход",
+        "title": "Тальк после бритья Barber Shave Talc",
+        "description": "Впитывает влагу, затягивает порезы",
+        "price": 800
+    },
+    {
+        "id": "sh6",
+        "category": "Бритье и уход",
+        "title": "Бальзам для бороды и усов",
+        "description": "Смягчает и укладывает, 100 мл",
+        "price": 1150
+    },
+    {
+        "id": "sk1",
+        "category": "Уход за кожей",
+        "title": "Пилинг-гель для лица Peeling Gel",
+        "description": "Глубокое очищение, от черных точек, 100 мл",
+        "price": 1000
+    },
+    {
+        "id": "sk2",
+        "category": "Уход за кожей",
+        "title": "Маска для лица Clay Mask",
+        "description": "Очищает поры, матирует, 100 мл",
+        "price": 1100
+    },
+    {
+        "id": "sk3",
+        "category": "Уход за кожей",
+        "title": "Маска-пленка Peel-Off Black Mask",
+        "description": "Удаляет загрязнения и ороговевшие клетки, 200 мл",
+        "price": 1200
+    },
+    {
+        "id": "sk4",
+        "category": "Уход за кожей",
+        "title": "Крем для лица и рук Pomegranate",
+        "description": "Увлажнение 24 часа, 300 мл",
+        "price": 1300
+    },
+    {
+        "id": "sl1",
+        "category": "Салонные продукты",
+        "title": "Шампунь Salon Size 01",
+        "description": "Профессиональный объем 5000 мл",
+        "price": 4500
+    },
+    {
+        "id": "sl2",
+        "category": "Салонные продукты",
+        "title": "Кондиционер Salon Size 01",
+        "description": "Профессиональный объем 5000 мл",
+        "price": 4800
+    },
+    {
+        "id": "sl3",
+        "category": "Салонные продукты",
+        "title": "Воск для волос 07 Gold One",
+        "description": "Классическая фиксация, 100 мл",
+        "price": 1150
+    },
+    {
+        "id": "sl4",
+        "category": "Салонные продукты",
+        "title": "Воск для волос 08 Matte Look",
+        "description": "Матовая фиксация, 100 мл",
+        "price": 1150
+    }
+];
+
+function syncClientCatalogFromClientApp(notify = false) {
+    let added = 0;
+    let updated = 0;
+    clientAppNishmanCatalog.forEach(source => {
+        let item = inventoryProducts.find(product => product.sourceProductId === source.id || product.id === 'nishman_' + source.id);
+        if (!item) {
+            item = {
+                id: 'nishman_' + source.id,
+                sourceProductId: source.id,
+                brand: 'NISHMAN',
+                title: source.title,
+                description: source.description,
+                sku: source.id.toUpperCase(),
+                category: source.category,
+                unit: 'шт.',
+                purchasePrice: 0,
+                salePrice: source.price,
+                stock: 0,
+                minStock: 0,
+                active: true,
+                updatedAt: new Date().toISOString()
+            };
+            inventoryProducts.push(item);
+            added++;
+        } else {
+            item.sourceProductId = source.id;
+            item.brand = 'NISHMAN';
+            item.title = source.title;
+            item.description = source.description;
+            item.category = source.category;
+            item.salePrice = source.price;
+            item.sku = item.sku || source.id.toUpperCase();
+            item.updatedAt = new Date().toISOString();
+            updated++;
+        }
+    });
+    if (added || updated) persistInventory();
+    if (notify) showToast('Каталог клиентского приложения синхронизирован: добавлено ' + added + ', обновлено ' + updated, 'success');
+    return { added, updated, total: clientAppNishmanCatalog.length };
+}
+
 let editingInventoryProductId = null;
 
 function persistInventory() {
@@ -5212,6 +5476,7 @@ function persistInventory() {
 }
 function renderInventory() {
     if (!requireAdminAction('Управлять складом может только Али')) return;
+    syncClientCatalogFromClientApp(false);
     const root = document.getElementById('inventoryCatalog');
     if (!root) return;
     const totalUnits = inventoryProducts.reduce((sum,item) => sum + item.stock, 0);
@@ -5237,10 +5502,12 @@ function renderInventory() {
     }
     root.innerHTML = filtered.length ? filtered.map(item => {
         const isLow = item.stock <= item.minStock;
+        const isOut = item.stock <= 0;
         return '<article class="inventory-product-card ' + (isLow ? 'is-low' : '') + '">' +
-            '<div class="inventory-product-main"><div><span class="inventory-product-category">' + escapeBookingHtml(item.category) + '</span><h3>' + escapeBookingHtml(item.title) + '</h3><small>Артикул: ' + escapeBookingHtml(item.sku || '—') + '</small></div>' +
-            '<span class="inventory-stock-state ' + (isLow ? 'is-low' : '') + '">' + (isLow ? 'Мало' : 'В наличии') + '</span></div>' +
-            '<div class="inventory-product-metrics"><div><span>Остаток</span><strong>' + item.stock.toLocaleString('ru-RU') + ' ' + escapeBookingHtml(item.unit) + '</strong></div><div><span>Мин. остаток</span><strong>' + item.minStock.toLocaleString('ru-RU') + ' ' + escapeBookingHtml(item.unit) + '</strong></div><div><span>Цена продажи</span><strong>' + Math.round(item.salePrice).toLocaleString('ru-RU') + ' ₽</strong></div><div><span>Закупка</span><strong>' + Math.round(item.purchasePrice).toLocaleString('ru-RU') + ' ₽</strong></div></div>' +
+            '<div class="inventory-product-main"><div><span class="inventory-product-category">' + escapeBookingHtml(item.category) + '</span><h3>' + escapeBookingHtml(item.title) + '</h3><small>' + escapeBookingHtml(item.brand || 'Товар') + ' · Артикул: ' + escapeBookingHtml(item.sku || '—') + '</small>' +
+            (item.description ? '<p class="inventory-product-description">' + escapeBookingHtml(item.description) + '</p>' : '') + '</div>' +
+            '<span class="inventory-stock-state ' + (isLow ? 'is-low' : '') + '">' + (isOut ? 'Нет остатка' : (isLow ? 'Ниже минимума' : 'В наличии')) + '</span></div>' +
+            '<div class="inventory-product-metrics"><div><span>Остаток</span><strong>' + item.stock.toLocaleString('ru-RU') + ' ' + escapeBookingHtml(item.unit) + '</strong></div><div><span>Мин. остаток</span><strong>' + item.minStock.toLocaleString('ru-RU') + ' ' + escapeBookingHtml(item.unit) + '</strong></div><div><span>Цена продажи</span><strong>' + Math.round(item.salePrice).toLocaleString('ru-RU') + ' ₽</strong></div><div><span>Закупка</span><strong>' + (item.purchasePrice > 0 ? Math.round(item.purchasePrice).toLocaleString('ru-RU') + ' ₽' : 'Не задана') + '</strong></div></div>' +
             '<div class="inventory-product-actions"><button type="button" onclick="openInventoryProductModal(\'' + item.id + '\')">Изменить</button><button type="button" onclick="openInventoryMovementModal(\'' + item.id + '\',\'receipt\')">＋ Приход</button><button type="button" onclick="openInventoryMovementModal(\'' + item.id + '\',\'writeoff\')">− Списание</button></div></article>';
     }).join('') : '<div class="inventory-empty"><strong>' + (inventoryProducts.length ? 'Ничего не найдено' : 'Каталог пока пуст') + '</strong><span>' + (inventoryProducts.length ? 'Измени поисковый запрос или категорию.' : 'Добавь первые товары, укажи закупочную и розничную цену, а затем фиксируй приход и списание.') + '</span></div>';
     const history = document.getElementById('inventoryMovementHistory');
@@ -5258,7 +5525,7 @@ function openInventoryProductModal(id = '') {
     document.getElementById('inventoryProductSku').value = item?.sku || '';
     document.getElementById('inventoryProductCategory').value = item?.category || '';
     document.getElementById('inventoryProductUnit').value = item?.unit || 'шт.';
-    document.getElementById('inventoryProductPurchase').value = item?.purchasePrice ?? '';
+    document.getElementById('inventoryProductPurchase').value = item?.purchasePrice || '';
     document.getElementById('inventoryProductSale').value = item?.salePrice ?? '';
     document.getElementById('inventoryProductMin').value = item?.minStock ?? 0;
     document.getElementById('inventoryProductStock').value = item?.stock ?? 0;
