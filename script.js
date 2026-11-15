@@ -316,7 +316,7 @@ function buildBottomNav() {
                 { id: 'viewInventory', title: 'Склад', icon: '<path d="M3 7 12 3l9 4-9 4-9-4zm0 5 9 4 9-4M3 17l9 4 9-4"/>' },
                 { id: 'viewSales', title: 'Продажи', icon: '<path d="M4 5h16v14H4zM8 9h8M8 13h5"/>' },
                 { id: 'viewInventoryAnalytics', title: 'Аналитика', icon: '<path d="M3 3v18h18M8 16v-5m5 5V6m5 10V9"/>' },
-                { id: 'viewPurchases', title: 'Закупки', icon: '<path d="M3 7h18l-2 13H5L3 7zm4 0 2-4h6l2 4M9 11v5m6-5v5"/>' },
+                { id: 'viewPurchases', title: 'Закупки', icon: '<path d="M3 7h18l-2 13H5L3 7zm4 0 2-4h6l2 4M9 11v5m6-5v5"/>' },\n                { id: 'viewSuppliers', title: 'Поставщики', icon: '<path d="M3 21h18M5 21V7l7-4 7 4v14M9 21v-6h6v6M9 9h.01M15 9h.01"/>' },
                 { id: 'viewProfile', title: 'Профиль', icon: clientsIcon }
             );
         } else {
@@ -442,7 +442,7 @@ function switchView(viewId, navElement) {
         'viewClients': 'Клиенты',
         'viewInventory': 'Склад',
         'viewSales': 'Продажи',
-        'viewInventoryAnalytics': 'Аналитика склада',
+        'viewInventoryAnalytics': 'Аналитика склада',\n        'viewPurchases': 'Закупки',\n        'viewSuppliers': 'Поставщики',
         'viewProfile': 'Профиль'
     };
     if (titles[viewId]) {
@@ -463,7 +463,7 @@ function switchView(viewId, navElement) {
     if (viewId === 'viewTeam' && typeof renderTeam === 'function') renderTeam();
     if (viewId === 'viewClients' && typeof renderClients === 'function') renderClients(currentClientsTab);
     if (viewId === 'viewServices' && typeof renderServices === 'function') renderServices();
-    if (viewId === 'viewSales' && typeof renderRetailSales === 'function') renderRetailSales();
+    if (viewId === 'viewSales' && typeof renderRetailSales === 'function') renderRetailSales();\n    if (viewId === 'viewPurchases' && typeof renderPurchaseOrders === 'function') renderPurchaseOrders();\n    if (viewId === 'viewSuppliers' && typeof renderSuppliers === 'function') renderSuppliers();
     if (viewId === 'viewProfile') {
         if (typeof renderBarberRevenue === 'function') renderBarberRevenue();
         if (typeof renderProfileOverview === 'function') renderProfileOverview();
@@ -5111,7 +5111,7 @@ function importMensfireBackup(input) {
             // Совместимость со старыми копиями, в которых ещё не было склада.
             if (backup.data.mensfire_inventory_products === undefined) backup.data.mensfire_inventory_products = [];
             if (backup.data.mensfire_inventory_movements === undefined) backup.data.mensfire_inventory_movements = [];
-            if (backup.data.mensfire_inventory_purchase_orders === undefined) backup.data.mensfire_inventory_purchase_orders = [];
+            if (backup.data.mensfire_inventory_purchase_orders === undefined) backup.data.mensfire_inventory_purchase_orders = [];\n            if (backup.data.mensfire_inventory_suppliers === undefined) backup.data.mensfire_inventory_suppliers = [];
             if (backup.data.mensfire_client_retail_sales === undefined) backup.data.mensfire_client_retail_sales = [];
             const expected = {
                 mensfire_admin_bookings: Array.isArray,
@@ -5255,11 +5255,75 @@ let inventoryProducts = (() => {
     }
 })();
 
+
+/* Справочник поставщиков. Данные хранятся отдельно от заказов и остаются локальными. */
+let inventorySuppliers = (() => {
+    try {
+        const saved=JSON.parse(localStorage.getItem(appStorageKey('mensfire_inventory_suppliers'))||'[]');
+        return Array.isArray(saved)?saved.filter(item=>item&&item.id&&String(item.name||'').trim()).map(item=>({
+            id:String(item.id),name:String(item.name||'').trim(),contactPerson:String(item.contactPerson||''),
+            phone:String(item.phone||''),email:String(item.email||''),address:String(item.address||''),
+            notes:String(item.notes||''),active:item.active!==false,createdAt:String(item.createdAt||''),
+            updatedAt:String(item.updatedAt||'')
+        })):[];
+    } catch(error){console.warn('Не удалось загрузить поставщиков:',error);return [];}
+})();
+function persistSuppliers(){localStorage.setItem(appStorageKey('mensfire_inventory_suppliers'),JSON.stringify(inventorySuppliers));}
+function normalizeSupplierName(value){return String(value||'').trim().toLocaleLowerCase('ru-RU').replace(/\\s+/g,' ');}
+function findOrCreateSupplier(name){
+    const clean=String(name||'').trim();if(!clean)return null;
+    let supplier=inventorySuppliers.find(item=>normalizeSupplierName(item.name)===normalizeSupplierName(clean));
+    if(!supplier){const now=new Date().toISOString();supplier={id:'sup_'+Date.now()+'_'+Math.random().toString(36).slice(2,7),name:clean,contactPerson:'',phone:'',email:'',address:'',notes:'',active:true,createdAt:now,updatedAt:now};inventorySuppliers.unshift(supplier);persistSuppliers();}
+    return supplier;
+}
+let editingSupplierId=null;
+function openSupplierModal(supplierId=''){
+    if(!requireAdminAction('Управлять поставщиками может только Али'))return;
+    const supplier=inventorySuppliers.find(item=>item.id===supplierId);editingSupplierId=supplier?.id||null;
+    document.getElementById('supplierModalTitle').textContent=supplier?'Редактировать поставщика':'Новый поставщик';
+    ['Name','Contact','Phone','Email','Address','Notes'].forEach(key=>{const node=document.getElementById('supplier'+key);if(node)node.value=supplier?({Name:'name',Contact:'contactPerson',Phone:'phone',Email:'email',Address:'address',Notes:'notes'}[key] in supplier?supplier[{Name:'name',Contact:'contactPerson',Phone:'phone',Email:'email',Address:'address',Notes:'notes'}[key]]:''):'';});
+    openModal('supplierModal');
+}
+function saveSupplier(){
+    if(!requireAdminAction('Управлять поставщиками может только Али'))return;
+    const name=document.getElementById('supplierName').value.trim();if(!name)return showToast('Укажи название поставщика','error');
+    const duplicate=inventorySuppliers.find(item=>normalizeSupplierName(item.name)===normalizeSupplierName(name)&&item.id!==editingSupplierId);
+    if(duplicate)return showToast('Поставщик с таким названием уже есть','error');
+    const now=new Date().toISOString(),data={name,contactPerson:document.getElementById('supplierContact').value.trim(),phone:document.getElementById('supplierPhone').value.trim(),email:document.getElementById('supplierEmail').value.trim(),address:document.getElementById('supplierAddress').value.trim(),notes:document.getElementById('supplierNotes').value.trim(),updatedAt:now};
+    let supplier=inventorySuppliers.find(item=>item.id===editingSupplierId);
+    if(supplier)Object.assign(supplier,data);else inventorySuppliers.unshift({id:'sup_'+Date.now()+'_'+Math.random().toString(36).slice(2,7),...data,active:true,createdAt:now});
+    persistSuppliers();closeModal('supplierModal');renderSuppliers();showToast('Поставщик сохранён','success');
+}
+function renderSuppliers(){
+    const root=document.getElementById('suppliersList');if(!root)return;
+    const query=String(document.getElementById('suppliersSearch')?.value||'').trim().toLocaleLowerCase('ru-RU');
+    const ordersBySupplier=new Map();
+    inventoryPurchaseOrders.forEach(order=>{
+        let supplier=inventorySuppliers.find(item=>item.id===order.supplierId);
+        if(!supplier&&order.supplier)supplier=findOrCreateSupplier(order.supplier);
+        if(supplier){order.supplierId=supplier.id;ordersBySupplier.set(supplier.id,[...(ordersBySupplier.get(supplier.id)||[]),order]);}
+    });
+    persistPurchaseOrders();
+    const visible=inventorySuppliers.filter(item=>!query||[item.name,item.contactPerson,item.phone,item.email].some(value=>String(value||'').toLocaleLowerCase('ru-RU').includes(query)));
+    const active=inventorySuppliers.filter(item=>item.active).length;
+    const totalOrders=inventoryPurchaseOrders.length;
+    const totalValue=inventoryPurchaseOrders.filter(order=>order.status!=='cancelled').reduce((sum,order)=>sum+order.items.reduce((n,line)=>n+line.quantity*line.unitCost,0),0);
+    const overview=document.getElementById('suppliersOverview');
+    if(overview)overview.innerHTML='<div class="inventory-kpi"><span>Поставщиков</span><strong>'+active+'</strong></div><div class="inventory-kpi"><span>Заказов</span><strong>'+totalOrders+'</strong></div><div class="inventory-kpi"><span>Сумма заказов</span><strong>'+Math.round(totalValue).toLocaleString('ru-RU')+' ₽</strong></div>';
+    const fmt=v=>Math.round(v).toLocaleString('ru-RU')+' ₽';
+    root.innerHTML=visible.length?visible.map(supplier=>{
+        const orders=(ordersBySupplier.get(supplier.id)||[]).slice().sort((a,b)=>new Date(b.createdAt)-new Date(a.createdAt));
+        const value=orders.filter(order=>order.status!=='cancelled').reduce((sum,order)=>sum+order.items.reduce((n,line)=>n+line.quantity*line.unitCost,0),0);
+        const received=orders.reduce((sum,order)=>sum+order.items.reduce((n,line)=>n+line.receivedQuantity,0),0);
+        const latest=orders[0];
+        return '<article class="supplier-card"><div class="supplier-card-top"><div><span class="purchase-order-status '+(supplier.active?'status-received':'status-cancelled')+'">'+(supplier.active?'Активен':'Архив')+'</span><h3>'+escapeBookingHtml(supplier.name)+'</h3><small>'+orders.length+' заказов · '+received+' ед. принято · '+fmt(value)+'</small></div><button type="button" class="inventory-sync-btn" onclick="openSupplierModal(\''+supplier.id+'\')">Изменить</button></div><div class="supplier-contacts">'+(supplier.contactPerson?'<span>Контакт: '+escapeBookingHtml(supplier.contactPerson)+'</span>':'')+(supplier.phone?'<span>Телефон: '+escapeBookingHtml(supplier.phone)+'</span>':'')+(supplier.email?'<span>'+escapeBookingHtml(supplier.email)+'</span>':'')+(supplier.address?'<span>'+escapeBookingHtml(supplier.address)+'</span>':'')+'</div>'+(supplier.notes?'<p class="purchase-order-note">'+escapeBookingHtml(supplier.notes)+'</p>':'')+'<div class="supplier-order-history"><strong>Последние закупки</strong>'+(orders.length?orders.slice(0,3).map(order=>'<div><span>№ '+escapeBookingHtml(order.id.slice(-8))+' · '+new Date(order.createdAt).toLocaleDateString('ru-RU')+'</span><b>'+fmt(order.items.reduce((sum,line)=>sum+line.quantity*line.unitCost,0))+'</b></div>').join(''):'<small>Закупок пока нет</small>')+'</div>'+(latest?'<small class="supplier-last-order">Последний заказ: '+new Date(latest.createdAt).toLocaleDateString('ru-RU')+'</small>':'')+'</article>';
+    }).join(''):'<div class="inventory-empty">'+(query?'Поставщики не найдены':'Пока нет поставщиков. Добавь первого поставщика.')+'</div>';
+}
 let inventoryPurchaseOrders = (() => {
     try {
         const saved=JSON.parse(localStorage.getItem(appStorageKey('mensfire_inventory_purchase_orders'))||'[]');
         return Array.isArray(saved)?saved.filter(order=>order&&order.id).map(order=>({
-            id:String(order.id),supplier:String(order.supplier||''),createdAt:String(order.createdAt||''),
+            id:String(order.id),supplier:String(order.supplier||''),supplierId:String(order.supplierId||''),createdAt:String(order.createdAt||''),
             expectedAt:String(order.expectedAt||''),note:String(order.note||''),
             status:['draft','ordered','partial','received','cancelled'].includes(order.status)?order.status:'draft',
             items:(Array.isArray(order.items)?order.items:[]).map(item=>({
@@ -5310,10 +5374,10 @@ function savePurchaseOrder(){
     if(!purchaseOrderDraft.length)return showToast('Добавь хотя бы один товар','error');
     const now=new Date().toISOString();
     inventoryPurchaseOrders.unshift({
-        id:'po_'+Date.now()+'_'+Math.random().toString(36).slice(2,7),supplier,
+        id:'po_'+Date.now()+'_'+Math.random().toString(36).slice(2,7),supplier,supplierId:findOrCreateSupplier(supplier)?.id||'',
         createdAt:now,expectedAt:document.getElementById('purchaseOrderExpected').value||'',
         note:document.getElementById('purchaseOrderNote').value.trim(),status:'ordered',
-        items:purchaseOrderDraft.map(row=>({productId:row.productId,titleSnapshot:inventoryProducts.find(item=>item.id===row.productId)?.title||'Товар',quantity:row.quantity,receivedQuantity:0,unitCost:row.unitCost}))
+        items:purchaseOrderDraft.map(row=>({productId:row.productId,titleSnapshot:inventoryProducts.find(item=>item.id===row.productId)?.title||'Товар',quantity:row.quantity,receivedQuantity:0,unitCost:row.unitCost,receivedBatches:[]}))
     });
     persistPurchaseOrders();closeModal('purchaseOrderModal');renderPurchaseOrders();
     showToast('Заказ поставщику создан','success');
@@ -5346,7 +5410,7 @@ function receivePurchaseOrder(){
         const previousStock=product.stock,previousCost=Number(product.purchasePrice)||0;
         product.stock+=qty;
         product.purchasePrice=previousStock>0&&previousCost>0?((previousStock*previousCost)+(qty*unitCost))/(previousStock+qty):unitCost;
-        product.updatedAt=now;line.receivedQuantity+=qty;
+        product.updatedAt=now;line.receivedQuantity+=qty;if(!Array.isArray(line.receivedBatches))line.receivedBatches=[];line.receivedBatches.push({quantity:qty,unitCost,receivedAt:now});
         inventoryMovements.push({id:'mov_'+Date.now()+'_'+Math.random().toString(36).slice(2,8),productId:product.id,productTitle:product.title,type:'receipt',quantity:qty,supplier:order.supplier,unitCost,totalCost:qty*unitCost,note:'Приёмка заказа '+order.id+' · '+(order.note||'Заказ поставщику'),purchaseOrderId:order.id,createdAt:now});
     });
     const complete=order.items.every(item=>item.receivedQuantity>=item.quantity);
