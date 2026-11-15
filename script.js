@@ -3252,8 +3252,16 @@ function renderFinance() {
     const dayCompleted = dayBookings.filter(item => item.status === 'completed');
     const periodCompleted = bookings.filter(item => inRange(item.date, periodStart, periodEnd) && item.status === 'completed');
     const retailSaleDate = sale => { const date = new Date(sale.soldAt || sale.createdAt || ''); return Number.isNaN(date.getTime()) ? '' : formatReportDate(date); };
-    const retailSalesInRange = (start,end) => clientRetailSales.filter(sale => inRange(retailSaleDate(sale),start,end) && sale.paymentStatus !== 'refunded');
-    const retailCollected = (start,end) => retailSalesInRange(start,end).reduce((sum,sale)=>sum+Math.min(getRetailSaleNetTotal(sale),Number(sale.paidAmount ?? (sale.paymentStatus==='paid'?sale.total:0))||0),0);
+    const retailSalesInRange = (start,end) => clientRetailSales.filter(sale => inRange(retailSaleDate(sale),start,end));
+    const retailRefundsInRange = (start,end) => clientRetailSales.flatMap(sale=>(Array.isArray(sale.refunds)?sale.refunds:[]).filter(refund=>inRange(retailSaleDate({soldAt:refund.createdAt}),start,end)).map(refund=>({sale,refund})));
+    const retailCollected = (start,end) => {
+        const gross=retailSalesInRange(start,end).reduce((sum,sale)=>{
+            const refundedPaid=(Array.isArray(sale.refunds)?sale.refunds:[]).reduce((n,refund)=>n+(Number(refund.paidAmount)||0),0);
+            const originalPaid=Number(sale.grossPaidAmount ?? ((Number(sale.paidAmount)||0)+refundedPaid));
+            return sum+Math.max(0,Math.min(Number(sale.total)||0,originalPaid));
+        },0);
+        return gross-retailRefundsInRange(start,end).reduce((sum,row)=>sum+(Number(row.refund.paidAmount)||0),0);
+    };
     const revenue = (start, end) => bookings.filter(item => inRange(item.date, start, end))
         .reduce((sum, item) => sum + getBookingCollectedAmount(item), 0) + retailCollected(start,end);
     const getSafeExpenseAmount = item => {
@@ -3300,9 +3308,14 @@ function renderFinance() {
         }
     });
     retailSalesInRange(aggregationStart,aggregationEnd).forEach(sale=>{
-        const amount=Math.min(getRetailSaleNetTotal(sale),Number(sale.paidAmount)||0);
+        const refundedPaid=(Array.isArray(sale.refunds)?sale.refunds:[]).reduce((n,refund)=>n+(Number(refund.paidAmount)||0),0);
+        const amount=Math.max(0,Math.min(Number(sale.total)||0,Number(sale.grossPaidAmount ?? ((Number(sale.paidAmount)||0)+refundedPaid))));
         const method=Object.prototype.hasOwnProperty.call(paymentTotals,sale.paymentMethod)?sale.paymentMethod:'other';
         paymentTotals[method]+=amount;
+    });
+    retailRefundsInRange(aggregationStart,aggregationEnd).forEach(({sale,refund})=>{
+        const method=Object.prototype.hasOwnProperty.call(paymentTotals,refund.paymentMethod||sale.paymentMethod)?(refund.paymentMethod||sale.paymentMethod):'other';
+        paymentTotals[method]-=Number(refund.paidAmount)||0;
     });
 
     const setText = (id, value) => { const node = document.getElementById(id); if (node) node.textContent = value; };
@@ -5677,7 +5690,7 @@ function saveRetailRefund() {
     sale.refunds=Array.isArray(sale.refunds)?sale.refunds:[];
     sale.refunds.push({
         id:refundId,createdAt:now,value:refundValue,paidAmount:paidRefund,
-        debtReduction:refundValue-paidRefund,
+        paymentMethod:sale.paymentMethod||'other',debtReduction:refundValue-paidRefund,
         items:selections.map(({item,qty})=>({productId:item.productId,titleSnapshot:item.titleSnapshot,quantity:qty,unitPrice:Number(item.unitPrice)||0})),
         note:document.getElementById('retailRefundNote').value.trim()
     });
@@ -5723,7 +5736,7 @@ function saveRetailSale(){
     clientRetailSales.push({
         id:saleId,clientProfileKey:client.key,clientPhone:normalizeClientPhone(client.phone)?client.phone:'',clientNameSnapshot:client.name,
         soldAt:now,bookingId,staffId:String(linkedBooking?.barberId||currentUser.id||''),paymentStatus:status,paymentMethod:document.getElementById('retailSalePaymentMethod').value,
-        total,paidAmount:paid,items,notes:document.getElementById('retailSaleNote').value.trim(),source:'retail',createdAt:now
+        total,netTotal:total,paidAmount:paid,grossPaidAmount:paid,items,refunds:[],notes:document.getElementById('retailSaleNote').value.trim(),source:'retail',createdAt:now
     });
     persistInventory();persistClientRetailSales();
     retailSaleCart=[];
