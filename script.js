@@ -4532,6 +4532,22 @@ function renderClientLifetimeValue(clientBookings) {
     const first = completed.find(booking => parseClientDateTime(booking) > 0);
     const last = completed.slice().reverse().find(booking => parseClientDateTime(booking) > 0);
     const daysSince = last ? Math.max(0, Math.floor((Date.now() - parseClientDateTime(last)) / 86400000)) : null;
+    const now = Date.now();
+    const unpaidBalances = (clientBookings || [])
+        .filter(booking => booking.status !== 'cancelled')
+        .map(booking => {
+            const serviceTotal = getBookingServiceTotal(booking);
+            const payment = getBookingPaymentState(booking, serviceTotal);
+            const balance = Math.max(0, serviceTotal - payment.paid);
+            const timestamp = parseClientDateTime(booking);
+            return { balance, timestamp };
+        })
+        .filter(item => item.balance > 0);
+    const totalBalance = unpaidBalances.reduce((sum, item) => sum + item.balance, 0);
+    const overdueBalance = unpaidBalances
+        .filter(item => item.timestamp > 0 && item.timestamp < now)
+        .reduce((sum, item) => sum + item.balance, 0);
+    const overdueCount = unpaidBalances.filter(item => item.timestamp > 0 && item.timestamp < now).length;
     let relationship = 'Пока без визитов';
     let relationshipNote = 'Статус появится после первого завершённого визита';
     if (count) {
@@ -4559,6 +4575,10 @@ function renderClientLifetimeValue(clientBookings) {
             <div><b>${count}</b><span>Завершённых визитов</span></div>
             <div><b>${average.toLocaleString('ru-RU')} ₽</b><span>Средний чек</span></div>
             <div><b>${first ? escapeBookingHtml(first.date) : '—'}</b><span>Первый визит</span></div>
+        </div>
+        <div class="client-ltv-balance">
+            <div><span>Остаток к оплате по записям</span><strong>${Math.round(totalBalance).toLocaleString('ru-RU')} ₽</strong></div>
+            <div><span>По прошедшим записям · ${overdueCount}</span><strong class="${overdueBalance > 0 ? 'is-due' : ''}">${Math.round(overdueBalance).toLocaleString('ru-RU')} ₽</strong></div>
         </div>
         <p class="client-ltv-note">${relationshipNote}</p>
     `;
