@@ -5603,8 +5603,8 @@ function saveInventoryMovement() {
     const previousStock = item.stock;
     item.stock += type === 'receipt' ? quantity : -quantity;
     if (type === 'receipt' && unitCost !== null) {
-        item.purchasePrice = previousStock > 0
-            ? ((previousStock * (Number(item.purchasePrice) || 0)) + (quantity * unitCost)) / (previousStock + quantity)
+        item.purchasePrice = previousStock > 0 && Number(item.purchasePrice) > 0
+            ? ((previousStock * Number(item.purchasePrice)) + (quantity * unitCost)) / (previousStock + quantity)
             : unitCost;
     }
     item.updatedAt = new Date().toISOString();
