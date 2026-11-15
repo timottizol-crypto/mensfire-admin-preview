@@ -224,6 +224,8 @@
             </div>
         </div>
 
+
+        <div id="viewClientDirectory" class="view client-directory-workspace"><div class="workspace-heading inventory-heading"><div><span class="workspace-eyebrow">MENSFIRE CLIENTS</span><h2>База клиентов</h2><p>Поиск, сегменты и карточки клиентов</p></div></div><div class="client-directory-scope" id="clientDirectoryScope"></div><div id="clientDirectoryMount"></div></div>
         <!-- ЭКРАН СКЛАДА (ПК) -->
         <div id="viewInventory" class="view inventory-workspace">
             <div class="workspace-heading inventory-heading">
@@ -254,17 +256,17 @@
 
         <!-- ЗАКУПКИ И ПОСТАВЩИКИ (ТОЛЬКО ПК) -->
         <div id="viewPurchases" class="view purchase-workspace">
+            <div class="purchase-workspace-tabs"><button type="button" class="purchase-workspace-tab active" data-purchase-tab="orders" onclick="setPurchaseWorkspaceTab('orders')">Закупки</button><button type="button" class="purchase-workspace-tab" data-purchase-tab="suppliers" onclick="setPurchaseWorkspaceTab('suppliers')">Поставщики</button></div>
+            <div id="purchaseOrdersTab" class="purchase-subview">
             <div class="workspace-heading inventory-heading"><div><span class="workspace-eyebrow">MENSFIRE SUPPLY</span><h2>Закупки и поставщики</h2><p>Заказы, ожидаемые поставки и фактическое оприходование на склад</p></div><button type="button" class="home-cta-btn" onclick="openPurchaseOrderModal()"><div class="cta-text"><span>＋ Новый заказ</span></div></button></div>
             <div id="purchaseOrdersOverview" class="inventory-overview-grid"></div>
             <section class="glass-card purchase-orders-panel"><div class="finance-panel-heading"><div><h3>Заказы поставщикам</h3><p>Частичная приёмка не закрывает заказ до получения всех позиций</p></div></div><div id="purchaseOrdersList"></div></section>
         </div>
-
-
-        <!-- СПРАВОЧНИК ПОСТАВЩИКОВ (ТОЛЬКО ПК) -->
-        <div id="viewSuppliers" class="view suppliers-workspace">
+<div id="suppliersTab" class="purchase-subview" hidden>
             <div class="workspace-heading inventory-heading"><div><span class="workspace-eyebrow">MENSFIRE PARTNERS</span><h2>Поставщики</h2><p>Контакты, история заказов и объём закупок по каждому поставщику</p></div><button type="button" class="home-cta-btn" onclick="openSupplierModal()"><div class="cta-text"><span>＋ Добавить поставщика</span></div></button></div>
             <div id="suppliersOverview" class="inventory-overview-grid"></div>
             <section class="glass-card suppliers-panel"><div class="finance-panel-heading"><div><h3>Справочник</h3><p>Поставщики автоматически связываются с новыми и существующими заказами</p></div></div><div class="inventory-toolbar"><input id="suppliersSearch" type="search" placeholder="Поиск по названию, контакту или телефону" oninput="renderSuppliers()"></div><div id="suppliersList" class="suppliers-grid"></div></section>
+        </div>
         </div>
 
         <!-- ЭКРАН РОЗНИЧНЫХ ПРОДАЖ (ТОЛЬКО ПК) -->
