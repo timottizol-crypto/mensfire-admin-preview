@@ -224,6 +224,24 @@
             </div>
         </div>
 
+        <!-- ЭКРАН СКЛАДА (ПК) -->
+        <div id="viewInventory" class="view inventory-workspace">
+            <div class="workspace-heading inventory-heading">
+                <div><span class="workspace-eyebrow">MENSFIRE STOCK</span><h2>Склад и товары</h2><p>Каталог, остатки и история складских операций</p></div>
+                <button type="button" class="home-cta-btn" onclick="openInventoryProductModal()"><div class="cta-text"><span>＋ Новый товар</span></div></button>
+            </div>
+            <div id="inventoryOverview" class="inventory-overview-grid"></div>
+            <section class="glass-card inventory-catalog-panel">
+                <div class="finance-panel-heading"><div><h3>Каталог товаров</h3><p>Остатки меняются только через приход, списание и будущие продажи</p></div></div>
+                <div class="inventory-toolbar"><input id="inventorySearch" type="search" placeholder="Поиск по названию или артикулу" oninput="renderInventory()"><select id="inventoryCategoryFilter" onchange="renderInventory()"><option value="all">Все категории</option></select></div>
+                <div id="inventoryCatalog" class="inventory-catalog-grid"></div>
+            </section>
+            <section class="glass-card inventory-history-panel">
+                <div class="finance-panel-heading"><div><h3>Последние движения</h3><p>Приходы, начальные остатки и списания</p></div></div>
+                <div id="inventoryMovementHistory"></div>
+            </section>
+        </div>
+
         <!-- ЭКРАН ПРОФИЛЯ (Общий) -->
         <div id="viewProfile" class="view">
             <div class="profile-pc-wrapper">
@@ -282,6 +300,37 @@
         <div class="bottom-nav" id="bottomNav">
             <div class="nav-bubble" id="navBubble"></div>
             <!-- Вкладки будут добавлены динамически -->
+        </div>
+    </div>
+
+    <!-- Модальные окна склада -->
+    <div class="modal" id="inventoryProductModal">
+        <div class="modal-content inventory-modal-content">
+            <div class="booking-detail-heading"><h2 id="inventoryProductTitle">Новый товар</h2><button class="close-btn" type="button" onclick="closeModal('inventoryProductModal')">&times;</button></div>
+            <div class="form-group"><label for="inventoryProductName">Название товара</label><input id="inventoryProductName" type="text" maxlength="100" placeholder="Например, матовая паста"></div>
+            <div class="form-group"><label for="inventoryProductSku">Артикул / SKU</label><input id="inventoryProductSku" type="text" maxlength="40" placeholder="Например, PASTE-01"></div>
+            <div class="inventory-form-grid">
+                <div class="form-group"><label for="inventoryProductCategory">Категория</label><input id="inventoryProductCategory" type="text" maxlength="50" placeholder="Уход"></div>
+                <div class="form-group"><label for="inventoryProductUnit">Единица измерения</label><input id="inventoryProductUnit" type="text" maxlength="12" value="шт."></div>
+                <div class="form-group"><label for="inventoryProductPurchase">Закупочная цена, ₽</label><input id="inventoryProductPurchase" type="number" min="0" step="0.01" placeholder="0"></div>
+                <div class="form-group"><label for="inventoryProductSale">Цена продажи, ₽</label><input id="inventoryProductSale" type="number" min="0" step="0.01" placeholder="0"></div>
+                <div class="form-group"><label for="inventoryProductMin">Минимальный остаток</label><input id="inventoryProductMin" type="number" min="0" step="1" value="0"></div>
+                <div class="form-group"><label for="inventoryProductStock">Начальный остаток</label><input id="inventoryProductStock" type="number" min="0" step="1" value="0"></div>
+            </div>
+            <p class="inventory-modal-hint">При редактировании товара остаток не меняется — для этого используй приход или списание. Начальный остаток нового товара попадёт в журнал как отдельный приход.</p>
+            <button type="button" class="checkout-btn" onclick="saveInventoryProduct()">Сохранить товар</button>
+            <button type="button" class="btn-cancel" onclick="closeModal('inventoryProductModal')">Отмена</button>
+        </div>
+    </div>
+    <div class="modal" id="inventoryMovementModal">
+        <div class="modal-content inventory-modal-content">
+            <div class="booking-detail-heading"><h2 id="inventoryMovementTitle">Движение товара</h2><button class="close-btn" type="button" onclick="closeModal('inventoryMovementModal')">&times;</button></div>
+            <p id="inventoryMovementProduct" class="inventory-modal-hint"></p>
+            <input type="hidden" id="inventoryMovementProductId"><input type="hidden" id="inventoryMovementType">
+            <div class="form-group"><label for="inventoryMovementQuantity">Количество</label><input id="inventoryMovementQuantity" type="number" min="1" step="1" placeholder="Укажи количество"></div>
+            <div class="form-group"><label for="inventoryMovementNote">Комментарий</label><input id="inventoryMovementNote" type="text" maxlength="120" placeholder="Поставка, повреждение и т. д."></div>
+            <button type="button" class="checkout-btn" onclick="saveInventoryMovement()">Зафиксировать</button>
+            <button type="button" class="btn-cancel" onclick="closeModal('inventoryMovementModal')">Отмена</button>
         </div>
     </div>
 
@@ -769,6 +818,6 @@
         </div>
     </div>
 
-    <script src="script.js?v=mensfire-retail-history-20261115-1"></script>
+    <script src="script.js?v=mensfire-inventory-20261115-1"></script>
 </body>
 </html>
