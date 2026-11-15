@@ -3938,7 +3938,7 @@ function renderClientFollowUpPanel(clientGroups) {
         const daysAway = lastVisit ? Math.floor((today.getTime() - new Date(parseClientDateTime(lastVisit)).setHours(0,0,0,0)) / dayMs) : null;
         const hasUpcoming = (client.visits || []).some(visit => !['cancelled','completed','no_show','missed'].includes(String(visit.status || '').toLowerCase()) && parseClientDateTime(visit) >= Date.now());
         let birthdayDays = null;
-        if (profile.birthday && /^\\d{4}-\\d{2}-\\d{2}$/.test(profile.birthday)) {
+        if (profile.birthday && /^\d{4}-\d{2}-\d{2}$/.test(profile.birthday)) {
             const [,month,day] = profile.birthday.split('-').map(Number);
             const birthday = new Date(today.getFullYear(),month-1,day); birthday.setHours(0,0,0,0);
             if (birthday < today) birthday.setFullYear(today.getFullYear()+1);
