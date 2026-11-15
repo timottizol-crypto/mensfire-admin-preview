@@ -6414,6 +6414,21 @@ html.light-theme .booking-client-match{background:#fbf8ef}
 @media(max-width:767px){.client-directory-workspace{display:none!important}}
 
 
+
+/* Список клиентов в отдельной desktop-вкладке сохраняет прежнюю сетку прямоугольных карточек. */
+@media (min-width: 768px) {
+    #viewClientDirectory #clientsList {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(min(100%, 340px), 1fr));
+        align-content: start;
+        gap: 12px;
+    }
+    #viewClientDirectory .client-card {
+        margin: 0;
+        height: 100%;
+    }
+}
+
 /* Стили карточек после переноса списка в отдельную desktop-вкладку */
 #viewClientDirectory #clientsList{min-width:0}
 #viewClientDirectory .client-card{box-sizing:border-box;width:100%;min-width:0;align-items:flex-start;gap:12px;padding:14px}
