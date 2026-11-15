@@ -4317,19 +4317,40 @@ function showClientDetails(name, barberId) {
     
     const cancelledCount = myBookings.filter(b => b.status === 'cancelled').length;
     const noShowCount = myBookings.filter(b => ['no_show', 'missed'].includes(String(b.status || '').toLowerCase())).length;
-    const firstCompleted = [...myBookings].reverse().find(booking => booking.status === 'completed');
+    const completedVisits = myBookings
+        .filter(booking => booking.status === 'completed' && parseClientDateTime(booking) > 0)
+        .sort((a, b) => parseClientDateTime(a) - parseClientDateTime(b));
+    const firstCompleted = completedVisits[0] || null;
+    const lastCompleted = completedVisits[completedVisits.length - 1] || null;
     const averageCheck = completedCount ? Math.round(completedRevenue / completedCount) : 0;
+    const visitGaps = completedVisits.slice(1).map((booking, index) =>
+        (parseClientDateTime(booking) - parseClientDateTime(completedVisits[index])) / 86400000
+    ).filter(days => Number.isFinite(days) && days > 0);
+    const averageVisitGap = visitGaps.length
+        ? Math.round(visitGaps.reduce((sum, days) => sum + days, 0) / visitGaps.length)
+        : 0;
+    const daysSinceLastVisit = lastCompleted
+        ? Math.max(0, Math.floor((Date.now() - parseClientDateTime(lastCompleted)) / 86400000))
+        : null;
+    const activityLabel = daysSinceLastVisit === null
+        ? 'Нет завершённых визитов'
+        : daysSinceLastVisit >= 90
+            ? 'Давно не был'
+            : daysSinceLastVisit >= 45
+                ? 'Пора напомнить'
+                : 'Активный клиент';
     const metrics = document.getElementById('clientDetailsMetrics');
     if (metrics) {
-        const nextVisit = myBookings.filter(booking => booking.status !== 'cancelled' && parseClientDateTime(booking) >= Date.now())
+        const nextVisit = myBookings.filter(booking => !['cancelled', 'completed', 'no_show', 'missed'].includes(String(booking.status || '').toLowerCase()) && parseClientDateTime(booking) >= Date.now())
             .sort((a,b) => parseClientDateTime(a) - parseClientDateTime(b))[0];
-        const lastCompleted = myBookings.find(booking => booking.status === 'completed');
         metrics.innerHTML = `
             <span>Отмен: <b>${cancelledCount}</b></span>
             <span>Неявки: <b>${noShowCount}</b></span>
             <span>Средний чек: <b>${averageCheck.toLocaleString('ru-RU')} ₽</b></span>
+            <span>Частота визитов: <b>${averageVisitGap ? 'раз в ' + averageVisitGap + ' дн.' : 'недостаточно данных'}</b></span>
             <span>Первый визит: <b>${firstCompleted ? escapeBookingHtml(firstCompleted.date) : '—'}</b></span>
             <span>Последний визит: <b>${lastCompleted ? escapeBookingHtml(lastCompleted.date) : '—'}</b></span>
+            <span>Активность: <b>${activityLabel}</b></span>
             <span>Следующая запись: <b>${nextVisit ? escapeBookingHtml(nextVisit.date + ' · ' + nextVisit.time) : 'нет'}</b></span>
         `;
     }
