@@ -4000,6 +4000,52 @@ function renderClientRetailPurchases(clientBookings = []) {
         }).join('') + '</div>' :
         '<div class="client-retail-empty"><span class="client-retail-empty-icon">▧</span><strong>Покупок товаров пока нет</strong><p>Здесь появятся продажи из отдельного товарного чека. Услуги и оплаты визитов не дублируются в этой истории.</p></div>';
 }
+function renderClientProductRecommendations() {
+    const root = document.getElementById('clientProductRecommendations');
+    if (!root || !selectedClientProfileKey) return;
+    const profile = clientProfiles[selectedClientProfileKey] || {};
+    const phone = normalizeClientPhone(profile.phone);
+    const sales = clientRetailSales.filter(sale => {
+        if (sale.clientProfileKey && sale.clientProfileKey === selectedClientProfileKey) return true;
+        const salePhone = normalizeClientPhone(sale.clientPhone);
+        if (phone.length >= 7 && salePhone.length >= 7) return phone === salePhone;
+        return !salePhone && !phone && sale.clientNameSnapshot &&
+            sale.clientNameSnapshot.trim().toLowerCase() === String(profile.clientName || '').trim().toLowerCase();
+    });
+    const frequency = new Map();
+    sales.forEach(sale => (sale.items || []).forEach(item => {
+        const quantity = Math.max(0, (Number(item.quantity) || 0) - (Number(item.refundedQuantity) || 0));
+        if (!quantity) return;
+        const product = (item.productId ? inventoryProducts.find(entry => String(entry.id) === String(item.productId)) : null) ||
+            (item.sku ? inventoryProducts.find(entry => String(entry.sku || '').toLowerCase() === String(item.sku).toLowerCase()) : null) ||
+            (!item.productId && !item.sku ? inventoryProducts.find(entry => String(entry.title || '').trim().toLowerCase() === String(item.titleSnapshot || '').trim().toLowerCase()) : null);
+        if (!product || !product.active || Number(product.stock) <= 0) return;
+        const current = frequency.get(String(product.id)) || { product, quantity: 0, purchases: 0, lastBought: '' };
+        current.quantity += quantity;
+        current.purchases += 1;
+        if (!current.lastBought || new Date(sale.soldAt || 0) > new Date(current.lastBought)) current.lastBought = sale.soldAt || '';
+        frequency.set(String(product.id), current);
+    }));
+    const suggestions = [...frequency.values()].sort((a, b) =>
+        b.purchases - a.purchases || b.quantity - a.quantity ||
+        new Date(b.lastBought || 0) - new Date(a.lastBought || 0)
+    ).slice(0, 4);
+    const fmt = value => Math.round(Number(value) || 0).toLocaleString('ru-RU') + ' ₽';
+    root.innerHTML = suggestions.length
+        ? '<div class="client-product-recommendation-grid">' + suggestions.map(item =>
+            '<article class="client-product-recommendation"><div><strong>' + escapeBookingHtml(item.product.title || 'Товар') + '</strong>' +
+            '<span>Покупал: ' + item.purchases + ' ' + (item.purchases === 1 ? 'раз' : item.purchases < 5 ? 'раза' : 'раз') +
+            ' · всего ' + item.quantity + ' ед.</span><small>В наличии: ' + Math.max(0, Number(item.product.stock) || 0) + ' ' + escapeBookingHtml(item.product.unit || 'шт.') + '</small></div>' +
+            '<div class="client-product-recommendation-action"><b>' + fmt(item.product.salePrice) + '</b>' +
+            '<button type="button" onclick="openRetailHistoryProduct(' + escapeBookingHtml(JSON.stringify(String(item.product.id))) + ',' +
+            escapeBookingHtml(JSON.stringify(String(item.product.sku || ''))) + ',' +
+            escapeBookingHtml(JSON.stringify(String(item.product.title || ''))) + ')">Открыть товар</button></div></article>'
+        ).join('') + '</div>'
+        : '<div class="client-product-recommendation-empty">' +
+            (sales.length ? 'По истории покупок нет совпадений с активным каталогом и товарами в наличии.' : 'Рекомендации появятся после первой покупки товара, который есть в активном каталоге.') +
+            '</div>';
+}
+
 function renderClientInteractionHistory() {
     const root = document.getElementById('clientInteractionHistory');
     if (!root || !selectedClientProfileKey) return;
@@ -5465,6 +5511,7 @@ function showClientDetails(name, barberId) {
     }
 
     renderClientRetailPurchases(myBookings);
+    renderClientProductRecommendations();
     renderClientLoyaltyPanel(myBookings);
     renderClientInsights(myBookings);
     renderClientLifetimeValue(myBookings);
