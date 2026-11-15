@@ -3898,18 +3898,46 @@ function renderClientRetailPurchases(clientBookings = []) {
         const date = new Date(value || '');
         return Number.isNaN(date.getTime()) ? 'Дата не указана' : date.toLocaleString('ru-RU',{day:'2-digit',month:'short',year:'numeric',hour:'2-digit',minute:'2-digit'});
     };
-    const total = sales.reduce((sum,sale) => sum + getRetailSaleNetTotal(sale),0);
-    const units = sales.reduce((sum,sale) => sum + sale.items.reduce((n,item) => n + Math.max(0,item.quantity-(Number(item.refundedQuantity)||0)),0),0);
+    const totals = sales.reduce((sum,sale) => {
+        const net = getRetailSaleNetTotal(sale);
+        const received = Math.min(net,Math.max(0,Number(sale.paidAmount ?? (sale.paymentStatus === 'paid' ? sale.total : 0)) || 0));
+        sum.purchases += net;
+        sum.received += received;
+        sum.debt += Math.max(0,net-received);
+        sum.units += (sale.items || []).reduce((n,item) => n + Math.max(0,(Number(item.quantity)||0)-(Number(item.refundedQuantity)||0)),0);
+        return sum;
+    },{purchases:0,received:0,debt:0,units:0});
     root.innerHTML = sales.length ?
-        '<div class="client-retail-summary"><span><b>' + sales.length + '</b> покупок</span><span><b>' + units + '</b> ед. товаров</span><strong>' + fmt(total) + '</strong></div>' +
+        '<div class="client-retail-summary">' +
+            '<div><span>Покупок</span><b>' + sales.length + '</b></div>' +
+            '<div><span>Товаров</span><b>' + totals.units + ' ед.</b></div>' +
+            '<div><span>Стоимость покупок</span><b>' + fmt(totals.purchases) + '</b></div>' +
+            '<div><span>Получено</span><b class="is-received">' + fmt(totals.received) + '</b></div>' +
+            '<div><span>Задолженность</span><b class="' + (totals.debt > 0 ? 'is-debt' : 'is-received') + '">' + fmt(totals.debt) + '</b></div>' +
+        '</div>' +
         '<div class="client-retail-list">' + sales.map(sale => {
             const booking = sale.bookingId ? (clientBookings || []).find(item => String(item.id) === sale.bookingId) : null;
             const statusLabels = {paid:'Оплачено',partial:'Частично',unpaid:'Не оплачено',refunded:'Возврат'};
-            const items = sale.items.map(item => { const returned=Number(item.refundedQuantity)||0; const remaining=Math.max(0,item.quantity-returned); return '<div class="client-retail-item"><span>' + escapeBookingHtml(item.titleSnapshot) + (item.sku ? ' · ' + escapeBookingHtml(item.sku) : '') + ' <small>× ' + remaining + (returned?' · возврат '+returned:'') + '</small></span><b>' + fmt(remaining*item.unitPrice) + '</b></div>'; }).join('');
-            return '<article class="client-retail-sale"><div class="client-retail-sale-head"><div><strong>' + dateLabel(sale.soldAt) + '</strong><span>' + (booking ? 'Связано с визитом · ' + escapeBookingHtml(booking.date + ' в ' + booking.time) : sale.bookingId ? 'Визит: ' + escapeBookingHtml(sale.bookingId) : 'Отдельная покупка') + '</span></div><b class="client-retail-status status-' + sale.paymentStatus + '">' + statusLabels[sale.paymentStatus] + '</b></div>' + (items || '<div class="client-retail-empty-items">Состав покупки не указан</div>') + '<div class="client-retail-sale-total"><span>Итого после возвратов</span><strong>' + fmt(getRetailSaleNetTotal(sale)) + '</strong></div>' + '<div class="client-retail-payment-detail"><span>Получено: <b>' + fmt(sale.paidAmount ?? (sale.paymentStatus === 'paid' ? sale.total : 0)) + '</b></span><span>Долг: <b>' + fmt(Math.max(0,getRetailSaleNetTotal(sale)-(sale.paidAmount ?? (sale.paymentStatus === 'paid' ? sale.total : 0)))) + '</b></span></div>' + (sale.notes ? '<p>' + escapeBookingHtml(sale.notes) + '</p>' : '') + '</article>';
-        }).join('') + '</div>' : '<div class="client-retail-empty"><span class="client-retail-empty-icon">▧</span><strong>Покупок товаров пока нет</strong><p>Здесь появятся продажи из отдельного товарного чека. Услуги и оплаты визитов не дублируются в этой истории.</p></div>';
+            const net = getRetailSaleNetTotal(sale);
+            const received = Math.min(net,Math.max(0,Number(sale.paidAmount ?? (sale.paymentStatus === 'paid' ? sale.total : 0)) || 0));
+            const debt = Math.max(0,net-received);
+            const items = (sale.items || []).map(item => {
+                const returned=Number(item.refundedQuantity)||0;
+                const remaining=Math.max(0,(Number(item.quantity)||0)-returned);
+                return '<div class="client-retail-item"><span>' + escapeBookingHtml(item.titleSnapshot) + (item.sku ? ' · ' + escapeBookingHtml(item.sku) : '') + ' <small>× ' + remaining + (returned?' · возврат '+returned:'') + '</small></span><b>' + fmt(remaining*item.unitPrice) + '</b></div>';
+            }).join('');
+            const refunds = (Array.isArray(sale.refunds) ? sale.refunds : []).map(refund =>
+                '<div class="client-retail-refund"><span>Возврат · ' + dateLabel(refund.createdAt) + (refund.note ? ' · ' + escapeBookingHtml(refund.note) : '') + '</span><b>−' + fmt(refund.value) + '</b></div>'
+            ).join('');
+            return '<article class="client-retail-sale"><div class="client-retail-sale-head"><div><strong>' + dateLabel(sale.soldAt) + '</strong><span>' + (booking ? 'Связано с визитом · ' + escapeBookingHtml(booking.date + ' в ' + booking.time) : sale.bookingId ? 'Визит: ' + escapeBookingHtml(sale.bookingId) : 'Отдельная покупка') + '</span></div><b class="client-retail-status status-' + sale.paymentStatus + '">' + (statusLabels[sale.paymentStatus] || 'Статус не указан') + '</b></div>' +
+                (items || '<div class="client-retail-empty-items">Состав покупки не указан</div>') +
+                '<div class="client-retail-sale-total"><span>Стоимость после возвратов</span><strong>' + fmt(net) + '</strong></div>' +
+                '<div class="client-retail-payment-detail"><span>Получено: <b>' + fmt(received) + '</b></span><span>Долг: <b class="' + (debt > 0 ? 'is-debt' : 'is-received') + '">' + fmt(debt) + '</b></span></div>' +
+                (refunds ? '<div class="client-retail-refunds">' + refunds + '</div>' : '') +
+                (sale.notes ? '<p>' + escapeBookingHtml(sale.notes) + '</p>' : '') + '</article>';
+        }).join('') + '</div>' :
+        '<div class="client-retail-empty"><span class="client-retail-empty-icon">▧</span><strong>Покупок товаров пока нет</strong><p>Здесь появятся продажи из отдельного товарного чека. Услуги и оплаты визитов не дублируются в этой истории.</p></div>';
 }
-
 function renderClientInteractionHistory() {
     const root = document.getElementById('clientInteractionHistory');
     if (!root || !selectedClientProfileKey) return;
