@@ -1367,6 +1367,10 @@ function renderDesktopSchedule() {
                     <button class="active" onclick="setDesktopCalendarMode('month')">Месяц</button>
                     <button class="${currentScheduleTab === 'bookings' ? 'active' : ''}" onclick="switchScheduleTab('bookings')">Записи</button>
                     <button class="${currentScheduleTab === 'breaks' ? 'active' : ''}" onclick="switchScheduleTab('breaks')">Перерывы</button>
+                    <span class="desktop-calendar-action-divider" aria-hidden="true"></span>
+                    <button type="button" class="desktop-calendar-action" onclick="openBlockTimeModal()">Заблокировать время</button>
+                    <button type="button" class="desktop-calendar-action" onclick="openWorkScheduleModal()">Рабочий график</button>
+                    <button type="button" class="desktop-calendar-action desktop-calendar-action-primary" onclick="openNewBookingModal()">＋ Новая запись</button>
                 </div>
             </div>
             ${renderScheduleBarberFilter(availableStaff)}
@@ -1433,6 +1437,10 @@ function renderDesktopSchedule() {
                 <button class="${viewMode === 'week' ? 'active' : ''}" onclick="setDesktopCalendarMode('week')">Неделя</button>
                 <button class="${currentScheduleTab === 'bookings' ? 'active' : ''}" onclick="switchScheduleTab('bookings')">Записи</button>
                 <button class="${currentScheduleTab === 'breaks' ? 'active' : ''}" onclick="switchScheduleTab('breaks')">Перерывы</button>
+                <span class="desktop-calendar-action-divider" aria-hidden="true"></span>
+                    <button type="button" class="desktop-calendar-action" onclick="openBlockTimeModal()">Заблокировать время</button>
+                    <button type="button" class="desktop-calendar-action" onclick="openWorkScheduleModal()">Рабочий график</button>
+                    <button type="button" class="desktop-calendar-action desktop-calendar-action-primary" onclick="openNewBookingModal()">＋ Новая запись</button>
             </div>
         </div>
         ${renderScheduleBarberFilter(availableStaff)}
