@@ -5127,6 +5127,7 @@ function importMensfireBackup(input) {
                 mensfire_inventory_products: Array.isArray,
                 mensfire_inventory_movements: Array.isArray,
                 mensfire_inventory_purchase_orders: Array.isArray,
+                mensfire_inventory_suppliers: Array.isArray,
                 mensfire_client_retail_sales: Array.isArray,
                 mensfire_client_profiles: value => value && typeof value === 'object' && !Array.isArray(value)
             };
@@ -5287,7 +5288,7 @@ function openSupplierModal(supplierId=''){
     if(!requireAdminAction('Управлять поставщиками может только Али'))return;
     const supplier=inventorySuppliers.find(item=>item.id===supplierId);editingSupplierId=supplier?.id||null;
     document.getElementById('supplierModalTitle').textContent=supplier?'Редактировать поставщика':'Новый поставщик';
-    ['Name','Contact','Phone','Email','Address','Notes'].forEach(key=>{const node=document.getElementById('supplier'+key);if(node)node.value=supplier?({Name:'name',Contact:'contactPerson',Phone:'phone',Email:'email',Address:'address',Notes:'notes'}[key] in supplier?supplier[{Name:'name',Contact:'contactPerson',Phone:'phone',Email:'email',Address:'address',Notes:'notes'}[key]]:''):'';});
+    const fields={Name:'name',Contact:'contactPerson',Phone:'phone',Email:'email',Address:'address',Notes:'notes'};Object.entries(fields).forEach(([field,key])=>{const node=document.getElementById('supplier'+field);if(node)node.value=supplier?(supplier[key]||''):'';});
     openModal('supplierModal');
 }
 function saveSupplier(){
