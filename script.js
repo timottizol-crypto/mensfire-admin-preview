@@ -3852,6 +3852,7 @@ let currentClientsWorkspaceMode = 'clients';
 let clientsTasksFilter = 'all'; 
 let clientsSearchQuery = '';
 let clientsSegmentFilter = 'all';
+let clientsDataQualityExpanded = false;
 
 function setClientsSearchQuery(value) {
     clientsSearchQuery = value.trim().toLowerCase();
@@ -4369,6 +4370,76 @@ function updateClientTaskFromHub(profileKey, taskId, action) {
     if (selectedClientProfileKey === profileKey) renderClientTasks();
 }
 
+function toggleClientsDataQuality() {
+    clientsDataQualityExpanded = !clientsDataQualityExpanded;
+    const panel = document.getElementById('clientsDataQualityDetails');
+    const button = document.getElementById('clientsDataQualityToggle');
+    if (panel) panel.hidden = !clientsDataQualityExpanded;
+    if (button) {
+        button.setAttribute('aria-expanded', String(clientsDataQualityExpanded));
+        const icon = button.querySelector('.crm-data-quality-chevron');
+        if (icon) icon.textContent = clientsDataQualityExpanded ? '−' : '+';
+    }
+}
+
+function renderClientsDataQualityAudit(sourceClients) {
+    const host = document.getElementById('clientsDataQuality');
+    if (!host) return;
+    const clients = Array.isArray(sourceClients) ? sourceClients : [];
+    const byName = new Map();
+    const byPhone = new Map();
+    clients.forEach(client => {
+        const profile = findClientProfile(client.name, client.barberId).profile || {};
+        const name = String(client.name || '').trim().replace(/\s+/g,' ').toLocaleLowerCase('ru-RU');
+        const phone = normalizeClientPhone(profile.phone);
+        if (name) {
+            if (!byName.has(name)) byName.set(name, []);
+            byName.get(name).push({client,phone});
+        }
+        if (phone.length >= 7) {
+            if (!byPhone.has(phone)) byPhone.set(phone, []);
+            byPhone.get(phone).push({client,phone});
+        }
+    });
+    const possibleDuplicates = [...byName.values()].filter(items =>
+        items.length > 1 && new Set(items.map(item => String(item.client.barberId))).size > 1 &&
+        items.every(item => !item.phone)
+    );
+    const phoneConflicts = [...byPhone.values()].filter(items =>
+        new Set(items.map(item => String(item.client.name || '').trim().toLocaleLowerCase('ru-RU'))).size > 1
+    );
+    const details = [
+        ...possibleDuplicates.map(items => ({
+            type:'name', title:items[0].client.name,
+            description:'Одинаковое имя у разных мастеров без номера телефона. Это возможный дубль, но не доказательство.',
+            items
+        })),
+        ...phoneConflicts.map(items => ({
+            type:'phone',
+            title:items.map(item => item.client.name).filter((name,index,names)=>names.indexOf(name)===index).join(' / '),
+            description:'Один номер указан в карточках с разными именами. Проверь, не общий ли это телефон.',
+            items
+        }))
+    ];
+    const total = details.length;
+    host.innerHTML = '<section class="crm-data-quality">' +
+        '<button type="button" id="clientsDataQualityToggle" class="crm-data-quality-toggle" aria-expanded="' + String(clientsDataQualityExpanded) + '" onclick="toggleClientsDataQuality()">' +
+            '<span><strong>Проверка клиентской базы</strong><small>' + (total ? 'Ситуаций для ручной проверки: ' + total : 'Явных совпадений для проверки не найдено') + '</small></span>' +
+            '<span class="crm-data-quality-count">' + total + '</span><span class="crm-data-quality-chevron">' + (clientsDataQualityExpanded ? '−' : '+') + '</span>' +
+        '</button>' +
+        '<div id="clientsDataQualityDetails" class="crm-data-quality-details" ' + (clientsDataQualityExpanded ? '' : 'hidden') + '>' +
+            (details.length ? details.map(group =>
+                '<article class="crm-data-quality-item"><div><strong>' + escapeBookingHtml(group.title) + '</strong><p>' + escapeBookingHtml(group.description) + '</p>' +
+                '<div class="crm-data-quality-profiles">' + group.items.map(item =>
+                    '<button type="button" onclick="showClientDetails(' + escapeBookingHtml(JSON.stringify(String(item.client.name || ''))) + ',' + escapeBookingHtml(JSON.stringify(String(item.client.barberId || ''))) + ')">' +
+                    escapeBookingHtml(item.client.name || 'Клиент') + ' · ' + escapeBookingHtml(mockStaff.find(staff => String(staff.id) === String(item.client.barberId))?.name || 'Мастер') +
+                    '</button>'
+                ).join('') + '</div></div><span class="crm-data-quality-kind">' + (group.type === 'name' ? 'Совпадение имени' : 'Общий номер') + '</span></article>'
+            ).join('') : '<div class="crm-data-quality-empty">Пока нечего проверять. Новые совпадения появятся здесь автоматически.</div>') +
+            '<p class="crm-data-quality-note">Автоматическое объединение отключено: совпадение имени или номера само по себе не подтверждает, что это один человек. Открой карточки и проверь данные вручную.</p>' +
+        '</div></section>';
+}
+
 function renderClients(tab = 'all') {
     currentClientsTab = tab;
     renderWaitlist();
@@ -4478,6 +4549,7 @@ function renderClients(tab = 'all') {
     });
 
     const allClientGroups = Object.values(groupedClients);
+    renderClientsDataQualityAudit(Object.values(clients));
     const segmentNow = Date.now();
     const eligibleChecks = allClientGroups.filter(client => client.completedCount >= 2)
         .map(client => Math.round(client.completedRevenue / client.completedCount)).sort((a,b) => a-b);
@@ -4528,7 +4600,7 @@ function renderClients(tab = 'all') {
         segmentContainer.innerHTML = '<div class="client-segment-tabs">' + filters.map(item =>
             '<button type="button" class="client-segment-btn ' + (clientsSegmentFilter === item.id ? 'active' : '') + '" onclick="setClientsSegmentFilter(\'' + item.id + '\')">' +
             item.label + '<span class="client-segment-count">' + counts[item.id] + '</span></button>'
-        ).join('') + '</div>';
+        ).join('') + '</div><div id="clientsDataQuality"></div>';
     }
     renderClientsAnalytics(filteredBookings, allClientGroups);
     renderClientFollowUpPanel(allClientGroups);
