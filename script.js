@@ -5518,7 +5518,7 @@ function renderInventory() {
     const history = document.getElementById('inventoryMovementHistory');
     if (history) {
         const recent = inventoryMovements.slice().sort((a,b) => String(b.createdAt).localeCompare(String(a.createdAt))).slice(0,12);
-        history.innerHTML = recent.length ? recent.map(move => '<div class="inventory-movement-row"><div><strong>' + escapeBookingHtml(move.productTitle || 'Товар') + '</strong><small>' + new Date(move.createdAt).toLocaleString('ru-RU') + ' · ' + escapeBookingHtml(move.note || 'Без комментария') + '</small></div><span class="' + (move.type === 'receipt' ? 'is-positive' : 'is-negative') + '">' + (move.type === 'receipt' ? '+' : '−') + move.quantity + '</span></div>').join('') : '<div class="inventory-empty compact">Движений пока нет</div>';
+        history.innerHTML = recent.length ? recent.map(move => '<div class="inventory-movement-row"><div><strong>' + escapeBookingHtml(move.productTitle || 'Товар') + '</strong><small>' + new Date(move.createdAt).toLocaleString('ru-RU') + (move.supplier ? ' · Поставщик: ' + escapeBookingHtml(move.supplier) : '') + (move.unitCost !== null && move.unitCost !== undefined ? ' · Закупка: ' + Number(move.unitCost).toLocaleString('ru-RU') + ' ₽/ед.' : '') + ' · ' + escapeBookingHtml(move.note || 'Без комментария') + '</small></div><span class="' + (move.type === 'receipt' ? 'is-positive' : 'is-negative') + '">' + (move.type === 'receipt' ? '+' : '−') + move.quantity + '</span></div>').join('') : '<div class="inventory-empty compact">Движений пока нет</div>';
     }
 }
 function openInventoryProductModal(id = '') {
@@ -5582,6 +5582,10 @@ function openInventoryMovementModal(id, type) {
     document.getElementById('inventoryMovementProduct').textContent = item.title + ' · остаток ' + item.stock + ' ' + item.unit;
     document.getElementById('inventoryMovementQuantity').value = '';
     document.getElementById('inventoryMovementNote').value = '';
+    document.getElementById('inventoryMovementSupplier').value = '';
+    document.getElementById('inventoryMovementUnitCost').value = '';
+    document.getElementById('inventoryMovementSupplierGroup').style.display = type === 'receipt' ? '' : 'none';
+    document.getElementById('inventoryMovementCostGroup').style.display = type === 'receipt' ? '' : 'none';
     openModal('inventoryMovementModal');
 }
 function saveInventoryMovement() {
@@ -5590,11 +5594,32 @@ function saveInventoryMovement() {
     const type = document.getElementById('inventoryMovementType').value;
     const quantity = Number(document.getElementById('inventoryMovementQuantity').value);
     const item = inventoryProducts.find(product => product.id === id);
+    const supplier = document.getElementById('inventoryMovementSupplier').value.trim();
+    const unitCostRaw = document.getElementById('inventoryMovementUnitCost').value.trim();
+    const unitCost = unitCostRaw === '' ? null : Number(unitCostRaw);
     if (!item || !Number.isInteger(quantity) || quantity <= 0) return showToast('Укажи целое количество больше нуля', 'error');
     if (type === 'writeoff' && quantity > item.stock) return showToast('Нельзя списать больше, чем есть на складе', 'error');
+    if (type === 'receipt' && unitCost !== null && (!Number.isFinite(unitCost) || unitCost < 0)) return showToast('Проверь закупочную цену за единицу', 'error');
+    const previousStock = item.stock;
     item.stock += type === 'receipt' ? quantity : -quantity;
+    if (type === 'receipt' && unitCost !== null) {
+        item.purchasePrice = previousStock > 0
+            ? ((previousStock * (Number(item.purchasePrice) || 0)) + (quantity * unitCost)) / (previousStock + quantity)
+            : unitCost;
+    }
     item.updatedAt = new Date().toISOString();
-    inventoryMovements.push({id:'mov_' + Date.now() + '_' + Math.random().toString(36).slice(2,6),productId:item.id,productTitle:item.title,type,quantity,note:document.getElementById('inventoryMovementNote').value.trim(),createdAt:item.updatedAt});
+    inventoryMovements.push({
+        id:'mov_' + Date.now() + '_' + Math.random().toString(36).slice(2,6),
+        productId:item.id,
+        productTitle:item.title,
+        type,
+        quantity,
+        supplier: type === 'receipt' ? supplier : '',
+        unitCost: type === 'receipt' ? unitCost : null,
+        totalCost: type === 'receipt' && unitCost !== null ? quantity * unitCost : null,
+        note:document.getElementById('inventoryMovementNote').value.trim(),
+        createdAt:item.updatedAt
+    });
     persistInventory();
     closeModal('inventoryMovementModal');
     renderInventory();
