@@ -607,6 +607,22 @@
                     style="width: 100%; resize: vertical;"></textarea>
             </div>
 
+            <section class="client-interactions-section">
+                <div class="client-interactions-heading"><div><strong>История общения</strong><span>Звонки, сообщения и заметки команды</span></div></div>
+                <div class="client-interaction-composer">
+                    <select id="clientInteractionType" aria-label="Тип взаимодействия">
+                        <option value="call">Звонок</option>
+                        <option value="message">Сообщение</option>
+                        <option value="meeting">Личная встреча</option>
+                        <option value="note">Заметка</option>
+                        <option value="other">Другое</option>
+                    </select>
+                    <textarea id="clientInteractionText" rows="2" maxlength="1200" placeholder="Например: связались, клиент попросил подобрать время на следующей неделе..."></textarea>
+                    <button type="button" class="action-modal-btn action-btn-primary" onclick="addClientInteraction()">＋ Добавить в историю</button>
+                </div>
+                <div id="clientInteractionHistory" class="client-interaction-history"></div>
+            </section>
+
             <div class="client-profile-actions">
                 <button type="button" class="action-modal-btn action-btn-primary" onclick="createBookingForClient()">＋ Новая запись</button>
                 <button type="button" class="action-modal-btn client-profile-save" onclick="saveClientProfile()">Сохранить профиль</button>
