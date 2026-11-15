@@ -321,10 +321,32 @@
 
             <button id="cancelBookingBtn"
                 class="action-modal-btn action-btn-danger"
-                onclick="cancelBooking()">Отменить запись</button>
+                onclick="openCancelBookingModal()">Отменить запись</button>
 
             <button class="action-modal-btn action-btn-cancel"
                 onclick="closeModal('actionModal')">Закрыть</button>
+        </div>
+    </div>
+
+    <!-- Причина отмены записи -->
+    <div class="modal" id="bookingCancelModal">
+        <div class="modal-content booking-cancel-modal">
+            <div class="booking-detail-heading"><h2>Отмена записи</h2><button class="close-btn" type="button" onclick="closeModal('bookingCancelModal')">&times;</button></div>
+            <p class="booking-cancel-caption">Укажи причину — она сохранится в истории записи.</p>
+            <div class="form-group">
+                <label for="bookingCancelReason">Причина отмены</label>
+                <select id="bookingCancelReason">
+                    <option>Клиент отменил запись</option>
+                    <option>Клиент не пришёл</option>
+                    <option>Перенос по просьбе клиента</option>
+                    <option>Отмена со стороны мастера</option>
+                    <option>Техническая причина</option>
+                    <option>Другое</option>
+                </select>
+            </div>
+            <div class="form-group"><label for="bookingCancelNote">Комментарий (необязательно)</label><textarea id="bookingCancelNote" rows="3" maxlength="240" placeholder="Дополнительная информация"></textarea></div>
+            <button type="button" class="checkout-btn" onclick="cancelBooking()">Подтвердить отмену</button>
+            <button type="button" class="btn-cancel" onclick="closeModal('bookingCancelModal')">Назад</button>
         </div>
     </div>
 
@@ -697,6 +719,6 @@
         </div>
     </div>
 
-    <script src="script.js?v=mensfire-hover-sidebar-20261115-1"></script>
+    <script src="script.js?v=mensfire-booking-history-20261115-1"></script>
 </body>
 </html>
