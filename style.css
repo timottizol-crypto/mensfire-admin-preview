@@ -6362,3 +6362,25 @@ html.light-theme .booking-client-match{background:#fbf8ef}
 .inventory-sync-btn:hover{border-color:var(--gold);color:var(--gold)}
 .inventory-product-description{margin:8px 0 0;color:var(--text-muted);font-size:10px;line-height:1.45}
 @media(max-width:520px){.inventory-sync-btn{width:100%}}
+
+/* Розничные чеки */
+.retail-sales-workspace{padding-bottom:30px}
+.retail-sales-layout{display:grid;grid-template-columns:minmax(0,1.15fr) minmax(300px,.85fr);gap:16px;align-items:start}
+.retail-check-panel,.retail-history-panel{padding:20px;min-width:0}
+.retail-add-product{display:grid;grid-template-columns:minmax(0,1fr) 90px auto;gap:10px;align-items:end}
+.retail-add-product .form-group{min-width:0}
+.retail-cart-heading{display:flex;align-items:center;justify-content:space-between;padding:14px 0 9px;border-top:1px solid var(--glass-border,rgba(255,255,255,.12));font-size:13px}
+.retail-cart-heading span{font-size:19px;font-weight:800;color:var(--gold)}
+.retail-sale-cart{display:flex;flex-direction:column;gap:7px;min-height:64px;margin-bottom:15px}
+.retail-cart-row,.retail-history-row{display:flex;align-items:center;gap:10px;padding:11px 12px;border:1px solid var(--glass-border,rgba(255,255,255,.1));border-radius:11px;background:rgba(255,255,255,.025)}
+.retail-cart-row>div,.retail-history-row>div:first-child{display:flex;flex-direction:column;gap:4px;min-width:0;flex:1}
+.retail-cart-row strong,.retail-history-row strong{font-size:12px;color:var(--text-main)}
+.retail-cart-row small,.retail-history-row small{font-size:10px;color:var(--text-muted)}
+.retail-cart-row>b,.retail-history-row>div:last-child{font-size:12px;font-weight:800;text-align:right}
+.retail-cart-row button{border:0;background:transparent;color:var(--text-muted);font-size:22px;cursor:pointer}
+.retail-payment-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.retail-history-panel #retailSalesHistory{display:flex;flex-direction:column;gap:8px}
+.retail-history-row>div:last-child{display:flex;flex-direction:column;gap:4px;white-space:nowrap}
+.retail-empty{padding:18px;text-align:center;color:var(--text-muted);font-size:11px;line-height:1.5}
+@media(max-width:1100px) and (min-width:768px){.retail-sales-layout{grid-template-columns:1fr}.retail-history-panel{max-height:430px;overflow:auto}}
+@media(max-width:767px){.retail-sales-workspace{display:none!important}}
