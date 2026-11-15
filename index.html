@@ -352,6 +352,16 @@
         </div>
     </div>
 
+    <!-- Подбор клиента на освободившееся время -->
+    <div class="modal" id="waitlistSlotSuggestionsModal">
+        <div class="modal-content waitlist-suggestions-modal">
+            <div class="booking-detail-heading"><h2>Кому предложить время?</h2><button class="close-btn" type="button" onclick="closeModal('waitlistSlotSuggestionsModal')">&times;</button></div>
+            <p class="booking-cancel-caption" id="waitlistSlotSuggestionsCaption"></p>
+            <div id="waitlistSlotSuggestionsList" class="waitlist-suggestions-list"></div>
+            <button type="button" class="btn-cancel" onclick="closeModal('waitlistSlotSuggestionsModal')">Не сейчас</button>
+        </div>
+    </div>
+
     <!-- Регистрация оплаты записи -->
     <div class="modal" id="bookingPaymentModal">
         <div class="modal-content">
