@@ -3761,7 +3761,9 @@ function showBarberStats(id) {
 }
 
 // Добавь эту переменную в начало скрипта или прямо перед функцией
-let currentClientsTab = 'all'; 
+let currentClientsTab = 'all';
+let currentClientsWorkspaceMode = 'clients';
+let clientsTasksFilter = 'all'; 
 let clientsSearchQuery = '';
 let clientsSegmentFilter = 'all';
 
@@ -4076,6 +4078,110 @@ function renderClientFollowUpPanel(clientGroups) {
     root.innerHTML = '<div class="client-followup-heading"><div><span class="client-followup-eyebrow">CRM · ВНИМАНИЕ</span><h3>Забота о клиентах</h3><p>Подсказки для повторных визитов и персонального контакта</p></div><span class="client-followup-total">'+(dormant.length+birthdays.length)+'</span></div><div class="client-followup-columns"><section class="client-followup-section"><div class="client-followup-section-title"><span>↻</span><b>Пора напомнить</b><em>'+dormant.length+'</em></div><p>Нет завершённого визита 45+ дней и нет будущей записи</p>'+items(dormant,'return')+'</section><section class="client-followup-section"><div class="client-followup-section-title"><span>✦</span><b>Дни рождения</b><em>'+birthdays.length+'</em></div><p>Ближайшие 30 дней — повод поздравить</p>'+items(birthdays,'birthday')+'</section></div>';
 }
 
+function setClientsWorkspaceMode(mode) {
+    if (window.innerWidth < 768) return;
+    currentClientsWorkspaceMode = mode === 'tasks' ? 'tasks' : 'clients';
+    const view = document.getElementById('viewClients');
+    if (view) view.classList.toggle('crm-tasks-mode', currentClientsWorkspaceMode === 'tasks');
+    document.querySelectorAll('.crm-workspace-switch button').forEach(button => {
+        button.classList.toggle('active', button.textContent.includes(currentClientsWorkspaceMode === 'tasks' ? 'Задачи CRM' : 'Клиенты'));
+    });
+    renderClientTasksHub();
+}
+
+function renderClientTasksHub() {
+    const root = document.getElementById('clientsTasksHub');
+    if (!root) return;
+    const today = new Date(); today.setHours(0,0,0,0);
+    const rows = [];
+    Object.entries(clientProfiles || {}).forEach(([profileKey, profile]) => {
+        if (!profile || !Array.isArray(profile.tasks)) return;
+        const name = String(profile.clientName || '').trim();
+        const barberId = String(profile.barberId || '');
+        if (currentUser?.role === 'barber' && barberId !== String(currentUser.id)) return;
+        profile.tasks.forEach(task => {
+            const due = parseClientTaskDate(task.dueDate);
+            rows.push({ profileKey, name: name || 'Клиент', barberId, task, due, overdue: !task.done && due && due < today });
+        });
+    });
+    rows.sort((a,b) => {
+        if (Boolean(a.task.done) !== Boolean(b.task.done)) return a.task.done ? 1 : -1;
+        if (Boolean(a.overdue) !== Boolean(b.overdue)) return a.overdue ? -1 : 1;
+        return (a.due?.getTime() ?? Infinity) - (b.due?.getTime() ?? Infinity);
+    });
+    const active = rows.filter(row => !row.task.done);
+    const overdueCount = active.filter(row => row.overdue).length;
+    const upcomingCount = active.length - overdueCount;
+    const count = document.getElementById('crmTasksTabCount');
+    if (count) count.textContent = String(active.length);
+    const filters = [
+        {id:'all',label:'Все',count:rows.length},
+        {id:'overdue',label:'Просроченные',count:overdueCount},
+        {id:'upcoming',label:'Предстоящие',count:upcomingCount},
+        {id:'done',label:'Выполненные',count:rows.length-active.length}
+    ];
+    const visible = rows.filter(row => {
+        if (clientsTasksFilter === 'overdue') return row.overdue;
+        if (clientsTasksFilter === 'upcoming') return !row.task.done && !row.overdue;
+        if (clientsTasksFilter === 'done') return row.task.done;
+        return true;
+    });
+    root.innerHTML = `
+        <div class="crm-tasks-heading">
+            <div><span class="workspace-eyebrow">CLIENT FOLLOW-UP</span><h3>Задачи и напоминания</h3><p>Все задачи клиентов в одном месте</p></div>
+            <div class="crm-tasks-summary"><span><b>${active.length}</b> активных</span><span class="is-overdue"><b>${overdueCount}</b> просрочено</span></div>
+        </div>
+        <div class="crm-tasks-filters">${filters.map(item => `<button type="button" class="${clientsTasksFilter===item.id?'active':''}" onclick="setClientsTasksFilter('${item.id}')">${item.label}<span>${item.count}</span></button>`).join('')}</div>
+        <div class="crm-tasks-list">${visible.length ? visible.map(row => {
+            const profileArg = escapeBookingHtml(row.profileKey);
+            const taskId = escapeBookingHtml(row.task.id || '');
+            const safeTitle = escapeBookingHtml(row.task.title || 'Задача без названия');
+            const dueLabel = row.task.dueDate ? escapeBookingHtml(row.task.dueDate) : 'Без срока';
+            const master = mockStaff.find(item => String(item.id) === row.barberId)?.name || '';
+            return `<article class="crm-task-row ${row.overdue?'is-overdue':''} ${row.task.done?'is-done':''}">
+                <button type="button" class="crm-task-client" data-crm-open-client="${profileArg}" aria-label="Открыть клиента ${escapeBookingHtml(row.name)}">
+                    <span class="crm-task-avatar">${escapeBookingHtml(row.name.charAt(0).toUpperCase())}</span>
+                    <span><b>${escapeBookingHtml(row.name)}</b><small>${master ? escapeBookingHtml(master)+' · ' : ''}${dueLabel}${row.overdue?' · Просрочено':row.task.done?' · Выполнено':''}</small></span>
+                </button>
+                <div class="crm-task-description"><strong>${safeTitle}</strong><small>${escapeBookingHtml(row.task.author || 'Сотрудник')}</small></div>
+                <div class="crm-task-actions">
+                    ${!row.task.done ? `<button type="button" data-crm-task-done="${profileArg}" data-task-id="${taskId}">Готово</button>` : ''}
+                    <button type="button" class="delete" data-crm-task-delete="${profileArg}" data-task-id="${taskId}" aria-label="Удалить задачу">×</button>
+                </div>
+            </article>`;
+        }).join('') : '<div class="crm-tasks-empty">В этом разделе пока нет задач</div>'}</div>`;
+    root.querySelectorAll('[data-crm-open-client]').forEach(button => button.addEventListener('click', () => {
+        const profile = clientProfiles[button.dataset.crmOpenClient] || {};
+        if (profile.clientName && profile.barberId) showClientDetails(profile.clientName, profile.barberId);
+        else showToast('Не удалось определить карточку клиента для этой задачи', 'info');
+    }));
+    root.querySelectorAll('[data-crm-task-done]').forEach(button => button.addEventListener('click', () => updateClientTaskFromHub(button.dataset.crmTaskDone, button.dataset.taskId, 'done')));
+    root.querySelectorAll('[data-crm-task-delete]').forEach(button => button.addEventListener('click', () => updateClientTaskFromHub(button.dataset.crmTaskDelete, button.dataset.taskId, 'delete')));
+}
+
+function setClientsTasksFilter(filter) {
+    clientsTasksFilter = ['all','overdue','upcoming','done'].includes(filter) ? filter : 'all';
+    renderClientTasksHub();
+}
+
+function updateClientTaskFromHub(profileKey, taskId, action) {
+    const profile = clientProfiles[profileKey];
+    if (!profile || !Array.isArray(profile.tasks)) return;
+    const taskIndex = profile.tasks.findIndex(item => String(item.id) === String(taskId));
+    if (taskIndex < 0) return;
+    if (action === 'done') {
+        profile.tasks[taskIndex].done = true;
+        profile.tasks[taskIndex].completedAt = new Date().toISOString();
+        showToast('Задача отмечена выполненной', 'success');
+    } else {
+        profile.tasks.splice(taskIndex, 1);
+        showToast('Задача удалена', 'success');
+    }
+    localStorage.setItem(appStorageKey('mensfire_client_profiles'), JSON.stringify(clientProfiles));
+    renderClientTasksHub();
+    if (selectedClientProfileKey === profileKey) renderClientTasks();
+}
+
 function renderClients(tab = 'all') {
     currentClientsTab = tab;
     renderWaitlist();
@@ -4090,14 +4196,22 @@ function renderClients(tab = 'all') {
     // 2. Рендерим табы (только для админа)
     if (currentUser.role === 'admin') {
         tabsContainer.innerHTML = `
-            <div class="category-tabs" style="margin-bottom: 15px;">
+            <div class="crm-workspace-switch">
+                <button type="button" class="${currentClientsWorkspaceMode === 'clients' ? 'active' : ''}" onclick="setClientsWorkspaceMode('clients')">Клиенты</button>
+                <button type="button" class="${currentClientsWorkspaceMode === 'tasks' ? 'active' : ''}" onclick="setClientsWorkspaceMode('tasks')">Задачи CRM <span id="crmTasksTabCount">0</span></button>
+            </div>
+            <div class="category-tabs crm-client-scope-tabs" style="margin-bottom: 15px;">
                 <button class="tab-btn ${currentClientsTab === 'my' ? 'active' : ''}" onclick="renderClients('my')">Мои клиенты</button>
                 <button class="tab-btn ${currentClientsTab === 'all' ? 'active' : ''}" onclick="renderClients('all')">Все клиенты</button>
             </div>
         `;
     } else {
-        tabsContainer.innerHTML = ''; // У барберов табов нет
+        tabsContainer.innerHTML = '';
+        currentClientsWorkspaceMode = 'clients';
     }
+    const clientsView = document.getElementById('viewClients');
+    if (clientsView) clientsView.classList.toggle('crm-tasks-mode', currentClientsWorkspaceMode === 'tasks' && window.innerWidth >= 768);
+    renderClientTasksHub();
 
     // 3. Фильтруем записи для подсчета
     let filteredBookings = bookings;
@@ -4229,6 +4343,7 @@ function renderClients(tab = 'all') {
     }
     renderClientsAnalytics(filteredBookings, allClientGroups);
     renderClientFollowUpPanel(allClientGroups);
+    renderClientTasksHub();
     const clientsOverview = document.getElementById('clientsOverview');
     if (clientsOverview) {
         const now = new Date();
