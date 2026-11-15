@@ -309,7 +309,8 @@ function buildBottomNav() {
             { id: 'viewFinance', title: 'Финансы', icon: financeIcon },
             { id: 'viewTeam', title: 'Команда', icon: teamIcon },
             { id: 'viewServices', title: 'Услуги', icon: servicesIcon },
-            { id: 'viewClients', title: 'Клиенты', icon: clientsIcon }
+            { id: 'viewClients', title: 'CRM', icon: clientsIcon },
+            { id: 'viewClientDirectory', title: 'Клиенты', icon: clientsIcon }
         ];
         if (window.innerWidth >= 768) {
             navItems.push(
@@ -317,7 +318,6 @@ function buildBottomNav() {
                 { id: 'viewSales', title: 'Продажи', icon: '<path d="M4 5h16v14H4zM8 9h8M8 13h5"/>' },
                 { id: 'viewInventoryAnalytics', title: 'Аналитика', icon: '<path d="M3 3v18h18M8 16v-5m5 5V6m5 10V9"/>' },
                 { id: 'viewPurchases', title: 'Закупки', icon: '<path d="M3 7h18l-2 13H5L3 7zm4 0 2-4h6l2 4M9 11v5m6-5v5"/>' },
-                { id: 'viewSuppliers', title: 'Поставщики', icon: '<path d="M3 21h18M5 21V7l7-4 7 4v14M9 21v-6h6v6M9 9h.01M15 9h.01"/>' },
                 { id: 'viewProfile', title: 'Профиль', icon: clientsIcon }
             );
         } else {
@@ -440,12 +440,12 @@ function switchView(viewId, navElement) {
         'viewFinance': 'Финансы',
         'viewTeam': 'Команда',
         'viewServices': 'Услуги',
-        'viewClients': 'Клиенты',
+        'viewClients': 'CRM',
+        'viewClientDirectory': 'База клиентов',
         'viewInventory': 'Склад',
         'viewSales': 'Продажи',
         'viewInventoryAnalytics': 'Аналитика склада',
         'viewPurchases': 'Закупки',
-        'viewSuppliers': 'Поставщики',
         'viewProfile': 'Профиль'
     };
     if (titles[viewId]) {
@@ -464,11 +464,11 @@ function switchView(viewId, navElement) {
     if (viewId === 'viewDashboard' && typeof renderDashboard === 'function') renderDashboard();
     if (viewId === 'viewFinance' && typeof renderFinance === 'function') renderFinance();
     if (viewId === 'viewTeam' && typeof renderTeam === 'function') renderTeam();
-    if (viewId === 'viewClients' && typeof renderClients === 'function') renderClients(currentClientsTab);
+    if ((viewId === 'viewClients' || viewId === 'viewClientDirectory') && typeof renderClients === 'function') renderClients(currentClientsTab);
     if (viewId === 'viewServices' && typeof renderServices === 'function') renderServices();
     if (viewId === 'viewSales' && typeof renderRetailSales === 'function') renderRetailSales();
     if (viewId === 'viewPurchases' && typeof renderPurchaseOrders === 'function') renderPurchaseOrders();
-    if (viewId === 'viewSuppliers' && typeof renderSuppliers === 'function') renderSuppliers();
+
     if (viewId === 'viewProfile') {
         if (typeof renderBarberRevenue === 'function') renderBarberRevenue();
         if (typeof renderProfileOverview === 'function') renderProfileOverview();
@@ -4303,6 +4303,7 @@ function updateClientTaskFromHub(profileKey, taskId, action) {
 function renderClients(tab = 'all') {
     currentClientsTab = tab;
     renderWaitlist();
+    initDesktopClientDirectory();
     const list = document.getElementById('clientsList');
     const tabsContainer = document.getElementById('clientsTabsContainer');
     const title = document.getElementById('clientsPageTitle');
@@ -5430,6 +5431,24 @@ function cancelPurchaseOrder(orderId){
     const order=inventoryPurchaseOrders.find(item=>item.id===orderId);
     if(!order||order.status==='received'||order.status==='cancelled'||order.items.some(item=>item.receivedQuantity>0))return showToast('Нельзя отменить уже принятую поставку','error');
     order.status='cancelled';order.updatedAt=new Date().toISOString();persistPurchaseOrders();renderPurchaseOrders();showToast('Заказ отменён','success');
+}
+function initDesktopClientDirectory(){
+    if(window.innerWidth<768)return;
+    const mount=document.getElementById('clientDirectoryMount');if(!mount)return;
+    ['clientsSegmentContainer','clientsSearch','clientsList'].forEach(id=>{
+        const node=document.getElementById(id);if(!node)return;
+        const wrapper=id==='clientsSearch'?node.closest('.clients-search-wrap'):node;
+        if(wrapper&&!mount.contains(wrapper))mount.appendChild(wrapper);
+    });
+    const scope=document.getElementById('clientDirectoryScope');
+    if(scope)scope.innerHTML='<div class="category-tabs crm-client-scope-tabs"><button class="tab-btn '+(currentClientsTab==='my'?'active':'')+'" onclick="renderClients(\'my\')">Мои клиенты</button><button class="tab-btn '+(currentClientsTab==='all'?'active':'')+'" onclick="renderClients(\'all\')">Все клиенты</button></div>';
+}
+function setPurchaseWorkspaceTab(tab){
+    const selected=tab==='suppliers'?'suppliers':'orders';
+    document.querySelectorAll('.purchase-workspace-tab').forEach(button=>button.classList.toggle('active',button.dataset.purchaseTab===selected));
+    const orders=document.getElementById('purchaseOrdersTab'),suppliers=document.getElementById('suppliersTab');
+    if(orders)orders.hidden=selected!=='orders';if(suppliers)suppliers.hidden=selected!=='suppliers';
+    if(selected==='suppliers')renderSuppliers();else renderPurchaseOrders();
 }
 function renderPurchaseOrders(){
     const root=document.getElementById('purchaseOrdersList');if(!root)return;
