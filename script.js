@@ -4463,7 +4463,7 @@ function confirmClientPhoneMerge() {
         if (key !== canonicalKey) clientProfiles[key] = {...profile, phone};
     });
     clientRetailSales.forEach(sale => {
-        if (normalizeClientPhone(sale.clientPhone) === phone && sale.clientProfileKey !== canonicalKey) {
+        if ((normalizeClientPhone(sale.clientPhone) === phone || previousSalesKeys.has(sale.clientProfileKey)) && sale.clientProfileKey !== canonicalKey) {
             sale.clientProfileKey = canonicalKey;
             relinkedSales++;
         }
