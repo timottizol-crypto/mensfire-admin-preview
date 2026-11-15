@@ -4424,9 +4424,43 @@ function renderClientTasksHub() {
                     if (clientsTaskAuditTo && (!day || day > clientsTaskAuditTo)) return false;
                     return true;
                 });
+                const periodHistory = history.filter(event => {
+                    const day = localDateKey(event.createdAt);
+                    if (clientsTaskAuditFrom && (!day || day < clientsTaskAuditFrom)) return false;
+                    if (clientsTaskAuditTo && (!day || day > clientsTaskAuditTo)) return false;
+                    return true;
+                });
+                const employeeStats = new Map();
+                const ensureEmployee = (id, name) => {
+                    const key = String(id || 'unassigned');
+                    if (!employeeStats.has(key)) employeeStats.set(key, {key, name: name || (key === 'unassigned' ? 'Не назначен' : 'Сотрудник'), created:0, completed:0, deleted:0, overdue:0});
+                    return employeeStats.get(key);
+                };
+                (mockStaff || []).forEach(staff => {
+                    if (currentUser?.role === 'barber' && String(staff.id) !== String(currentUser.id)) return;
+                    ensureEmployee(staff.id, staff.name);
+                });
+                periodHistory.forEach(event => {
+                    const stat = ensureEmployee(event.actorId || event.actor || 'unknown', event.actor || 'Сотрудник');
+                    if (event.action === 'created') stat.created++;
+                    if (event.action === 'completed') stat.completed++;
+                    if (event.action === 'deleted') stat.deleted++;
+                });
+                const todayForAudit = new Date(); todayForAudit.setHours(0,0,0,0);
+                rows.forEach(row => {
+                    if (row.task.done || !row.due || row.due >= todayForAudit) return;
+                    const assigneeId = String(row.task.assigneeId || 'unassigned');
+                    const assigneeName = mockStaff.find(staff => String(staff.id) === assigneeId)?.name || (assigneeId === 'unassigned' ? 'Не назначен' : 'Сотрудник');
+                    ensureEmployee(assigneeId, assigneeName).overdue++;
+                });
+                const employeeSummary = [...employeeStats.values()]
+                    .filter(stat => stat.created || stat.completed || stat.deleted || stat.overdue)
+                    .sort((a,b) => (b.overdue-a.overdue) || (b.completed-a.completed) || (b.created-a.created) || a.name.localeCompare(b.name,'ru'));
+                const summaryMarkup = '<div class="crm-task-employee-summary"><div class="crm-task-employee-summary-heading"><strong>Сводка по сотрудникам</strong><span>Создание, выполнение и удаление — за выбранный период; просроченные — на текущий момент</span></div>'+
+                    (employeeSummary.length ? '<div class="crm-task-employee-summary-list">'+employeeSummary.map(stat => '<article class="crm-task-employee-summary-row"><strong>'+escapeBookingHtml(stat.name)+'</strong><span><b>'+stat.created+'</b><small>создано</small></span><span><b>'+stat.completed+'</b><small>выполнено</small></span><span><b>'+stat.deleted+'</b><small>удалено</small></span><span class="'+(stat.overdue?'is-overdue':'')+'"><b>'+stat.overdue+'</b><small>просрочено</small></span></article>').join('')+'</div>' : '<div class="crm-tasks-empty">Нет данных по сотрудникам за выбранный период</div>')+'</div>';
                 auditExportRows = filtered.slice(0, 50);
                 const labels = {created:'Создал задачу',updated:'Изменил задачу',completed:'Выполнил задачу',deleted:'Удалил задачу'};
-                return '<div class="crm-task-audit-filters">'+
+                return summaryMarkup+'<div class="crm-task-audit-filters">'+
                     '<select id="crmTaskAuditAction" aria-label="Тип действия">'+actionOptions.map(item=>'<option value="'+item.id+'"'+(clientsTaskAuditActionFilter===item.id?' selected':'')+'>'+item.label+'</option>').join('')+'</select>'+
                     '<select id="crmTaskAuditActor" aria-label="Сотрудник"><option value="all">Все сотрудники</option>'+actorOptions+'</select>'+
                     '<label>С <input id="crmTaskAuditFrom" type="date" value="'+escapeBookingHtml(clientsTaskAuditFrom)+'"></label>'+
