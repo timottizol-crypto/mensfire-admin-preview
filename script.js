@@ -2527,7 +2527,7 @@ function lookupBookingClientByPhone() {
         return (pb?.getTime()||0)-(pa?.getTime()||0);
     })[0];
     if(clientName)document.getElementById('newBookingClient').value=clientName;
-    host.innerHTML='<button type="button" class="booking-client-match" onclick="applyBookingClientMatch(\''+String(match.key).replace(/\\/g,'\\\\').replace(/'/g,"\\'")+'\')"><span class="booking-client-match-icon">✓</span><span class="booking-client-match-copy"><strong>'+escapeBookingHtml(clientName||'Клиент найден')+'</strong><small>В CRM · '+completed+' завершённых визитов'+(last?' · последний '+escapeBookingHtml(last.date):'')+'</small></span><span class="booking-client-match-tag">'+(completed?'Повторный':'Есть профиль')+'</span></button>';
+    host.innerHTML='<button type="button" class="booking-client-match" onclick="applyBookingClientMatch(\''+String(match.key).replace(/\\/g,'\\\').replace(/'/g,"\'")+'\')"><span class="booking-client-match-icon">✓</span><span class="booking-client-match-copy"><strong>'+escapeBookingHtml(clientName||'Клиент найден')+'</strong><small>В CRM · '+completed+' завершённых визитов'+(last?' · последний '+escapeBookingHtml(last.date):'')+'</small></span><span class="booking-client-match-tag">'+(completed?'Повторный':'Есть профиль')+'</span></button>';
 }
 function applyBookingClientMatch(key) {
     const profile=clientProfiles[key];
@@ -4097,7 +4097,7 @@ function renderClients(tab = 'all') {
             {id:'cancellations',label:'Часто отменяют'}, {id:'highcheck',label:'Высокий чек'}
         ];
         segmentContainer.innerHTML = '<div class="client-segment-tabs">' + filters.map(item =>
-            '<button type="button" class="client-segment-btn ' + (clientsSegmentFilter === item.id ? 'active' : '') + '" onclick="setClientsSegmentFilter(\\'' + item.id + '\\')">' +
+            '<button type="button" class="client-segment-btn ' + (clientsSegmentFilter === item.id ? 'active' : '') + '" onclick="setClientsSegmentFilter(\'' + item.id + '\')">' +
             item.label + '<span class="client-segment-count">' + counts[item.id] + '</span></button>'
         ).join('') + '</div>';
     }
