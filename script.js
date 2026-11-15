@@ -4397,8 +4397,57 @@ function showClientDetails(name, barberId) {
         historyContainer.innerHTML = historyHTML || '<div style="color: var(--text-muted); font-size: 13px; text-align: center; padding: 20px 0;">История пуста</div>';
     }
 
+    renderClientMessageDraft('return');
     openModal('clientDetailsModal');
 }
+
+function renderClientMessageDraft(mode = 'return') {
+    const profile = clientProfiles[selectedClientProfileKey] || {};
+    const name = String(profile.clientName || document.getElementById('clientDetailsName')?.textContent || 'Клиент').trim();
+    const firstName = name.split(/\\s+/)[0] || 'Клиент';
+    const birthday = profile.birthday ? new Date(profile.birthday + 'T12:00:00') : null;
+    let draft = '';
+    if (mode === 'birthday') {
+        const dateLabel = birthday && !Number.isNaN(birthday.getTime())
+            ? birthday.toLocaleDateString('ru-RU', { day: 'numeric', month: 'long' })
+            : '';
+        draft = 'Здравствуйте, ' + firstName + '! 🎉 Поздравляем вас с днём рождения' +
+            (dateLabel ? ' — ' + dateLabel : '') +
+            '! Желаем отличного настроения и всего самого лучшего. Будем рады видеть вас в MensFire — подберём удобное время для визита.';
+    } else {
+        const clientBookings = bookings.filter(booking =>
+            String(booking.clientName || '') === name &&
+            String(booking.barberId || '') === String(profile.barberId || '')
+        );
+        const last = clientBookings.filter(booking => booking.status === 'completed' && parseClientDateTime(booking) > 0)
+            .sort((a,b) => parseClientDateTime(b) - parseClientDateTime(a))[0];
+        const days = last ? Math.max(0, Math.floor((Date.now() - parseClientDateTime(last)) / 86400000)) : null;
+        draft = 'Здравствуйте, ' + firstName + '! Давно не виделись в MensFire' +
+            (days !== null ? ' — уже ' + days + ' дн. с вашего последнего визита' : '') +
+            '. Будем рады снова вас видеть! Если захотите обновить образ, напишите — подберём удобное время.';
+    }
+    const field = document.getElementById('clientMessageDraft');
+    if (field) field.value = draft;
+    document.querySelectorAll('[data-client-message-mode]').forEach(button => {
+        const active = button.dataset.clientMessageMode === mode;
+        button.classList.toggle('active', active);
+        button.setAttribute('aria-pressed', active ? 'true' : 'false');
+    });
+}
+function setClientMessageMode(mode) {
+    renderClientMessageDraft(mode === 'birthday' ? 'birthday' : 'return');
+}
+function copyClientMessageDraft() {
+    const field = document.getElementById('clientMessageDraft');
+    if (!field) return;
+    field.focus();
+    field.select();
+    let copied = false;
+    try { copied = document.execCommand('copy'); } catch (error) { copied = false; }
+    if (copied) showToast('Текст сообщения скопирован', 'success');
+    else showToast('Выделите текст и скопируйте его вручную', 'info');
+}
+
 function createBookingForClient() {
     if (!selectedClientProfileKey) return;
     const profile = clientProfiles[selectedClientProfileKey] || {};
