@@ -1472,7 +1472,7 @@ function renderDesktopSchedule() {
         for (let i = 0; i < (END_HOUR - START_HOUR) * 4; i++) {
             const slotMinutes = START_HOUR * 60 + i * 15;
             const slotTime = String(Math.floor(slotMinutes / 60)).padStart(2, '0') + ':' + String(slotMinutes % 60).padStart(2, '0');
-            html += '<button type="button" class="desktop-slot-hitbox" aria-label="Создать запись на ' + slotTime + '" style="top:' + (i * SLOT_HEIGHT) + 'px;height:' + SLOT_HEIGHT + 'px" onclick="openNewBookingAtExactSlot(event, \'' + escapeBookingHtml(String(barber.id)) + '\', \'' + escapeBookingHtml(dateKey) + '\', \'' + slotTime + '\')"></button>';
+            html += '<button type="button" class="desktop-slot-hitbox" data-time="' + slotTime + '" aria-label="Создать запись на ' + slotTime + '" style="top:' + (i * SLOT_HEIGHT) + 'px;height:' + SLOT_HEIGHT + 'px" onclick="openNewBookingAtExactSlot(event, \'' + escapeBookingHtml(String(barber.id)) + '\', \'' + escapeBookingHtml(dateKey) + '\', \'' + slotTime + '\')"></button>';
         }
         for (let i = 0; i <= (END_HOUR - START_HOUR) * 4; i++) {
             html += `<div class="desktop-time-line ${i % 4 === 0 ? 'hour' : ''}" style="top:${i * SLOT_HEIGHT}px"></div>`;
