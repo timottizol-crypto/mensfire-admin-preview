@@ -3849,7 +3849,9 @@ function showBarberStats(id) {
 // Добавь эту переменную в начало скрипта или прямо перед функцией
 let currentClientsTab = 'all';
 let currentClientsWorkspaceMode = 'clients';
-let clientsTasksFilter = 'all'; 
+let clientsTasksFilter = 'all';
+let clientsTasksSearchQuery = '';
+let clientsTasksBarberFilter = 'all'; 
 let clientsSearchQuery = '';
 let clientsSegmentFilter = 'all';
 let clientsDataQualityExpanded = false;
@@ -4284,6 +4286,7 @@ function renderClientTasksHub() {
     const today = new Date(); today.setHours(0,0,0,0);
     const rows = [];
     const seenTaskIds = new Set();
+    const seenLegacyTasks = new Set();
     Object.entries(clientProfiles || {}).forEach(([profileKey, profile]) => {
         if (!profile || !Array.isArray(profile.tasks)) return;
         const name = String(profile.clientName || '').trim();
@@ -4291,8 +4294,10 @@ function renderClientTasksHub() {
         if (currentUser?.role === 'barber' && barberId !== String(currentUser.id)) return;
         profile.tasks.forEach(task => {
             const uniqueTaskId = String(task.id || '');
+            const legacySignature = JSON.stringify([String(task.title || '').trim().toLocaleLowerCase('ru-RU'),String(task.dueDate || ''),String(task.createdAt || ''),Boolean(task.done)]);
             if (uniqueTaskId && seenTaskIds.has(uniqueTaskId)) return;
-            if (uniqueTaskId) seenTaskIds.add(uniqueTaskId);
+            if (!uniqueTaskId && seenLegacyTasks.has(legacySignature)) return;
+            if (uniqueTaskId) seenTaskIds.add(uniqueTaskId); else seenLegacyTasks.add(legacySignature);
             const due = parseClientTaskDate(task.dueDate);
             rows.push({ profileKey, name: name || 'Клиент', barberId, task, due, overdue: !task.done && due && due < today });
         });
@@ -4307,24 +4312,32 @@ function renderClientTasksHub() {
     const upcomingCount = active.length - overdueCount;
     const count = document.getElementById('crmTasksTabCount');
     if (count) count.textContent = String(active.length);
-    const filters = [
-        {id:'all',label:'Все',count:rows.length},
-        {id:'overdue',label:'Просроченные',count:overdueCount},
-        {id:'upcoming',label:'Предстоящие',count:upcomingCount},
-        {id:'done',label:'Выполненные',count:rows.length-active.length}
-    ];
+    const filters = [{id:'all',label:'Все',count:rows.length},{id:'overdue',label:'Просроченные',count:overdueCount},{id:'upcoming',label:'Предстоящие',count:upcomingCount},{id:'done',label:'Выполненные',count:rows.length-active.length}];
+    const query = clientsTasksSearchQuery.trim().toLocaleLowerCase('ru-RU');
     const visible = rows.filter(row => {
-        if (clientsTasksFilter === 'overdue') return row.overdue;
-        if (clientsTasksFilter === 'upcoming') return !row.task.done && !row.overdue;
-        if (clientsTasksFilter === 'done') return row.task.done;
+        if (clientsTasksFilter === 'overdue' && !row.overdue) return false;
+        if (clientsTasksFilter === 'upcoming' && (row.task.done || row.overdue)) return false;
+        if (clientsTasksFilter === 'done' && !row.task.done) return false;
+        if (clientsTasksBarberFilter !== 'all' && row.barberId !== clientsTasksBarberFilter) return false;
+        if (query) {
+            const haystack = [row.name,row.task.title,row.task.author,mockStaff.find(item => String(item.id) === row.barberId)?.name || ''].join(' ').toLocaleLowerCase('ru-RU');
+            if (!haystack.includes(query)) return false;
+        }
         return true;
     });
+    const barberOptions = (mockStaff || []).filter(staff => currentUser?.role !== 'barber' || String(staff.id) === String(currentUser.id))
+        .map(staff => '<option value="' + escapeBookingHtml(String(staff.id)) + '"' + (clientsTasksBarberFilter === String(staff.id) ? ' selected' : '') + '>' + escapeBookingHtml(staff.name) + '</option>').join('');
     root.innerHTML = `
         <div class="crm-tasks-heading">
             <div><span class="workspace-eyebrow">CLIENT FOLLOW-UP</span><h3>Задачи и напоминания</h3><p>Все задачи клиентов в одном месте</p></div>
             <div class="crm-tasks-summary"><span><b>${active.length}</b> активных</span><span class="is-overdue"><b>${overdueCount}</b> просрочено</span></div>
         </div>
         <div class="crm-tasks-filters">${filters.map(item => `<button type="button" class="${clientsTasksFilter===item.id?'active':''}" onclick="setClientsTasksFilter('${item.id}')">${item.label}<span>${item.count}</span></button>`).join('')}</div>
+        <div class="crm-tasks-toolbar">
+            <input id="crmTasksSearch" type="search" value="${escapeBookingHtml(clientsTasksSearchQuery)}" placeholder="Найти задачу или клиента…">
+            <select id="crmTasksBarberFilter" aria-label="Фильтр по мастеру"><option value="all">Все мастера</option>${barberOptions}</select>
+            <span>${visible.length} из ${rows.length}</span>
+        </div>
         <div class="crm-tasks-list">${visible.length ? visible.map(row => {
             const profileArg = escapeBookingHtml(row.profileKey);
             const taskId = escapeBookingHtml(row.task.id || '');
@@ -4342,7 +4355,20 @@ function renderClientTasksHub() {
                     <button type="button" class="delete" data-crm-task-delete="${profileArg}" data-task-id="${taskId}" aria-label="Удалить задачу">×</button>
                 </div>
             </article>`;
-        }).join('') : '<div class="crm-tasks-empty">В этом разделе пока нет задач</div>'}</div>`;
+        }).join('') : '<div class="crm-tasks-empty">По выбранным условиям задач нет</div>'}</div>`;
+    const searchInput = root.querySelector('#crmTasksSearch');
+    if (searchInput) searchInput.addEventListener('input', () => {
+        clientsTasksSearchQuery = searchInput.value;
+        const cursor = searchInput.selectionStart;
+        renderClientTasksHub();
+        const next = document.getElementById('crmTasksSearch');
+        if (next) { next.focus(); next.setSelectionRange(cursor,cursor); }
+    });
+    const barberSelect = root.querySelector('#crmTasksBarberFilter');
+    if (barberSelect) barberSelect.addEventListener('change', () => {
+        clientsTasksBarberFilter = barberSelect.value;
+        renderClientTasksHub();
+    });
     root.querySelectorAll('[data-crm-open-client]').forEach(button => button.addEventListener('click', () => {
         const profile = clientProfiles[button.dataset.crmOpenClient] || {};
         if (profile.clientName && profile.barberId) showClientDetails(profile.clientName, profile.barberId);
