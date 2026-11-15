@@ -4549,7 +4549,6 @@ function renderClients(tab = 'all') {
     });
 
     const allClientGroups = Object.values(groupedClients);
-    renderClientsDataQualityAudit(Object.values(clients));
     const segmentNow = Date.now();
     const eligibleChecks = allClientGroups.filter(client => client.completedCount >= 2)
         .map(client => Math.round(client.completedRevenue / client.completedCount)).sort((a,b) => a-b);
@@ -4602,6 +4601,7 @@ function renderClients(tab = 'all') {
             item.label + '<span class="client-segment-count">' + counts[item.id] + '</span></button>'
         ).join('') + '</div><div id="clientsDataQuality"></div>';
     }
+    renderClientsDataQualityAudit(Object.values(clients));
     renderClientsAnalytics(filteredBookings, allClientGroups);
     renderClientFollowUpPanel(allClientGroups);
     renderClientTasksHub();
