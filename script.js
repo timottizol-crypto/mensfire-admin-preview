@@ -5601,9 +5601,14 @@ function renderClientInsights(clientBookings) {
     const serviceCounts = new Map();
     const masterCounts = new Map();
     completed.forEach(booking => {
-        (Array.isArray(booking.services) ? booking.services : []).forEach(service => {
-            const title = String(service?.title || 'Услуга').trim();
-            if (title) serviceCounts.set(title, (serviceCounts.get(title) || 0) + 1);
+        // Считаем визиты с услугой, а не количество строк услуги в одном визите.
+        const servicesInVisit = new Set(
+            (Array.isArray(booking.services) ? booking.services : [])
+                .map(service => String(service?.title || 'Услуга').trim())
+                .filter(Boolean)
+        );
+        servicesInVisit.forEach(title => {
+            serviceCounts.set(title, (serviceCounts.get(title) || 0) + 1);
         });
         const master = mockStaff.find(staff => String(staff.id) === String(booking.barberId))?.name || 'Мастер';
         masterCounts.set(master, (masterCounts.get(master) || 0) + 1);
