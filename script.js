@@ -4431,6 +4431,7 @@ function showClientDetails(name, barberId) {
 
     renderClientLoyaltyPanel(myBookings);
     renderClientInsights(myBookings);
+    renderClientLifetimeValue(myBookings);
 
     const historyContainer = document.getElementById('clientDetailsHistory');
     if (historyContainer) {
@@ -4507,6 +4508,51 @@ function renderClientInsights(clientBookings) {
                 <span>${escapeBookingHtml(month.label)}</span>
                 <small>${month.revenue ? Math.round(month.revenue).toLocaleString('ru-RU') : '—'}</small>
             </div>`).join('')}</div>
+    `;
+}
+
+
+function renderClientLifetimeValue(clientBookings) {
+    const root = document.getElementById('clientLifetimeValue');
+    if (!root) return;
+    const completed = (clientBookings || [])
+        .filter(booking => booking.status === 'completed')
+        .sort((a,b) => parseClientDateTime(a) - parseClientDateTime(b));
+    const total = completed.reduce((sum, booking) => sum + getBookingCollectedAmount(booking), 0);
+    const count = completed.length;
+    const average = count ? Math.round(total / count) : 0;
+    const first = completed.find(booking => parseClientDateTime(booking) > 0);
+    const last = completed.slice().reverse().find(booking => parseClientDateTime(booking) > 0);
+    const daysSince = last ? Math.max(0, Math.floor((Date.now() - parseClientDateTime(last)) / 86400000)) : null;
+    let relationship = 'Пока без визитов';
+    let relationshipNote = 'Статус появится после первого завершённого визита';
+    if (count) {
+        if (daysSince >= 90) {
+            relationship = 'Клиент на паузе';
+            relationshipNote = 'Последний визит был ' + daysSince + ' дн. назад';
+        } else if (count >= 6) {
+            relationship = 'Постоянный клиент';
+            relationshipNote = '6 и более завершённых визитов';
+        } else if (count >= 3) {
+            relationship = 'Возвращающийся клиент';
+            relationshipNote = 'Уже ' + count + ' завершённых визита';
+        } else {
+            relationship = 'Новый клиент';
+            relationshipNote = count === 1 ? 'Пока один завершённый визит' : 'Есть первые повторные визиты';
+        }
+    }
+    root.innerHTML = `
+        <div class="client-ltv-heading">
+            <div><strong>Ценность клиента за всё время</strong><span>Только фактически полученная оплата по завершённым визитам</span></div>
+            <span class="client-ltv-status">${relationship}</span>
+        </div>
+        <div class="client-ltv-total"><strong>${Math.round(total).toLocaleString('ru-RU')} ₽</strong><span>Всего получено</span></div>
+        <div class="client-ltv-stats">
+            <div><b>${count}</b><span>Завершённых визитов</span></div>
+            <div><b>${average.toLocaleString('ru-RU')} ₽</b><span>Средний чек</span></div>
+            <div><b>${first ? escapeBookingHtml(first.date) : '—'}</b><span>Первый визит</span></div>
+        </div>
+        <p class="client-ltv-note">${relationshipNote}</p>
     `;
 }
 
