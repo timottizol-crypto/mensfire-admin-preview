@@ -4456,7 +4456,15 @@ function renderClientTasksHub() {
                 const employeeSummary = [...employeeStats.values()]
                     .filter(stat => stat.created || stat.completed || stat.deleted || stat.overdue)
                     .sort((a,b) => (b.overdue-a.overdue) || (b.completed-a.completed) || (b.created-a.created) || a.name.localeCompare(b.name,'ru'));
+                const totals = periodHistory.reduce((sum, event) => {
+                    if (event.action === 'created') sum.created++;
+                    if (event.action === 'completed') sum.completed++;
+                    if (event.action === 'deleted') sum.deleted++;
+                    return sum;
+                }, {created:0,completed:0,deleted:0});
+                const currentOverdueTotal = rows.filter(row => !row.task.done && row.due && row.due < todayForAudit).length;
                 const summaryMarkup = '<div class="crm-task-employee-summary"><div class="crm-task-employee-summary-heading"><strong>Сводка по сотрудникам</strong><span>Создание, выполнение и удаление — за выбранный период; просроченные — на текущий момент</span></div>'+
+                    '<div class="crm-task-employee-summary-totals"><article><b>'+totals.created+'</b><span>создано за период</span></article><article><b>'+totals.completed+'</b><span>выполнено за период</span></article><article><b>'+totals.deleted+'</b><span>удалено за период</span></article><article class="is-overdue"><b>'+currentOverdueTotal+'</b><span>просрочено сейчас</span></article></div>'+
                     (employeeSummary.length ? '<div class="crm-task-employee-summary-list">'+employeeSummary.map(stat => '<article class="crm-task-employee-summary-row"><strong>'+escapeBookingHtml(stat.name)+'</strong><span><b>'+stat.created+'</b><small>создано</small></span><span><b>'+stat.completed+'</b><small>выполнено</small></span><span><b>'+stat.deleted+'</b><small>удалено</small></span><span class="'+(stat.overdue?'is-overdue':'')+'"><b>'+stat.overdue+'</b><small>просрочено</small></span></article>').join('')+'</div>' : '<div class="crm-tasks-empty">Нет данных по сотрудникам за выбранный период</div>')+'</div>';
                 auditExportRows = filtered.slice(0, 50);
                 const labels = {created:'Создал задачу',updated:'Изменил задачу',completed:'Выполнил задачу',deleted:'Удалил задачу'};
