@@ -3853,6 +3853,7 @@ let clientsTasksFilter = 'all';
 let clientsSearchQuery = '';
 let clientsSegmentFilter = 'all';
 let clientsDataQualityExpanded = false;
+let pendingClientMergePhone = '';
 
 function setClientsSearchQuery(value) {
     clientsSearchQuery = value.trim().toLowerCase();
@@ -4382,6 +4383,105 @@ function toggleClientsDataQuality() {
     }
 }
 
+function getClientMergeSources(phone) {
+    const normalizedPhone = normalizeClientPhone(phone);
+    if (normalizedPhone.length < 7) return [];
+    return Object.entries(clientProfiles).filter(([, profile]) =>
+        normalizeClientPhone(profile?.phone) === normalizedPhone
+    );
+}
+
+function showClientMergePreview(phone) {
+    const normalizedPhone = normalizeClientPhone(phone);
+    const sources = getClientMergeSources(normalizedPhone);
+    if (sources.length < 2) {
+        showToast('Для этого номера нет нескольких отдельных профилей для объединения', 'info');
+        return;
+    }
+    pendingClientMergePhone = normalizedPhone;
+    const host = document.getElementById('clientMergePreview');
+    if (!host) return;
+    const profiles = sources.map(([key, profile]) => ({
+        name: profile.clientName || 'Имя не указано',
+        barber: mockStaff.find(staff => String(staff.id) === String(profile.barberId))?.name || 'Мастер не указан',
+        tasks: Array.isArray(profile.tasks) ? profile.tasks.length : 0,
+        interactions: Array.isArray(profile.interactions) ? profile.interactions.length : 0
+    }));
+    const taskCount = profiles.reduce((sum, item) => sum + item.tasks, 0);
+    const interactionCount = profiles.reduce((sum, item) => sum + item.interactions, 0);
+    host.innerHTML = '<section class="crm-merge-preview"><strong>Предварительный просмотр объединения</strong>' +
+        '<p>Номер: +' + escapeBookingHtml(normalizedPhone) + '</p>' +
+        '<div class="crm-merge-preview-profiles">' + profiles.map(profile =>
+            '<div><b>' + escapeBookingHtml(profile.name) + '</b><span>' + escapeBookingHtml(profile.barber) + '</span><small>Задач: ' + profile.tasks + ' · Контактов: ' + profile.interactions + '</small></div>'
+        ).join('') + '</div>' +
+        '<p class="crm-merge-preview-summary">Профили будут объединены в общий телефонный профиль. Задачи и контакты объединяются без повторов. Существующие карточки мастеров, визиты и чеки сохраняются.</p>' +
+        '<div class="crm-merge-preview-actions"><button type="button" class="crm-merge-confirm" onclick="confirmClientPhoneMerge()">Подтвердить объединение</button><button type="button" class="crm-merge-cancel" onclick="cancelClientPhoneMerge()">Отмена</button></div></section>';
+    host.scrollIntoView({behavior:'smooth',block:'nearest'});
+}
+
+function cancelClientPhoneMerge() {
+    pendingClientMergePhone = '';
+    const host = document.getElementById('clientMergePreview');
+    if (host) host.innerHTML = '';
+}
+
+function confirmClientPhoneMerge() {
+    const phone = normalizeClientPhone(pendingClientMergePhone);
+    const sources = getClientMergeSources(phone);
+    if (phone.length < 7 || sources.length < 2) {
+        cancelClientPhoneMerge();
+        return showToast('Профили изменились. Повторно проверь совпадения', 'error');
+    }
+    const canonicalKey = getClientProfileKey('', '', phone);
+    const merged = {...(clientProfiles[canonicalKey] || {})};
+    ['tasks', 'interactions'].forEach(field => {
+        const combined = Array.isArray(merged[field]) ? merged[field].slice() : [];
+        const known = new Set(combined.map(item => item?.id ? String(item.id) : JSON.stringify(item)));
+        sources.forEach(([key, profile]) => {
+            if (key === canonicalKey || !Array.isArray(profile?.[field])) return;
+            profile[field].forEach(item => {
+                const signature = item?.id ? String(item.id) : JSON.stringify(item);
+                if (!known.has(signature)) { combined.push(item); known.add(signature); }
+            });
+        });
+        if (combined.length) merged[field] = combined;
+    });
+    sources.forEach(([key, profile]) => {
+        if (key === canonicalKey) return;
+        Object.entries(profile || {}).forEach(([field, value]) => {
+            if (field === 'tasks' || field === 'interactions') return;
+            if ((merged[field] === undefined || merged[field] === null || merged[field] === '') && value !== '') merged[field] = value;
+        });
+    });
+    merged.phone = phone;
+    if (!merged.clientName) merged.clientName = sources.map(([, profile]) => profile.clientName).find(Boolean) || '';
+    let relinkedSales = 0;
+    const previousSalesKeys = new Set(sources.map(([key]) => key));
+    clientProfiles[canonicalKey] = merged;
+    // Legacy-ключи оставляем: старые карточки и записи продолжают на них ссылаться.
+    sources.forEach(([key, profile]) => {
+        if (key !== canonicalKey) clientProfiles[key] = {...profile, phone};
+    });
+    clientRetailSales.forEach(sale => {
+        if (normalizeClientPhone(sale.clientPhone) === phone && sale.clientProfileKey !== canonicalKey) {
+            sale.clientProfileKey = canonicalKey;
+            relinkedSales++;
+        }
+    });
+    try {
+        localStorage.setItem(appStorageKey('mensfire_client_profiles'), JSON.stringify(clientProfiles));
+        if (relinkedSales) persistClientRetailSales();
+    } catch (error) {
+        showToast('Не удалось сохранить объединение. Проверь свободное место в браузере', 'error');
+        return;
+    }
+    pendingClientMergePhone = '';
+    const preview = document.getElementById('clientMergePreview');
+    if (preview) preview.innerHTML = '';
+    showToast('Общий профиль обновлён. История и карточки сохранены', 'success');
+    renderClients(currentClientsTab);
+}
+
 function renderClientsDataQualityAudit(sourceClients) {
     const host = document.getElementById('clientsDataQuality');
     if (!host) return;
@@ -4434,10 +4534,12 @@ function renderClientsDataQualityAudit(sourceClients) {
                     '<button type="button" onclick="showClientDetails(' + escapeBookingHtml(JSON.stringify(String(item.client.name || ''))) + ',' + escapeBookingHtml(JSON.stringify(String(item.client.barberId || ''))) + ')">' +
                     escapeBookingHtml(item.client.name || 'Клиент') + ' · ' + escapeBookingHtml(mockStaff.find(staff => String(staff.id) === String(item.client.barberId))?.name || 'Мастер') +
                     '</button>'
-                ).join('') + '</div></div><span class="crm-data-quality-kind">' + (group.type === 'name' ? 'Совпадение имени' : 'Общий номер') + '</span></article>'
+                ).join('') + '</div>' +
+                (group.type === 'phone' ? '<button type="button" class="crm-merge-open" onclick="showClientMergePreview(' + escapeBookingHtml(JSON.stringify(group.items[0].phone)) + ')">Проверить и объединить профили</button>' : '') +
+                '</div><span class="crm-data-quality-kind">' + (group.type === 'name' ? 'Совпадение имени' : 'Общий номер') + '</span></article>'
             ).join('') : '<div class="crm-data-quality-empty">Пока нечего проверять. Новые совпадения появятся здесь автоматически.</div>') +
-            '<p class="crm-data-quality-note">Автоматическое объединение отключено: совпадение имени или номера само по себе не подтверждает, что это один человек. Открой карточки и проверь данные вручную.</p>' +
-        '</div></section>';
+            '<p class="crm-data-quality-note">Объединяй только после личной проверки: общий номер может принадлежать семье или организации. Совпадение имени без телефона не позволяет объединить карточки автоматически.</p>' +
+        '</div><div id="clientMergePreview"></div></section>';
 }
 
 function renderClients(tab = 'all') {
