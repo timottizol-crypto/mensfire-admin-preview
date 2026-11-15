@@ -323,15 +323,6 @@ function buildBottomNav() {
 
     viewOrder = navItems.map(item => item.id);
 
-    const toggle = document.createElement('button');
-    toggle.type = 'button';
-    toggle.className = 'desktop-nav-toggle';
-    toggle.id = 'desktopNavToggle';
-    toggle.innerHTML = '<span class="nav-toggle-icon">‹</span><span class="nav-toggle-label">Свернуть меню</span>';
-    toggle.setAttribute('aria-label', 'Свернуть или развернуть меню');
-    toggle.onclick = toggleDesktopNav;
-    nav.appendChild(toggle);
-
     navItems.forEach((item, index) => {
         const div = document.createElement('div');
         div.className = `nav-item ${index === 0 ? 'active' : ''}`;
@@ -340,20 +331,6 @@ function buildBottomNav() {
         div.onclick = () => switchView(item.id, div);
         nav.appendChild(div);
 
-        if (item.id === 'viewSchedule') {
-            const subnav = document.createElement('div');
-            subnav.className = 'desktop-schedule-subnav';
-            subnav.id = 'desktopScheduleSubnav';
-            subnav.innerHTML = `
-                <button type="button" class="${currentScheduleTab === 'bookings' ? 'active' : ''}" onclick="switchScheduleTab('bookings')">
-                    <span class="schedule-subnav-dot"></span><span class="schedule-subnav-label">Расписание</span>
-                </button>
-                <button type="button" class="${currentScheduleTab === 'breaks' ? 'active' : ''}" onclick="switchScheduleTab('breaks')">
-                    <span class="schedule-subnav-dot"></span><span class="schedule-subnav-label">Запрет времени</span>
-                </button>
-            `;
-            nav.appendChild(subnav);
-        }
     });
 
     initDesktopNav();
@@ -367,13 +344,10 @@ function initDesktopNav() {
 
     if (!nav || !app) return;
 
-    const isCollapsed =
-        localStorage.getItem('mensfire_desktop_nav') === 'collapsed';
-
-    nav.classList.toggle('desktop-collapsed', isCollapsed);
-    app.classList.toggle('desktop-nav-collapsed', isCollapsed);
-
-    updateDesktopNavToggle();
+    // На ПК меню всегда компактное; расширение происходит наведением.
+    const isDesktop = window.innerWidth >= 768;
+    nav.classList.toggle('desktop-collapsed', isDesktop);
+    app.classList.toggle('desktop-nav-collapsed', isDesktop);
 }
 
 function toggleDesktopNav() {
