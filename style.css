@@ -6464,3 +6464,25 @@ html.light-theme .booking-client-match{background:#fbf8ef}
 .client-retail-item>span{min-width:0}
 .client-retail-sale-head>div{display:grid;justify-items:start;gap:3px}
 @media(max-width:480px){.client-retail-link{min-height:28px;padding:5px 8px}}
+
+
+/* CRM · контроль качества клиентской базы */
+.crm-data-quality{margin:10px 0 14px;border:1px solid var(--border-color,rgba(255,255,255,.1));border-radius:12px;background:rgba(255,255,255,.025);overflow:hidden}
+.crm-data-quality-toggle{display:flex;align-items:center;gap:10px;width:100%;padding:11px 13px;border:0;background:transparent;color:inherit;text-align:left;cursor:pointer}
+.crm-data-quality-toggle>span:first-child{display:grid;gap:3px;flex:1;min-width:0}
+.crm-data-quality-toggle strong{font-size:12px;font-weight:700}
+.crm-data-quality-toggle small{font-size:10px;color:var(--text-muted,#999)}
+.crm-data-quality-count{display:grid;place-items:center;min-width:23px;height:23px;padding:0 6px;border-radius:8px;background:rgba(198,158,91,.13);color:var(--gold);font-size:11px;font-weight:700}
+.crm-data-quality-chevron{font-size:17px;color:var(--gold);line-height:1}
+.crm-data-quality-details{padding:0 12px 12px;border-top:1px solid var(--border-color,rgba(255,255,255,.08))}
+.crm-data-quality-details[hidden]{display:none}
+.crm-data-quality-item{display:flex;justify-content:space-between;align-items:flex-start;gap:12px;padding:11px 2px;border-bottom:1px solid var(--border-color,rgba(255,255,255,.07))}
+.crm-data-quality-item>div{min-width:0;flex:1}
+.crm-data-quality-item strong{font-size:12px}
+.crm-data-quality-item p{margin:4px 0 7px;color:var(--text-muted,#999);font-size:10px;line-height:1.45}
+.crm-data-quality-profiles{display:flex;flex-wrap:wrap;gap:6px}
+.crm-data-quality-profiles button{padding:5px 8px;border:1px solid var(--border-color,rgba(255,255,255,.12));border-radius:7px;background:rgba(255,255,255,.035);color:var(--text-primary,inherit);font:inherit;font-size:10px;cursor:pointer}
+.crm-data-quality-profiles button:hover{border-color:var(--gold);color:var(--gold)}
+.crm-data-quality-kind{flex:none;padding:4px 7px;border-radius:6px;background:rgba(255,190,90,.1);color:#d6ad69;font-size:9px}
+.crm-data-quality-note,.crm-data-quality-empty{margin:10px 0 0;color:var(--text-muted,#999);font-size:10px;line-height:1.5}
+@media(max-width:480px){.crm-data-quality-item{display:block}.crm-data-quality-kind{display:inline-flex;margin-top:7px}.crm-data-quality-profiles button{min-height:30px}}
