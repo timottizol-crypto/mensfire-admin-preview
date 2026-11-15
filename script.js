@@ -437,6 +437,7 @@ function switchView(viewId, navElement) {
         'viewTeam': 'Команда',
         'viewServices': 'Услуги',
         'viewClients': 'Клиенты',
+        'viewInventory': 'Склад',
         'viewProfile': 'Профиль'
     };
     if (titles[viewId]) {
@@ -5009,7 +5010,9 @@ const MENSFIRE_BACKUP_KEYS = [
     'mensfire_admin_expenses',
     'mensfire_admin_staff',
     'mensfire_admin_services',
-    'mensfire_client_profiles'
+    'mensfire_client_profiles',
+    'mensfire_inventory_products',
+    'mensfire_inventory_movements'
 ];
 
 function exportMensfireBackup() {
@@ -5058,11 +5061,16 @@ function importMensfireBackup(input) {
             if (backup?.app !== 'MENSFIRE' || backup?.version !== 1 || !backup.data) {
                 throw new Error('Неподдерживаемый формат резервной копии');
             }
+            // Совместимость со старыми копиями, в которых ещё не было склада.
+            if (backup.data.mensfire_inventory_products === undefined) backup.data.mensfire_inventory_products = [];
+            if (backup.data.mensfire_inventory_movements === undefined) backup.data.mensfire_inventory_movements = [];
             const expected = {
                 mensfire_admin_bookings: Array.isArray,
                 mensfire_admin_blocks: Array.isArray,
                 mensfire_admin_expenses: Array.isArray,
                 mensfire_admin_staff: Array.isArray,
+                mensfire_inventory_products: Array.isArray,
+                mensfire_inventory_movements: Array.isArray,
                 mensfire_client_profiles: value => value && typeof value === 'object' && !Array.isArray(value)
             };
             for (const [key, validator] of Object.entries(expected)) {
