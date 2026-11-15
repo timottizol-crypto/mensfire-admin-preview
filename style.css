@@ -6277,3 +6277,34 @@ html.light-theme .booking-client-match{background:#fbf8ef}
 .crm-tasks-empty{padding:27px 12px;border:1px dashed rgba(255,255,255,.1);border-radius:11px;color:var(--text-muted);font-size:11px;text-align:center}
 @media(max-width:767px){.crm-workspace-switch{display:none!important}.crm-tasks-hub{display:none!important}#viewClients.crm-tasks-mode #clientsPeriodControls,#viewClients.crm-tasks-mode #clientsOverview,#viewClients.crm-tasks-mode #clientsAnalytics,#viewClients.crm-tasks-mode .crm-client-scope-tabs,#viewClients.crm-tasks-mode #scheduleWaitlist,#viewClients.crm-tasks-mode #clientsSegmentContainer,#viewClients.crm-tasks-mode .clients-search-wrap,#viewClients.crm-tasks-mode #clientsList{display:revert!important}}
 @media(max-width:900px) and (min-width:768px){.crm-task-row{grid-template-columns:minmax(140px,1fr) minmax(140px,1.2fr) auto;gap:9px}.crm-tasks-hub{padding:14px}}
+
+
+/* CRM · история розничных покупок клиента */
+.client-retail-section{margin:16px 0;padding:14px;border:1px solid var(--border-color,rgba(255,255,255,.08));border-radius:14px;background:rgba(255,255,255,.018)}
+.client-retail-section .client-interactions-heading{gap:10px}
+.client-retail-source{flex:0 0 auto;padding:5px 7px;border:1px solid rgba(212,175,55,.2);border-radius:7px;color:var(--gold)!important;font-size:8px!important;font-weight:800;letter-spacing:.5px}
+.client-retail-purchases{display:grid;gap:9px}
+.client-retail-empty{display:grid;justify-items:center;gap:6px;padding:20px 12px;border:1px dashed var(--border-color,rgba(255,255,255,.12));border-radius:11px;text-align:center}
+.client-retail-empty-icon{display:grid;place-items:center;width:34px;height:34px;border-radius:10px;background:rgba(212,175,55,.1);color:var(--gold);font-size:19px}
+.client-retail-empty strong{color:var(--text-main);font-size:12px}
+.client-retail-empty p{max-width:330px;margin:0;color:var(--text-muted);font-size:10px;line-height:1.5}
+.client-retail-summary{display:flex;align-items:center;gap:12px;flex-wrap:wrap;padding:10px 11px;border-radius:9px;background:rgba(212,175,55,.07);color:var(--text-muted);font-size:10px}
+.client-retail-summary b{color:var(--text-main)}
+.client-retail-summary strong{margin-left:auto;color:var(--gold);font-size:13px}
+.client-retail-sale{padding:11px;border:1px solid var(--border-color,rgba(255,255,255,.08));border-radius:10px;background:rgba(255,255,255,.025)}
+.client-retail-sale-head{display:flex;justify-content:space-between;align-items:flex-start;gap:10px;margin-bottom:8px}
+.client-retail-sale-head>div{display:grid;gap:3px;min-width:0}
+.client-retail-sale-head strong{color:var(--text-main);font-size:11px}
+.client-retail-sale-head span{color:var(--text-muted);font-size:9px}
+.client-retail-status{flex:0 0 auto;padding:4px 7px;border-radius:6px;background:rgba(76,175,80,.1);color:#65c58a;font-size:9px}
+.client-retail-status.status-partial{background:rgba(229,163,76,.12);color:#e5a34c}
+.client-retail-status.status-unpaid{background:rgba(229,62,62,.1);color:#e57373}
+.client-retail-status.status-refunded{background:rgba(140,140,140,.12);color:var(--text-muted)}
+.client-retail-item{display:flex;justify-content:space-between;gap:10px;padding:6px 0;border-top:1px solid var(--border-color,rgba(255,255,255,.06));font-size:10px;color:var(--text-main)}
+.client-retail-item small{color:var(--text-muted)}
+.client-retail-item>b{flex:0 0 auto;color:var(--text-main);font-size:10px}
+.client-retail-empty-items{padding:8px 0;color:var(--text-muted);font-size:10px}
+.client-retail-sale-total{display:flex;justify-content:space-between;gap:10px;margin-top:7px;padding-top:8px;border-top:1px solid var(--border-color,rgba(255,255,255,.08));font-size:10px;color:var(--text-muted)}
+.client-retail-sale-total strong{color:var(--gold);font-size:12px}
+.client-retail-sale>p{margin:7px 0 0;color:var(--text-muted);font-size:10px;line-height:1.45}
+@media(max-width:480px){.client-retail-section{padding:11px}.client-retail-sale{padding:9px}.client-retail-summary{gap:8px}.client-retail-sale-head{flex-direction:column}}
