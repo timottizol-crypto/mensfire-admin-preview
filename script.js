@@ -886,28 +886,19 @@ function openWaitlistDatePicker() {
     openModal('calendarModal');
 }
 function renderWaitlist() {
-    const host = document.getElementById('waitlistList');
-    if (!host) return;
-    const barber = document.getElementById('waitlistBarber');
-    const service = document.getElementById('waitlistService');
-    if (barber && !barber.options.length) {
-        barber.innerHTML = mockStaff.map(person => `<option value="${escapeBookingHtml(person.id)}">${escapeBookingHtml(person.name)}</option>`).join('');
-    }
-    if (service && !service.options.length) {
-        const options = Object.values(servicesData).flat().filter(item => item.active !== false);
-        service.innerHTML = '<option value="">Любая услуга</option>' + options.map(item => `<option value="${escapeBookingHtml(item.id)}">${escapeBookingHtml(item.title)}</option>`).join('');
-    }
-    const count = document.getElementById('waitlistCount');
-    if (count) count.textContent = String(waitlistEntries.length);
-    if (!waitlistEntries.length) {
-        host.innerHTML = '<div class="waitlist-empty">Пока нет клиентов в листе ожидания</div>';
-        return;
-    }
-    host.innerHTML = waitlistEntries.map(item => {
-        const staff = mockStaff.find(person => String(person.id) === String(item.barberId));
-        return `<article class="waitlist-row"><div class="waitlist-person"><strong>${escapeBookingHtml(item.clientName)}</strong><span>${escapeBookingHtml(item.phone || 'Телефон не указан')}</span><small>${escapeBookingHtml(item.date || 'Любая дата')} · ${escapeBookingHtml(item.time || 'Любое время')} · ${escapeBookingHtml(staff?.name || 'Любой мастер')}</small><small>${escapeBookingHtml(item.serviceTitle || 'Любая услуга')}</small></div><div class="waitlist-actions"><button type="button" onclick="promoteWaitlistEntry('${escapeBookingHtml(item.id)}')">Создать запись</button><button type="button" class="waitlist-remove" onclick="removeWaitlistEntry('${escapeBookingHtml(item.id)}')">Убрать</button></div></article>`;
-    }).join('');
+    const host=document.getElementById('waitlistList'); if(!host)return;
+    const barber=document.getElementById('waitlistBarber'),service=document.getElementById('waitlistService');
+    if(barber&&!barber.options.length)barber.innerHTML='<option value="">Любой мастер</option>'+mockStaff.map(p=>`<option value="${escapeBookingHtml(p.id)}">${escapeBookingHtml(p.name)}</option>`).join('');
+    if(service&&!service.options.length){const options=Object.values(servicesData).flat().filter(x=>x.active!==false);service.innerHTML='<option value="">Любая услуга</option>'+options.map(x=>`<option value="${escapeBookingHtml(x.id)}">${escapeBookingHtml(x.title)}</option>`).join('')}
+    const active=waitlistEntries.filter(x=>(x.status||'waiting')!=='closed');const count=document.getElementById('waitlistCount');if(count)count.textContent=String(active.length);
+    const q=(document.getElementById('waitlistSearch')?.value||'').trim().toLowerCase(),sf=document.getElementById('waitlistStatusFilter')?.value||'active',pf=document.getElementById('waitlistPriorityFilter')?.value||'all';
+    const rank={urgent:0,high:1,normal:2},pl={urgent:'Срочно',high:'Высокий',normal:'Обычный'},sl={waiting:'Ожидает',contacted:'Связались',offered:'Предложено время',closed:'Закрыт'};
+    const rows=waitlistEntries.filter(x=>{const st=x.status||'waiting';if(sf==='active'&&st==='closed')return false;if(sf!=='active'&&sf!=='all'&&st!==sf)return false;if(pf!=='all'&&(x.priority||'normal')!==pf)return false;return !q||[x.clientName,x.phone,x.serviceTitle].join(' ').toLowerCase().includes(q)}).sort((x,y)=>(rank[x.priority||'normal']??2)-(rank[y.priority||'normal']??2)||new Date(x.createdAt||0)-new Date(y.createdAt||0));
+    if(!rows.length){host.innerHTML=`<div class="waitlist-empty">${waitlistEntries.length?'По выбранным фильтрам клиентов нет':'Пока нет клиентов в листе ожидания'}</div>`;return}
+    host.innerHTML=rows.map(x=>{const staff=mockStaff.find(p=>String(p.id)===String(x.barberId)),priority=x.priority||'normal',status=x.status||'waiting',phone=String(x.phone||'').replace(/[^+\\d]/g,'');return `<article class="waitlist-row waitlist-row-enhanced"><div class="waitlist-person"><strong>${escapeBookingHtml(x.clientName)}</strong><span>${escapeBookingHtml(x.phone||'Телефон не указан')}</span><small>${escapeBookingHtml(x.date||'Любая дата')} · ${escapeBookingHtml(x.time||'Любое время')} · ${escapeBookingHtml(staff?.name||'Любой мастер')}</small><small>${escapeBookingHtml(x.serviceTitle||'Любая услуга')}</small><div class="waitlist-tags"><span class="waitlist-priority priority-${priority}">${pl[priority]||pl.normal}</span><span class="waitlist-status">${sl[status]||sl.waiting}</span></div></div><div class="waitlist-actions"><select aria-label="Приоритет" onchange="updateWaitlistEntry('${escapeBookingHtml(x.id)}','priority',this.value)"><option value="normal" ${priority==='normal'?'selected':''}>Обычный</option><option value="high" ${priority==='high'?'selected':''}>Высокий</option><option value="urgent" ${priority==='urgent'?'selected':''}>Срочно</option></select><select aria-label="Статус" onchange="updateWaitlistEntry('${escapeBookingHtml(x.id)}','status',this.value)"><option value="waiting" ${status==='waiting'?'selected':''}>Ожидает</option><option value="contacted" ${status==='contacted'?'selected':''}>Связались</option><option value="offered" ${status==='offered'?'selected':''}>Предложено время</option><option value="closed" ${status==='closed'?'selected':''}>Закрыть</option></select>${phone?`<a class="waitlist-contact-link" href="tel:${escapeBookingHtml(phone)}">Позвонить</a>`:''}<button type="button" onclick="promoteWaitlistEntry('${escapeBookingHtml(x.id)}')">Создать запись</button><button type="button" class="waitlist-remove" onclick="removeWaitlistEntry('${escapeBookingHtml(x.id)}')">Убрать</button></div></article>`}).join('');
 }
+function updateWaitlistEntry(id,field,value){if(!requireAdminAction('Управлять листом ожидания может только администратор'))return;const x=waitlistEntries.find(e=>String(e.id)===String(id));if(!x||!['priority','status'].includes(field))return;const allowed=field==='priority'?['normal','high','urgent']:['waiting','contacted','offered','closed'];if(!allowed.includes(value))return;x[field]=value;x.updatedAt=new Date().toISOString();persistWaitlist();renderWaitlist();showToast('Карточка ожидания обновлена','success')}
+
 function addWaitlistEntry() {
     if (!requireAdminAction('Управлять листом ожидания может только администратор')) return;
     const clientName = document.getElementById('waitlistClient')?.value.trim();
@@ -920,7 +911,7 @@ function addWaitlistEntry() {
     if (date && !parseReportDate(date)) return showToast('Проверьте желаемую дату', 'error');
     if (time && parseScheduleTimeMinutes(time) === null) return showToast('Проверьте желаемое время', 'error');
     const service = Object.values(servicesData).flat().find(item => String(item.id) === String(serviceId));
-    waitlistEntries.push({ id:'wait-' + Date.now(), clientName, phone, date, time, barberId, serviceId, serviceTitle:service?.title || '', createdAt:new Date().toISOString() });
+    waitlistEntries.push({ id:'wait-' + Date.now(), clientName, phone, date, time, barberId, serviceId, serviceTitle:service?.title || '', priority:document.getElementById('waitlistPriority')?.value || 'normal', status:'waiting', createdAt:new Date().toISOString() });
     persistWaitlist();
     ['waitlistClient','waitlistPhone','waitlistDate','waitlistTime'].forEach(id => { const input=document.getElementById(id); if(input) input.value=''; });
     renderWaitlist();
