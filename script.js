@@ -3794,6 +3794,42 @@ function findClientProfile(name, barberId) {
     };
 }
 
+function renderClientInteractionHistory() {
+    const root = document.getElementById('clientInteractionHistory');
+    if (!root || !selectedClientProfileKey) return;
+    const profile = clientProfiles[selectedClientProfileKey] || {};
+    const items = Array.isArray(profile.interactions) ? profile.interactions.slice() : [];
+    items.sort((a, b) => new Date(b.createdAt || 0) - new Date(a.createdAt || 0));
+    const labels = { call: 'Звонок', message: 'Сообщение', meeting: 'Личная встреча', note: 'Заметка', other: 'Другое' };
+    root.innerHTML = items.length ? items.map(item => {
+        const date = new Date(item.createdAt || '');
+        const dateLabel = Number.isNaN(date.getTime()) ? 'Дата не указана' : date.toLocaleString('ru-RU', { day:'2-digit', month:'short', year:'numeric', hour:'2-digit', minute:'2-digit' });
+        return '<article class="client-interaction-item"><div class="client-interaction-meta"><b>' + escapeBookingHtml(labels[item.type] || 'Другое') + '</b><span>' + escapeBookingHtml(dateLabel) + '</span></div><p>' + escapeBookingHtml(item.text || '') + '</p><small>' + escapeBookingHtml(item.author || 'Сотрудник') + '</small></article>';
+    }).join('') : '<div class="client-interaction-empty">Пока нет записей об общении с клиентом</div>';
+}
+function addClientInteraction() {
+    if (!selectedClientProfileKey) return;
+    const typeInput = document.getElementById('clientInteractionType');
+    const textInput = document.getElementById('clientInteractionText');
+    const text = String(textInput?.value || '').trim();
+    if (!text) return showToast('Добавьте краткое описание контакта', 'error');
+    const profile = clientProfiles[selectedClientProfileKey] || {};
+    if (!Array.isArray(profile.interactions)) profile.interactions = [];
+    const author = currentUser?.name || 'Сотрудник';
+    profile.interactions.push({
+        id: 'interaction_' + Date.now() + '_' + Math.random().toString(36).slice(2, 7),
+        type: ['call','message','meeting','note','other'].includes(typeInput?.value) ? typeInput.value : 'note',
+        text: text.slice(0, 1200),
+        createdAt: new Date().toISOString(),
+        author: String(author).slice(0, 100)
+    });
+    clientProfiles[selectedClientProfileKey] = profile;
+    localStorage.setItem(appStorageKey('mensfire_client_profiles'), JSON.stringify(clientProfiles));
+    if (textInput) textInput.value = '';
+    renderClientInteractionHistory();
+    showToast('Контакт добавлен в историю', 'success');
+}
+
 function saveClientProfile() {
     if (!selectedClientProfileKey) return;
 
@@ -4440,6 +4476,7 @@ function showClientDetails(name, barberId) {
     renderClientLoyaltyPanel(myBookings);
     renderClientInsights(myBookings);
     renderClientLifetimeValue(myBookings);
+    renderClientInteractionHistory();
 
     const historyContainer = document.getElementById('clientDetailsHistory');
     if (historyContainer) {
