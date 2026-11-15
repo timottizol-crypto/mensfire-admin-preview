@@ -6231,3 +6231,49 @@ html.light-theme .booking-client-match{background:#fbf8ef}
 .client-task-actions button{padding:6px 8px;border:1px solid rgba(212,166,55,.25);border-radius:7px;background:rgba(212,166,55,.08);color:var(--gold);font-size:10px;cursor:pointer}
 .client-task-actions button.client-task-delete{border-color:rgba(255,255,255,.08);background:transparent;color:var(--text-muted)}
 @media(max-width:480px){.client-tasks-section{padding:11px}.client-task-composer{grid-template-columns:1fr}.client-task-composer button{grid-column:auto}.client-task-item{align-items:flex-start;flex-direction:column}.client-task-actions{align-self:flex-end}}
+
+
+/* Desktop CRM workspace: separate client list and unified task center */
+.crm-workspace-switch{display:flex;gap:7px;margin:0 0 14px;padding:4px;border:1px solid var(--border-color,rgba(255,255,255,.09));border-radius:11px;background:rgba(255,255,255,.025);width:max-content;max-width:100%}
+.crm-workspace-switch button{display:flex;align-items:center;gap:8px;padding:9px 13px;border:0;border-radius:8px;background:transparent;color:var(--text-muted);font:inherit;font-size:11px;font-weight:700;cursor:pointer}
+.crm-workspace-switch button.active{background:rgba(212,175,55,.14);color:var(--gold)}
+.crm-workspace-switch button span,.crm-tasks-filters button span{display:inline-grid;min-width:19px;height:19px;place-items:center;padding:0 5px;border-radius:7px;background:rgba(255,255,255,.07);font-size:9px}
+.crm-workspace-switch button.active span{background:rgba(212,175,55,.18)}
+.crm-tasks-hub{display:none;margin:0 0 18px;padding:19px;border:1px solid rgba(212,175,55,.19);border-radius:16px;background:linear-gradient(145deg,rgba(212,175,55,.065),rgba(255,255,255,.015))}
+#viewClients.crm-tasks-mode #clientsPeriodControls,
+#viewClients.crm-tasks-mode #clientsOverview,
+#viewClients.crm-tasks-mode #clientsAnalytics,
+#viewClients.crm-tasks-mode .crm-client-scope-tabs,
+#viewClients.crm-tasks-mode #scheduleWaitlist,
+#viewClients.crm-tasks-mode #clientsSegmentContainer,
+#viewClients.crm-tasks-mode .clients-search-wrap,
+#viewClients.crm-tasks-mode #clientsList{display:none!important}
+#viewClients.crm-tasks-mode .crm-tasks-hub{display:block}
+.crm-tasks-heading{display:flex;align-items:flex-start;justify-content:space-between;gap:16px;margin-bottom:17px}
+.crm-tasks-heading h3{margin:3px 0 4px;color:var(--text-primary);font-size:18px}
+.crm-tasks-heading p{margin:0;color:var(--text-muted);font-size:11px}
+.crm-tasks-summary{display:flex;gap:8px;flex-wrap:wrap}
+.crm-tasks-summary span{padding:7px 10px;border:1px solid rgba(255,255,255,.07);border-radius:9px;color:var(--text-muted);font-size:10px;white-space:nowrap}
+.crm-tasks-summary b{color:var(--text-primary);font-size:13px;margin-right:3px}
+.crm-tasks-summary .is-overdue b{color:#e5a34c}
+.crm-tasks-filters{display:flex;flex-wrap:wrap;gap:7px;margin-bottom:13px}
+.crm-tasks-filters button{display:flex;align-items:center;gap:7px;padding:7px 10px;border:1px solid var(--border-color,rgba(255,255,255,.09));border-radius:8px;background:rgba(255,255,255,.025);color:var(--text-muted);font:inherit;font-size:10px;cursor:pointer}
+.crm-tasks-filters button.active{border-color:rgba(212,175,55,.4);background:rgba(212,175,55,.1);color:var(--gold)}
+.crm-tasks-list{display:flex;flex-direction:column;gap:7px}
+.crm-task-row{display:grid;grid-template-columns:minmax(180px,1.05fr) minmax(180px,1.6fr) auto;align-items:center;gap:14px;padding:11px 12px;border:1px solid rgba(255,255,255,.065);border-radius:11px;background:rgba(0,0,0,.09)}
+.crm-task-row.is-overdue{border-color:rgba(229,163,76,.25);background:rgba(229,163,76,.045)}
+.crm-task-row.is-done{opacity:.57}
+.crm-task-client{display:flex;align-items:center;gap:9px;min-width:0;padding:0;border:0;background:transparent;color:inherit;text-align:left;cursor:pointer}
+.crm-task-avatar{display:grid;flex:0 0 33px;width:33px;height:33px;place-items:center;border-radius:10px;background:rgba(212,175,55,.12);color:var(--gold);font-size:12px;font-weight:800}
+.crm-task-client>span:last-child{display:grid;gap:4px;min-width:0}
+.crm-task-client b,.crm-task-description strong{overflow:hidden;color:var(--text-primary);font-size:11px;text-overflow:ellipsis;white-space:nowrap}
+.crm-task-client small,.crm-task-description small{overflow:hidden;color:var(--text-muted);font-size:9px;text-overflow:ellipsis;white-space:nowrap}
+.crm-task-row.is-overdue .crm-task-client small{color:#e5a34c}
+.crm-task-description{display:grid;gap:4px;min-width:0}
+.crm-task-row.is-done .crm-task-description strong{text-decoration:line-through}
+.crm-task-actions{display:flex;align-items:center;gap:6px}
+.crm-task-actions button{padding:7px 9px;border:1px solid rgba(212,175,55,.28);border-radius:8px;background:rgba(212,175,55,.09);color:var(--gold);font:inherit;font-size:10px;font-weight:700;cursor:pointer}
+.crm-task-actions button.delete{width:29px;height:29px;padding:0;border-color:rgba(255,255,255,.08);background:transparent;color:var(--text-muted);font-size:17px}
+.crm-tasks-empty{padding:27px 12px;border:1px dashed rgba(255,255,255,.1);border-radius:11px;color:var(--text-muted);font-size:11px;text-align:center}
+@media(max-width:767px){.crm-workspace-switch{display:none!important}.crm-tasks-hub{display:none!important}#viewClients.crm-tasks-mode #clientsPeriodControls,#viewClients.crm-tasks-mode #clientsOverview,#viewClients.crm-tasks-mode #clientsAnalytics,#viewClients.crm-tasks-mode .crm-client-scope-tabs,#viewClients.crm-tasks-mode #scheduleWaitlist,#viewClients.crm-tasks-mode #clientsSegmentContainer,#viewClients.crm-tasks-mode .clients-search-wrap,#viewClients.crm-tasks-mode #clientsList{display:revert!important}}
+@media(max-width:900px) and (min-width:768px){.crm-task-row{grid-template-columns:minmax(140px,1fr) minmax(140px,1.2fr) auto;gap:9px}.crm-tasks-hub{padding:14px}}
