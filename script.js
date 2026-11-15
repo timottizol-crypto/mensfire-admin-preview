@@ -3832,7 +3832,7 @@ function addClientInteraction() {
 }
 
 function parseClientTaskDate(value) {
-    const match = String(value || '').trim().match(/^(\\d{2})\\.(\\d{2})\\.(\\d{4})$/);
+    const match = String(value || '').trim().match(/^(\d{2})\.(\d{2})\.(\d{4})$/);
     if (!match) return null;
     const date = new Date(Number(match[3]), Number(match[2]) - 1, Number(match[1]));
     return date.getFullYear() === Number(match[3]) && date.getMonth() === Number(match[2]) - 1 && date.getDate() === Number(match[1]) ? date : null;
