@@ -4057,6 +4057,22 @@ function renderClientTasks() {
     root.querySelectorAll('[data-client-task-done]').forEach(button => button.addEventListener('click', () => completeClientTask(button.dataset.clientTaskDone)));
     root.querySelectorAll('[data-client-task-delete]').forEach(button => button.addEventListener('click', () => deleteClientTask(button.dataset.clientTaskDelete)));
 }
+function logClientTaskAction(profile, task, action, details = '') {
+    if (!profile || !task) return;
+    if (!Array.isArray(profile.taskHistory)) profile.taskHistory = [];
+    profile.taskHistory.unshift({
+        id: 'tasklog_' + Date.now() + '_' + Math.random().toString(36).slice(2, 7),
+        taskId: String(task.id || ''),
+        taskTitle: String(task.title || 'Задача').slice(0, 180),
+        action,
+        details: String(details || '').slice(0, 300),
+        actor: String(currentUser?.name || 'Сотрудник').slice(0, 100),
+        actorId: String(currentUser?.id || ''),
+        createdAt: new Date().toISOString()
+    });
+    profile.taskHistory = profile.taskHistory.slice(0, 300);
+}
+
 function addClientTask() {
     if (!selectedClientProfileKey) return;
     const titleInput = document.getElementById('clientTaskTitle');
@@ -4067,14 +4083,16 @@ function addClientTask() {
     if (dueDate && !parseClientTaskDate(dueDate)) return showToast('Укажите дату в формате ДД.ММ.ГГГГ', 'error');
     const profile = clientProfiles[selectedClientProfileKey] || {};
     if (!Array.isArray(profile.tasks)) profile.tasks = [];
-    profile.tasks.push({
+    const newTask = {
         id: 'task_' + Date.now() + '_' + Math.random().toString(36).slice(2, 7),
         title: title.slice(0, 180),
         dueDate,
         done: false,
         createdAt: new Date().toISOString(),
         author: String(currentUser?.name || 'Сотрудник').slice(0, 100)
-    });
+    };
+    profile.tasks.push(newTask);
+    logClientTaskAction(profile, newTask, 'created', 'Задача создана');
     clientProfiles[selectedClientProfileKey] = profile;
     localStorage.setItem(appStorageKey('mensfire_client_profiles'), JSON.stringify(clientProfiles));
     if (titleInput) titleInput.value = '';
@@ -4090,6 +4108,7 @@ function completeClientTask(taskId) {
     if (!task) return;
     task.done = true;
     task.completedAt = new Date().toISOString();
+    logClientTaskAction(profile, task, 'completed', 'Задача отмечена выполненной');
     localStorage.setItem(appStorageKey('mensfire_client_profiles'), JSON.stringify(clientProfiles));
     renderClientTasks();
     refreshSelectedClientActivity();
@@ -4098,6 +4117,8 @@ function completeClientTask(taskId) {
 function deleteClientTask(taskId) {
     if (!selectedClientProfileKey) return;
     const profile = clientProfiles[selectedClientProfileKey] || {};
+    const removedTask = (profile.tasks || []).find(item => item.id === taskId);
+    if (removedTask) logClientTaskAction(profile, removedTask, 'deleted', 'Задача удалена');
     profile.tasks = (profile.tasks || []).filter(item => item.id !== taskId);
     localStorage.setItem(appStorageKey('mensfire_client_profiles'), JSON.stringify(clientProfiles));
     renderClientTasks();
@@ -4363,7 +4384,29 @@ function renderClientTasksHub() {
                     <div class="crm-task-edit-actions"><button type="submit">Сохранить</button><button type="button" data-crm-task-cancel>Отмена</button></div>
                 </form>
             </article>`;
-        }).join('') : '<div class="crm-tasks-empty">По выбранным условиям задач нет</div>'}</div>`;
+        }).join('') : '<div class="crm-tasks-empty">По выбранным условиям задач нет</div>'}</div>
+        <section class="crm-task-audit">
+            <div class="crm-task-audit-heading"><strong>История действий</strong><span>Последние изменения задач</span></div>
+            ${(() => {
+                const history = [];
+                const seen = new Set();
+                Object.entries(clientProfiles || {}).forEach(([key, profile]) => {
+                    (profile?.taskHistory || []).forEach(event => {
+                        const id = String(event.id || JSON.stringify(event));
+                        if (seen.has(id)) return;
+                        seen.add(id);
+                        history.push({ ...event, clientName: profile.clientName || 'Клиент', profileKey: key });
+                    });
+                });
+                history.sort((a,b) => new Date(b.createdAt || 0) - new Date(a.createdAt || 0));
+                const labels = {created:'Создал задачу',updated:'Изменил задачу',completed:'Выполнил задачу',deleted:'Удалил задачу'};
+                return history.slice(0,30).map(event => {
+                    const date = event.createdAt ? new Date(event.createdAt) : null;
+                    const when = date && !Number.isNaN(date.getTime()) ? date.toLocaleString('ru-RU',{day:'2-digit',month:'2-digit',hour:'2-digit',minute:'2-digit'}) : '';
+                    return '<article class="crm-task-audit-item"><span class="crm-task-audit-dot '+escapeBookingHtml(event.action)+'"></span><div><strong>'+escapeBookingHtml(labels[event.action] || 'Изменил задачу')+' · '+escapeBookingHtml(event.clientName)+'</strong><p>'+escapeBookingHtml(event.taskTitle || 'Задача')+'</p><small>'+escapeBookingHtml(event.actor || 'Сотрудник')+(event.details ? ' · '+escapeBookingHtml(event.details) : '')+'</small></div><time>'+escapeBookingHtml(when)+'</time></article>';
+                }).join('') || '<div class="crm-tasks-empty">История действий пока пуста</div>';
+            })()}
+        </section>`;
     const searchInput = root.querySelector('#crmTasksSearch');
     if (searchInput) searchInput.addEventListener('input', () => {
         clientsTasksSearchQuery = searchInput.value;
@@ -4413,8 +4456,10 @@ function updateClientTaskFromHub(profileKey, taskId, action) {
     if (action === 'done') {
         profile.tasks[taskIndex].done = true;
         profile.tasks[taskIndex].completedAt = new Date().toISOString();
+        logClientTaskAction(profile, profile.tasks[taskIndex], 'completed', 'Задача отмечена выполненной');
         showToast('Задача отмечена выполненной', 'success');
     } else {
+        logClientTaskAction(profile, profile.tasks[taskIndex], 'deleted', 'Задача удалена');
         profile.tasks.splice(taskIndex, 1);
         showToast('Задача удалена', 'success');
     }
@@ -4433,10 +4478,18 @@ function saveClientTaskFromHub(profileKey, taskId, changes) {
     if (changes.assigneeId && !allowedStaff.some(staff => String(staff.id) === changes.assigneeId)) {
         return showToast('Выбранный ответственный недоступен', 'error');
     }
+    const changesLog = [];
+    if (task.title !== changes.title) changesLog.push('Название изменено');
+    if (String(task.dueDate || '') !== changes.dueDate) changesLog.push('Срок: ' + (changes.dueDate || 'не указан'));
+    if (String(task.assigneeId || '') !== changes.assigneeId) {
+        const assigned = mockStaff.find(staff => String(staff.id) === changes.assigneeId)?.name || 'не назначен';
+        changesLog.push('Ответственный: ' + assigned);
+    }
     task.title = changes.title.slice(0, 180);
     task.dueDate = changes.dueDate;
     task.assigneeId = changes.assigneeId;
     task.updatedAt = new Date().toISOString();
+    if (changesLog.length) logClientTaskAction(profile, task, 'updated', changesLog.join(' · '));
     localStorage.setItem(appStorageKey('mensfire_client_profiles'), JSON.stringify(clientProfiles));
     renderClientTasksHub();
     if (selectedClientProfileKey === profileKey) {
@@ -4509,7 +4562,7 @@ function confirmClientPhoneMerge() {
     }
     const canonicalKey = getClientProfileKey('', '', phone);
     const merged = {...(clientProfiles[canonicalKey] || {})};
-    ['tasks', 'interactions'].forEach(field => {
+    ['tasks', 'interactions', 'taskHistory'].forEach(field => {
         const combined = Array.isArray(merged[field]) ? merged[field].slice() : [];
         const known = new Set(combined.map(item => item?.id ? String(item.id) : JSON.stringify(item)));
         sources.forEach(([key, profile]) => {
