@@ -309,9 +309,16 @@ function buildBottomNav() {
             { id: 'viewFinance', title: 'Финансы', icon: financeIcon },
             { id: 'viewTeam', title: 'Команда', icon: teamIcon },
             { id: 'viewServices', title: 'Услуги', icon: servicesIcon },
-            { id: 'viewClients', title: 'Клиенты', icon: clientsIcon },
-            { id: 'viewProfile', title: 'Профиль', icon: clientsIcon }
+            { id: 'viewClients', title: 'Клиенты', icon: clientsIcon }
         ];
+        if (window.innerWidth >= 768) {
+            navItems.push(
+                { id: 'viewInventory', title: 'Склад', icon: '<path d="M3 7 12 3l9 4-9 4-9-4zm0 5 9 4 9-4M3 17l9 4 9-4"/>' },
+                { id: 'viewProfile', title: 'Профиль', icon: clientsIcon }
+            );
+        } else {
+            navItems.push({ id: 'viewProfile', title: 'Профиль', icon: clientsIcon });
+        }
     } else {
         navItems = [
             { id: 'viewDashboard', title: 'Обзор', icon: dashboardIcon },
@@ -5144,7 +5151,8 @@ switchView = function(viewId, navElement) {
     if (viewId === 'viewFinance' && currentUser.role === 'admin') renderFinance();
     if (viewId === 'viewTeam' && currentUser.role === 'admin') renderTeam();
     if (viewId === 'viewClients') renderClients();
-    
+    if (viewId === 'viewInventory' && currentUser.role === 'admin') renderInventory();
+
     if (viewId === 'viewProfile') {
         renderBarberRevenue();
         
@@ -5157,3 +5165,159 @@ switchView = function(viewId, navElement) {
         }
     }
 };
+
+/* =========================================
+   СКЛАД: КАТАЛОГ И УЧЁТ ОСТАТКОВ
+   ========================================= */
+let inventoryProducts = (() => {
+    try {
+        const saved = JSON.parse(localStorage.getItem(appStorageKey('mensfire_inventory_products')) || '[]');
+        return Array.isArray(saved) ? saved.map(item => ({
+            id: String(item.id || ''),
+            title: String(item.title || 'Товар'),
+            sku: String(item.sku || ''),
+            category: String(item.category || 'Без категории'),
+            unit: String(item.unit || 'шт.'),
+            purchasePrice: Math.max(0, Number(item.purchasePrice) || 0),
+            salePrice: Math.max(0, Number(item.salePrice) || 0),
+            stock: Math.max(0, Number(item.stock) || 0),
+            minStock: Math.max(0, Number(item.minStock) || 0),
+            active: item.active !== false,
+            updatedAt: String(item.updatedAt || '')
+        })).filter(item => item.id) : [];
+    } catch (error) {
+        console.warn('Не удалось загрузить каталог склада:', error);
+        return [];
+    }
+})();
+let inventoryMovements = (() => {
+    try {
+        const saved = JSON.parse(localStorage.getItem(appStorageKey('mensfire_inventory_movements')) || '[]');
+        return Array.isArray(saved) ? saved : [];
+    } catch (error) { return []; }
+})();
+let editingInventoryProductId = null;
+
+function persistInventory() {
+    localStorage.setItem(appStorageKey('mensfire_inventory_products'), JSON.stringify(inventoryProducts));
+    localStorage.setItem(appStorageKey('mensfire_inventory_movements'), JSON.stringify(inventoryMovements));
+}
+function renderInventory() {
+    if (!requireAdminAction('Управлять складом может только Али')) return;
+    const root = document.getElementById('inventoryCatalog');
+    if (!root) return;
+    const totalUnits = inventoryProducts.reduce((sum,item) => sum + item.stock, 0);
+    const stockCost = inventoryProducts.reduce((sum,item) => sum + item.stock * item.purchasePrice, 0);
+    const low = inventoryProducts.filter(item => item.active && item.stock <= item.minStock);
+    const active = inventoryProducts.filter(item => item.active);
+    const summary = document.getElementById('inventoryOverview');
+    if (summary) summary.innerHTML =
+        '<div class="inventory-kpi"><span>Активных товаров</span><strong>' + active.length + '</strong></div>' +
+        '<div class="inventory-kpi"><span>Единиц на складе</span><strong>' + totalUnits.toLocaleString('ru-RU') + '</strong></div>' +
+        '<div class="inventory-kpi"><span>Закупочная стоимость остатков</span><strong>' + Math.round(stockCost).toLocaleString('ru-RU') + ' ₽</strong></div>' +
+        '<div class="inventory-kpi ' + (low.length ? 'is-warning' : '') + '"><span>Ниже минимума</span><strong>' + low.length + '</strong></div>';
+    const query = (document.getElementById('inventorySearch')?.value || '').trim().toLowerCase();
+    const category = document.getElementById('inventoryCategoryFilter')?.value || 'all';
+    const filtered = inventoryProducts.filter(item => (category === 'all' || item.category === category) &&
+        (!query || [item.title,item.sku,item.category].some(value => value.toLowerCase().includes(query))));
+    const categories = [...new Set(inventoryProducts.map(item => item.category))].sort((a,b) => a.localeCompare(b,'ru'));
+    const filter = document.getElementById('inventoryCategoryFilter');
+    if (filter) {
+        const previous = filter.value || 'all';
+        filter.innerHTML = '<option value="all">Все категории</option>' + categories.map(value => '<option value="' + escapeBookingHtml(value) + '">' + escapeBookingHtml(value) + '</option>').join('');
+        filter.value = categories.includes(previous) ? previous : 'all';
+    }
+    root.innerHTML = filtered.length ? filtered.map(item => {
+        const isLow = item.stock <= item.minStock;
+        return '<article class="inventory-product-card ' + (isLow ? 'is-low' : '') + '">' +
+            '<div class="inventory-product-main"><div><span class="inventory-product-category">' + escapeBookingHtml(item.category) + '</span><h3>' + escapeBookingHtml(item.title) + '</h3><small>Артикул: ' + escapeBookingHtml(item.sku || '—') + '</small></div>' +
+            '<span class="inventory-stock-state ' + (isLow ? 'is-low' : '') + '">' + (isLow ? 'Мало' : 'В наличии') + '</span></div>' +
+            '<div class="inventory-product-metrics"><div><span>Остаток</span><strong>' + item.stock.toLocaleString('ru-RU') + ' ' + escapeBookingHtml(item.unit) + '</strong></div><div><span>Мин. остаток</span><strong>' + item.minStock.toLocaleString('ru-RU') + ' ' + escapeBookingHtml(item.unit) + '</strong></div><div><span>Цена продажи</span><strong>' + Math.round(item.salePrice).toLocaleString('ru-RU') + ' ₽</strong></div><div><span>Закупка</span><strong>' + Math.round(item.purchasePrice).toLocaleString('ru-RU') + ' ₽</strong></div></div>' +
+            '<div class="inventory-product-actions"><button type="button" onclick="openInventoryProductModal(\'' + item.id + '\')">Изменить</button><button type="button" onclick="openInventoryMovementModal(\'' + item.id + '\',\'receipt\')">＋ Приход</button><button type="button" onclick="openInventoryMovementModal(\'' + item.id + '\',\'writeoff\')">− Списание</button></div></article>';
+    }).join('') : '<div class="inventory-empty"><strong>' + (inventoryProducts.length ? 'Ничего не найдено' : 'Каталог пока пуст') + '</strong><span>' + (inventoryProducts.length ? 'Измени поисковый запрос или категорию.' : 'Добавь первые товары, укажи закупочную и розничную цену, а затем фиксируй приход и списание.') + '</span></div>';
+    const history = document.getElementById('inventoryMovementHistory');
+    if (history) {
+        const recent = inventoryMovements.slice().sort((a,b) => String(b.createdAt).localeCompare(String(a.createdAt))).slice(0,12);
+        history.innerHTML = recent.length ? recent.map(move => '<div class="inventory-movement-row"><div><strong>' + escapeBookingHtml(move.productTitle || 'Товар') + '</strong><small>' + new Date(move.createdAt).toLocaleString('ru-RU') + ' · ' + escapeBookingHtml(move.note || 'Без комментария') + '</small></div><span class="' + (move.type === 'receipt' ? 'is-positive' : 'is-negative') + '">' + (move.type === 'receipt' ? '+' : '−') + move.quantity + '</span></div>').join('') : '<div class="inventory-empty compact">Движений пока нет</div>';
+    }
+}
+function openInventoryProductModal(id = '') {
+    if (!requireAdminAction('Управлять складом может только Али')) return;
+    editingInventoryProductId = id || null;
+    const item = id ? inventoryProducts.find(product => product.id === id) : null;
+    document.getElementById('inventoryProductTitle').textContent = item ? 'Изменить товар' : 'Новый товар';
+    document.getElementById('inventoryProductName').value = item?.title || '';
+    document.getElementById('inventoryProductSku').value = item?.sku || '';
+    document.getElementById('inventoryProductCategory').value = item?.category || '';
+    document.getElementById('inventoryProductUnit').value = item?.unit || 'шт.';
+    document.getElementById('inventoryProductPurchase').value = item?.purchasePrice ?? '';
+    document.getElementById('inventoryProductSale').value = item?.salePrice ?? '';
+    document.getElementById('inventoryProductMin').value = item?.minStock ?? 0;
+    document.getElementById('inventoryProductStock').value = item?.stock ?? 0;
+    document.getElementById('inventoryProductStock').disabled = Boolean(item);
+    openModal('inventoryProductModal');
+}
+function saveInventoryProduct() {
+    if (!requireAdminAction('Управлять складом может только Али')) return;
+    const title = document.getElementById('inventoryProductName').value.trim();
+    const sku = document.getElementById('inventoryProductSku').value.trim();
+    const category = document.getElementById('inventoryProductCategory').value.trim() || 'Без категории';
+    const unit = document.getElementById('inventoryProductUnit').value.trim() || 'шт.';
+    const purchasePrice = Number(document.getElementById('inventoryProductPurchase').value);
+    const salePrice = Number(document.getElementById('inventoryProductSale').value);
+    const minStock = Number(document.getElementById('inventoryProductMin').value);
+    const openingStock = Number(document.getElementById('inventoryProductStock').value);
+    if (!title || !Number.isFinite(purchasePrice) || purchasePrice < 0 || !Number.isFinite(salePrice) || salePrice < 0 ||
+        !Number.isFinite(minStock) || minStock < 0 || !Number.isFinite(openingStock) || openingStock < 0) {
+        return showToast('Проверь название и числовые значения товара', 'error');
+    }
+    if (sku && inventoryProducts.some(item => item.sku.toLowerCase() === sku.toLowerCase() && item.id !== editingInventoryProductId)) {
+        return showToast('Такой артикул уже используется', 'error');
+    }
+    const now = new Date().toISOString();
+    if (editingInventoryProductId) {
+        const item = inventoryProducts.find(product => product.id === editingInventoryProductId);
+        if (!item) return;
+        Object.assign(item,{title,sku,category,unit,purchasePrice,salePrice,minStock,updatedAt:now});
+    } else {
+        const item = {id:'prd_' + Date.now() + '_' + Math.random().toString(36).slice(2,7),title,sku,category,unit,purchasePrice,salePrice,minStock,stock:0,active:true,updatedAt:now};
+        inventoryProducts.push(item);
+        if (openingStock > 0) {
+            item.stock = openingStock;
+            inventoryMovements.push({id:'mov_' + Date.now(),productId:item.id,productTitle:item.title,type:'receipt',quantity:openingStock,note:'Начальный остаток',createdAt:now});
+        }
+    }
+    persistInventory();
+    closeModal('inventoryProductModal');
+    renderInventory();
+    showToast(editingInventoryProductId ? 'Товар обновлён' : 'Товар добавлен', 'success');
+}
+function openInventoryMovementModal(id, type) {
+    if (!requireAdminAction('Управлять складом может только Али')) return;
+    const item = inventoryProducts.find(product => product.id === id);
+    if (!item) return;
+    document.getElementById('inventoryMovementProductId').value = id;
+    document.getElementById('inventoryMovementType').value = type;
+    document.getElementById('inventoryMovementTitle').textContent = type === 'receipt' ? 'Приход товара' : 'Списание товара';
+    document.getElementById('inventoryMovementProduct').textContent = item.title + ' · остаток ' + item.stock + ' ' + item.unit;
+    document.getElementById('inventoryMovementQuantity').value = '';
+    document.getElementById('inventoryMovementNote').value = '';
+    openModal('inventoryMovementModal');
+}
+function saveInventoryMovement() {
+    if (!requireAdminAction('Управлять складом может только Али')) return;
+    const id = document.getElementById('inventoryMovementProductId').value;
+    const type = document.getElementById('inventoryMovementType').value;
+    const quantity = Number(document.getElementById('inventoryMovementQuantity').value);
+    const item = inventoryProducts.find(product => product.id === id);
+    if (!item || !Number.isInteger(quantity) || quantity <= 0) return showToast('Укажи целое количество больше нуля', 'error');
+    if (type === 'writeoff' && quantity > item.stock) return showToast('Нельзя списать больше, чем есть на складе', 'error');
+    item.stock += type === 'receipt' ? quantity : -quantity;
+    item.updatedAt = new Date().toISOString();
+    inventoryMovements.push({id:'mov_' + Date.now() + '_' + Math.random().toString(36).slice(2,6),productId:item.id,productTitle:item.title,type,quantity,note:document.getElementById('inventoryMovementNote').value.trim(),createdAt:item.updatedAt});
+    persistInventory();
+    closeModal('inventoryMovementModal');
+    renderInventory();
+    showToast(type === 'receipt' ? 'Приход зафиксирован' : 'Списание зафиксировано', 'success');
+}
+
