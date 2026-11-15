@@ -5887,3 +5887,40 @@ html.light-theme .booking-client-match{background:#fbf8ef}
     font-weight:600 !important;
   }
 }
+
+
+/* DESKTOP: schedule actions live in the calendar toolbar */
+@media (min-width:768px) {
+  #viewSchedule > .schedule-top-actions { display:none !important; }
+  #viewSchedule > #desktopSchedule .desktop-calendar-toolbar {
+    display:flex !important; align-items:center !important; justify-content:space-between !important;
+    flex-wrap:wrap !important; gap:10px 14px !important; padding:12px 14px !important;
+    min-height:58px !important; flex:0 0 auto !important;
+  }
+  #viewSchedule > #desktopSchedule .desktop-calendar-tabs {
+    display:flex !important; align-items:center !important; justify-content:flex-end !important;
+    flex-wrap:wrap !important; gap:6px !important; margin-left:auto !important;
+  }
+  #viewSchedule > #desktopSchedule .desktop-calendar-tabs .desktop-calendar-action {
+    min-height:32px !important; height:32px !important; padding:0 10px !important;
+    border:1px solid rgba(212,175,55,.3) !important; border-radius:8px !important;
+    background:rgba(212,175,55,.09) !important; color:var(--text-main) !important;
+    font:700 10px var(--font-main) !important; white-space:nowrap !important; cursor:pointer !important;
+  }
+  #viewSchedule > #desktopSchedule .desktop-calendar-tabs .desktop-calendar-action:hover {
+    background:rgba(212,175,55,.18) !important; border-color:var(--gold) !important;
+  }
+  #viewSchedule > #desktopSchedule .desktop-calendar-tabs .desktop-calendar-action-primary {
+    color:#211b0b !important; background:var(--gold) !important; border-color:var(--gold) !important;
+  }
+  #viewSchedule > #desktopSchedule .desktop-calendar-action-divider {
+    width:1px; height:23px; background:rgba(212,175,55,.25); margin:0 3px;
+  }
+  #viewSchedule > #desktopSchedule .desktop-calendar-scroll { min-width:0 !important; }
+  #viewSchedule > #desktopSchedule .desktop-calendar-grid {
+    min-width:max(100%, 1050px) !important;
+  }
+  #viewSchedule > #desktopSchedule .desktop-staff-column { min-width:220px !important; }
+  #viewSchedule > #desktopSchedule .desktop-month-grid { min-height:560px !important; }
+  #viewSchedule > #desktopSchedule .desktop-month-day { min-height:88px !important; }
+}
