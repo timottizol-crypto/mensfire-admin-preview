@@ -259,6 +259,14 @@
             <section class="glass-card purchase-orders-panel"><div class="finance-panel-heading"><div><h3>Заказы поставщикам</h3><p>Частичная приёмка не закрывает заказ до получения всех позиций</p></div></div><div id="purchaseOrdersList"></div></section>
         </div>
 
+
+        <!-- СПРАВОЧНИК ПОСТАВЩИКОВ (ТОЛЬКО ПК) -->
+        <div id="viewSuppliers" class="view suppliers-workspace">
+            <div class="workspace-heading inventory-heading"><div><span class="workspace-eyebrow">MENSFIRE PARTNERS</span><h2>Поставщики</h2><p>Контакты, история заказов и объём закупок по каждому поставщику</p></div><button type="button" class="home-cta-btn" onclick="openSupplierModal()"><div class="cta-text"><span>＋ Добавить поставщика</span></div></button></div>
+            <div id="suppliersOverview" class="inventory-overview-grid"></div>
+            <section class="glass-card suppliers-panel"><div class="finance-panel-heading"><div><h3>Справочник</h3><p>Поставщики автоматически связываются с новыми и существующими заказами</p></div></div><div class="inventory-toolbar"><input id="suppliersSearch" type="search" placeholder="Поиск по названию, контакту или телефону" oninput="renderSuppliers()"></div><div id="suppliersList" class="suppliers-grid"></div></section>
+        </div>
+
         <!-- ЭКРАН РОЗНИЧНЫХ ПРОДАЖ (ТОЛЬКО ПК) -->
         <div id="viewSales" class="view retail-sales-workspace">
             <div class="workspace-heading inventory-heading"><div><span class="workspace-eyebrow">MENSFIRE RETAIL</span><h2>Продажи товаров</h2><p>Товарный чек, оплата и автоматическое списание со склада</p></div></div>
@@ -375,6 +383,17 @@
             <p class="inventory-modal-hint">Укажи фактически полученное количество и реальную закупочную цену. Остатки и средняя себестоимость обновятся автоматически.</p>
             <div id="purchaseReceivingRows" class="purchase-receiving-rows"></div>
             <button type="button" class="checkout-btn" onclick="receivePurchaseOrder()">Подтвердить приёмку</button>
+        </div>
+    </div>
+
+    <div class="modal" id="supplierModal">
+        <div class="modal-content supplier-modal-content"><div class="booking-detail-heading"><h2 id="supplierModalTitle">Новый поставщик</h2><button class="close-btn" type="button" onclick="closeModal('supplierModal')">&times;</button></div>
+            <div class="form-group"><label for="supplierName">Название компании / поставщика</label><input id="supplierName" type="text" maxlength="120" placeholder="Название поставщика"></div>
+            <div class="form-group"><label for="supplierContact">Контактное лицо</label><input id="supplierContact" type="text" maxlength="100" placeholder="Имя контактного лица"></div>
+            <div class="supplier-form-grid"><div class="form-group"><label for="supplierPhone">Телефон</label><input id="supplierPhone" type="tel" maxlength="40" placeholder="+7 ..."></div><div class="form-group"><label for="supplierEmail">Электронная почта</label><input id="supplierEmail" type="email" maxlength="120" placeholder="name@example.com"></div></div>
+            <div class="form-group"><label for="supplierAddress">Адрес</label><input id="supplierAddress" type="text" maxlength="180" placeholder="Адрес или город"></div>
+            <div class="form-group"><label for="supplierNotes">Заметки</label><textarea id="supplierNotes" rows="3" maxlength="500" placeholder="Условия, особенности сотрудничества"></textarea></div>
+            <button type="button" class="checkout-btn" onclick="saveSupplier()">Сохранить поставщика</button>
         </div>
     </div>
     <div class="modal" id="inventoryProductModal">
