@@ -6054,3 +6054,20 @@ html.light-theme .booking-client-match{background:#fbf8ef}
     padding-right:9px !important;
   }
 }
+
+
+/* BOOKING HISTORY + CANCELLATION REASON */
+.booking-history-section{margin-top:18px;padding-top:15px;border-top:1px solid var(--border-color,rgba(212,175,55,.16))}
+.booking-history-heading{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;color:var(--text-main);font-size:13px}
+.booking-history-list{display:flex;flex-direction:column;gap:0}
+.booking-history-item{display:grid;grid-template-columns:12px minmax(0,1fr);gap:9px;position:relative;padding:0 0 13px}
+.booking-history-item:not(:last-child):before{content:"";position:absolute;left:5px;top:11px;bottom:-1px;width:1px;background:rgba(212,175,55,.25)}
+.booking-history-dot{width:10px;height:10px;margin-top:3px;border-radius:50%;background:var(--gold,#d4af37);box-shadow:0 0 0 3px rgba(212,175,55,.1)}
+.booking-history-item strong{display:block;color:var(--text-main);font-size:11px;font-weight:700}
+.booking-history-item p{margin:3px 0;color:var(--text-secondary);font-size:10px;line-height:1.45}
+.booking-history-item small,.booking-history-empty{color:var(--text-secondary);font-size:9px;line-height:1.4}
+.booking-history-empty{padding:10px 12px;border-radius:9px;background:rgba(255,255,255,.025)}
+.booking-cancel-caption{margin:0 0 16px;color:var(--text-secondary);font-size:12px;line-height:1.5}
+.booking-cancel-modal textarea{width:100%;box-sizing:border-box;resize:vertical;min-height:76px;padding:11px 12px;border:1px solid var(--border-color,rgba(212,175,55,.2));border-radius:10px;background:var(--input-bg,rgba(255,255,255,.04));color:var(--text-main);font:inherit}
+.booking-cancel-modal select{width:100%;min-height:42px;padding:0 12px;border:1px solid var(--border-color,rgba(212,175,55,.2));border-radius:10px;background:var(--input-bg,rgba(255,255,255,.04));color:var(--text-main);font:inherit}
+@media(max-width:767px){.booking-history-section{margin-top:14px}.booking-history-item{padding-bottom:11px}}
