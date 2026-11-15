@@ -314,6 +314,7 @@ function buildBottomNav() {
         if (window.innerWidth >= 768) {
             navItems.push(
                 { id: 'viewInventory', title: 'Склад', icon: '<path d="M3 7 12 3l9 4-9 4-9-4zm0 5 9 4 9-4M3 17l9 4 9-4"/>' },
+                { id: 'viewSales', title: 'Продажи', icon: '<path d="M4 5h16v14H4zM8 9h8M8 13h5"/>' },
                 { id: 'viewProfile', title: 'Профиль', icon: clientsIcon }
             );
         } else {
@@ -438,6 +439,7 @@ function switchView(viewId, navElement) {
         'viewServices': 'Услуги',
         'viewClients': 'Клиенты',
         'viewInventory': 'Склад',
+        'viewSales': 'Продажи',
         'viewProfile': 'Профиль'
     };
     if (titles[viewId]) {
@@ -458,6 +460,7 @@ function switchView(viewId, navElement) {
     if (viewId === 'viewTeam' && typeof renderTeam === 'function') renderTeam();
     if (viewId === 'viewClients' && typeof renderClients === 'function') renderClients(currentClientsTab);
     if (viewId === 'viewServices' && typeof renderServices === 'function') renderServices();
+    if (viewId === 'viewSales' && typeof renderRetailSales === 'function') renderRetailSales();
     if (viewId === 'viewProfile') {
         if (typeof renderBarberRevenue === 'function') renderBarberRevenue();
         if (typeof renderProfileOverview === 'function') renderProfileOverview();
@@ -788,6 +791,7 @@ let clientRetailSales = (() => {
             staffId: sale.staffId == null ? '' : String(sale.staffId),
             paymentStatus: ['paid','partial','refunded','unpaid'].includes(sale.paymentStatus) ? sale.paymentStatus : 'paid',
             paymentMethod: String(sale.paymentMethod || ''), total: Math.max(0, Number(sale.total) || 0),
+            paidAmount: Math.max(0, Number(sale.paidAmount ?? (sale.paymentStatus === 'paid' ? sale.total : 0)) || 0),
             items: (Array.isArray(sale.items) ? sale.items : []).filter(item => item && typeof item === 'object').map(item => ({
                 productId: String(item.productId || ''), sku: String(item.sku || ''),
                 titleSnapshot: String(item.titleSnapshot || item.title || 'Товар'),
@@ -5012,7 +5016,8 @@ const MENSFIRE_BACKUP_KEYS = [
     'mensfire_admin_services',
     'mensfire_client_profiles',
     'mensfire_inventory_products',
-    'mensfire_inventory_movements'
+    'mensfire_inventory_movements',
+    'mensfire_client_retail_sales'
 ];
 
 function exportMensfireBackup() {
@@ -5064,6 +5069,7 @@ function importMensfireBackup(input) {
             // Совместимость со старыми копиями, в которых ещё не было склада.
             if (backup.data.mensfire_inventory_products === undefined) backup.data.mensfire_inventory_products = [];
             if (backup.data.mensfire_inventory_movements === undefined) backup.data.mensfire_inventory_movements = [];
+            if (backup.data.mensfire_client_retail_sales === undefined) backup.data.mensfire_client_retail_sales = [];
             const expected = {
                 mensfire_admin_bookings: Array.isArray,
                 mensfire_admin_blocks: Array.isArray,
@@ -5071,6 +5077,7 @@ function importMensfireBackup(input) {
                 mensfire_admin_staff: Array.isArray,
                 mensfire_inventory_products: Array.isArray,
                 mensfire_inventory_movements: Array.isArray,
+                mensfire_client_retail_sales: Array.isArray,
                 mensfire_client_profiles: value => value && typeof value === 'object' && !Array.isArray(value)
             };
             for (const [key, validator] of Object.entries(expected)) {
@@ -5479,6 +5486,141 @@ function persistInventory() {
     localStorage.setItem(appStorageKey('mensfire_inventory_products'), JSON.stringify(inventoryProducts));
     localStorage.setItem(appStorageKey('mensfire_inventory_movements'), JSON.stringify(inventoryMovements));
 }
+
+/* Розничные чеки: продажи товаров, складское списание и история CRM. */
+let retailSaleCart = [];
+function persistClientRetailSales() {
+    localStorage.setItem(appStorageKey('mensfire_client_retail_sales'), JSON.stringify(clientRetailSales));
+}
+function getRetailSaleClients() {
+    const map = new Map();
+    bookings.forEach(booking => {
+        const name = String(booking.clientName || '').trim();
+        if (!name) return;
+        const found = findClientProfile(name, booking.barberId);
+        const profile = found.profile || {};
+        const key = found.key;
+        if (!map.has(key)) map.set(key, {
+            key, name: String(profile.clientName || name), phone: String(profile.phone || booking.clientPhone || ''),
+            profile, bookings: []
+        });
+        map.get(key).bookings.push(booking);
+    });
+    return [...map.values()].sort((a,b)=>a.name.localeCompare(b.name,'ru'));
+}
+function renderRetailSales() {
+    if (!requireAdminAction('Оформлять товарные продажи может только Али')) return;
+    syncClientCatalogFromClientApp(false);
+    const clientSelect=document.getElementById('retailSaleClient');
+    const productSelect=document.getElementById('retailSaleProduct');
+    if(!clientSelect||!productSelect)return;
+    const clients=getRetailSaleClients();
+    const selectedClient=clientSelect.value;
+    clientSelect.innerHTML='<option value="">Выбери клиента из CRM</option>'+clients.map(client=>'<option value="'+escapeBookingHtml(client.key)+'">'+escapeBookingHtml(client.name)+(client.phone?' · '+escapeBookingHtml(client.phone):'')+'</option>').join('');
+    if(clients.some(client=>client.key===selectedClient))clientSelect.value=selectedClient;
+    const selectedProduct=productSelect.value;
+    const products=inventoryProducts.filter(item=>item.active);
+    productSelect.innerHTML='<option value="">Выбери товар</option>'+products.map(item=>'<option value="'+escapeBookingHtml(item.id)+'" '+(item.stock<=0?'disabled':'')+'>'+escapeBookingHtml(item.title)+' · '+Math.round(item.salePrice).toLocaleString('ru-RU')+' ₽ · остаток '+item.stock+'</option>').join('');
+    if(products.some(item=>item.id===selectedProduct))productSelect.value=selectedProduct;
+    renderRetailSaleCart();
+    renderRetailSaleBookings();
+    const recent=document.getElementById('retailSalesHistory');
+    if(recent){
+        const fmt=v=>Math.round(Number(v)||0).toLocaleString('ru-RU')+' ₽';
+        const sales=clientRetailSales.slice().sort((a,b)=>new Date(b.soldAt)-new Date(a.soldAt)).slice(0,12);
+        recent.innerHTML=sales.length?sales.map(sale=>'<article class="retail-history-row"><div><strong>'+escapeBookingHtml(sale.clientNameSnapshot||'Клиент')+'</strong><small>'+new Date(sale.soldAt).toLocaleString('ru-RU')+' · '+sale.items.length+' поз.</small></div><div><b>'+fmt(sale.total)+'</b><small>'+({paid:'Оплачено',partial:'Частично',unpaid:'Долг',refunded:'Возврат'}[sale.paymentStatus]||'')+'</small></div></article>').join(''):'<div class="retail-empty">Пока нет товарных чеков</div>';
+    }
+}
+function renderRetailSaleBookings(){
+    const clientKey=document.getElementById('retailSaleClient')?.value||'';
+    const select=document.getElementById('retailSaleBooking');
+    if(!select)return;
+    const client=getRetailSaleClients().find(item=>item.key===clientKey);
+    const visits=(client?.bookings||[]).slice().sort((a,b)=>new Date((b.date||'')+' '+(b.time||''))-new Date((a.date||'')+' '+(a.time||'')));
+    select.innerHTML='<option value="">Без привязки к визиту</option>'+visits.map(item=>'<option value="'+escapeBookingHtml(String(item.id))+'">'+escapeBookingHtml((item.date||'')+' · '+(item.time||'')+' · '+(item.status||''))+'</option>').join('');
+}
+function addRetailSaleItem(){
+    const id=document.getElementById('retailSaleProduct')?.value;
+    const qty=Number(document.getElementById('retailSaleQuantity')?.value||1);
+    const product=inventoryProducts.find(item=>item.id===id&&item.active);
+    if(!product)return showToast('Выбери товар','error');
+    if(!Number.isInteger(qty)||qty<1)return showToast('Количество должно быть целым числом','error');
+    const existing=retailSaleCart.find(item=>item.productId===id);
+    const nextQty=qty+(existing?.quantity||0);
+    if(nextQty>product.stock)return showToast('На складе только '+product.stock+' '+product.unit,'error');
+    if(existing)existing.quantity=nextQty;
+    else retailSaleCart.push({productId:id,quantity:qty,unitPrice:Number(product.salePrice)||0});
+    document.getElementById('retailSaleQuantity').value='1';
+    renderRetailSaleCart();
+}
+function removeRetailSaleItem(id){retailSaleCart=retailSaleCart.filter(item=>item.productId!==id);renderRetailSaleCart();}
+function renderRetailSaleCart(){
+    const root=document.getElementById('retailSaleCart');
+    const totalNode=document.getElementById('retailSaleTotal');
+    if(!root)return;
+    const fmt=v=>Math.round(Number(v)||0).toLocaleString('ru-RU')+' ₽';
+    const total=retailSaleCart.reduce((sum,row)=>sum+row.quantity*row.unitPrice,0);
+    root.innerHTML=retailSaleCart.length?retailSaleCart.map(row=>{
+        const product=inventoryProducts.find(item=>item.id===row.productId);
+        return '<div class="retail-cart-row"><div><strong>'+escapeBookingHtml(product?.title||'Товар удалён')+'</strong><small>'+row.quantity+' × '+fmt(row.unitPrice)+'</small></div><b>'+fmt(row.quantity*row.unitPrice)+'</b><button type="button" aria-label="Убрать товар" onclick="removeRetailSaleItem(\''+escapeBookingHtml(row.productId)+'\')">×</button></div>';
+    }).join(''):'<div class="retail-empty">Добавь товары в чек — здесь появится состав покупки</div>';
+    if(totalNode)totalNode.textContent=fmt(total);
+    const status=document.getElementById('retailSalePaymentStatus');
+    const paid=document.getElementById('retailSalePaidAmount');
+    if(status&&paid&&status.value==='paid')paid.value=String(total);
+    if(status&&paid&&status.value==='unpaid')paid.value='0';
+}
+function updateRetailPaymentFields(){
+    const status=document.getElementById('retailSalePaymentStatus')?.value||'paid';
+    const paid=document.getElementById('retailSalePaidAmount');
+    const group=document.getElementById('retailSalePaidGroup');
+    if(group)group.style.display=status==='partial'?'':'none';
+    if(paid&&status!=='partial'){
+        const total=retailSaleCart.reduce((sum,row)=>sum+row.quantity*row.unitPrice,0);
+        paid.value=status==='paid'?String(total):'0';
+    }
+}
+function saveRetailSale(){
+    if(!requireAdminAction('Оформлять товарные продажи может только Али'))return;
+    const clientKey=document.getElementById('retailSaleClient')?.value||'';
+    const client=getRetailSaleClients().find(item=>item.key===clientKey);
+    if(!client)return showToast('Выбери клиента из CRM','error');
+    if(!retailSaleCart.length)return showToast('Добавь хотя бы один товар','error');
+    const status=document.getElementById('retailSalePaymentStatus').value;
+    const total=retailSaleCart.reduce((sum,row)=>sum+row.quantity*row.unitPrice,0);
+    const paidRaw=Number(document.getElementById('retailSalePaidAmount').value);
+    const paid=status==='paid'?total:status==='unpaid'?0:paidRaw;
+    if(status==='partial'&&(!Number.isFinite(paid)||paid<=0||paid>=total))return showToast('Для частичной оплаты укажи сумму больше 0 и меньше итога','error');
+    const checked=retailSaleCart.map(row=>{
+        const product=inventoryProducts.find(item=>item.id===row.productId);
+        return {row,product};
+    });
+    if(checked.some(item=>!item.product||!item.product.active||item.product.stock<item.row.quantity))return showToast('Остатки изменились. Обнови чек и проверь количество','error');
+    const now=new Date().toISOString();
+    const saleId='sale_'+Date.now()+'_'+Math.random().toString(36).slice(2,7);
+    const bookingId=document.getElementById('retailSaleBooking').value||'';
+    const linkedBooking=bookings.find(item=>String(item.id)===bookingId);
+    const items=checked.map(({row,product})=>{
+        const movementId='mov_'+Date.now()+'_'+Math.random().toString(36).slice(2,8);
+        product.stock-=row.quantity;product.updatedAt=now;
+        inventoryMovements.push({id:movementId,productId:product.id,productTitle:product.title,type:'sale',quantity:row.quantity,supplier:'',unitCost:null,totalCost:null,note:'Продажа · чек '+saleId,saleId,createdAt:now});
+        return {productId:product.id,sku:product.sku,titleSnapshot:product.title,quantity:row.quantity,unitPrice:row.unitPrice,lineTotal:row.quantity*row.unitPrice,stockMovementId:movementId};
+    });
+    clientRetailSales.push({
+        id:saleId,clientProfileKey:client.key,clientPhone:normalizeClientPhone(client.phone)?client.phone:'',clientNameSnapshot:client.name,
+        soldAt:now,bookingId,staffId:String(linkedBooking?.barberId||currentUser.id||''),paymentStatus:status,paymentMethod:document.getElementById('retailSalePaymentMethod').value,
+        total,paidAmount:paid,items,notes:document.getElementById('retailSaleNote').value.trim(),source:'retail',createdAt:now
+    });
+    persistInventory();persistClientRetailSales();
+    retailSaleCart=[];
+    document.getElementById('retailSaleNote').value='';
+    document.getElementById('retailSalePaymentStatus').value='paid';
+    document.getElementById('retailSalePaymentMethod').value='card';
+    updateRetailPaymentFields();
+    renderRetailSales();
+    showToast('Товарный чек сохранён, остатки списаны','success');
+}
+
 function renderInventory() {
     if (!requireAdminAction('Управлять складом может только Али')) return;
     syncClientCatalogFromClientApp(false);
