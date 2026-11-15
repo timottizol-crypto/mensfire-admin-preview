@@ -6071,3 +6071,16 @@ html.light-theme .booking-client-match{background:#fbf8ef}
 .booking-cancel-modal textarea{width:100%;box-sizing:border-box;resize:vertical;min-height:76px;padding:11px 12px;border:1px solid var(--border-color,rgba(212,175,55,.2));border-radius:10px;background:var(--input-bg,rgba(255,255,255,.04));color:var(--text-main);font:inherit}
 .booking-cancel-modal select{width:100%;min-height:42px;padding:0 12px;border:1px solid var(--border-color,rgba(212,175,55,.2));border-radius:10px;background:var(--input-bg,rgba(255,255,255,.04));color:var(--text-main);font:inherit}
 @media(max-width:767px){.booking-history-section{margin-top:14px}.booking-history-item{padding-bottom:11px}}
+
+
+/* WEEKLY RECURRING BOOKING CONTROLS */
+.booking-repeat-panel{margin:14px 0 16px;padding:13px 14px;border:1px solid rgba(212,175,55,.2);border-radius:12px;background:rgba(212,175,55,.045)}
+.booking-repeat-toggle{display:flex;align-items:center;gap:11px;cursor:pointer}
+.booking-repeat-toggle input{width:17px;height:17px;accent-color:var(--gold,#d4af37);flex:0 0 auto}
+.booking-repeat-toggle span{display:flex;flex-direction:column;gap:3px}
+.booking-repeat-toggle strong{font-size:12px;color:var(--text-main)}
+.booking-repeat-toggle small{font-size:10px;line-height:1.4;color:var(--text-secondary)}
+.booking-repeat-count{display:flex;align-items:center;justify-content:space-between;gap:12px;margin:12px 0 0 28px}
+.booking-repeat-count[hidden]{display:none}
+.booking-repeat-count label{font-size:11px;color:var(--text-secondary)}
+.booking-repeat-count select{min-width:116px;padding:8px 10px;border:1px solid rgba(212,175,55,.25);border-radius:9px;background:var(--input-bg,rgba(255,255,255,.05));color:var(--text-main);font:inherit;font-size:11px}
