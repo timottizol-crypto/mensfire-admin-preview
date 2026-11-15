@@ -3861,9 +3861,11 @@ function renderClientTasks() {
             '<div class="client-task-main"><strong>' + escapeBookingHtml(task.title || 'Задача') + '</strong>' +
             '<span>' + (task.dueDate ? 'Срок: ' + escapeBookingHtml(task.dueDate) : 'Без срока') + (task.done ? ' · Выполнено' : isOverdue ? ' · Просрочено' : '') + '</span></div>' +
             '<div class="client-task-actions">' +
-            (!task.done ? '<button type="button" onclick="completeClientTask(\\'' + escapeBookingHtml(task.id) + '\\')">Готово</button>' : '') +
-            '<button type="button" class="client-task-delete" onclick="deleteClientTask(\\'' + escapeBookingHtml(task.id) + '\\')">Удалить</button></div></article>';
+            (!task.done ? '<button type="button" data-client-task-done="' + escapeBookingHtml(task.id) + '">Готово</button>' : '') +
+            '<button type="button" class="client-task-delete" data-client-task-delete="' + escapeBookingHtml(task.id) + '">Удалить</button></div></article>';
     }).join('') : '<div class="client-interaction-empty">Пока нет задач и напоминаний</div>';
+    root.querySelectorAll('[data-client-task-done]').forEach(button => button.addEventListener('click', () => completeClientTask(button.dataset.clientTaskDone)));
+    root.querySelectorAll('[data-client-task-delete]').forEach(button => button.addEventListener('click', () => deleteClientTask(button.dataset.clientTaskDelete)));
 }
 function addClientTask() {
     if (!selectedClientProfileKey) return;
