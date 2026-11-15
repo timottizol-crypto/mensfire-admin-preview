@@ -5452,6 +5452,9 @@ function syncClientCatalogFromClientApp(notify = false) {
             inventoryProducts.push(item);
             added++;
         } else {
+            const changed = item.brand !== 'NISHMAN' || item.title !== source.title ||
+                item.description !== source.description || item.category !== source.category ||
+                Number(item.salePrice) !== source.price || !item.sku;
             item.sourceProductId = source.id;
             item.brand = 'NISHMAN';
             item.title = source.title;
@@ -5459,8 +5462,10 @@ function syncClientCatalogFromClientApp(notify = false) {
             item.category = source.category;
             item.salePrice = source.price;
             item.sku = item.sku || source.id.toUpperCase();
-            item.updatedAt = new Date().toISOString();
-            updated++;
+            if (changed) {
+                item.updatedAt = new Date().toISOString();
+                updated++;
+            }
         }
     });
     if (added || updated) persistInventory();
