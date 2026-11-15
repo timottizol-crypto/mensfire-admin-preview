@@ -1827,12 +1827,29 @@ function saveBookingPayment() {
     const methods = [...new Set(booking.payments.map(item => item.method).filter(Boolean))];
     booking.paymentMethod = methods.length > 1 ? 'mixed' : (methods[0] || method);
     booking.paymentUpdatedAt = paymentTime;
+    addBookingHistoryEntry(booking, 'Добавлена оплата', amount.toLocaleString('ru-RU') + ' ₽ · ' + (PAYMENT_METHOD_LABELS[method] || method));
 
     localStorage.setItem(appStorageKey('mensfire_admin_bookings'), JSON.stringify(bookings));
     selectedPaymentBookingId = null;
     closeModal('bookingPaymentModal');
     openActionModal(booking.id);
     showToast('Платёж добавлен', 'success');
+}
+
+
+function addBookingHistoryEntry(booking, action, details = '') {
+    if (!booking) return;
+    if (!Array.isArray(booking.history)) booking.history = [];
+    booking.history.push({action:String(action || 'Изменение'),details:String(details || ''),at:new Date().toISOString(),by:String(currentUser?.name || 'Система')});
+}
+function renderBookingHistory(booking) {
+    const history = Array.isArray(booking.history) ? booking.history.slice().reverse() : [];
+    if (!history.length) return '<div class="booking-history-empty">История изменений начнёт заполняться с новых действий по записи</div>';
+    return '<div class="booking-history-list">' + history.map(item => {
+        const date = item.at ? new Date(item.at) : null;
+        const stamp = date && !Number.isNaN(date.getTime()) ? date.toLocaleString('ru-RU', {day:'2-digit',month:'2-digit',year:'numeric',hour:'2-digit',minute:'2-digit'}) : 'Дата не указана';
+        return '<div class="booking-history-item"><span class="booking-history-dot"></span><div><strong>' + escapeBookingHtml(item.action || 'Изменение') + '</strong>' + (item.details ? '<p>' + escapeBookingHtml(item.details) + '</p>' : '') + '<small>' + escapeBookingHtml(stamp) + ' · ' + escapeBookingHtml(item.by || 'Система') + '</small></div></div>';
+    }).join('') + '</div>';
 }
 
 function openActionModal(id) {
@@ -1914,6 +1931,10 @@ function openActionModal(id) {
         <button type="button" class="booking-client-link" id="bookingClientLink">
             Открыть историю клиента →
         </button>
+        <section class="booking-history-section">
+            <div class="booking-history-heading"><strong>История записи</strong></div>
+            ${renderBookingHistory(booking)}
+        </section>
     `;
 
     const clientBtn = document.getElementById('bookingClientLink');
@@ -2022,6 +2043,7 @@ function completeBooking() {
     }
 
     booking.status = 'completed';
+    addBookingHistoryEntry(booking, 'Визит завершён');
     localStorage.setItem(appStorageKey('mensfire_admin_bookings'), JSON.stringify(bookings));
     closeModal('actionModal');
     showToast('Запись завершена', 'success');
@@ -2030,17 +2052,31 @@ function completeBooking() {
     renderBarberRevenue();
 }
 
+function openCancelBookingModal() {
+    if (!requireAdminAction('Отменять записи может только Али')) return;
+    const booking = bookings.find(b => String(b.id) === String(selectedBookingId));
+    if (!booking || !isBookingBlockingSchedule(booking)) return showToast('Эту запись нельзя отменить', 'info');
+    const reason = document.getElementById('bookingCancelReason');
+    const note = document.getElementById('bookingCancelNote');
+    if (reason) reason.value = 'Клиент отменил запись';
+    if (note) note.value = '';
+    closeModal('actionModal');
+    openModal('bookingCancelModal');
+}
 function cancelBooking() {
     if (!requireAdminAction('Отменять записи может только Али')) return;
     const booking = bookings.find(b => String(b.id) === String(selectedBookingId));
     if (!booking) return showToast('Запись не найдена', 'error');
-    if (!isBookingBlockingSchedule(booking)) {
-        return showToast('Эта запись уже завершена или отменена', 'info');
-    }
-
+    if (!isBookingBlockingSchedule(booking)) return showToast('Эта запись уже завершена или отменена', 'info');
+    const reason = document.getElementById('bookingCancelReason')?.value || '';
+    const note = document.getElementById('bookingCancelNote')?.value.trim() || '';
+    if (!reason) return showToast('Выберите причину отмены', 'error');
     booking.status = 'cancelled';
+    booking.cancelReason = reason;
+    booking.cancelNote = note;
+    addBookingHistoryEntry(booking, 'Запись отменена', reason + (note ? ' — ' + note : ''));
     localStorage.setItem(appStorageKey('mensfire_admin_bookings'), JSON.stringify(bookings));
-    closeModal('actionModal');
+    closeModal('bookingCancelModal');
     showToast('Запись отменена', 'success');
     renderSchedule();
     if (currentUser.role === 'admin') renderFinance();
@@ -2679,17 +2715,13 @@ function saveNewBooking() {
     };
 
     if (existingBooking) {
+        const before = existingBooking.date + ' ' + existingBooking.time;
         Object.assign(existingBooking, bookingData);
+        addBookingHistoryEntry(existingBooking, 'Запись изменена', before + ' → ' + date + ' ' + time);
     } else {
-        bookings.push({
-            id: Date.now(),
-            ...bookingData,
-            status: 'active',
-            paidAmount: 0,
-            payments: [],
-            paymentMethod: '',
-            bookingSource: 'admin_panel'
-        });
+        const createdBooking = {id:Date.now(),...bookingData,status:'active',paidAmount:0,payments:[],paymentMethod:'',bookingSource:'admin_panel',history:[]};
+        addBookingHistoryEntry(createdBooking, 'Запись создана', date + ' в ' + time);
+        bookings.push(createdBooking);
     }
 
     const normalizedClientPhone = normalizeClientPhone(clientPhone);
