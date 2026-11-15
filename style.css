@@ -6009,3 +6009,48 @@ html.light-theme .booking-client-match{background:#fbf8ef}
     padding-right:20px !important;
   }
 }
+
+
+/* MENSFIRE — TIGHTER, SMOOTHER SIDEBAR EXPANSION (DESKTOP) */
+@media (min-width:768px) {
+  #bottomNav.bottom-nav {
+    transition:width .38s cubic-bezier(.22,.8,.25,1),
+      min-width .38s cubic-bezier(.22,.8,.25,1),
+      max-width .38s cubic-bezier(.22,.8,.25,1) !important;
+    will-change:width;
+  }
+  #appContainer:has(#bottomNav:hover) {
+    --mensfire-sidebar:190px !important;
+    --mensfire-content-left:226px !important;
+  }
+  #bottomNav.bottom-nav:hover {
+    width:190px !important;
+    min-width:190px !important;
+    max-width:190px !important;
+  }
+  #appContainer:has(#bottomNav:hover) #viewSchedule.active {
+    width:calc(100% - 226px) !important;
+    margin-left:226px !important;
+  }
+  #bottomNav .nav-item-label {
+    display:block !important;
+    flex:0 1 auto !important;
+    min-width:0 !important;
+    max-width:0 !important;
+    overflow:hidden !important;
+    opacity:0 !important;
+    white-space:nowrap !important;
+    transform:translateX(-5px) !important;
+    transition:max-width .3s ease,opacity .2s ease,transform .3s ease !important;
+  }
+  #appContainer:has(#bottomNav:hover) #bottomNav .nav-item-label {
+    max-width:150px !important;
+    opacity:1 !important;
+    transform:translateX(0) !important;
+  }
+  #appContainer:has(#bottomNav:hover) #bottomNav .nav-item {
+    gap:11px !important;
+    padding-left:13px !important;
+    padding-right:9px !important;
+  }
+}
