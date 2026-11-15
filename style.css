@@ -6384,3 +6384,5 @@ html.light-theme .booking-client-match{background:#fbf8ef}
 .retail-empty{padding:18px;text-align:center;color:var(--text-muted);font-size:11px;line-height:1.5}
 @media(max-width:1100px) and (min-width:768px){.retail-sales-layout{grid-template-columns:1fr}.retail-history-panel{max-height:430px;overflow:auto}}
 @media(max-width:767px){.retail-sales-workspace{display:none!important}}
+
+.client-retail-payment-detail{display:flex;justify-content:space-between;gap:10px;padding-top:9px;margin-top:8px;border-top:1px solid var(--glass-border,rgba(255,255,255,.1));font-size:10px;color:var(--text-muted)}.client-retail-payment-detail b{color:var(--text-main)}
