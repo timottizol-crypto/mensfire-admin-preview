@@ -316,7 +316,8 @@ function buildBottomNav() {
                 { id: 'viewInventory', title: 'Склад', icon: '<path d="M3 7 12 3l9 4-9 4-9-4zm0 5 9 4 9-4M3 17l9 4 9-4"/>' },
                 { id: 'viewSales', title: 'Продажи', icon: '<path d="M4 5h16v14H4zM8 9h8M8 13h5"/>' },
                 { id: 'viewInventoryAnalytics', title: 'Аналитика', icon: '<path d="M3 3v18h18M8 16v-5m5 5V6m5 10V9"/>' },
-                { id: 'viewPurchases', title: 'Закупки', icon: '<path d="M3 7h18l-2 13H5L3 7zm4 0 2-4h6l2 4M9 11v5m6-5v5"/>' },\n                { id: 'viewSuppliers', title: 'Поставщики', icon: '<path d="M3 21h18M5 21V7l7-4 7 4v14M9 21v-6h6v6M9 9h.01M15 9h.01"/>' },
+                { id: 'viewPurchases', title: 'Закупки', icon: '<path d="M3 7h18l-2 13H5L3 7zm4 0 2-4h6l2 4M9 11v5m6-5v5"/>' },
+                { id: 'viewSuppliers', title: 'Поставщики', icon: '<path d="M3 21h18M5 21V7l7-4 7 4v14M9 21v-6h6v6M9 9h.01M15 9h.01"/>' },
                 { id: 'viewProfile', title: 'Профиль', icon: clientsIcon }
             );
         } else {
@@ -442,7 +443,9 @@ function switchView(viewId, navElement) {
         'viewClients': 'Клиенты',
         'viewInventory': 'Склад',
         'viewSales': 'Продажи',
-        'viewInventoryAnalytics': 'Аналитика склада',\n        'viewPurchases': 'Закупки',\n        'viewSuppliers': 'Поставщики',
+        'viewInventoryAnalytics': 'Аналитика склада',
+        'viewPurchases': 'Закупки',
+        'viewSuppliers': 'Поставщики',
         'viewProfile': 'Профиль'
     };
     if (titles[viewId]) {
@@ -463,7 +466,9 @@ function switchView(viewId, navElement) {
     if (viewId === 'viewTeam' && typeof renderTeam === 'function') renderTeam();
     if (viewId === 'viewClients' && typeof renderClients === 'function') renderClients(currentClientsTab);
     if (viewId === 'viewServices' && typeof renderServices === 'function') renderServices();
-    if (viewId === 'viewSales' && typeof renderRetailSales === 'function') renderRetailSales();\n    if (viewId === 'viewPurchases' && typeof renderPurchaseOrders === 'function') renderPurchaseOrders();\n    if (viewId === 'viewSuppliers' && typeof renderSuppliers === 'function') renderSuppliers();
+    if (viewId === 'viewSales' && typeof renderRetailSales === 'function') renderRetailSales();
+    if (viewId === 'viewPurchases' && typeof renderPurchaseOrders === 'function') renderPurchaseOrders();
+    if (viewId === 'viewSuppliers' && typeof renderSuppliers === 'function') renderSuppliers();
     if (viewId === 'viewProfile') {
         if (typeof renderBarberRevenue === 'function') renderBarberRevenue();
         if (typeof renderProfileOverview === 'function') renderProfileOverview();
@@ -5111,7 +5116,8 @@ function importMensfireBackup(input) {
             // Совместимость со старыми копиями, в которых ещё не было склада.
             if (backup.data.mensfire_inventory_products === undefined) backup.data.mensfire_inventory_products = [];
             if (backup.data.mensfire_inventory_movements === undefined) backup.data.mensfire_inventory_movements = [];
-            if (backup.data.mensfire_inventory_purchase_orders === undefined) backup.data.mensfire_inventory_purchase_orders = [];\n            if (backup.data.mensfire_inventory_suppliers === undefined) backup.data.mensfire_inventory_suppliers = [];
+            if (backup.data.mensfire_inventory_purchase_orders === undefined) backup.data.mensfire_inventory_purchase_orders = [];
+            if (backup.data.mensfire_inventory_suppliers === undefined) backup.data.mensfire_inventory_suppliers = [];
             if (backup.data.mensfire_client_retail_sales === undefined) backup.data.mensfire_client_retail_sales = [];
             const expected = {
                 mensfire_admin_bookings: Array.isArray,
