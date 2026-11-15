@@ -4306,6 +4306,7 @@ function setClientsWorkspaceMode(mode) {
 }
 
 function renderClientTasksHub() {
+    let auditExportRows = [];
     const root = document.getElementById('clientsTasksHub');
     if (!root) return;
     const today = new Date(); today.setHours(0,0,0,0);
@@ -4423,6 +4424,7 @@ function renderClientTasksHub() {
                     if (clientsTaskAuditTo && (!day || day > clientsTaskAuditTo)) return false;
                     return true;
                 });
+                auditExportRows = filtered.slice(0, 50);
                 const labels = {created:'Создал задачу',updated:'Изменил задачу',completed:'Выполнил задачу',deleted:'Удалил задачу'};
                 return '<div class="crm-task-audit-filters">'+
                     '<select id="crmTaskAuditAction" aria-label="Тип действия">'+actionOptions.map(item=>'<option value="'+item.id+'"'+(clientsTaskAuditActionFilter===item.id?' selected':'')+'>'+item.label+'</option>').join('')+'</select>'+
@@ -4430,6 +4432,7 @@ function renderClientTasksHub() {
                     '<label>С <input id="crmTaskAuditFrom" type="date" value="'+escapeBookingHtml(clientsTaskAuditFrom)+'"></label>'+
                     '<label>По <input id="crmTaskAuditTo" type="date" value="'+escapeBookingHtml(clientsTaskAuditTo)+'"></label>'+
                     '<button type="button" id="crmTaskAuditReset">Сбросить</button>'+
+                    '<button type="button" id="crmTaskAuditExport" '+(filtered.length ? '' : 'disabled')+'>Экспорт CSV</button>'+
                     '<span class="crm-task-audit-count">'+filtered.length+' из '+history.length+'</span></div>'+
                     (filtered.length ? filtered.slice(0,50).map(event => {
                         const date = event.createdAt ? new Date(event.createdAt) : null;
@@ -4454,6 +4457,8 @@ function renderClientTasksHub() {
         clientsTaskAuditTo = '';
         renderClientTasksHub();
     });
+    const auditExport = root.querySelector('#crmTaskAuditExport');
+    if (auditExport) auditExport.addEventListener('click', () => exportClientTaskAuditCsv(auditExportRows));
     const searchInput = root.querySelector('#crmTasksSearch');
     if (searchInput) searchInput.addEventListener('input', () => {
         clientsTasksSearchQuery = searchInput.value;
@@ -4488,6 +4493,36 @@ function renderClientTasksHub() {
     }));
     root.querySelectorAll('[data-crm-task-done]').forEach(button => button.addEventListener('click', () => updateClientTaskFromHub(button.dataset.crmTaskDone, button.dataset.taskId, 'done')));
     root.querySelectorAll('[data-crm-task-delete]').forEach(button => button.addEventListener('click', () => updateClientTaskFromHub(button.dataset.crmTaskDelete, button.dataset.taskId, 'delete')));
+}
+
+function exportClientTaskAuditCsv(events) {
+    const actionLabels = {created:'Создание',updated:'Изменение',completed:'Выполнение',deleted:'Удаление'};
+    const columns = ['Дата и время','Клиент','Действие','Задача','Сотрудник','Подробности'];
+    const cell = value => {
+        const text = String(value ?? '');
+        return /[",\\r\\n;]/.test(text) ? '"' + text.replace(/"/g, '""') + '"' : text;
+    };
+    const rows = (Array.isArray(events) ? events : []).map(event => [
+        event.createdAt ? new Date(event.createdAt).toLocaleString('ru-RU') : '',
+        event.clientName || 'Клиент',
+        actionLabels[event.action] || 'Изменение',
+        event.taskTitle || 'Задача',
+        event.actor || 'Сотрудник',
+        event.details || ''
+    ]);
+    if (!rows.length) return showToast('Нет событий для экспорта', 'info');
+    const csv = '\\uFEFF' + [columns, ...rows].map(row => row.map(cell).join(';')).join('\\r\\n');
+    const blob = new Blob([csv], {type:'text/csv;charset=utf-8;'});
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    const day = new Date().toISOString().slice(0,10);
+    link.href = url;
+    link.download = 'mensfire-task-audit-' + day + '.csv';
+    document.body.appendChild(link);
+    link.click();
+    link.remove();
+    URL.revokeObjectURL(url);
+    showToast('CSV-файл подготовлен', 'success');
 }
 
 function setClientsTasksFilter(filter) {
