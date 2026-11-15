@@ -19,7 +19,7 @@
         }
     </script>
 
-    <link rel="stylesheet" href="style.css?v=mensfire-booking-history-20261115-1">
+    <link rel="stylesheet" href="style.css?v=mensfire-weekly-bookings-20261115-1">
     <link rel="stylesheet" href="theme-light.css">
 </head>
 <body class="header-hidden">
@@ -475,6 +475,11 @@
                 <div id="availableSlotsList" class="available-slots-list"><div class="available-slots-empty">Выберите услуги и дату</div></div>
             </div>
 
+            <div class="booking-repeat-panel">
+                <label class="booking-repeat-toggle"><input type="checkbox" id="repeatBookingWeekly" onchange="toggleBookingRepeatOptions()"><span><strong>Повторять еженедельно</strong><small>Создать серию записей на тот же день и время</small></span></label>
+                <div class="booking-repeat-count" id="bookingRepeatCountWrap" hidden><label for="repeatBookingCount">Всего записей в серии</label><select id="repeatBookingCount"><option value="2">2 недели</option><option value="4" selected>4 недели</option><option value="6">6 недель</option><option value="8">8 недель</option><option value="12">12 недель</option></select></div>
+            </div>
+
             <button class="checkout-btn" onclick="saveNewBooking()">Создать запись</button>
             <button class="btn-cancel" onclick="closeModal('newBookingModal')">Отмена</button>
         </div>
@@ -719,6 +724,6 @@
         </div>
     </div>
 
-    <script src="script.js?v=mensfire-booking-history-20261115-1"></script>
+    <script src="script.js?v=mensfire-weekly-bookings-20261115-1"></script>
 </body>
 </html>
