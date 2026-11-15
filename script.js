@@ -6810,7 +6810,7 @@ function renderInventoryAnalytics(){
     if(!from||!to||from>to){summary.innerHTML='<div class="inventory-empty">Проверь даты отчёта: начало периода должно быть раньше окончания</div>';productsRoot.innerHTML='';restockRoot.innerHTML='';return;}
     const inRange=value=>{if(!value)return false;const date=new Date(value);if(Number.isNaN(date.getTime()))return false;return dateKey(date)>=from&&dateKey(date)<=to;};
     const productMap=new Map(inventoryProducts.map(product=>[product.id,{product,unitsSold:0,unitsReturned:0,revenue:0,refunds:0,cost:0,returnedCost:0,costKnownUnits:0,costUnknownUnits:0}]));
-    let grossRevenue=0,refundRevenue=0,unitsSold=0,unitsReturned=0,cost=0,returnedCost=0,costKnownUnits=0,costUnknownUnits=0,saleCount=0,refundCount=0;
+    let grossRevenue=0,refundRevenue=0,unitsSold=0,unitsReturned=0,cost=0,returnedCost=0,costKnownUnits=0,costUnknownUnits=0,returnedCostUnknownUnits=0,saleCount=0,refundCount=0;
     clientRetailSales.forEach(sale=>{
         const saleInRange=inRange(sale.soldAt||sale.createdAt);
         if(saleInRange){
@@ -6836,8 +6836,8 @@ function renderInventoryAnalytics(){
                 let unitCost=item.unitCostSnapshot;
                 if(unitCost==null){const original=(sale.items||[]).find(line=>line.productId===item.productId);unitCost=original?.unitCostSnapshot;}
                 if(unitCost==null){const product=inventoryProducts.find(p=>p.id===item.productId);unitCost=Number(product?.purchasePrice)>0?Number(product.purchasePrice):null;}
-                if(unitCost!==null&&Number.isFinite(Number(unitCost))&&Number(unitCost)>=0){returnedCost+=Number(unitCost)*qty;if(row){row.returnedCost+=Number(unitCost)*qty;row.costKnownUnits+=qty;}}
-                else if(row)row.costUnknownUnits+=qty;
+                if(unitCost!==null&&Number.isFinite(Number(unitCost))&&Number(unitCost)>=0){returnedCost+=Number(unitCost)*qty;if(row)row.returnedCost+=Number(unitCost)*qty;}
+                else{returnedCostUnknownUnits+=qty;if(row)row.costUnknownUnits+=qty;}
             });
         });
     });
@@ -6865,7 +6865,7 @@ function renderInventoryAnalytics(){
     const restock=low.slice().sort((a,b)=>(a.stock-a.minStock)-(b.stock-b.minStock));
     restockRoot.innerHTML=restock.length?restock.map(item=>'<div class="inventory-movement-row"><div><strong>'+escapeBookingHtml(item.title)+'</strong><small>Остаток: '+item.stock+' '+escapeBookingHtml(item.unit)+' · минимум: '+item.minStock+' · рекомендуется добавить '+Math.max(0,item.minStock-item.stock)+'</small></div><span class="is-negative">'+(item.stock<=0?'Нет': 'Мало')+'</span></div>').join(''):'<div class="inventory-empty compact">Все активные товары выше минимального остатка</div>';
     const note=document.getElementById('inventoryAnalyticsNote');
-    if(note)note.textContent='* Себестоимость рассчитывается по цене закупки, сохранённой в момент продажи. Для старых чеков без снимка используется текущая закупочная цена товара. Для '+costUnknownUnits+' проданных единиц себестоимость неизвестна; прибыль может быть неполной.';
+    if(note)note.textContent='* Себестоимость рассчитывается по цене закупки, сохранённой в момент продажи. Для старых чеков без снимка используется текущая закупочная цена товара. Для '+costUnknownUnits+' проданных единиц себестоимость неизвестна; ещё для '+returnedCostUnknownUnits+' возвращённых единиц себестоимость восстановить не удалось. Прибыль может быть неполной.';
 }
 
 function renderInventory() {
