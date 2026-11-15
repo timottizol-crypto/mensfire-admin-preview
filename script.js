@@ -4552,7 +4552,7 @@ function renderClientTasksHub() {
                 const summaryMarkup = '<div class="crm-task-employee-summary"><div class="crm-task-employee-summary-heading"><strong>Сводка по сотрудникам</strong><span>Создание, выполнение и удаление — за выбранный период; просроченные — на текущий момент</span></div>'+
                     '<div class="crm-task-employee-summary-totals"><article><b>'+totals.created+'</b><span>создано за период</span></article><article><b>'+totals.completed+'</b><span>выполнено за период</span></article><article><b>'+totals.deleted+'</b><span>удалено за период</span></article><article class="is-overdue"><b>'+currentOverdueTotal+'</b><span>просрочено сейчас</span></article></div>'+
                     (employeeSummary.length ? '<div class="crm-task-employee-summary-list">'+employeeSummary.map(stat => '<article class="crm-task-employee-summary-row"><strong>'+escapeBookingHtml(stat.name)+'</strong><span><b>'+stat.created+'</b><small>создано</small></span><span><b>'+stat.completed+'</b><small>выполнено</small></span><span><b>'+stat.deleted+'</b><small>удалено</small></span><span class="'+(stat.overdue?'is-overdue':'')+'"><b>'+stat.overdue+'</b><small>просрочено</small></span></article>').join('')+'</div>' : '<div class="crm-tasks-empty">Нет данных по сотрудникам за выбранный период</div>')+'</div>';
-                auditExportRows = filtered.slice(0, 50);
+                auditExportRows = filtered;
                 const labels = {created:'Создал задачу',updated:'Изменил задачу',completed:'Выполнил задачу',deleted:'Удалил задачу',booking_created:'Создал запись',booking_updated:'Изменил запись',booking_cancelled:'Отменил запись',booking_completed:'Завершил визит',payment_received:'Принял оплату'};
                 return summaryMarkup+'<div class="crm-task-audit-filters">'+
                     '<select id="crmTaskAuditAction" aria-label="Тип действия">'+actionOptions.map(item=>'<option value="'+item.id+'"'+(clientsTaskAuditActionFilter===item.id?' selected':'')+'>'+item.label+'</option>').join('')+'</select>'+
@@ -4560,7 +4560,7 @@ function renderClientTasksHub() {
                     '<label>С <input id="crmTaskAuditFrom" type="date" value="'+escapeBookingHtml(clientsTaskAuditFrom)+'"></label>'+
                     '<label>По <input id="crmTaskAuditTo" type="date" value="'+escapeBookingHtml(clientsTaskAuditTo)+'"></label>'+
                     '<button type="button" id="crmTaskAuditReset">Сбросить</button>'+
-                    '<button type="button" id="crmTaskAuditExport" '+(filtered.length ? '' : 'disabled')+'>Экспорт CSV</button>'+
+                    '<button type="button" id="crmTaskAuditExport" '+(filtered.length ? '' : 'disabled')+'>Экспорт CSV · '+filtered.length+'</button>'+
                     '<span class="crm-task-audit-count">'+filtered.length+' из '+history.length+'</span></div>'+
                     (filtered.length ? filtered.slice(0,50).map(event => {
                         const date = event.createdAt ? new Date(event.createdAt) : null;
