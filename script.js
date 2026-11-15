@@ -3830,7 +3830,7 @@ function saveClientProfile() {
     showToast('Данные клиента сохранены', 'success');
 }
 function setClientsSegmentFilter(filter) {
-    clientsSegmentFilter = ['all','new','regular','vip'].includes(filter) ? filter : 'all';
+    clientsSegmentFilter = ['all','new','regular','vip','inactive','cancellations','highcheck'].includes(filter) ? filter : 'all';
     renderClients(currentClientsTab);
 }
 
@@ -3981,13 +3981,6 @@ function renderClients(tab = 'all') {
         tabsContainer.innerHTML = ''; // У барберов табов нет
     }
 
-    if (segmentContainer) {
-        const filters = [{id:'all',label:'Все'},{id:'new',label:'Новые'},{id:'regular',label:'Постоянные'},{id:'vip',label:'VIP'}];
-        segmentContainer.innerHTML = '<div class="client-segment-tabs">' + filters.map(item =>
-            '<button type="button" class="client-segment-btn ' + (clientsSegmentFilter === item.id ? 'active' : '') + '" onclick="setClientsSegmentFilter(\'' + item.id + '\')">' + item.label + '</button>'
-        ).join('') + '</div>';
-    }
-
     // 3. Фильтруем записи для подсчета
     let filteredBookings = bookings;
     
@@ -4064,6 +4057,50 @@ function renderClients(tab = 'all') {
     });
 
     const allClientGroups = Object.values(groupedClients);
+    const segmentNow = Date.now();
+    const eligibleChecks = allClientGroups.filter(client => client.completedCount >= 2)
+        .map(client => Math.round(client.completedRevenue / client.completedCount)).sort((a,b) => a-b);
+    const highCheckThreshold = eligibleChecks.length
+        ? eligibleChecks[Math.min(eligibleChecks.length - 1, Math.floor((eligibleChecks.length - 1) * 0.75))]
+        : Infinity;
+    const getBehaviorSegments = client => {
+        const completedVisits = client.visits.filter(visit => visit.status === 'completed');
+        const lastCompletedAt = completedVisits.reduce((latest, visit) => {
+            const value = parseClientDateTime(visit);
+            return Number.isFinite(value) ? Math.max(latest, value) : latest;
+        }, 0);
+        const hasUpcoming = client.visits.some(visit => visit.status !== 'cancelled' && parseClientDateTime(visit) >= segmentNow);
+        const cancelled = client.visits.filter(visit => visit.status === 'cancelled').length;
+        const decided = completedVisits.length + cancelled;
+        const average = completedVisits.length ? client.completedRevenue / completedVisits.length : 0;
+        return {
+            inactive: !!lastCompletedAt && !hasUpcoming && (segmentNow - lastCompletedAt) >= 45 * 86400000,
+            cancellations: cancelled >= 3 && decided > 0 && cancelled / decided >= 0.25,
+            highcheck: completedVisits.length >= 2 && average >= highCheckThreshold
+        };
+    };
+    const behaviorByClient = new Map(allClientGroups.map(client => [client, getBehaviorSegments(client)]));
+    if (segmentContainer) {
+        const tagOf = c => c.profileSummary.tag || (c.completedCount <= 1 ? 'new' : 'regular');
+        const counts = {
+            all: allClientGroups.length,
+            new: allClientGroups.filter(c => tagOf(c) === 'new').length,
+            regular: allClientGroups.filter(c => tagOf(c) === 'regular').length,
+            vip: allClientGroups.filter(c => c.profileSummary.tag === 'vip').length,
+            inactive: allClientGroups.filter(c => behaviorByClient.get(c).inactive).length,
+            cancellations: allClientGroups.filter(c => behaviorByClient.get(c).cancellations).length,
+            highcheck: allClientGroups.filter(c => behaviorByClient.get(c).highcheck).length
+        };
+        const filters = [
+            {id:'all',label:'Все'}, {id:'new',label:'Новые'}, {id:'regular',label:'Постоянные'},
+            {id:'vip',label:'VIP'}, {id:'inactive',label:'Давно не были'},
+            {id:'cancellations',label:'Часто отменяют'}, {id:'highcheck',label:'Высокий чек'}
+        ];
+        segmentContainer.innerHTML = '<div class="client-segment-tabs">' + filters.map(item =>
+            '<button type="button" class="client-segment-btn ' + (clientsSegmentFilter === item.id ? 'active' : '') + '" onclick="setClientsSegmentFilter(\\'' + item.id + '\\')">' +
+            item.label + '<span class="client-segment-count">' + counts[item.id] + '</span></button>'
+        ).join('') + '</div>';
+    }
     renderClientsAnalytics(filteredBookings, allClientGroups);
     renderClientFollowUpPanel(allClientGroups);
     const clientsOverview = document.getElementById('clientsOverview');
@@ -4094,10 +4131,12 @@ function renderClients(tab = 'all') {
 
     const clientArray = Object.values(groupedClients)
     .filter(c => {
-        if (clientsSegmentFilter !== 'all') {
+        if (['new','regular','vip'].includes(clientsSegmentFilter)) {
             const explicitTag = c.profileSummary.tag;
             const inferredTag = explicitTag || (c.completedCount <= 1 ? 'new' : 'regular');
             if (inferredTag !== clientsSegmentFilter) return false;
+        } else if (['inactive','cancellations','highcheck'].includes(clientsSegmentFilter)) {
+            if (!behaviorByClient.get(c)?.[clientsSegmentFilter]) return false;
         }
         const phone = normalizeClientPhone(c.profileSummary.phone);
         const phoneQuery = normalizeClientPhone(clientsSearchQuery);
