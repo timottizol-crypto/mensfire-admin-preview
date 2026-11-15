@@ -5866,3 +5866,24 @@ html.light-theme .booking-client-match{background:#fbf8ef}
 @media (min-width: 768px) { #viewSchedule #desktopSchedule .desktop-booking-card.is-compact > .booking-card-badges, #viewSchedule #desktopSchedule .desktop-booking-card.is-compact > .calendar-payment-label { display:none !important; } #viewSchedule #desktopSchedule .desktop-booking-card.is-compact > .booking-card-service { -webkit-line-clamp:1; } #viewSchedule #desktopSchedule .desktop-booking-card.is-short > .booking-card-service { display:none !important; } }
 
 @media (min-width:768px){#viewSchedule #desktopSchedule .desktop-staff-track{isolation:isolate!important;transition:background-color .14s ease!important}#viewSchedule #desktopSchedule .desktop-staff-track:hover{background-color:rgba(212,175,55,.055)!important}#viewSchedule #desktopSchedule .desktop-slot-hitbox{appearance:none!important;-webkit-appearance:none!important;display:block!important;position:absolute!important;box-sizing:border-box!important;left:0!important;right:0!important;width:100%!important;min-width:0!important;min-height:0!important;max-height:30px!important;margin:0!important;padding:0!important;border:0!important;border-radius:0!important;background:transparent!important;pointer-events:auto!important;cursor:crosshair!important;z-index:1!important}#viewSchedule #desktopSchedule .desktop-slot-hitbox:hover{background:rgba(212,175,55,.19)!important;box-shadow:inset 0 0 0 1px rgba(212,175,55,.5)!important}#viewSchedule #desktopSchedule .desktop-slot-hitbox:hover:after{content:attr(data-time);position:absolute;right:8px;top:50%;transform:translateY(-50%);display:block;padding:2px 7px;border:1px solid rgba(212,175,55,.65);border-radius:5px;background:rgba(18,18,18,.96);color:#f2cf68;font-family:inherit;font-size:10px;font-weight:700;line-height:1.3;pointer-events:none;box-shadow:0 2px 8px rgba(0,0,0,.22)}#viewSchedule #desktopSchedule .desktop-time-line{pointer-events:none!important}#viewSchedule #desktopSchedule .desktop-booking-card,#viewSchedule #desktopSchedule .desktop-break-card{z-index:4!important}}
+
+
+/* MENSFIRE — DESKTOP SCHEDULE TEXT CONTRAST */
+@media (min-width:768px) {
+  #viewSchedule #desktopSchedule .desktop-booking-card {
+    color:#211b0b !important;
+    text-shadow:none !important;
+  }
+  #viewSchedule #desktopSchedule .desktop-booking-card > .booking-card-client,
+  #viewSchedule #desktopSchedule .desktop-booking-card > .booking-card-service,
+  #viewSchedule #desktopSchedule .desktop-booking-card > .booking-card-meta,
+  #viewSchedule #desktopSchedule .desktop-booking-card > .calendar-payment-label,
+  #viewSchedule #desktopSchedule .desktop-booking-card .booking-card-meta b {
+    color:#211b0b !important;
+    opacity:1 !important;
+    text-shadow:none !important;
+  }
+  #viewSchedule #desktopSchedule .desktop-booking-card .calendar-payment-label {
+    font-weight:800 !important;
+  }
+}
