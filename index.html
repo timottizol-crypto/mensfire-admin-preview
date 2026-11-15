@@ -270,6 +270,18 @@
             </div>
         </div>
 
+        <div class="modal" id="retailRefundModal">
+            <div class="modal-content retail-refund-modal-content">
+                <div class="booking-detail-heading"><h2>Возврат товаров</h2><button class="close-btn" type="button" onclick="closeModal('retailRefundModal')">&times;</button></div>
+                <p class="inventory-modal-hint">Укажи количество возвращаемых позиций. Товары вернутся в остаток склада, сумма чека и задолженность пересчитаются.</p>
+                <div id="retailRefundItems" class="retail-refund-items"></div>
+                <div id="retailRefundSummary" class="retail-refund-summary">Выбери количество товаров для возврата</div>
+                <div class="form-group"><label for="retailRefundNote">Причина / комментарий</label><input id="retailRefundNote" type="text" maxlength="180" placeholder="Необязательно"></div>
+                <button type="button" class="checkout-btn" onclick="saveRetailRefund()">Подтвердить возврат</button>
+                <button type="button" class="btn-cancel" onclick="closeModal('retailRefundModal')">Отмена</button>
+            </div>
+        </div>
+
         <!-- ЭКРАН ПРОФИЛЯ (Общий) -->
         <div id="viewProfile" class="view">
             <div class="profile-pc-wrapper">
@@ -848,6 +860,6 @@
         </div>
     </div>
 
-    <script src="script.js?v=mensfire-retail-finance-20261115-6"></script>
+    <script src="script.js?v=mensfire-retail-refunds-20261115-7"></script>
 </body>
 </html>
