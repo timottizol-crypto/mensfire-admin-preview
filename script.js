@@ -2075,6 +2075,44 @@ function cancelBooking() {
     showToast('Запись отменена', 'success');
     renderSchedule();
     if (currentUser.role === 'admin') renderFinance();
+    const matches = getWaitlistMatchesForSlot(booking);
+    if (matches.length) openWaitlistSlotSuggestions(booking.id);
+}
+
+function getWaitlistMatchesForSlot(booking) {
+    const serviceNames = (booking.services || []).map(service => String(service.title || '').trim().toLowerCase()).filter(Boolean);
+    return waitlistEntries.filter(item => (item.status || 'waiting') !== 'closed' &&
+        (!item.date || item.date === booking.date) &&
+        (!item.time || item.time === booking.time) &&
+        (!item.barberId || String(item.barberId) === String(booking.barberId)) &&
+        (!item.serviceTitle || serviceNames.includes(String(item.serviceTitle).trim().toLowerCase()))
+    ).sort((a,b) => ({urgent:0,high:1,normal:2}[a.priority||'normal'] - {urgent:0,high:1,normal:2}[b.priority||'normal']) || new Date(a.createdAt||0)-new Date(b.createdAt||0));
+}
+function openWaitlistSlotSuggestions(bookingId) {
+    const booking = bookings.find(item => String(item.id) === String(bookingId));
+    const host = document.getElementById('waitlistSlotSuggestionsList');
+    if (!booking || !host) return;
+    const matches = getWaitlistMatchesForSlot(booking);
+    if (!matches.length) return;
+    host.innerHTML = matches.map(item => `<article class="waitlist-suggestion-row"><div><strong>${escapeBookingHtml(item.clientName)}</strong><small>${escapeBookingHtml(item.phone || 'Телефон не указан')} · ${escapeBookingHtml(item.serviceTitle || 'Любая услуга')}</small><span class="waitlist-priority priority-${item.priority||'normal'}">${item.priority==='urgent'?'Срочно':item.priority==='high'?'Высокий приоритет':'Обычный приоритет'}</span></div><button type="button" onclick="promoteWaitlistToFreedSlot('${escapeBookingHtml(item.id)}','${escapeBookingHtml(booking.id)}')">Предложить слот</button></article>`).join('');
+    const caption = document.getElementById('waitlistSlotSuggestionsCaption');
+    if (caption) caption.textContent = booking.date + ' · ' + booking.time + ' · ' + (mockStaff.find(person => String(person.id) === String(booking.barberId))?.name || 'Мастер');
+    openModal('waitlistSlotSuggestionsModal');
+}
+function promoteWaitlistToFreedSlot(waitlistId, bookingId) {
+    if (!requireAdminAction('Создавать записи может только администратор')) return;
+    const item = waitlistEntries.find(entry => String(entry.id) === String(waitlistId));
+    const slot = bookings.find(entry => String(entry.id) === String(bookingId));
+    if (!item || !slot) return;
+    openNewBookingModal(slot.barberId, slot.time, slot.date);
+    const client = document.getElementById('newBookingClient'); if (client) client.value = item.clientName;
+    const phone = document.getElementById('newBookingClientPhone'); if (phone) phone.value = item.phone || '';
+    const barber = document.getElementById('newBookingBarber'); if (barber) barber.value = slot.barberId;
+    renderBookingBarberChoices(); updateNewBookingServices();
+    if (item.serviceId) { const option=document.querySelector('#newBookingServicesList input[value="'+CSS.escape(String(item.serviceId))+'"]'); if(option){option.checked=true;updateNewBookingSummary();} }
+    editingWaitlistId = item.id;
+    closeModal('waitlistSlotSuggestionsModal');
+    showToast('Клиент выбран для освободившегося времени. Проверьте и сохраните запись','info');
 }
 
 
@@ -3063,7 +3101,7 @@ function renderDashboard() {
     if(upcoming){
         const now=new Date();
         const future=scoped.filter(item=>item.status!=='completed'&&(()=>{const d=parseReportDate(item.date);if(!d)return false;const [hh,mm]=String(item.time||'00:00').split(':').map(Number);d.setHours(hh||0,mm||0,0,0);return d>=now;})()).sort((a,b)=>{const da=parseReportDate(a.date),db=parseReportDate(b.date);return da-db||String(a.time||'').localeCompare(String(b.time||''));}).slice(0,5);
-        upcoming.innerHTML=future.length?future.map(item=>`<div class="dashboard-upcoming-row"><div class="dashboard-upcoming-time"><strong>${dashboardEscape(item.time||'—')}</strong><small>${dashboardEscape(item.date||'')}</small></div><div class="dashboard-upcoming-info"><strong>${dashboardEscape(item.clientName||'Клиент')}</strong><small>${dashboardEscape(item.services?.map(s=>s.title).join(', ')||'Услуга')} · ${dashboardEscape(mockStaff.find(s=>String(s.id)===String(item.barberId))?.name||'Мастер')}</small></div><span class="dashboard-upcoming-status">${item.status==='pending'?'Ожидает':'Подтверждена'}</span></div>`).join(''):'<div class="finance-empty">Нет предстоящих записей в выбранном периоде</div>';
+        upcoming.innerHTML=future.length?future.map(item=>{const clientMeta=getBookingClientTypeMeta(item);return `<div class="dashboard-upcoming-row"><div class="dashboard-upcoming-time"><strong>${dashboardEscape(item.time||'—')}</strong><small>${dashboardEscape(item.date||'')}</small></div><div class="dashboard-upcoming-info"><strong>${dashboardEscape(item.clientName||'Клиент')}</strong><small>${dashboardEscape(item.services?.map(s=>s.title).join(', ')||'Услуга')} · ${dashboardEscape(mockStaff.find(s=>String(s.id)===String(item.barberId))?.name||'Мастер')}</small><span class="booking-card-badges"><i class="booking-client-type type-${clientMeta.className}">${clientMeta.label}</i></span></div><span class="dashboard-upcoming-status">${item.status==='pending'?'Ожидает':'Подтверждена'}</span></div>`}).join(''):'<div class="finance-empty">Нет предстоящих записей в выбранном периоде</div>';
     }
 }
 
