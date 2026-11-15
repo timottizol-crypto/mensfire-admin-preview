@@ -2332,8 +2332,15 @@ function moveBookingToSlot(event, barberId, date) {
         const calendarScroll = document.querySelector('#desktopSchedule .desktop-calendar-scroll');
         if (calendarScroll) { calendarScroll.scrollTop = scrollState.calendarTop; calendarScroll.scrollLeft = scrollState.calendarLeft; }
     };
-    requestAnimationFrame(() => { restoreScroll(); requestAnimationFrame(restoreScroll); });
-    setTimeout(restoreScroll, 80);
+    // renderSchedule() обновляет desktop-календарь с задержкой 200 мс.
+    // Восстанавливаем прокрутку только после того, как новый .desktop-calendar-scroll уже создан.
+    // Раньше восстановление происходило до перерисовки, поэтому новый календарь начинался с 08:00.
+    setTimeout(() => {
+        requestAnimationFrame(() => {
+            restoreScroll();
+            requestAnimationFrame(restoreScroll);
+        });
+    }, 260);
     showToast('Запись перенесена', 'success');
 }
 function openNewBookingAtExactSlot(event, barberId, date, time) {
