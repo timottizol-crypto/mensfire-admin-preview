@@ -315,6 +315,7 @@ function buildBottomNav() {
             navItems.push(
                 { id: 'viewInventory', title: 'Склад', icon: '<path d="M3 7 12 3l9 4-9 4-9-4zm0 5 9 4 9-4M3 17l9 4 9-4"/>' },
                 { id: 'viewSales', title: 'Продажи', icon: '<path d="M4 5h16v14H4zM8 9h8M8 13h5"/>' },
+                { id: 'viewInventoryAnalytics', title: 'Аналитика', icon: '<path d="M3 3v18h18M8 16v-5m5 5V6m5 10V9"/>' },
                 { id: 'viewProfile', title: 'Профиль', icon: clientsIcon }
             );
         } else {
@@ -440,6 +441,7 @@ function switchView(viewId, navElement) {
         'viewClients': 'Клиенты',
         'viewInventory': 'Склад',
         'viewSales': 'Продажи',
+        'viewInventoryAnalytics': 'Аналитика склада',
         'viewProfile': 'Профиль'
     };
     if (titles[viewId]) {
@@ -792,11 +794,21 @@ let clientRetailSales = (() => {
             paymentStatus: ['paid','partial','refunded','unpaid'].includes(sale.paymentStatus) ? sale.paymentStatus : 'paid',
             paymentMethod: String(sale.paymentMethod || ''), total: Math.max(0, Number(sale.total) || 0),
             paidAmount: Math.max(0, Number(sale.paidAmount ?? (sale.paymentStatus === 'paid' ? sale.total : 0)) || 0),
+            netTotal: Math.max(0,Number(sale.netTotal ?? sale.total)||0),
+            grossPaidAmount: Math.max(0,Number(sale.grossPaidAmount ?? sale.paidAmount ?? (sale.paymentStatus==='paid'?sale.total:0))||0),
+            refunds: (Array.isArray(sale.refunds)?sale.refunds:[]).filter(refund=>refund&&typeof refund==='object').map(refund=>({
+                id:String(refund.id||''),createdAt:String(refund.createdAt||''),value:Math.max(0,Number(refund.value)||0),
+                paidAmount:Math.max(0,Number(refund.paidAmount)||0),paymentMethod:String(refund.paymentMethod||sale.paymentMethod||'other'),
+                debtReduction:Math.max(0,Number(refund.debtReduction)||0),note:String(refund.note||''),
+                items:(Array.isArray(refund.items)?refund.items:[]).map(item=>({productId:String(item.productId||''),titleSnapshot:String(item.titleSnapshot||'Товар'),quantity:Math.max(0,Number(item.quantity)||0),unitPrice:Math.max(0,Number(item.unitPrice)||0),unitCostSnapshot:item.unitCostSnapshot==null?null:Math.max(0,Number(item.unitCostSnapshot)||0)}))
+            })),
             items: (Array.isArray(sale.items) ? sale.items : []).filter(item => item && typeof item === 'object').map(item => ({
                 productId: String(item.productId || ''), sku: String(item.sku || ''),
                 titleSnapshot: String(item.titleSnapshot || item.title || 'Товар'),
                 quantity: Math.max(0, Number(item.quantity) || 0), unitPrice: Math.max(0, Number(item.unitPrice) || 0),
-                lineTotal: Math.max(0, Number(item.lineTotal) || 0), stockMovementId: String(item.stockMovementId || '')
+                lineTotal: Math.max(0, Number(item.lineTotal) || 0), stockMovementId: String(item.stockMovementId || ''),
+                unitCostSnapshot:item.unitCostSnapshot==null?null:Math.max(0,Number(item.unitCostSnapshot)||0),
+                refundedQuantity:Math.max(0,Number(item.refundedQuantity)||0)
             })),
             notes: String(sale.notes || ''), source: String(sale.source || 'retail'), createdAt: String(sale.createdAt || sale.soldAt || '')
         }));
@@ -5195,6 +5207,7 @@ switchView = function(viewId, navElement) {
     if (viewId === 'viewTeam' && currentUser.role === 'admin') renderTeam();
     if (viewId === 'viewClients') renderClients();
     if (viewId === 'viewInventory' && currentUser.role === 'admin') renderInventory();
+    if (viewId === 'viewInventoryAnalytics' && currentUser.role === 'admin') renderInventoryAnalytics();
 
     if (viewId === 'viewProfile') {
         renderBarberRevenue();
@@ -5683,7 +5696,7 @@ function saveRetailRefund() {
         inventoryMovements.push({
             id:'mov_'+Date.now()+'_'+Math.random().toString(36).slice(2,8),
             productId:product.id,productTitle:product.title,type:'return',quantity:selection.qty,
-            supplier:'',unitCost:null,totalCost:null,note:'Возврат по чеку '+sale.id,
+            supplier:'',unitCost:selection.item.unitCostSnapshot??null,totalCost:selection.item.unitCostSnapshot==null?null:Number(selection.item.unitCostSnapshot)*selection.qty,note:'Возврат по чеку '+sale.id,
             saleId:sale.id,refundId,createdAt:now
         });
     });
@@ -5691,7 +5704,7 @@ function saveRetailRefund() {
     sale.refunds.push({
         id:refundId,createdAt:now,value:refundValue,paidAmount:paidRefund,
         paymentMethod:sale.paymentMethod||'other',debtReduction:refundValue-paidRefund,
-        items:selections.map(({item,qty})=>({productId:item.productId,titleSnapshot:item.titleSnapshot,quantity:qty,unitPrice:Number(item.unitPrice)||0})),
+        items:selections.map(({item,qty})=>({productId:item.productId,titleSnapshot:item.titleSnapshot,quantity:qty,unitPrice:Number(item.unitPrice)||0,unitCostSnapshot:item.unitCostSnapshot??null})),
         note:document.getElementById('retailRefundNote').value.trim()
     });
     sale.netTotal=Math.max(0,netBefore-refundValue);
@@ -5729,9 +5742,10 @@ function saveRetailSale(){
     const linkedBooking=bookings.find(item=>String(item.id)===bookingId);
     const items=checked.map(({row,product})=>{
         const movementId='mov_'+Date.now()+'_'+Math.random().toString(36).slice(2,8);
+        const unitCostSnapshot=Number(product.purchasePrice)>0?Number(product.purchasePrice):null;
         product.stock-=row.quantity;product.updatedAt=now;
-        inventoryMovements.push({id:movementId,productId:product.id,productTitle:product.title,type:'sale',quantity:row.quantity,supplier:'',unitCost:null,totalCost:null,note:'Продажа · чек '+saleId,saleId,createdAt:now});
-        return {productId:product.id,sku:product.sku,titleSnapshot:product.title,quantity:row.quantity,unitPrice:row.unitPrice,lineTotal:row.quantity*row.unitPrice,stockMovementId:movementId};
+        inventoryMovements.push({id:movementId,productId:product.id,productTitle:product.title,type:'sale',quantity:row.quantity,supplier:'',unitCost:unitCostSnapshot,totalCost:unitCostSnapshot===null?null:unitCostSnapshot*row.quantity,note:'Продажа · чек '+saleId,saleId,createdAt:now});
+        return {productId:product.id,sku:product.sku,titleSnapshot:product.title,quantity:row.quantity,unitPrice:row.unitPrice,lineTotal:row.quantity*row.unitPrice,unitCostSnapshot,refundedQuantity:0,stockMovementId:movementId};
     });
     clientRetailSales.push({
         id:saleId,clientProfileKey:client.key,clientPhone:normalizeClientPhone(client.phone)?client.phone:'',clientNameSnapshot:client.name,
@@ -5746,6 +5760,82 @@ function saveRetailSale(){
     updateRetailPaymentFields();
     renderRetailSales();
     showToast('Товарный чек сохранён, остатки списаны','success');
+}
+
+
+function renderInventoryAnalytics(){
+    if(!requireAdminAction('Аналитика доступна администратору'))return;
+    const fromNode=document.getElementById('inventoryAnalyticsFrom');
+    const toNode=document.getElementById('inventoryAnalyticsTo');
+    if(!fromNode||!toNode)return;
+    const today=new Date();
+    const dateKey=date=>[date.getFullYear(),String(date.getMonth()+1).padStart(2,'0'),String(date.getDate()).padStart(2,'0')].join('-');
+    if(!fromNode.value){const start=new Date(today);start.setDate(start.getDate()-29);fromNode.value=dateKey(start);}
+    if(!toNode.value)toNode.value=dateKey(today);
+    const from=fromNode.value,to=toNode.value;
+    const summary=document.getElementById('inventoryAnalyticsOverview');
+    const productsRoot=document.getElementById('inventoryAnalyticsProducts');
+    const restockRoot=document.getElementById('inventoryAnalyticsRestock');
+    if(!summary||!productsRoot||!restockRoot)return;
+    if(!from||!to||from>to){summary.innerHTML='<div class="inventory-empty">Проверь даты отчёта: начало периода должно быть раньше окончания</div>';productsRoot.innerHTML='';restockRoot.innerHTML='';return;}
+    const inRange=value=>{if(!value)return false;const date=new Date(value);if(Number.isNaN(date.getTime()))return false;return dateKey(date)>=from&&dateKey(date)<=to;};
+    const productMap=new Map(inventoryProducts.map(product=>[product.id,{product,unitsSold:0,unitsReturned:0,revenue:0,refunds:0,cost:0,returnedCost:0,costKnownUnits:0,costUnknownUnits:0}]));
+    let grossRevenue=0,refundRevenue=0,unitsSold=0,unitsReturned=0,cost=0,returnedCost=0,costKnownUnits=0,costUnknownUnits=0,saleCount=0,refundCount=0;
+    clientRetailSales.forEach(sale=>{
+        const saleInRange=inRange(sale.soldAt||sale.createdAt);
+        if(saleInRange){
+            saleCount++;
+            (sale.items||[]).forEach(item=>{
+                const qty=Math.max(0,Number(item.quantity)||0),price=Math.max(0,Number(item.unitPrice)||0);
+                const lineRevenue=qty*price;grossRevenue+=lineRevenue;unitsSold+=qty;
+                const row=productMap.get(item.productId);
+                if(row){row.unitsSold+=qty;row.revenue+=lineRevenue;}
+                const unitCost=item.unitCostSnapshot!=null?Number(item.unitCostSnapshot):Number(inventoryProducts.find(p=>p.id===item.productId)?.purchasePrice)>0?Number(inventoryProducts.find(p=>p.id===item.productId).purchasePrice):null;
+                if(unitCost!==null&&Number.isFinite(unitCost)&&unitCost>=0){cost+=unitCost*qty;costKnownUnits+=qty;if(row){row.cost+=unitCost*qty;row.costKnownUnits+=qty;}}
+                else{costUnknownUnits+=qty;if(row)row.costUnknownUnits+=qty;}
+            });
+        }
+        (Array.isArray(sale.refunds)?sale.refunds:[]).forEach(refund=>{
+            if(!inRange(refund.createdAt))return;
+            refundCount++;refundRevenue+=Math.max(0,Number(refund.value)||0);
+            (refund.items||[]).forEach(item=>{
+                const qty=Math.max(0,Number(item.quantity)||0),price=Math.max(0,Number(item.unitPrice)||0);
+                const lineRefund=qty*price;unitsReturned+=qty;
+                const row=productMap.get(item.productId);
+                if(row){row.unitsReturned+=qty;row.refunds+=lineRefund;}
+                let unitCost=item.unitCostSnapshot;
+                if(unitCost==null){const original=(sale.items||[]).find(line=>line.productId===item.productId);unitCost=original?.unitCostSnapshot;}
+                if(unitCost==null){const product=inventoryProducts.find(p=>p.id===item.productId);unitCost=Number(product?.purchasePrice)>0?Number(product.purchasePrice):null;}
+                if(unitCost!==null&&Number.isFinite(Number(unitCost))&&Number(unitCost)>=0){returnedCost+=Number(unitCost)*qty;if(row){row.returnedCost+=Number(unitCost)*qty;row.costKnownUnits+=qty;}}
+                else if(row)row.costUnknownUnits+=qty;
+            });
+        });
+    });
+    const netRevenue=grossRevenue-refundRevenue,netCost=cost-returnedCost,profit=netRevenue-netCost;
+    const fmt=value=>Math.round(Number(value)||0).toLocaleString('ru-RU')+' ₽';
+    const pct=value=>value.toFixed(1).replace('.',',')+'%';
+    const totalUnits=inventoryProducts.reduce((sum,item)=>sum+item.stock,0);
+    const low=inventoryProducts.filter(item=>item.active&&item.stock<=item.minStock);
+    const debt=clientRetailSales.reduce((sum,sale)=>sum+(inRange(sale.soldAt||sale.createdAt)?Math.max(0,getRetailSaleNetTotal(sale)-(Number(sale.paidAmount)||0)):0),0);
+    summary.innerHTML=
+        '<div class="inventory-kpi"><span>Продажи товаров</span><strong>'+fmt(grossRevenue)+'</strong><small>'+saleCount+' чеков за период</small></div>'+
+        '<div class="inventory-kpi"><span>Возвраты</span><strong>'+fmt(refundRevenue)+'</strong><small>'+refundCount+' операций · '+unitsReturned+' ед.</small></div>'+
+        '<div class="inventory-kpi"><span>Выручка после возвратов</span><strong>'+fmt(netRevenue)+'</strong><small>'+unitsSold+' продано · '+Math.max(0,unitsSold-unitsReturned)+' ед. чистыми</small></div>'+
+        '<div class="inventory-kpi"><span>Валовая прибыль*</span><strong>'+fmt(profit)+'</strong><small>Маржа '+(netRevenue>0?pct(profit/netRevenue*100):'—')+'</small></div>'+
+        '<div class="inventory-kpi"><span>Себестоимость продаж*</span><strong>'+fmt(netCost)+'</strong><small>'+costKnownUnits+' ед. с известной себестоимостью</small></div>'+
+        '<div class="inventory-kpi"><span>Долг по товарным чекам</span><strong>'+fmt(debt)+'</strong><small>По чекам, созданным в периоде</small></div>'+
+        '<div class="inventory-kpi"><span>Товаров на складе</span><strong>'+totalUnits.toLocaleString('ru-RU')+'</strong><small>'+inventoryProducts.filter(item=>item.active).length+' активных позиций</small></div>'+
+        '<div class="inventory-kpi '+(low.length?'is-warning':'')+'"><span>Нужно пополнить</span><strong>'+low.length+'</strong><small>Позиции на минимуме или ниже</small></div>';
+    const rows=Array.from(productMap.values()).filter(row=>row.unitsSold||row.unitsReturned).sort((a,b)=>(b.revenue-b.refunds)-(a.revenue-a.refunds));
+    productsRoot.innerHTML=rows.length?'<div class="inventory-analytics-table-wrap"><table class="inventory-analytics-table"><thead><tr><th>Товар</th><th>Продано</th><th>Возврат</th><th>Выручка</th><th>Прибыль*</th></tr></thead><tbody>'+rows.map(row=>{
+        const net=row.revenue-row.refunds,netUnits=row.unitsSold-row.unitsReturned;
+        const known=row.costUnknownUnits===0;
+        return '<tr><td><strong>'+escapeBookingHtml(row.product.title)+'</strong><small>'+escapeBookingHtml(row.product.category)+'</small></td><td>'+row.unitsSold+'</td><td>'+row.unitsReturned+'</td><td>'+fmt(net)+'</td><td>'+ (known?fmt(net-(row.cost-row.returnedCost)):'Нет полной себестоимости')+'</td></tr>';
+    }).join('')+'</tbody></table></div>':'<div class="inventory-empty">За выбранный период товарных продаж и возвратов нет</div>';
+    const restock=low.slice().sort((a,b)=>(a.stock-a.minStock)-(b.stock-b.minStock));
+    restockRoot.innerHTML=restock.length?restock.map(item=>'<div class="inventory-movement-row"><div><strong>'+escapeBookingHtml(item.title)+'</strong><small>Остаток: '+item.stock+' '+escapeBookingHtml(item.unit)+' · минимум: '+item.minStock+' · рекомендуется добавить '+Math.max(0,item.minStock-item.stock)+'</small></div><span class="is-negative">'+(item.stock<=0?'Нет': 'Мало')+'</span></div>').join(''):'<div class="inventory-empty compact">Все активные товары выше минимального остатка</div>';
+    const note=document.getElementById('inventoryAnalyticsNote');
+    if(note)note.textContent='* Себестоимость рассчитывается по цене закупки, сохранённой в момент продажи. Для старых чеков без снимка используется текущая закупочная цена товара. Для '+costUnknownUnits+' проданных единиц себестоимость неизвестна; прибыль может быть неполной.';
 }
 
 function renderInventory() {
