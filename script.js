@@ -309,11 +309,11 @@ function buildBottomNav() {
             { id: 'viewFinance', title: 'Финансы', icon: financeIcon },
             { id: 'viewTeam', title: 'Команда', icon: teamIcon },
             { id: 'viewServices', title: 'Услуги', icon: servicesIcon },
-            { id: 'viewClients', title: 'CRM', icon: clientsIcon },
-            { id: 'viewClientDirectory', title: 'Клиенты', icon: clientsIcon }
+            { id: 'viewClients', title: window.innerWidth >= 768 ? 'CRM' : 'Клиенты', icon: clientsIcon }
         ];
         if (window.innerWidth >= 768) {
             navItems.push(
+                { id: 'viewClientDirectory', title: 'Клиенты', icon: clientsIcon },
                 { id: 'viewInventory', title: 'Склад', icon: '<path d="M3 7 12 3l9 4-9 4-9-4zm0 5 9 4 9-4M3 17l9 4 9-4"/>' },
                 { id: 'viewSales', title: 'Продажи', icon: '<path d="M4 5h16v14H4zM8 9h8M8 13h5"/>' },
                 { id: 'viewInventoryAnalytics', title: 'Аналитика', icon: '<path d="M3 3v18h18M8 16v-5m5 5V6m5 10V9"/>' },
@@ -440,7 +440,7 @@ function switchView(viewId, navElement) {
         'viewFinance': 'Финансы',
         'viewTeam': 'Команда',
         'viewServices': 'Услуги',
-        'viewClients': 'CRM',
+        'viewClients': window.innerWidth >= 768 ? 'CRM' : 'Клиенты',
         'viewClientDirectory': 'База клиентов',
         'viewInventory': 'Склад',
         'viewSales': 'Продажи',
