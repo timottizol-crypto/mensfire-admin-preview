@@ -5504,9 +5504,6 @@ function persistInventory() {
 
 /* Розничные чеки: продажи товаров, складское списание и история CRM. */
 let retailSaleCart = [];
-function persistClientRetailSales() {
-    localStorage.setItem(appStorageKey('mensfire_client_retail_sales'), JSON.stringify(clientRetailSales));
-}
 function getRetailSaleClients() {
     const map = new Map();
     bookings.forEach(booking => {
