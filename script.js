@@ -800,7 +800,11 @@ let clientRetailSales = (() => {
             paymentStatus: ['paid','partial','refunded','unpaid'].includes(sale.paymentStatus) ? sale.paymentStatus : 'paid',
             paymentMethod: String(sale.paymentMethod || ''), total: Math.max(0, Number(sale.total) || 0),
             paidAmount: Math.max(0, Number(sale.paidAmount ?? (sale.paymentStatus === 'paid' ? sale.total : 0)) || 0),
-            netTotal: Math.max(0,Number(sale.netTotal ?? sale.total)||0),
+            netTotal: sale.netTotal != null && Number.isFinite(Number(sale.netTotal))
+                ? Math.max(0, Number(sale.netTotal))
+                : Math.max(0, (Number(sale.total) || 0) - (Array.isArray(sale.refunds)
+                    ? sale.refunds.reduce((sum, refund) => sum + Math.max(0, Number(refund?.value) || 0), 0)
+                    : 0)),
             grossPaidAmount: Math.max(0,Number(sale.grossPaidAmount ?? sale.paidAmount ?? (sale.paymentStatus==='paid'?sale.total:0))||0),
             refunds: (Array.isArray(sale.refunds)?sale.refunds:[]).filter(refund=>refund&&typeof refund==='object').map(refund=>({
                 id:String(refund.id||''),createdAt:String(refund.createdAt||''),value:Math.max(0,Number(refund.value)||0),
