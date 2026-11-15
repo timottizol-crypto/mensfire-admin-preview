@@ -6504,3 +6504,27 @@ html.light-theme .booking-client-match{background:#fbf8ef}
 .crm-merge-confirm{border:1px solid var(--gold);background:var(--gold);color:#17130d}
 .crm-merge-cancel{border:1px solid var(--border-color,rgba(255,255,255,.14));background:transparent;color:var(--text-primary,inherit)}
 @media(max-width:480px){.crm-merge-preview{padding:10px}.crm-merge-preview-actions button{flex:1}}
+
+
+/* CRM · единая хронология клиента */
+.client-timeline-section{margin:16px 0;padding:14px;border:1px solid var(--border-color,rgba(255,255,255,.1));border-radius:12px;background:rgba(255,255,255,.018)}
+.client-timeline-section>.client-interactions-heading{margin-bottom:10px}
+.client-timeline-toolbar{display:flex;align-items:center;flex-wrap:wrap;gap:8px;margin-bottom:12px}
+.client-timeline-toolbar label,.client-timeline-toolbar>span{font-size:10px;color:var(--text-muted,#999)}
+.client-timeline-toolbar>span{margin-left:auto}
+.client-timeline-toolbar select{max-width:190px;min-height:32px;padding:5px 9px;border:1px solid var(--border-color,rgba(255,255,255,.14));border-radius:7px;background:var(--surface-color,#222);color:var(--text-primary,inherit);font:inherit;font-size:10px}
+.client-timeline-list{display:flex;flex-direction:column;gap:0}
+.client-timeline-item{position:relative;display:flex;gap:10px;padding:0 0 13px}
+.client-timeline-item:before{content:"";position:absolute;left:4px;top:10px;bottom:-2px;width:1px;background:var(--border-color,rgba(255,255,255,.12))}
+.client-timeline-item:last-child:before{display:none}
+.client-timeline-item>i{z-index:1;flex:none;width:9px;height:9px;margin-top:4px;border-radius:50%;background:var(--gold,#c69e5b);box-shadow:0 0 0 3px rgba(198,158,91,.1)}
+.client-timeline-item.timeline-payment>i{background:#69b88a}.client-timeline-item.timeline-refund>i{background:#d58b75}.client-timeline-item.timeline-interaction>i{background:#7da9d8}.client-timeline-item.timeline-task>i{background:#a995d1}
+.client-timeline-body{min-width:0;flex:1;padding:0 0 2px}
+.client-timeline-meta{display:flex;justify-content:space-between;align-items:flex-start;gap:10px}
+.client-timeline-meta b{font-size:11px;color:var(--text-primary,inherit)}
+.client-timeline-meta time{flex:none;font-size:9px;color:var(--text-muted,#999)}
+.client-timeline-body p{margin:5px 0;color:var(--text-muted,#999);font-size:10px;line-height:1.45;overflow-wrap:anywhere}
+.client-timeline-body small{display:block;margin-top:4px;color:var(--text-muted,#888);font-size:9px}
+.client-timeline-amount{display:inline-block;margin-top:5px;color:var(--gold);font-size:11px}
+.client-timeline-empty{padding:14px;text-align:center;color:var(--text-muted,#999);font-size:10px}
+@media(max-width:480px){.client-timeline-section{padding:10px}.client-timeline-meta{display:block}.client-timeline-meta time{display:block;margin-top:3px}.client-timeline-toolbar select{flex:1;max-width:none}}
