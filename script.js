@@ -3827,7 +3827,87 @@ function addClientInteraction() {
     localStorage.setItem(appStorageKey('mensfire_client_profiles'), JSON.stringify(clientProfiles));
     if (textInput) textInput.value = '';
     renderClientInteractionHistory();
+    renderClientTasks();
     showToast('Контакт добавлен в историю', 'success');
+}
+
+function parseClientTaskDate(value) {
+    const match = String(value || '').trim().match(/^(\\d{2})\\.(\\d{2})\\.(\\d{4})$/);
+    if (!match) return null;
+    const date = new Date(Number(match[3]), Number(match[2]) - 1, Number(match[1]));
+    return date.getFullYear() === Number(match[3]) && date.getMonth() === Number(match[2]) - 1 && date.getDate() === Number(match[1]) ? date : null;
+}
+function renderClientTasks() {
+    const root = document.getElementById('clientTasksList');
+    const summary = document.getElementById('clientTasksSummary');
+    if (!root || !selectedClientProfileKey) return;
+    const profile = clientProfiles[selectedClientProfileKey] || {};
+    const tasks = Array.isArray(profile.tasks) ? profile.tasks.slice() : [];
+    tasks.sort((a, b) => {
+        if (Boolean(a.done) !== Boolean(b.done)) return a.done ? 1 : -1;
+        return (parseClientTaskDate(a.dueDate)?.getTime() || Infinity) - (parseClientTaskDate(b.dueDate)?.getTime() || Infinity);
+    });
+    const today = new Date(); today.setHours(0,0,0,0);
+    const openTasks = tasks.filter(task => !task.done);
+    const overdue = openTasks.filter(task => {
+        const due = parseClientTaskDate(task.dueDate);
+        return due && due < today;
+    }).length;
+    if (summary) summary.textContent = openTasks.length + ' активных' + (overdue ? ' · просрочено: ' + overdue : '');
+    root.innerHTML = tasks.length ? tasks.map(task => {
+        const due = parseClientTaskDate(task.dueDate);
+        const isOverdue = !task.done && due && due < today;
+        return '<article class="client-task-item' + (task.done ? ' is-done' : '') + (isOverdue ? ' is-overdue' : '') + '">' +
+            '<div class="client-task-main"><strong>' + escapeBookingHtml(task.title || 'Задача') + '</strong>' +
+            '<span>' + (task.dueDate ? 'Срок: ' + escapeBookingHtml(task.dueDate) : 'Без срока') + (task.done ? ' · Выполнено' : isOverdue ? ' · Просрочено' : '') + '</span></div>' +
+            '<div class="client-task-actions">' +
+            (!task.done ? '<button type="button" onclick="completeClientTask(\\'' + escapeBookingHtml(task.id) + '\\')">Готово</button>' : '') +
+            '<button type="button" class="client-task-delete" onclick="deleteClientTask(\\'' + escapeBookingHtml(task.id) + '\\')">Удалить</button></div></article>';
+    }).join('') : '<div class="client-interaction-empty">Пока нет задач и напоминаний</div>';
+}
+function addClientTask() {
+    if (!selectedClientProfileKey) return;
+    const titleInput = document.getElementById('clientTaskTitle');
+    const dateInput = document.getElementById('clientTaskDueDate');
+    const title = String(titleInput?.value || '').trim();
+    const dueDate = String(dateInput?.value || '').trim();
+    if (!title) return showToast('Напишите, что нужно сделать', 'error');
+    if (dueDate && !parseClientTaskDate(dueDate)) return showToast('Укажите дату в формате ДД.ММ.ГГГГ', 'error');
+    const profile = clientProfiles[selectedClientProfileKey] || {};
+    if (!Array.isArray(profile.tasks)) profile.tasks = [];
+    profile.tasks.push({
+        id: 'task_' + Date.now() + '_' + Math.random().toString(36).slice(2, 7),
+        title: title.slice(0, 180),
+        dueDate,
+        done: false,
+        createdAt: new Date().toISOString(),
+        author: String(currentUser?.name || 'Сотрудник').slice(0, 100)
+    });
+    clientProfiles[selectedClientProfileKey] = profile;
+    localStorage.setItem(appStorageKey('mensfire_client_profiles'), JSON.stringify(clientProfiles));
+    if (titleInput) titleInput.value = '';
+    if (dateInput) dateInput.value = '';
+    renderClientTasks();
+    showToast('Напоминание добавлено', 'success');
+}
+function completeClientTask(taskId) {
+    if (!selectedClientProfileKey) return;
+    const profile = clientProfiles[selectedClientProfileKey] || {};
+    const task = (profile.tasks || []).find(item => item.id === taskId);
+    if (!task) return;
+    task.done = true;
+    task.completedAt = new Date().toISOString();
+    localStorage.setItem(appStorageKey('mensfire_client_profiles'), JSON.stringify(clientProfiles));
+    renderClientTasks();
+    showToast('Задача отмечена выполненной', 'success');
+}
+function deleteClientTask(taskId) {
+    if (!selectedClientProfileKey) return;
+    const profile = clientProfiles[selectedClientProfileKey] || {};
+    profile.tasks = (profile.tasks || []).filter(item => item.id !== taskId);
+    localStorage.setItem(appStorageKey('mensfire_client_profiles'), JSON.stringify(clientProfiles));
+    renderClientTasks();
+    showToast('Задача удалена', 'success');
 }
 
 function saveClientProfile() {
