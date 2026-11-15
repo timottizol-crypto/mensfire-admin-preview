@@ -6441,3 +6441,18 @@ html.light-theme .booking-client-match{background:#fbf8ef}
 #viewClientDirectory .client-meta[style*="color: var(--gold)"]{margin-top:5px}
 
 .supplier-balance-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;margin:14px 0 10px}.supplier-balance-grid>div{padding:10px;border-radius:12px;background:rgba(128,140,160,.09);min-width:0}.supplier-balance-grid small,.supplier-balance-grid b{display:block}.supplier-balance-grid small{font-size:11px;opacity:.7}.supplier-balance-grid b{font-size:14px;margin-top:4px}.supplier-payment-action{width:100%;margin:2px 0 12px}.supplier-payment-history{display:grid;gap:7px}.supplier-payment-history>div{display:flex;justify-content:space-between;gap:12px;font-size:12px}.supplier-payment-history>div span{opacity:.75}.supplier-order-finance{display:flex;flex-wrap:wrap;gap:8px 16px;padding:10px 0;font-size:12px;opacity:.85}
+
+
+/* CRM · финансовая сводка и возвраты в истории покупок */
+.client-retail-summary{display:grid;grid-template-columns:repeat(auto-fit,minmax(105px,1fr));gap:9px;padding:11px}
+.client-retail-summary>div{display:grid;gap:4px;min-width:0}
+.client-retail-summary>div>span{color:var(--text-muted);font-size:9px}
+.client-retail-summary>div>b{color:var(--text-main);font-size:12px;overflow-wrap:anywhere}
+.client-retail-summary>div>b.is-received,.client-retail-payment-detail b.is-received{color:#65c58a}
+.client-retail-summary>div>b.is-debt,.client-retail-payment-detail b.is-debt{color:#e5a34c}
+.client-retail-payment-detail{display:flex;justify-content:space-between;flex-wrap:wrap;gap:8px;margin-top:7px;padding-top:7px;border-top:1px solid var(--border-color,rgba(255,255,255,.07));color:var(--text-muted);font-size:9px}
+.client-retail-payment-detail b{color:var(--text-main)}
+.client-retail-refunds{display:grid;gap:5px;margin-top:7px;padding:7px 8px;border-radius:7px;background:rgba(229,115,115,.06)}
+.client-retail-refund{display:flex;justify-content:space-between;gap:8px;color:var(--text-muted);font-size:9px}
+.client-retail-refund b{flex:0 0 auto;color:#e58b8b}
+@media(max-width:480px){.client-retail-summary{grid-template-columns:repeat(2,minmax(0,1fr))}.client-retail-summary>div:last-child{grid-column:1/-1}}
