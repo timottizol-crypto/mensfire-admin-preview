@@ -555,3 +555,5 @@ html.light-theme .inventory-toolbar select option{background:#fff;color:#252525}
 html.light-theme .inventory-product-actions button{border-color:rgba(0,0,0,.13);color:#333}
 html.light-theme .inventory-product-actions button:hover{border-color:var(--gold);color:#9a761c}
 html.light-theme .inventory-movement-row{border-color:rgba(0,0,0,.08)}
+
+html.light-theme .inventory-sync-btn{background:#fff;border-color:rgba(0,0,0,.13);color:#333}
