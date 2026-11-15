@@ -3253,7 +3253,7 @@ function renderFinance() {
     const periodCompleted = bookings.filter(item => inRange(item.date, periodStart, periodEnd) && item.status === 'completed');
     const retailSaleDate = sale => { const date = new Date(sale.soldAt || sale.createdAt || ''); return Number.isNaN(date.getTime()) ? '' : formatReportDate(date); };
     const retailSalesInRange = (start,end) => clientRetailSales.filter(sale => inRange(retailSaleDate(sale),start,end) && sale.paymentStatus !== 'refunded');
-    const retailCollected = (start,end) => retailSalesInRange(start,end).reduce((sum,sale)=>sum+Math.min(Number(sale.total)||0,Number(sale.paidAmount ?? (sale.paymentStatus==='paid'?sale.total:0))||0),0);
+    const retailCollected = (start,end) => retailSalesInRange(start,end).reduce((sum,sale)=>sum+Math.min(getRetailSaleNetTotal(sale),Number(sale.paidAmount ?? (sale.paymentStatus==='paid'?sale.total:0))||0),0);
     const revenue = (start, end) => bookings.filter(item => inRange(item.date, start, end))
         .reduce((sum, item) => sum + getBookingCollectedAmount(item), 0) + retailCollected(start,end);
     const getSafeExpenseAmount = item => {
@@ -3276,7 +3276,7 @@ function renderFinance() {
         const total = (Array.isArray(item.services) ? item.services : []).reduce((n, service) => n + getSafeServiceAmount(service), 0);
         return sum + Math.max(0, total - getBookingPaymentState(item, total).paid);
     }, 0);
-    const retailUnpaidBalance = retailSalesInRange(periodStart,periodEnd).reduce((sum,sale)=>sum+Math.max(0,(Number(sale.total)||0)-(Number(sale.paidAmount)||0)),0);
+    const retailUnpaidBalance = retailSalesInRange(periodStart,periodEnd).reduce((sum,sale)=>sum+Math.max(0,getRetailSaleNetTotal(sale)-(Number(sale.paidAmount)||0)),0);
     const unpaidBalance = bookingUnpaidBalance + retailUnpaidBalance;
     const paymentTotals = { cash: 0, card: 0, transfer: 0, online: 0, other: 0 };
     bookings.filter(item => inRange(item.date, aggregationStart, aggregationEnd)).forEach(item => {
@@ -3300,7 +3300,7 @@ function renderFinance() {
         }
     });
     retailSalesInRange(aggregationStart,aggregationEnd).forEach(sale=>{
-        const amount=Math.min(Number(sale.total)||0,Number(sale.paidAmount)||0);
+        const amount=Math.min(getRetailSaleNetTotal(sale),Number(sale.paidAmount)||0);
         const method=Object.prototype.hasOwnProperty.call(paymentTotals,sale.paymentMethod)?sale.paymentMethod:'other';
         paymentTotals[method]+=amount;
     });
@@ -3867,15 +3867,15 @@ function renderClientRetailPurchases(clientBookings = []) {
         const date = new Date(value || '');
         return Number.isNaN(date.getTime()) ? 'Дата не указана' : date.toLocaleString('ru-RU',{day:'2-digit',month:'short',year:'numeric',hour:'2-digit',minute:'2-digit'});
     };
-    const total = sales.reduce((sum,sale) => sum + (sale.paymentStatus === 'refunded' ? 0 : sale.total),0);
-    const units = sales.reduce((sum,sale) => sum + sale.items.reduce((n,item) => n + item.quantity,0),0);
+    const total = sales.reduce((sum,sale) => sum + getRetailSaleNetTotal(sale),0);
+    const units = sales.reduce((sum,sale) => sum + sale.items.reduce((n,item) => n + Math.max(0,item.quantity-(Number(item.refundedQuantity)||0)),0),0);
     root.innerHTML = sales.length ?
         '<div class="client-retail-summary"><span><b>' + sales.length + '</b> покупок</span><span><b>' + units + '</b> ед. товаров</span><strong>' + fmt(total) + '</strong></div>' +
         '<div class="client-retail-list">' + sales.map(sale => {
             const booking = sale.bookingId ? (clientBookings || []).find(item => String(item.id) === sale.bookingId) : null;
             const statusLabels = {paid:'Оплачено',partial:'Частично',unpaid:'Не оплачено',refunded:'Возврат'};
-            const items = sale.items.map(item => '<div class="client-retail-item"><span>' + escapeBookingHtml(item.titleSnapshot) + (item.sku ? ' · ' + escapeBookingHtml(item.sku) : '') + ' <small>× ' + item.quantity + '</small></span><b>' + fmt(item.lineTotal || item.unitPrice * item.quantity) + '</b></div>').join('');
-            return '<article class="client-retail-sale"><div class="client-retail-sale-head"><div><strong>' + dateLabel(sale.soldAt) + '</strong><span>' + (booking ? 'Связано с визитом · ' + escapeBookingHtml(booking.date + ' в ' + booking.time) : sale.bookingId ? 'Визит: ' + escapeBookingHtml(sale.bookingId) : 'Отдельная покупка') + '</span></div><b class="client-retail-status status-' + sale.paymentStatus + '">' + statusLabels[sale.paymentStatus] + '</b></div>' + (items || '<div class="client-retail-empty-items">Состав покупки не указан</div>') + '<div class="client-retail-sale-total"><span>Итого</span><strong>' + fmt(sale.total) + '</strong></div>' + '<div class="client-retail-payment-detail"><span>Получено: <b>' + fmt(sale.paidAmount ?? (sale.paymentStatus === 'paid' ? sale.total : 0)) + '</b></span><span>Долг: <b>' + fmt(Math.max(0,sale.total-(sale.paidAmount ?? (sale.paymentStatus === 'paid' ? sale.total : 0)))) + '</b></span></div>' + (sale.notes ? '<p>' + escapeBookingHtml(sale.notes) + '</p>' : '') + '</article>';
+            const items = sale.items.map(item => { const returned=Number(item.refundedQuantity)||0; const remaining=Math.max(0,item.quantity-returned); return '<div class="client-retail-item"><span>' + escapeBookingHtml(item.titleSnapshot) + (item.sku ? ' · ' + escapeBookingHtml(item.sku) : '') + ' <small>× ' + remaining + (returned?' · возврат '+returned:'') + '</small></span><b>' + fmt(remaining*item.unitPrice) + '</b></div>'; }).join('');
+            return '<article class="client-retail-sale"><div class="client-retail-sale-head"><div><strong>' + dateLabel(sale.soldAt) + '</strong><span>' + (booking ? 'Связано с визитом · ' + escapeBookingHtml(booking.date + ' в ' + booking.time) : sale.bookingId ? 'Визит: ' + escapeBookingHtml(sale.bookingId) : 'Отдельная покупка') + '</span></div><b class="client-retail-status status-' + sale.paymentStatus + '">' + statusLabels[sale.paymentStatus] + '</b></div>' + (items || '<div class="client-retail-empty-items">Состав покупки не указан</div>') + '<div class="client-retail-sale-total"><span>Итого после возвратов</span><strong>' + fmt(getRetailSaleNetTotal(sale)) + '</strong></div>' + '<div class="client-retail-payment-detail"><span>Получено: <b>' + fmt(sale.paidAmount ?? (sale.paymentStatus === 'paid' ? sale.total : 0)) + '</b></span><span>Долг: <b>' + fmt(Math.max(0,getRetailSaleNetTotal(sale)-(sale.paidAmount ?? (sale.paymentStatus === 'paid' ? sale.total : 0)))) + '</b></span></div>' + (sale.notes ? '<p>' + escapeBookingHtml(sale.notes) + '</p>' : '') + '</article>';
         }).join('') + '</div>' : '<div class="client-retail-empty"><span class="client-retail-empty-icon">▧</span><strong>Покупок товаров пока нет</strong><p>Здесь появятся продажи из отдельного товарного чека. Услуги и оплаты визитов не дублируются в этой истории.</p></div>';
 }
 
@@ -5540,7 +5540,11 @@ function renderRetailSales() {
     if(recent){
         const fmt=v=>Math.round(Number(v)||0).toLocaleString('ru-RU')+' ₽';
         const sales=clientRetailSales.slice().sort((a,b)=>new Date(b.soldAt)-new Date(a.soldAt)).slice(0,12);
-        recent.innerHTML=sales.length?sales.map(sale=>'<article class="retail-history-row"><div><strong>'+escapeBookingHtml(sale.clientNameSnapshot||'Клиент')+'</strong><small>'+new Date(sale.soldAt).toLocaleString('ru-RU')+' · '+sale.items.length+' поз.</small></div><div><b>'+fmt(sale.total)+'</b><small>'+({paid:'Оплачено',partial:'Частично',unpaid:'Долг',refunded:'Возврат'}[sale.paymentStatus]||'')+'</small></div></article>').join(''):'<div class="retail-empty">Пока нет товарных чеков</div>';
+        recent.innerHTML=sales.length?sales.map(sale=>{
+            const net=Math.max(0,Number(sale.netTotal ?? sale.total)||0);
+            const refunded=(Array.isArray(sale.refunds)?sale.refunds:[]).reduce((sum,item)=>sum+(Number(item.value)||0),0);
+            return '<article class="retail-history-row"><div><strong>'+escapeBookingHtml(sale.clientNameSnapshot||'Клиент')+'</strong><small>'+new Date(sale.soldAt).toLocaleString('ru-RU')+' · '+sale.items.length+' поз.'+(refunded?' · Возврат '+fmt(refunded):'')+'</small></div><div><b>'+fmt(net)+'</b><small>'+({paid:'Оплачено',partial:'Частично',unpaid:'Долг',refunded:'Полный возврат'}[sale.paymentStatus]||'')+'</small></div>'+(sale.paymentStatus!=='refunded'&&net>0?'<button type="button" class="retail-refund-btn" onclick="openRetailRefundModal(\''+escapeBookingHtml(sale.id)+'\')">Возврат</button>':'')+'</article>';
+        }).join(''):'<div class="retail-empty">Пока нет товарных чеков</div>';
     }
 }
 function renderRetailSaleBookings(){
@@ -5592,6 +5596,104 @@ function updateRetailPaymentFields(){
         paid.value=status==='paid'?String(total):'0';
     }
 }
+
+let activeRetailRefundSaleId = null;
+function getRetailSaleNetTotal(sale) {
+    if (!sale) return 0;
+    if (Number.isFinite(Number(sale.netTotal))) return Math.max(0,Number(sale.netTotal));
+    const refunded=(Array.isArray(sale.refunds)?sale.refunds:[]).reduce((sum,item)=>sum+(Number(item.value)||0),0);
+    return Math.max(0,(Number(sale.total)||0)-refunded);
+}
+function openRetailRefundModal(saleId) {
+    if(!requireAdminAction('Оформлять возвраты может только Али'))return;
+    const sale=clientRetailSales.find(item=>item.id===saleId);
+    if(!sale||sale.paymentStatus==='refunded'||getRetailSaleNetTotal(sale)<=0)return showToast('Этот чек уже полностью возвращён','error');
+    activeRetailRefundSaleId=saleId;
+    const fmt=value=>Math.round(Number(value)||0).toLocaleString('ru-RU')+' ₽';
+    const root=document.getElementById('retailRefundItems');
+    if(!root)return;
+    root.innerHTML=(sale.items||[]).map((item,index)=>{
+        const available=Math.max(0,Number(item.quantity)||0)-(Number(item.refundedQuantity)||0);
+        return '<div class="retail-refund-item"><div><strong>'+escapeBookingHtml(item.titleSnapshot||'Товар')+'</strong><small>'+fmt(item.unitPrice)+' за шт. · доступно к возврату: '+available+'</small></div><input type="number" min="0" max="'+available+'" step="1" value="0" data-refund-index="'+index+'" aria-label="Количество к возврату" '+(available?'':'disabled')+'></div>';
+    }).join('');
+    document.getElementById('retailRefundNote').value='';
+    document.getElementById('retailRefundSummary').textContent='Выбери количество товаров для возврата';
+    openModal('retailRefundModal');
+}
+function previewRetailRefund() {
+    const sale=clientRetailSales.find(item=>item.id===activeRetailRefundSaleId);
+    const root=document.getElementById('retailRefundItems');
+    const summary=document.getElementById('retailRefundSummary');
+    if(!sale||!root||!summary)return;
+    let value=0,valid=true;
+    root.querySelectorAll('[data-refund-index]').forEach(input=>{
+        const item=sale.items[Number(input.dataset.refundIndex)];
+        const available=Math.max(0,Number(item.quantity)||0)-(Number(item.refundedQuantity)||0);
+        const qty=Number(input.value||0);
+        if(!Number.isInteger(qty)||qty<0||qty>available)valid=false;
+        else value+=qty*(Number(item.unitPrice)||0);
+    });
+    summary.textContent=valid&&value>0?'Сумма возврата: '+Math.round(value).toLocaleString('ru-RU')+' ₽': 'Укажи количество для возврата';
+}
+function saveRetailRefund() {
+    if(!requireAdminAction('Оформлять возвраты может только Али'))return;
+    const sale=clientRetailSales.find(item=>item.id===activeRetailRefundSaleId);
+    if(!sale||sale.paymentStatus==='refunded')return showToast('Чек уже возвращён или не найден','error');
+    const root=document.getElementById('retailRefundItems');
+    const selections=[];
+    let refundValue=0;
+    for(const input of root.querySelectorAll('[data-refund-index]')){
+        const index=Number(input.dataset.refundIndex),item=sale.items[index];
+        const qty=Number(input.value||0);
+        const available=Math.max(0,Number(item?.quantity)||0)-(Number(item?.refundedQuantity)||0);
+        if(!Number.isInteger(qty)||qty<0||qty>available)return showToast('Проверь количество возвращаемого товара','error');
+        if(qty>0){selections.push({index,item,qty});refundValue+=qty*(Number(item.unitPrice)||0);}
+    }
+    if(!selections.length||refundValue<=0)return showToast('Выбери хотя бы одну позицию для возврата','error');
+    const netBefore=getRetailSaleNetTotal(sale);
+    if(refundValue>netBefore+0.001)return showToast('Сумма возврата превышает остаток чека','error');
+    const paidBefore=Math.max(0,Number(sale.paidAmount ?? (sale.paymentStatus==='paid'?sale.total:0))||0);
+    const paidRefund=Math.min(refundValue,paidBefore);
+    const now=new Date().toISOString();
+    const refundId='refund_'+Date.now()+'_'+Math.random().toString(36).slice(2,7);
+    const movementRows=[];
+    for(const selection of selections){
+        const product=inventoryProducts.find(item=>item.id===selection.item.productId);
+        if(!product)return showToast('Товар из чека не найден в каталоге. Возврат отменён','error');
+        movementRows.push({selection,product});
+    }
+    // Сначала проверяем все позиции, затем одним действием обновляем остатки и чек.
+    movementRows.forEach(({selection,product})=>{
+        selection.item.refundedQuantity=(Number(selection.item.refundedQuantity)||0)+selection.qty;
+        product.stock+=selection.qty;
+        product.updatedAt=now;
+        inventoryMovements.push({
+            id:'mov_'+Date.now()+'_'+Math.random().toString(36).slice(2,8),
+            productId:product.id,productTitle:product.title,type:'return',quantity:selection.qty,
+            supplier:'',unitCost:null,totalCost:null,note:'Возврат по чеку '+sale.id,
+            saleId:sale.id,refundId,createdAt:now
+        });
+    });
+    sale.refunds=Array.isArray(sale.refunds)?sale.refunds:[];
+    sale.refunds.push({
+        id:refundId,createdAt:now,value:refundValue,paidAmount:paidRefund,
+        debtReduction:refundValue-paidRefund,
+        items:selections.map(({item,qty})=>({productId:item.productId,titleSnapshot:item.titleSnapshot,quantity:qty,unitPrice:Number(item.unitPrice)||0})),
+        note:document.getElementById('retailRefundNote').value.trim()
+    });
+    sale.netTotal=Math.max(0,netBefore-refundValue);
+    sale.paidAmount=Math.max(0,paidBefore-paidRefund);
+    sale.paymentStatus=sale.netTotal<=0.001?'refunded':sale.paidAmount<=0?'unpaid':sale.paidAmount>=sale.netTotal-0.001?'paid':'partial';
+    sale.updatedAt=now;
+    persistInventory();persistClientRetailSales();
+    closeModal('retailRefundModal');
+    activeRetailRefundSaleId=null;
+    renderRetailSales();
+    if(selectedClientProfileKey)renderClientRetailPurchases();
+    if(document.getElementById('viewFinance')?.classList.contains('active'))renderFinance();
+    showToast('Возврат оформлен, товар возвращён на склад','success');
+}
+
 function saveRetailSale(){
     if(!requireAdminAction('Оформлять товарные продажи может только Али'))return;
     const clientKey=document.getElementById('retailSaleClient')?.value||'';
@@ -5672,7 +5774,7 @@ function renderInventory() {
     const history = document.getElementById('inventoryMovementHistory');
     if (history) {
         const recent = inventoryMovements.slice().sort((a,b) => String(b.createdAt).localeCompare(String(a.createdAt))).slice(0,12);
-        history.innerHTML = recent.length ? recent.map(move => '<div class="inventory-movement-row"><div><strong>' + escapeBookingHtml(move.productTitle || 'Товар') + '</strong><small>' + new Date(move.createdAt).toLocaleString('ru-RU') + (move.supplier ? ' · Поставщик: ' + escapeBookingHtml(move.supplier) : '') + (move.unitCost !== null && move.unitCost !== undefined ? ' · Закупка: ' + Number(move.unitCost).toLocaleString('ru-RU') + ' ₽/ед.' : '') + ' · ' + escapeBookingHtml(move.note || 'Без комментария') + '</small></div><span class="' + (move.type === 'receipt' ? 'is-positive' : 'is-negative') + '">' + (move.type === 'receipt' ? '+' : '−') + move.quantity + '</span></div>').join('') : '<div class="inventory-empty compact">Движений пока нет</div>';
+        history.innerHTML = recent.length ? recent.map(move => { const positive=move.type==='receipt'||move.type==='return'; const label=move.type==='return'?'Возврат':move.type==='sale'?'Продажа':move.type==='receipt'?'Приход':'Списание'; return '<div class="inventory-movement-row"><div><strong>' + escapeBookingHtml(move.productTitle || 'Товар') + '</strong><small>' + new Date(move.createdAt).toLocaleString('ru-RU') + ' · '+label+(move.supplier ? ' · Поставщик: ' + escapeBookingHtml(move.supplier) : '') + (move.unitCost !== null && move.unitCost !== undefined ? ' · Закупка: ' + Number(move.unitCost).toLocaleString('ru-RU') + ' ₽/ед.' : '') + ' · ' + escapeBookingHtml(move.note || 'Без комментария') + '</small></div><span class="' + (positive ? 'is-positive' : 'is-negative') + '">' + (positive ? '+' : '−') + move.quantity + '</span></div>'; }).join('') : '<div class="inventory-empty compact">Движений пока нет</div>';
     }
 }
 function openInventoryProductModal(id = '') {
