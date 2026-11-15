@@ -5614,7 +5614,7 @@ function openRetailRefundModal(saleId) {
     if(!root)return;
     root.innerHTML=(sale.items||[]).map((item,index)=>{
         const available=Math.max(0,Number(item.quantity)||0)-(Number(item.refundedQuantity)||0);
-        return '<div class="retail-refund-item"><div><strong>'+escapeBookingHtml(item.titleSnapshot||'Товар')+'</strong><small>'+fmt(item.unitPrice)+' за шт. · доступно к возврату: '+available+'</small></div><input type="number" min="0" max="'+available+'" step="1" value="0" data-refund-index="'+index+'" aria-label="Количество к возврату" '+(available?'':'disabled')+'></div>';
+        return '<div class="retail-refund-item"><div><strong>'+escapeBookingHtml(item.titleSnapshot||'Товар')+'</strong><small>'+fmt(item.unitPrice)+' за шт. · доступно к возврату: '+available+'</small></div><input type="number" min="0" max="'+available+'" step="1" value="0" data-refund-index="'+index+'" aria-label="Количество к возврату" oninput="previewRetailRefund()" '+(available?'':'disabled')+'></div>';
     }).join('');
     document.getElementById('retailRefundNote').value='';
     document.getElementById('retailRefundSummary').textContent='Выбери количество товаров для возврата';
