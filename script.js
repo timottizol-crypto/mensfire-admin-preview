@@ -1987,6 +1987,10 @@ function openEditBooking() {
     }
 
     editingBookingId = booking.id;
+    const repeatToggle = document.getElementById('repeatBookingWeekly');
+    if (repeatToggle) repeatToggle.checked = false;
+    const repeatCountWrap = document.getElementById('bookingRepeatCountWrap');
+    if (repeatCountWrap) repeatCountWrap.hidden = true;
 
     const barberSelect = document.getElementById('newBookingBarber');
     if (!barberSelect) {
