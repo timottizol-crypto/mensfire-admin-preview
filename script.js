@@ -4094,12 +4094,16 @@ function renderClientTasksHub() {
     if (!root) return;
     const today = new Date(); today.setHours(0,0,0,0);
     const rows = [];
+    const seenTaskIds = new Set();
     Object.entries(clientProfiles || {}).forEach(([profileKey, profile]) => {
         if (!profile || !Array.isArray(profile.tasks)) return;
         const name = String(profile.clientName || '').trim();
         const barberId = String(profile.barberId || '');
         if (currentUser?.role === 'barber' && barberId !== String(currentUser.id)) return;
         profile.tasks.forEach(task => {
+            const uniqueTaskId = String(task.id || '');
+            if (uniqueTaskId && seenTaskIds.has(uniqueTaskId)) return;
+            if (uniqueTaskId) seenTaskIds.add(uniqueTaskId);
             const due = parseClientTaskDate(task.dueDate);
             rows.push({ profileKey, name: name || 'Клиент', barberId, task, due, overdue: !task.done && due && due < today });
         });
