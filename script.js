@@ -4535,7 +4535,7 @@ function renderClientsDataQualityAudit(sourceClients) {
                     escapeBookingHtml(item.client.name || 'Клиент') + ' · ' + escapeBookingHtml(mockStaff.find(staff => String(staff.id) === String(item.client.barberId))?.name || 'Мастер') +
                     '</button>'
                 ).join('') + '</div>' +
-                (group.type === 'phone' ? '<button type="button" class="crm-merge-open" onclick="showClientMergePreview(' + escapeBookingHtml(JSON.stringify(group.items[0].phone)) + ')">Проверить и объединить профили</button>' : '') +
+                (group.type === 'phone' && getClientMergeSources(group.items[0].phone).length > 1 ? '<button type="button" class="crm-merge-open" onclick="showClientMergePreview(' + escapeBookingHtml(JSON.stringify(group.items[0].phone)) + ')">Проверить и объединить профили</button>' : '') +
                 '</div><span class="crm-data-quality-kind">' + (group.type === 'name' ? 'Совпадение имени' : 'Общий номер') + '</span></article>'
             ).join('') : '<div class="crm-data-quality-empty">Пока нечего проверять. Новые совпадения появятся здесь автоматически.</div>') +
             '<p class="crm-data-quality-note">Объединяй только после личной проверки: общий номер может принадлежать семье или организации. Совпадение имени без телефона не позволяет объединить карточки автоматически.</p>' +
