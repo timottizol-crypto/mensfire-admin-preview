@@ -1396,7 +1396,7 @@ function renderDesktopSchedule() {
 
     const START_HOUR = 8;
     const END_HOUR = 22;
-    const SLOT_HEIGHT = 24;
+    const SLOT_HEIGHT = 30;
     const HOUR_HEIGHT = SLOT_HEIGHT * 4;
     const totalHeight = (END_HOUR - START_HOUR) * HOUR_HEIGHT;
     const toMinutes = time => {
@@ -1466,9 +1466,14 @@ function renderDesktopSchedule() {
                     style="height:${totalHeight}px"
                     ondragover="if(event.dataTransfer.types.includes('text/plain')){event.preventDefault();event.dataTransfer.dropEffect='move'}"
                     ondrop="event.preventDefault(); event.stopPropagation(); moveBookingToSlot(event, '${escapeBookingHtml(String(barber.id))}', '${escapeBookingHtml(dateKey)}')"
-                    onclick="openNewBookingFromSlot(event, '${escapeBookingHtml(String(barber.id))}', '${escapeBookingHtml(dateKey)}')">
+                    >
         `;
 
+        for (let i = 0; i < (END_HOUR - START_HOUR) * 4; i++) {
+            const slotMinutes = START_HOUR * 60 + i * 15;
+            const slotTime = String(Math.floor(slotMinutes / 60)).padStart(2, '0') + ':' + String(slotMinutes % 60).padStart(2, '0');
+            html += '<button type="button" class="desktop-slot-hitbox" aria-label="Создать запись на ' + slotTime + '" style="top:' + (i * SLOT_HEIGHT) + 'px;height:' + SLOT_HEIGHT + 'px" onclick="openNewBookingAtExactSlot(event, \'${escapeBookingHtml(String(barber.id))}\', \'${escapeBookingHtml(dateKey)}\', \'' + slotTime + '\')"></button>';
+        }
         for (let i = 0; i <= (END_HOUR - START_HOUR) * 4; i++) {
             html += `<div class="desktop-time-line ${i % 4 === 0 ? 'hour' : ''}" style="top:${i * SLOT_HEIGHT}px"></div>`;
         }
@@ -2263,6 +2268,15 @@ function moveBookingToSlot(event, barberId, date) {
     showToast('Запись перенесена', 'success');
 }
 
+function openNewBookingAtExactSlot(event, barberId, date, time) {
+    event.preventDefault();
+    event.stopPropagation();
+    if (!requireAdminAction('Создавать записи может только Али')) return;
+    if (currentScheduleTab !== 'bookings') return;
+    if (!/^(?:[01]\\d|2[0-3]):[0-5]\\d$/.test(String(time))) return;
+    openNewBookingModal(barberId, time, date);
+}
+
 function openNewBookingFromSlot(event, barberId, date) {
     if (!requireAdminAction('Создавать записи может только Али')) return;
     if (currentScheduleTab !== 'bookings') return;
@@ -2270,7 +2284,7 @@ function openNewBookingFromSlot(event, barberId, date) {
     const track = event.currentTarget;
     const rect = track.getBoundingClientRect();
 
-    const SLOT_HEIGHT = 24;
+    const SLOT_HEIGHT = 30;
     const START_HOUR = 8;
 
     const offsetY = Math.max(0, event.clientY - rect.top);
