@@ -5066,6 +5066,7 @@ const MENSFIRE_BACKUP_KEYS = [
     'mensfire_inventory_products',
     'mensfire_inventory_movements',
     'mensfire_inventory_purchase_orders',
+    'mensfire_inventory_suppliers',
     'mensfire_client_retail_sales'
 ];
 
@@ -5338,7 +5339,8 @@ let inventoryPurchaseOrders = (() => {
             items:(Array.isArray(order.items)?order.items:[]).map(item=>({
                 productId:String(item.productId||''),titleSnapshot:String(item.titleSnapshot||'Товар'),
                 quantity:Math.max(1,Number(item.quantity)||1),receivedQuantity:Math.max(0,Number(item.receivedQuantity)||0),
-                unitCost:Math.max(0,Number(item.unitCost)||0)
+                unitCost:Math.max(0,Number(item.unitCost)||0),
+                receivedBatches:(Array.isArray(item.receivedBatches)?item.receivedBatches:[]).filter(batch=>batch&&typeof batch==='object').map(batch=>({quantity:Math.max(0,Number(batch.quantity)||0),unitCost:Math.max(0,Number(batch.unitCost)||0),receivedAt:String(batch.receivedAt||'')}))
             }))
         })): [];
     }catch(error){console.warn('Не удалось загрузить заказы поставщикам:',error);return [];}
