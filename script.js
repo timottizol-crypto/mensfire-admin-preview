@@ -3924,6 +3924,40 @@ function renderClientsAnalytics(sourceBookings, clientGroups) {
         </div>
         <div class="clients-monthly-strip">${monthStats.map(item=>`<div class="clients-month-stat"><span>${item.label}</span><strong>${item.visits}</strong><small>визитов</small><div><i style="width:${maxVisits?Math.max(4,item.visits/maxVisits*100):0}%"></i></div></div>`).join('')}</div>`;
 }
+
+function renderClientFollowUpPanel(clientGroups) {
+    const root = document.getElementById('clientFollowUpPanel');
+    if (!root) return;
+    const today = new Date(); today.setHours(0,0,0,0);
+    const dayMs = 86400000;
+    const clients = (Array.isArray(clientGroups) ? clientGroups : []).map(client => {
+        const profile = client.profileSummary || client.profiles?.[0] || {};
+        const completed = (client.visits || []).filter(visit => visit.status === 'completed' && parseClientDateTime(visit) > 0)
+            .sort((a,b) => parseClientDateTime(b) - parseClientDateTime(a));
+        const lastVisit = completed[0] || null;
+        const daysAway = lastVisit ? Math.floor((today.getTime() - new Date(parseClientDateTime(lastVisit)).setHours(0,0,0,0)) / dayMs) : null;
+        const hasUpcoming = (client.visits || []).some(visit => !['cancelled','completed','no_show','missed'].includes(String(visit.status || '').toLowerCase()) && parseClientDateTime(visit) >= Date.now());
+        let birthdayDays = null;
+        if (profile.birthday && /^\\d{4}-\\d{2}-\\d{2}$/.test(profile.birthday)) {
+            const [,month,day] = profile.birthday.split('-').map(Number);
+            const birthday = new Date(today.getFullYear(),month-1,day); birthday.setHours(0,0,0,0);
+            if (birthday < today) birthday.setFullYear(today.getFullYear()+1);
+            birthdayDays = Math.round((birthday-today)/dayMs);
+        }
+        return {...client,profile,lastVisit,daysAway,hasUpcoming,birthdayDays};
+    });
+    const dormant = clients.filter(c => c.daysAway !== null && c.daysAway >= 45 && !c.hasUpcoming).sort((a,b)=>b.daysAway-a.daysAway);
+    const birthdays = clients.filter(c => c.birthdayDays !== null && c.birthdayDays <= 30).sort((a,b)=>a.birthdayDays-b.birthdayDays);
+    const action = c => 'showClientDetails(' + escapeBookingHtml(JSON.stringify(String(c.name || ''))) + ',' + escapeBookingHtml(JSON.stringify(String(c.barberId || ''))) + ')';
+    const birthdayLabel = n => n===0?'Сегодня':n===1?'Завтра':'Через '+n+' дн.';
+    const items = (arr,kind) => arr.length ? arr.slice(0,4).map(c => {
+        const detail = kind==='birthday' ? birthdayLabel(c.birthdayDays) : c.daysAway+' дн. без визита';
+        const sub = kind==='birthday' ? 'День рождения' : (c.lastVisit ? 'Последний визит: '+escapeBookingHtml(c.lastVisit.date) : 'Нет завершённых визитов');
+        return '<button type="button" class="client-followup-item" onclick="'+action(c)+'"><span class="client-followup-avatar">'+escapeBookingHtml(String(c.name || '?').charAt(0).toUpperCase())+'</span><span class="client-followup-copy"><b>'+escapeBookingHtml(c.name || 'Клиент')+'</b><small>'+detail+' · '+sub+'</small></span><span class="client-followup-arrow">›</span></button>';
+    }).join('') : '<div class="client-followup-empty">'+(kind==='birthday'?'В ближайшие 30 дней дней рождения нет':'Клиентов, которым нужно напомнить, пока нет')+'</div>';
+    root.innerHTML = '<div class="client-followup-heading"><div><span class="client-followup-eyebrow">CRM · ВНИМАНИЕ</span><h3>Забота о клиентах</h3><p>Подсказки для повторных визитов и персонального контакта</p></div><span class="client-followup-total">'+(dormant.length+birthdays.length)+'</span></div><div class="client-followup-columns"><section class="client-followup-section"><div class="client-followup-section-title"><span>↻</span><b>Пора напомнить</b><em>'+dormant.length+'</em></div><p>Нет завершённого визита 45+ дней и нет будущей записи</p>'+items(dormant,'return')+'</section><section class="client-followup-section"><div class="client-followup-section-title"><span>✦</span><b>Дни рождения</b><em>'+birthdays.length+'</em></div><p>Ближайшие 30 дней — повод поздравить</p>'+items(birthdays,'birthday')+'</section></div>';
+}
+
 function renderClients(tab = 'all') {
     currentClientsTab = tab;
     renderWaitlist();
@@ -4031,6 +4065,7 @@ function renderClients(tab = 'all') {
 
     const allClientGroups = Object.values(groupedClients);
     renderClientsAnalytics(filteredBookings, allClientGroups);
+    renderClientFollowUpPanel(allClientGroups);
     const clientsOverview = document.getElementById('clientsOverview');
     if (clientsOverview) {
         const now = new Date();
