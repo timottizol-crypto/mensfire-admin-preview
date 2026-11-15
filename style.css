@@ -6179,3 +6179,12 @@ html.light-theme .booking-client-match{background:#fbf8ef}
 .client-ltv-stats span{color:var(--text-muted);font-size:9px;line-height:1.35}
 .client-ltv-note{margin:10px 0 0;color:var(--text-muted);font-size:9px;line-height:1.4}
 @media(max-width:480px){.client-lifetime-value{padding:12px}.client-ltv-heading{flex-direction:column}.client-ltv-total strong{font-size:22px}.client-ltv-stats{gap:5px}.client-ltv-stats>div{padding:7px}.client-ltv-stats b{font-size:10px}}
+
+
+/* Client profile: outstanding payment summary */
+.client-ltv-balance{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;margin-top:9px}
+.client-ltv-balance>div{display:flex;align-items:center;justify-content:space-between;gap:8px;min-width:0;padding:9px 10px;border:1px solid rgba(255,255,255,.055);border-radius:9px;background:rgba(255,255,255,.025)}
+.client-ltv-balance span{color:var(--text-muted);font-size:9px;line-height:1.35}
+.client-ltv-balance strong{flex:0 0 auto;color:var(--text-main);font-size:12px;white-space:nowrap}
+.client-ltv-balance strong.is-due{color:#e5a34c}
+@media(max-width:480px){.client-ltv-balance{grid-template-columns:1fr}.client-ltv-balance>div{padding:8px}}
