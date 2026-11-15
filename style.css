@@ -5053,6 +5053,8 @@ html.light-theme #viewSchedule #desktopSchedule .desktop-booking-card > .booking
 .client-segment-tabs { display:flex; flex-wrap:wrap; gap:7px; margin:12px 0 14px; }
 .client-segment-btn { min-height:34px; padding:7px 13px; border:1px solid rgba(255,255,255,.08); border-radius:999px; color:var(--text-muted); background:rgba(255,255,255,.025); font:inherit; font-size:10px; font-weight:700; cursor:pointer; transition:all .2s ease; }
 .client-segment-btn.active { color:var(--gold); border-color:rgba(212,175,55,.38); background:rgba(212,175,55,.09); }
+.client-segment-count { display:inline-flex; align-items:center; justify-content:center; min-width:17px; height:17px; margin-left:6px; padding:0 4px; border-radius:999px; background:rgba(255,255,255,.07); color:var(--text-muted); font-size:9px; font-weight:800; font-variant-numeric:tabular-nums; }
+.client-segment-btn.active .client-segment-count { background:rgba(212,175,55,.16); color:var(--gold); }
 @media(max-width:600px) { .client-segment-tabs { flex-wrap:nowrap; overflow-x:auto; padding-bottom:4px; } .client-segment-btn { flex:0 0 auto; } }
 
 /* Schedule date counts and richer mobile appointment cards */
