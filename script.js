@@ -3882,6 +3882,40 @@ function findClientProfile(name, barberId) {
     };
 }
 
+function openRetailHistoryProduct(productId, sku, title) {
+    const product = inventoryProducts.find(item =>
+        (productId && String(item.id) === String(productId)) ||
+        (sku && String(item.sku || '').toLowerCase() === String(sku).toLowerCase()) ||
+        (!productId && !sku && title && String(item.title || '').toLowerCase() === String(title).toLowerCase())
+    );
+    if (!product) {
+        showToast('Товар больше не найден на складе', 'error');
+        return;
+    }
+    switchView('viewInventory');
+    const search = document.getElementById('inventorySearch');
+    if (search) search.value = product.title;
+    renderInventory();
+    setTimeout(() => {
+        const cards = Array.from(document.querySelectorAll('#inventoryCatalog .inventory-product-card'));
+        const card = cards.find(node => node.querySelector('h3')?.textContent.trim() === product.title);
+        if (card) card.scrollIntoView({behavior:'smooth',block:'center'});
+        else showToast('Карточка товара найдена, но не отображается в каталоге', 'info');
+    }, 80);
+}
+
+function openRetailHistoryBooking(bookingId) {
+    const booking = bookings.find(item => String(item.id) === String(bookingId));
+    if (!booking) {
+        showToast('Связанный визит не найден', 'error');
+        return;
+    }
+    selectedScheduleDate = booking.date || selectedScheduleDate;
+    switchView('viewSchedule');
+    renderSchedule();
+    setTimeout(() => openActionModal(booking.id), 120);
+}
+
 function renderClientRetailPurchases(clientBookings = []) {
     const root = document.getElementById('clientRetailPurchases');
     if (!root || !selectedClientProfileKey) return;
@@ -3924,12 +3958,23 @@ function renderClientRetailPurchases(clientBookings = []) {
             const items = (sale.items || []).map(item => {
                 const returned=Number(item.refundedQuantity)||0;
                 const remaining=Math.max(0,(Number(item.quantity)||0)-returned);
-                return '<div class="client-retail-item"><span>' + escapeBookingHtml(item.titleSnapshot) + (item.sku ? ' · ' + escapeBookingHtml(item.sku) : '') + ' <small>× ' + remaining + (returned?' · возврат '+returned:'') + '</small></span><b>' + fmt(remaining*item.unitPrice) + '</b></div>';
+                const product = inventoryProducts.find(product =>
+                    (item.productId && String(product.id) === String(item.productId)) ||
+                    (item.sku && String(product.sku || '').toLowerCase() === String(item.sku).toLowerCase()) ||
+                    (!item.productId && !item.sku && String(product.title || '').toLowerCase() === String(item.titleSnapshot || '').toLowerCase())
+                );
+                const productAction = product
+                    ? '<button type="button" class="client-retail-link" onclick="openRetailHistoryProduct(\\'' + escapeBookingHtml(String(product.id)) + '\\',\\'' + escapeBookingHtml(String(item.sku || product.sku || '')) + '\\',\\'' + escapeBookingHtml(String(item.titleSnapshot || product.title || '')) + '\\')">Открыть товар</button>'
+                    : '';
+                return '<div class="client-retail-item"><span>' + escapeBookingHtml(item.titleSnapshot) + (item.sku ? ' · ' + escapeBookingHtml(item.sku) : '') + ' <small>× ' + remaining + (returned?' · возврат '+returned:'') + '</small>' + productAction + '</span><b>' + fmt(remaining*item.unitPrice) + '</b></div>';
             }).join('');
             const refunds = (Array.isArray(sale.refunds) ? sale.refunds : []).map(refund =>
                 '<div class="client-retail-refund"><span>Возврат · ' + dateLabel(refund.createdAt) + (refund.note ? ' · ' + escapeBookingHtml(refund.note) : '') + '</span><b>−' + fmt(refund.value) + '</b></div>'
             ).join('');
-            return '<article class="client-retail-sale"><div class="client-retail-sale-head"><div><strong>' + dateLabel(sale.soldAt) + '</strong><span>' + (booking ? 'Связано с визитом · ' + escapeBookingHtml(booking.date + ' в ' + booking.time) : sale.bookingId ? 'Визит: ' + escapeBookingHtml(sale.bookingId) : 'Отдельная покупка') + '</span></div><b class="client-retail-status status-' + sale.paymentStatus + '">' + (statusLabels[sale.paymentStatus] || 'Статус не указан') + '</b></div>' +
+            const bookingAction = booking
+                ? '<button type="button" class="client-retail-link" onclick="openRetailHistoryBooking(\\'' + escapeBookingHtml(String(booking.id)) + '\\')">Открыть визит</button>'
+                : '';
+            return '<article class="client-retail-sale"><div class="client-retail-sale-head"><div><strong>' + dateLabel(sale.soldAt) + '</strong><span>' + (booking ? 'Связано с визитом · ' + escapeBookingHtml(booking.date + ' в ' + booking.time) : sale.bookingId ? 'Визит не найден · ' + escapeBookingHtml(sale.bookingId) : 'Отдельная покупка') + '</span>' + bookingAction + '</div><b class="client-retail-status status-' + sale.paymentStatus + '">' + (statusLabels[sale.paymentStatus] || 'Статус не указан') + '</b></div>' +
                 (items || '<div class="client-retail-empty-items">Состав покупки не указан</div>') +
                 '<div class="client-retail-sale-total"><span>Стоимость после возвратов</span><strong>' + fmt(net) + '</strong></div>' +
                 '<div class="client-retail-payment-detail"><span>Получено: <b>' + fmt(received) + '</b></span><span>Долг: <b class="' + (debt > 0 ? 'is-debt' : 'is-received') + '">' + fmt(debt) + '</b></span></div>' +
