@@ -1437,8 +1437,8 @@ function renderDesktopSchedule() {
                 </button>
                 <div class="desktop-staff-track"
                     style="height:${totalHeight}px"
-                    ondragover="if(event.dataTransfer.types.includes('text/plain')){event.preventDefault();event.dataTransfer.dropEffect='move'}"
-                    ondrop="event.preventDefault(); event.stopPropagation(); moveBookingToSlot(event, '${escapeBookingHtml(String(barber.id))}', '${escapeBookingHtml(dateKey)}')"
+                    ondragover="if(event.dataTransfer.types.includes('text/plain')){event.preventDefault();event.dataTransfer.dropEffect='move';this.classList.add('is-drop-target')}" ondragleave="if(!this.contains(event.relatedTarget))this.classList.remove('is-drop-target')"
+                    ondrop="event.preventDefault(); event.stopPropagation(); this.classList.remove('is-drop-target'); moveBookingToSlot(event, '${escapeBookingHtml(String(barber.id))}', '${escapeBookingHtml(dateKey)}')"
                     >
         `;
 
@@ -1503,7 +1503,7 @@ function renderDesktopSchedule() {
                     html += `
                         <button type="button" draggable="true" class="desktop-booking-card ${height < 96 ? 'is-compact' : ''} ${height < 66 ? 'is-short' : ''} ${bookingStatus} payment-border-${payState.status}"
                             style="top:${item.top}px;height:${height}px;left:calc(${left}% + 3px);width:calc(${laneWidth}% - 6px);right:auto"
-                            ondragstart="event.stopPropagation(); event.dataTransfer.setData('text/plain','${escapeBookingHtml(String(booking.id))}'); event.dataTransfer.effectAllowed='move'"
+                            ondragstart="event.stopPropagation(); event.dataTransfer.setData('text/plain','${escapeBookingHtml(String(booking.id))}'); event.dataTransfer.effectAllowed='move'; this.classList.add('is-dragging')" ondragend="this.classList.remove('is-dragging'); document.querySelectorAll('.desktop-staff-track.is-drop-target').forEach(track=>track.classList.remove('is-drop-target'))"
                             onclick="event.stopPropagation(); openActionModal('${escapeBookingHtml(String(booking.id))}')">
                             <strong class="booking-card-client">${escapeBookingHtml(booking.clientName || 'Клиент')}</strong>
                             <span class="booking-card-badges"><i class="booking-origin origin-${getBookingSourceMeta(booking).className}">${getBookingSourceMeta(booking).label}</i><i class="booking-client-type type-${getBookingClientTypeMeta(booking).className}">${getBookingClientTypeMeta(booking).label}</i></span>
@@ -2285,24 +2285,23 @@ function moveBookingToSlot(event, barberId, date) {
     const bookingId = event.dataTransfer?.getData('text/plain');
     const booking = bookings.find(item => String(item.id) === String(bookingId));
     if (!booking || !isBookingBlockingSchedule(booking)) return;
-    const staffAllowed = currentUser?.role === 'admin' || String(currentUser?.id) === String(barberId);
-    if (!staffAllowed || !mockStaff.some(person => String(person.id) === String(barberId))) return;
-    const track = event.currentTarget;
-    const rect = track.getBoundingClientRect();
-    const slotIndex = Math.max(0, Math.floor((event.clientY - rect.top) / 24));
+    if (!mockStaff.some(person => String(person.id) === String(barberId))) return;
+    const rect = event.currentTarget.getBoundingClientRect();
+    // Один 15-минутный слот календаря занимает 30px.
+    const slotIndex = Math.max(0, Math.floor((event.clientY - rect.top) / 30));
     const start = 8 * 60 + slotIndex * 15;
     const duration = getBookingDurationMinutes(booking);
     const end = start + duration;
-    if (start < 8 * 60 || end > 22 * 60) return showToast('Запись должна завершаться не позже 22:00', 'error');
+    if (end > 22 * 60) return showToast('Запись должна завершаться не позже 22:00', 'error');
     if (!isWithinBarberWorkSchedule(barberId,date,start,end)) return showToast('Это время вне рабочего графика мастера','error');
-    const time = `${String(Math.floor(start / 60)).padStart(2,'0')}:${String(start % 60).padStart(2,'0')}`;
+    const time = String(Math.floor(start / 60)).padStart(2,'0') + ':' + String(start % 60).padStart(2,'0');
     const overlaps = (a,b,c,d) => a < d && b > c;
     const conflict = bookings.find(other => {
         if (String(other.id) === String(booking.id) || other.date !== date || String(other.barberId) !== String(barberId) || !isBookingBlockingSchedule(other)) return false;
         const otherStart = parseScheduleTimeMinutes(other.time);
         return otherStart !== null && overlaps(start,end,otherStart,otherStart+getBookingDurationMinutes(other));
     });
-    if (conflict) return showToast(`У мастера уже есть запись в ${conflict.time}`, 'error');
+    if (conflict) return showToast('У мастера уже есть запись в ' + conflict.time, 'error');
     const block = timeBlocks.find(item => {
         if (item.date !== date || String(item.barberId) !== String(barberId)) return false;
         const blockStart = parseScheduleTimeMinutes(item.startTime);
@@ -2310,15 +2309,14 @@ function moveBookingToSlot(event, barberId, date) {
         return blockStart !== null && blockEnd !== null && overlaps(start,end,blockStart,blockEnd);
     });
     if (block) return showToast('Это время занято перерывом', 'error');
-    booking.date = date;
-    booking.barberId = String(barberId);
-    booking.time = time;
+    if (booking.date === date && String(booking.barberId) === String(barberId) && booking.time === time) return showToast('Запись уже находится в этом времени', 'info');
+    const previous = booking.date + ' · ' + booking.time + ' · ' + (mockStaff.find(person => String(person.id) === String(booking.barberId))?.name || 'Мастер');
+    const next = date + ' · ' + time + ' · ' + (mockStaff.find(person => String(person.id) === String(barberId))?.name || 'Мастер');
+    booking.date = date; booking.barberId = String(barberId); booking.time = time;
+    addBookingHistoryEntry(booking, 'Запись перенесена', previous + ' → ' + next);
     localStorage.setItem(appStorageKey('mensfire_admin_bookings'), JSON.stringify(bookings));
-    selectedScheduleDate = date;
-    renderSchedule();
-    showToast('Запись перенесена', 'success');
+    selectedScheduleDate = date; renderSchedule(); showToast('Запись перенесена', 'success');
 }
-
 function openNewBookingAtExactSlot(event, barberId, date, time) {
     event.preventDefault();
     event.stopPropagation();
