@@ -5,7 +5,7 @@
 // Раздельные пространства данных для демо и рабочей базы.
 let mensfireDataMode = 'demo';
 try { localStorage.setItem('mensfire_data_mode', 'demo'); } catch (error) { console.warn('Не удалось закрепить демо-режим:', error); }
-function appStorageKey(key) { return 'mensfire_demo_' + key.replace(/^mensfire_/, ''); }
+function appStorageKey(key) { return 'mensfire_preview_demo_' + key.replace(/^mensfire_/, ''); }
 function updateDataModeUI() {
  const demoButton = document.querySelector('.data-mode-switch button[onclick*="demo"]');
  const liveButton = document.querySelector('.data-mode-switch button[onclick*="live"]');
