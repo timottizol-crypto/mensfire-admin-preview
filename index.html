@@ -252,6 +252,13 @@
             <section class="glass-card inventory-analytics-panel"><div class="finance-panel-heading"><div><h3>Пополнение склада</h3><p>Активные товары, остаток которых достиг минимума</p></div></div><div id="inventoryAnalyticsRestock"></div></section>
         </div>
 
+        <!-- ЗАКУПКИ И ПОСТАВЩИКИ (ТОЛЬКО ПК) -->
+        <div id="viewPurchases" class="view purchase-workspace">
+            <div class="workspace-heading inventory-heading"><div><span class="workspace-eyebrow">MENSFIRE SUPPLY</span><h2>Закупки и поставщики</h2><p>Заказы, ожидаемые поставки и фактическое оприходование на склад</p></div><button type="button" class="home-cta-btn" onclick="openPurchaseOrderModal()"><div class="cta-text"><span>＋ Новый заказ</span></div></button></div>
+            <div id="purchaseOrdersOverview" class="inventory-overview-grid"></div>
+            <section class="glass-card purchase-orders-panel"><div class="finance-panel-heading"><div><h3>Заказы поставщикам</h3><p>Частичная приёмка не закрывает заказ до получения всех позиций</p></div></div><div id="purchaseOrdersList"></div></section>
+        </div>
+
         <!-- ЭКРАН РОЗНИЧНЫХ ПРОДАЖ (ТОЛЬКО ПК) -->
         <div id="viewSales" class="view retail-sales-workspace">
             <div class="workspace-heading inventory-heading"><div><span class="workspace-eyebrow">MENSFIRE RETAIL</span><h2>Продажи товаров</h2><p>Товарный чек, оплата и автоматическое списание со склада</p></div></div>
@@ -353,6 +360,23 @@
     </div>
 
     <!-- Модальные окна склада -->
+    <div class="modal" id="purchaseOrderModal">
+        <div class="modal-content purchase-modal-content"><div class="booking-detail-heading"><h2>Новый заказ поставщику</h2><button class="close-btn" type="button" onclick="closeModal('purchaseOrderModal')">&times;</button></div>
+            <div class="form-group"><label for="purchaseOrderSupplier">Поставщик</label><input id="purchaseOrderSupplier" type="text" maxlength="100" placeholder="Название поставщика"></div>
+            <div class="form-group"><label for="purchaseOrderExpected">Ожидаемая дата поставки</label><input id="purchaseOrderExpected" type="date"></div>
+            <div class="purchase-order-add-grid"><div class="form-group"><label for="purchaseOrderProduct">Товар</label><select id="purchaseOrderProduct"><option value="">Выбери товар</option></select></div><div class="form-group"><label for="purchaseOrderQuantity">Количество</label><input id="purchaseOrderQuantity" type="number" min="1" step="1" value="1"></div><div class="form-group"><label for="purchaseOrderUnitCost">Цена закупки, ₽</label><input id="purchaseOrderUnitCost" type="number" min="0" step="0.01" placeholder="0"></div><button type="button" class="inventory-sync-btn" onclick="addPurchaseDraftItem()">Добавить</button></div>
+            <div id="purchaseOrderDraftRows" class="purchase-order-lines"></div><div class="purchase-draft-total"><span>Итого по заказу</span><strong id="purchaseOrderDraftTotal">0 ₽</strong></div>
+            <div class="form-group"><label for="purchaseOrderNote">Комментарий</label><input id="purchaseOrderNote" type="text" maxlength="180" placeholder="Необязательно"></div>
+            <button type="button" class="checkout-btn" onclick="savePurchaseOrder()">Создать заказ</button>
+        </div>
+    </div>
+    <div class="modal" id="purchaseReceivingModal">
+        <div class="modal-content purchase-modal-content"><div class="booking-detail-heading"><h2 id="purchaseReceivingTitle">Приёмка поставки</h2><button class="close-btn" type="button" onclick="closeModal('purchaseReceivingModal')">&times;</button></div>
+            <p class="inventory-modal-hint">Укажи фактически полученное количество и реальную закупочную цену. Остатки и средняя себестоимость обновятся автоматически.</p>
+            <div id="purchaseReceivingRows" class="purchase-receiving-rows"></div>
+            <button type="button" class="checkout-btn" onclick="receivePurchaseOrder()">Подтвердить приёмку</button>
+        </div>
+    </div>
     <div class="modal" id="inventoryProductModal">
         <div class="modal-content inventory-modal-content">
             <div class="booking-detail-heading"><h2 id="inventoryProductTitle">Новый товар</h2><button class="close-btn" type="button" onclick="closeModal('inventoryProductModal')">&times;</button></div>
@@ -869,6 +893,6 @@
         </div>
     </div>
 
-    <script src="script.js?v=mensfire-inventory-analytics-20261115-10"></script>
+    <script src="script.js?v=mensfire-purchase-orders-20261115-11"></script>
 </body>
 </html>
