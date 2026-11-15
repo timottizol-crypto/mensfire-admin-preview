@@ -5924,3 +5924,88 @@ html.light-theme .booking-client-match{background:#fbf8ef}
   #viewSchedule > #desktopSchedule .desktop-month-grid { min-height:560px !important; }
   #viewSchedule > #desktopSchedule .desktop-month-day { min-height:88px !important; }
 }
+
+
+/* MENSFIRE — COMPACT SUMMARY + HOVER SIDEBAR (DESKTOP ONLY) */
+@media (min-width:768px) {
+  /* Короткие KPI-карточки освобождают высоту календарю */
+  #viewSchedule > .schedule-overview-grid {
+    gap:8px !important;
+  }
+  #viewSchedule > .schedule-overview-grid .schedule-overview-card {
+    min-height:0 !important;
+    height:66px !important;
+    box-sizing:border-box !important;
+    padding:8px 12px !important;
+    gap:2px !important;
+    border-radius:12px !important;
+  }
+  #viewSchedule > .schedule-overview-grid .schedule-overview-card span {
+    font-size:9px !important;
+    line-height:1.15 !important;
+  }
+  #viewSchedule > .schedule-overview-grid .schedule-overview-card strong {
+    font-size:18px !important;
+    line-height:1.15 !important;
+  }
+  #viewSchedule > .schedule-overview-grid .schedule-overview-card small {
+    font-size:8px !important;
+    line-height:1.1 !important;
+  }
+
+  /* Меню компактно по умолчанию, раскрывается при наведении */
+  #appContainer {
+    --mensfire-sidebar:76px !important;
+    --mensfire-content-left:112px !important;
+  }
+  #bottomNav.bottom-nav {
+    width:76px !important;
+    min-width:76px !important;
+    max-width:76px !important;
+    overflow:hidden !important;
+    transition:width .28s ease,min-width .28s ease,max-width .28s ease !important;
+  }
+  #bottomNav .desktop-nav-toggle,
+  #bottomNav .desktop-schedule-subnav {
+    display:none !important;
+  }
+  #bottomNav .nav-item {
+    justify-content:center !important;
+    gap:0 !important;
+    padding-left:0 !important;
+    padding-right:0 !important;
+  }
+  #bottomNav .nav-item-label {
+    display:none !important;
+  }
+  #appContainer:has(#bottomNav:hover) {
+    --mensfire-sidebar:248px !important;
+    --mensfire-content-left:284px !important;
+  }
+  #bottomNav.bottom-nav:hover {
+    width:248px !important;
+    min-width:248px !important;
+    max-width:248px !important;
+    overflow-y:auto !important;
+  }
+  #appContainer:has(#bottomNav:hover) #bottomNav .nav-item {
+    justify-content:flex-start !important;
+    gap:14px !important;
+    padding-left:14px !important;
+    padding-right:14px !important;
+  }
+  #appContainer:has(#bottomNav:hover) #bottomNav .nav-item-label {
+    display:block !important;
+  }
+  #appContainer .view,
+  #appContainer .view.active,
+  #appContainer .app-header {
+    transition:width .28s ease,margin-left .28s ease,left .28s ease !important;
+  }
+  #appContainer:has(#bottomNav:hover) #viewSchedule.active {
+    width:calc(100% - 284px) !important;
+    margin-left:284px !important;
+    padding-left:20px !important;
+    padding-right:20px !important;
+  }
+}
