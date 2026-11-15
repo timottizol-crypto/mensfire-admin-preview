@@ -6161,3 +6161,21 @@ html.light-theme .booking-client-match{background:#fbf8ef}
 .client-insights-month>span{color:var(--text-muted);font-size:8px;text-transform:capitalize}
 .client-insights-month small{max-width:100%;overflow:hidden;color:var(--text-muted);font-size:8px;text-overflow:ellipsis;white-space:nowrap}
 @media(max-width:480px){.client-details-insights{padding:11px}.client-insights-favorites{gap:6px}.client-insight-favorite{padding:8px}.client-insights-chart-head{align-items:flex-start;flex-direction:column;gap:4px}.client-insights-bars{gap:4px}.client-insights-month small{font-size:7px}}
+
+
+/* CRM lifetime value */
+.client-lifetime-value{margin:0 0 16px;padding:15px;border:1px solid rgba(212,175,55,.22);border-radius:13px;background:linear-gradient(135deg,rgba(212,175,55,.075),rgba(255,255,255,.018))}
+.client-ltv-heading{display:flex;align-items:flex-start;justify-content:space-between;gap:12px}
+.client-ltv-heading>div{display:grid;gap:4px;min-width:0}
+.client-ltv-heading strong{color:var(--text-main);font-size:12px}
+.client-ltv-heading span{color:var(--text-muted);font-size:9px;line-height:1.45}
+.client-ltv-status{flex:0 0 auto;padding:5px 8px;border-radius:7px;background:rgba(212,175,55,.12);color:var(--gold)!important;font-size:9px!important;font-weight:700}
+.client-ltv-total{display:flex;align-items:baseline;gap:9px;margin:15px 0 12px}
+.client-ltv-total strong{color:var(--gold);font-size:25px;font-weight:800;letter-spacing:-.5px}
+.client-ltv-total span{color:var(--text-muted);font-size:10px}
+.client-ltv-stats{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
+.client-ltv-stats>div{display:grid;gap:4px;min-width:0;padding:9px;border-radius:9px;background:rgba(255,255,255,.035)}
+.client-ltv-stats b{overflow:hidden;color:var(--text-main);font-size:12px;text-overflow:ellipsis;white-space:nowrap}
+.client-ltv-stats span{color:var(--text-muted);font-size:9px;line-height:1.35}
+.client-ltv-note{margin:10px 0 0;color:var(--text-muted);font-size:9px;line-height:1.4}
+@media(max-width:480px){.client-lifetime-value{padding:12px}.client-ltv-heading{flex-direction:column}.client-ltv-total strong{font-size:22px}.client-ltv-stats{gap:5px}.client-ltv-stats>div{padding:7px}.client-ltv-stats b{font-size:10px}}
