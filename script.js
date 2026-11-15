@@ -3830,7 +3830,7 @@ function saveClientProfile() {
     showToast('Данные клиента сохранены', 'success');
 }
 function setClientsSegmentFilter(filter) {
-    clientsSegmentFilter = ['all','new','regular','vip','inactive','cancellations','highcheck'].includes(filter) ? filter : 'all';
+    clientsSegmentFilter = ['all','new','regular','vip','inactive','cancellations','highcheck','highvalue'].includes(filter) ? filter : 'all';
     renderClients(currentClientsTab);
 }
 
@@ -4063,6 +4063,11 @@ function renderClients(tab = 'all') {
     const highCheckThreshold = eligibleChecks.length
         ? eligibleChecks[Math.min(eligibleChecks.length - 1, Math.floor((eligibleChecks.length - 1) * 0.75))]
         : Infinity;
+    const eligibleLifetimeValues = allClientGroups.filter(client => client.completedCount >= 1)
+        .map(client => Math.round(client.completedRevenue)).sort((a,b) => a-b);
+    const highLifetimeValueThreshold = eligibleLifetimeValues.length
+        ? eligibleLifetimeValues[Math.min(eligibleLifetimeValues.length - 1, Math.floor((eligibleLifetimeValues.length - 1) * 0.75))]
+        : Infinity;
     const getBehaviorSegments = client => {
         const completedVisits = client.visits.filter(visit => visit.status === 'completed');
         const lastCompletedAt = completedVisits.reduce((latest, visit) => {
@@ -4076,7 +4081,8 @@ function renderClients(tab = 'all') {
         return {
             inactive: !!lastCompletedAt && !hasUpcoming && (segmentNow - lastCompletedAt) >= 45 * 86400000,
             cancellations: cancelled >= 3 && decided > 0 && cancelled / decided >= 0.25,
-            highcheck: completedVisits.length >= 2 && average >= highCheckThreshold
+            highcheck: completedVisits.length >= 2 && average >= highCheckThreshold,
+            highvalue: completedVisits.length >= 1 && client.completedRevenue >= highLifetimeValueThreshold
         };
     };
     const behaviorByClient = new Map(allClientGroups.map(client => [client, getBehaviorSegments(client)]));
@@ -4089,12 +4095,14 @@ function renderClients(tab = 'all') {
             vip: allClientGroups.filter(c => c.profileSummary.tag === 'vip').length,
             inactive: allClientGroups.filter(c => behaviorByClient.get(c).inactive).length,
             cancellations: allClientGroups.filter(c => behaviorByClient.get(c).cancellations).length,
-            highcheck: allClientGroups.filter(c => behaviorByClient.get(c).highcheck).length
+            highcheck: allClientGroups.filter(c => behaviorByClient.get(c).highcheck).length,
+            highvalue: allClientGroups.filter(c => behaviorByClient.get(c).highvalue).length
         };
         const filters = [
             {id:'all',label:'Все'}, {id:'new',label:'Новые'}, {id:'regular',label:'Постоянные'},
             {id:'vip',label:'VIP'}, {id:'inactive',label:'Давно не были'},
-            {id:'cancellations',label:'Часто отменяют'}, {id:'highcheck',label:'Высокий чек'}
+            {id:'cancellations',label:'Часто отменяют'}, {id:'highcheck',label:'Высокий чек'},
+            {id:'highvalue',label:'Высокая ценность'}
         ];
         segmentContainer.innerHTML = '<div class="client-segment-tabs">' + filters.map(item =>
             '<button type="button" class="client-segment-btn ' + (clientsSegmentFilter === item.id ? 'active' : '') + '" onclick="setClientsSegmentFilter(\'' + item.id + '\')">' +
@@ -4135,7 +4143,7 @@ function renderClients(tab = 'all') {
             const explicitTag = c.profileSummary.tag;
             const inferredTag = explicitTag || (c.completedCount <= 1 ? 'new' : 'regular');
             if (inferredTag !== clientsSegmentFilter) return false;
-        } else if (['inactive','cancellations','highcheck'].includes(clientsSegmentFilter)) {
+        } else if (['inactive','cancellations','highcheck','highvalue'].includes(clientsSegmentFilter)) {
             if (!behaviorByClient.get(c)?.[clientsSegmentFilter]) return false;
         }
         const phone = normalizeClientPhone(c.profileSummary.phone);
