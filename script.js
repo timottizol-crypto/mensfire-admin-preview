@@ -3851,7 +3851,11 @@ let currentClientsTab = 'all';
 let currentClientsWorkspaceMode = 'clients';
 let clientsTasksFilter = 'all';
 let clientsTasksSearchQuery = '';
-let clientsTasksBarberFilter = 'all'; 
+let clientsTasksBarberFilter = 'all';
+let clientsTaskAuditActionFilter = 'all';
+let clientsTaskAuditActorFilter = 'all';
+let clientsTaskAuditFrom = '';
+let clientsTaskAuditTo = ''; 
 let clientsSearchQuery = '';
 let clientsSegmentFilter = 'all';
 let clientsDataQualityExpanded = false;
@@ -4391,22 +4395,65 @@ function renderClientTasksHub() {
                 const history = [];
                 const seen = new Set();
                 Object.entries(clientProfiles || {}).forEach(([key, profile]) => {
+                    if (currentUser?.role === 'barber' && String(profile?.barberId || '') !== String(currentUser.id)) return;
                     (profile?.taskHistory || []).forEach(event => {
                         const id = String(event.id || JSON.stringify(event));
                         if (seen.has(id)) return;
                         seen.add(id);
-                        history.push({ ...event, clientName: profile.clientName || 'Клиент', profileKey: key });
+                        history.push({ ...event, clientName: profile.clientName || 'Клиент' });
                     });
                 });
                 history.sort((a,b) => new Date(b.createdAt || 0) - new Date(a.createdAt || 0));
+                const actors = [...new Map(history.map(event => {
+                    const key = String(event.actorId || event.actor || 'unknown');
+                    return [key, {key, label: event.actor || 'Сотрудник'}];
+                })).values()].sort((a,b) => a.label.localeCompare(b.label,'ru'));
+                const actionOptions = [{id:'all',label:'Все действия'},{id:'created',label:'Создание'},{id:'updated',label:'Изменение'},{id:'completed',label:'Выполнение'},{id:'deleted',label:'Удаление'}];
+                const actorOptions = actors.map(actor => '<option value="'+escapeBookingHtml(actor.key)+'"'+(clientsTaskAuditActorFilter===actor.key?' selected':'')+'>'+escapeBookingHtml(actor.label)+'</option>').join('');
+                const localDateKey = value => {
+                    const date = new Date(value || '');
+                    if (Number.isNaN(date.getTime())) return '';
+                    return date.getFullYear()+'-'+String(date.getMonth()+1).padStart(2,'0')+'-'+String(date.getDate()).padStart(2,'0');
+                };
+                const filtered = history.filter(event => {
+                    if (clientsTaskAuditActionFilter !== 'all' && event.action !== clientsTaskAuditActionFilter) return false;
+                    if (clientsTaskAuditActorFilter !== 'all' && String(event.actorId || event.actor || 'unknown') !== clientsTaskAuditActorFilter) return false;
+                    const day = localDateKey(event.createdAt);
+                    if (clientsTaskAuditFrom && (!day || day < clientsTaskAuditFrom)) return false;
+                    if (clientsTaskAuditTo && (!day || day > clientsTaskAuditTo)) return false;
+                    return true;
+                });
                 const labels = {created:'Создал задачу',updated:'Изменил задачу',completed:'Выполнил задачу',deleted:'Удалил задачу'};
-                return history.slice(0,30).map(event => {
-                    const date = event.createdAt ? new Date(event.createdAt) : null;
-                    const when = date && !Number.isNaN(date.getTime()) ? date.toLocaleString('ru-RU',{day:'2-digit',month:'2-digit',hour:'2-digit',minute:'2-digit'}) : '';
-                    return '<article class="crm-task-audit-item"><span class="crm-task-audit-dot '+escapeBookingHtml(event.action)+'"></span><div><strong>'+escapeBookingHtml(labels[event.action] || 'Изменил задачу')+' · '+escapeBookingHtml(event.clientName)+'</strong><p>'+escapeBookingHtml(event.taskTitle || 'Задача')+'</p><small>'+escapeBookingHtml(event.actor || 'Сотрудник')+(event.details ? ' · '+escapeBookingHtml(event.details) : '')+'</small></div><time>'+escapeBookingHtml(when)+'</time></article>';
-                }).join('') || '<div class="crm-tasks-empty">История действий пока пуста</div>';
+                return '<div class="crm-task-audit-filters">'+
+                    '<select id="crmTaskAuditAction" aria-label="Тип действия">'+actionOptions.map(item=>'<option value="'+item.id+'"'+(clientsTaskAuditActionFilter===item.id?' selected':'')+'>'+item.label+'</option>').join('')+'</select>'+
+                    '<select id="crmTaskAuditActor" aria-label="Сотрудник"><option value="all">Все сотрудники</option>'+actorOptions+'</select>'+
+                    '<label>С <input id="crmTaskAuditFrom" type="date" value="'+escapeBookingHtml(clientsTaskAuditFrom)+'"></label>'+
+                    '<label>По <input id="crmTaskAuditTo" type="date" value="'+escapeBookingHtml(clientsTaskAuditTo)+'"></label>'+
+                    '<button type="button" id="crmTaskAuditReset">Сбросить</button>'+
+                    '<span class="crm-task-audit-count">'+filtered.length+' из '+history.length+'</span></div>'+
+                    (filtered.length ? filtered.slice(0,50).map(event => {
+                        const date = event.createdAt ? new Date(event.createdAt) : null;
+                        const when = date && !Number.isNaN(date.getTime()) ? date.toLocaleString('ru-RU',{day:'2-digit',month:'2-digit',year:'numeric',hour:'2-digit',minute:'2-digit'}) : '';
+                        return '<article class="crm-task-audit-item"><span class="crm-task-audit-dot '+escapeBookingHtml(event.action)+'"></span><div><strong>'+escapeBookingHtml(labels[event.action] || 'Изменил задачу')+' · '+escapeBookingHtml(event.clientName)+'</strong><p>'+escapeBookingHtml(event.taskTitle || 'Задача')+'</p><small>'+escapeBookingHtml(event.actor || 'Сотрудник')+(event.details ? ' · '+escapeBookingHtml(event.details) : '')+'</small></div><time>'+escapeBookingHtml(when)+'</time></article>';
+                    }).join('') : '<div class="crm-tasks-empty">За выбранный период действий нет</div>');
             })()}
         </section>`;
+    const auditAction = root.querySelector('#crmTaskAuditAction');
+    if (auditAction) auditAction.addEventListener('change', () => { clientsTaskAuditActionFilter = auditAction.value; renderClientTasksHub(); });
+    const auditActor = root.querySelector('#crmTaskAuditActor');
+    if (auditActor) auditActor.addEventListener('change', () => { clientsTaskAuditActorFilter = auditActor.value; renderClientTasksHub(); });
+    const auditFrom = root.querySelector('#crmTaskAuditFrom');
+    if (auditFrom) auditFrom.addEventListener('change', () => { clientsTaskAuditFrom = auditFrom.value; renderClientTasksHub(); });
+    const auditTo = root.querySelector('#crmTaskAuditTo');
+    if (auditTo) auditTo.addEventListener('change', () => { clientsTaskAuditTo = auditTo.value; renderClientTasksHub(); });
+    const auditReset = root.querySelector('#crmTaskAuditReset');
+    if (auditReset) auditReset.addEventListener('click', () => {
+        clientsTaskAuditActionFilter = 'all';
+        clientsTaskAuditActorFilter = 'all';
+        clientsTaskAuditFrom = '';
+        clientsTaskAuditTo = '';
+        renderClientTasksHub();
+    });
     const searchInput = root.querySelector('#crmTasksSearch');
     if (searchInput) searchInput.addEventListener('input', () => {
         clientsTasksSearchQuery = searchInput.value;
