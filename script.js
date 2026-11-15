@@ -3251,8 +3251,11 @@ function renderFinance() {
     const dayBookings = bookings.filter(item => item.date === selectedFinanceDate && item.status !== 'cancelled');
     const dayCompleted = dayBookings.filter(item => item.status === 'completed');
     const periodCompleted = bookings.filter(item => inRange(item.date, periodStart, periodEnd) && item.status === 'completed');
+    const retailSaleDate = sale => { const date = new Date(sale.soldAt || sale.createdAt || ''); return Number.isNaN(date.getTime()) ? '' : formatReportDate(date); };
+    const retailSalesInRange = (start,end) => clientRetailSales.filter(sale => inRange(retailSaleDate(sale),start,end) && sale.paymentStatus !== 'refunded');
+    const retailCollected = (start,end) => retailSalesInRange(start,end).reduce((sum,sale)=>sum+Math.min(Number(sale.total)||0,Number(sale.paidAmount ?? (sale.paymentStatus==='paid'?sale.total:0))||0),0);
     const revenue = (start, end) => bookings.filter(item => inRange(item.date, start, end))
-        .reduce((sum, item) => sum + getBookingCollectedAmount(item), 0);
+        .reduce((sum, item) => sum + getBookingCollectedAmount(item), 0) + retailCollected(start,end);
     const getSafeExpenseAmount = item => {
         const amount = Number(item?.amount);
         return Number.isFinite(amount) ? Math.max(0, amount) : 0;
@@ -3269,10 +3272,12 @@ function renderFinance() {
     const dayProfit = dayRevenue - dayExpenseTotal;
     const monthProfit = monthRevenue - monthExpenseTotal;
     const activeBookings = bookings.filter(item => item.status !== 'cancelled');
-    const unpaidBalance = activeBookings.filter(item => inRange(item.date, periodStart, periodEnd)).reduce((sum, item) => {
+    const bookingUnpaidBalance = activeBookings.filter(item => inRange(item.date, periodStart, periodEnd)).reduce((sum, item) => {
         const total = (Array.isArray(item.services) ? item.services : []).reduce((n, service) => n + getSafeServiceAmount(service), 0);
         return sum + Math.max(0, total - getBookingPaymentState(item, total).paid);
     }, 0);
+    const retailUnpaidBalance = retailSalesInRange(periodStart,periodEnd).reduce((sum,sale)=>sum+Math.max(0,(Number(sale.total)||0)-(Number(sale.paidAmount)||0)),0);
+    const unpaidBalance = bookingUnpaidBalance + retailUnpaidBalance;
     const paymentTotals = { cash: 0, card: 0, transfer: 0, online: 0, other: 0 };
     bookings.filter(item => inRange(item.date, aggregationStart, aggregationEnd)).forEach(item => {
         const serviceTotal = (Array.isArray(item.services) ? item.services : [])
@@ -3293,6 +3298,11 @@ function renderFinance() {
             const method = Object.prototype.hasOwnProperty.call(paymentTotals, item.paymentMethod) ? item.paymentMethod : 'other';
             paymentTotals[method] += remaining;
         }
+    });
+    retailSalesInRange(aggregationStart,aggregationEnd).forEach(sale=>{
+        const amount=Math.min(Number(sale.total)||0,Number(sale.paidAmount)||0);
+        const method=Object.prototype.hasOwnProperty.call(paymentTotals,sale.paymentMethod)?sale.paymentMethod:'other';
+        paymentTotals[method]+=amount;
     });
 
     const setText = (id, value) => { const node = document.getElementById(id); if (node) node.textContent = value; };
@@ -3392,6 +3402,11 @@ function renderFinance() {
             const row = teamRows.get(id);
             row.paid += getBookingCollectedAmount(item);
             if (item.status === 'completed') row.visits += 1;
+        });
+        retailSalesInRange(aggregationStart,aggregationEnd).forEach(sale=>{
+            const id=sale.staffId==null||sale.staffId===''?'__unassigned__':String(sale.staffId);
+            if(!teamRows.has(id))teamRows.set(id,{name:id==='__unassigned__'?'Без мастера':'Мастер из старых продаж',paid:0,visits:0});
+            teamRows.get(id).paid+=Math.min(Number(sale.total)||0,Number(sale.paidAmount)||0);
         });
         const rows = Array.from(teamRows.values()).sort((a,b) => b.paid-a.paid);
         const teamTotal = rows.reduce((sum,person) => sum + person.paid,0);
@@ -3860,7 +3875,7 @@ function renderClientRetailPurchases(clientBookings = []) {
             const booking = sale.bookingId ? (clientBookings || []).find(item => String(item.id) === sale.bookingId) : null;
             const statusLabels = {paid:'Оплачено',partial:'Частично',unpaid:'Не оплачено',refunded:'Возврат'};
             const items = sale.items.map(item => '<div class="client-retail-item"><span>' + escapeBookingHtml(item.titleSnapshot) + (item.sku ? ' · ' + escapeBookingHtml(item.sku) : '') + ' <small>× ' + item.quantity + '</small></span><b>' + fmt(item.lineTotal || item.unitPrice * item.quantity) + '</b></div>').join('');
-            return '<article class="client-retail-sale"><div class="client-retail-sale-head"><div><strong>' + dateLabel(sale.soldAt) + '</strong><span>' + (booking ? 'Связано с визитом · ' + escapeBookingHtml(booking.date + ' в ' + booking.time) : sale.bookingId ? 'Визит: ' + escapeBookingHtml(sale.bookingId) : 'Отдельная покупка') + '</span></div><b class="client-retail-status status-' + sale.paymentStatus + '">' + statusLabels[sale.paymentStatus] + '</b></div>' + (items || '<div class="client-retail-empty-items">Состав покупки не указан</div>') + '<div class="client-retail-sale-total"><span>Итого</span><strong>' + fmt(sale.total) + '</strong></div>' + (sale.notes ? '<p>' + escapeBookingHtml(sale.notes) + '</p>' : '') + '</article>';
+            return '<article class="client-retail-sale"><div class="client-retail-sale-head"><div><strong>' + dateLabel(sale.soldAt) + '</strong><span>' + (booking ? 'Связано с визитом · ' + escapeBookingHtml(booking.date + ' в ' + booking.time) : sale.bookingId ? 'Визит: ' + escapeBookingHtml(sale.bookingId) : 'Отдельная покупка') + '</span></div><b class="client-retail-status status-' + sale.paymentStatus + '">' + statusLabels[sale.paymentStatus] + '</b></div>' + (items || '<div class="client-retail-empty-items">Состав покупки не указан</div>') + '<div class="client-retail-sale-total"><span>Итого</span><strong>' + fmt(sale.total) + '</strong></div>' + '<div class="client-retail-payment-detail"><span>Получено: <b>' + fmt(sale.paidAmount ?? (sale.paymentStatus === 'paid' ? sale.total : 0)) + '</b></span><span>Долг: <b>' + fmt(Math.max(0,sale.total-(sale.paidAmount ?? (sale.paymentStatus === 'paid' ? sale.total : 0)))) + '</b></span></div>' + (sale.notes ? '<p>' + escapeBookingHtml(sale.notes) + '</p>' : '') + '</article>';
         }).join('') + '</div>' : '<div class="client-retail-empty"><span class="client-retail-empty-icon">▧</span><strong>Покупок товаров пока нет</strong><p>Здесь появятся продажи из отдельного товарного чека. Услуги и оплаты визитов не дублируются в этой истории.</p></div>';
 }
 
