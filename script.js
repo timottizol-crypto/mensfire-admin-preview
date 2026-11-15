@@ -4328,6 +4328,7 @@ function renderClients(tab = 'all') {
         tabsContainer.innerHTML = '';
         currentClientsWorkspaceMode = 'clients';
     }
+    if(window.innerWidth>=768){const legacyScopeTabs=tabsContainer.querySelector('.crm-client-scope-tabs');if(legacyScopeTabs)legacyScopeTabs.remove();}
     const clientsView = document.getElementById('viewClients');
     if (clientsView) clientsView.classList.toggle('crm-tasks-mode', currentClientsWorkspaceMode === 'tasks' && window.innerWidth >= 768);
     renderClientTasksHub();
