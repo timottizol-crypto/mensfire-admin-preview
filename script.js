@@ -3956,7 +3956,7 @@ function renderClientRetailPurchases(clientBookings = []) {
         productFrequency.set(title, (productFrequency.get(title) || 0) + remaining);
     }));
     const favoriteProduct = [...productFrequency.entries()].sort((a,b) => b[1] - a[1] || a[0].localeCompare(b[0], 'ru'))[0];
-    const lastPurchaseLabel = dateLabel(sales[0].soldAt).replace(/,?\\s*\\d{2}:\\d{2}$/, '');
+    const lastPurchaseLabel = dateLabel(sales[0].soldAt).replace(/,?\s*\d{2}:\d{2}$/, '');
     root.innerHTML = sales.length ?
         '<div class="client-retail-summary">' +
             '<div><span>Покупок</span><b>' + sales.length + '</b></div>' +
