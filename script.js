@@ -2604,6 +2604,8 @@ function isBookingBlockingSchedule(booking) {
     return ['active', 'pending', 'confirmed'].includes(booking?.status || 'active');
 }
 
+function toggleBookingRepeatOptions() { const enabled=Boolean(document.getElementById('repeatBookingWeekly')?.checked); const wrap=document.getElementById('bookingRepeatCountWrap'); if(wrap) wrap.hidden=!enabled; }
+
 function saveNewBooking() {
     if (!requireAdminAction('Создавать и изменять записи может только Али')) return;
     const clientName = document.getElementById('newBookingClient').value.trim();
@@ -2681,6 +2683,21 @@ function saveNewBooking() {
         return showToast('Это время занято перерывом', 'error');
     }
 
+    const repeatEnabled = !editingBookingId && Boolean(document.getElementById('repeatBookingWeekly')?.checked);
+    const repeatCount = repeatEnabled ? Math.max(2, Math.min(12, Number(document.getElementById('repeatBookingCount')?.value) || 4)) : 1;
+    const recurringDates = [];
+    if (repeatEnabled) {
+        for (let week = 1; week < repeatCount; week++) {
+            const occurrence = new Date(year, month - 1, day + week * 7);
+            const occurrenceDate = occurrence.toLocaleDateString('ru-RU');
+            if (!isWithinBarberWorkSchedule(barberId, occurrenceDate, start, end)) return showToast('Повторение не помещается в график мастера: ' + occurrenceDate, 'error');
+            const occupied = bookings.some(item => item.date === occurrenceDate && String(item.barberId) === String(barberId) && isBookingBlockingSchedule(item) && (() => { const itemStart = parseScheduleTimeMinutes(item.time); return itemStart !== null && overlaps(start, end, itemStart, itemStart + getBookingDurationMinutes(item)); })());
+            const blocked = timeBlocks.some(item => item.date === occurrenceDate && String(item.barberId) === String(barberId) && (() => { const a = parseScheduleTimeMinutes(item.startTime), b = parseScheduleTimeMinutes(item.endTime); return a !== null && b !== null && overlaps(start, end, a, b); })());
+            if (occupied || blocked) return showToast('Нельзя создать повторение: ' + occurrenceDate + ' в это время уже занято', 'error');
+            recurringDates.push(occurrenceDate);
+        }
+    }
+
     const wasEditing = Boolean(editingBookingId);
     const existingBooking = wasEditing
         ? bookings.find(b => String(b.id) === String(editingBookingId))
@@ -2722,6 +2739,11 @@ function saveNewBooking() {
         const createdBooking = {id:Date.now(),...bookingData,status:'active',paidAmount:0,payments:[],paymentMethod:'',bookingSource:'admin_panel',history:[]};
         addBookingHistoryEntry(createdBooking, 'Запись создана', date + ' в ' + time);
         bookings.push(createdBooking);
+        recurringDates.forEach((occurrenceDate, index) => {
+            const recurringBooking = {id:'repeat-' + Date.now() + '-' + index,...bookingData,date:occurrenceDate,status:'active',paidAmount:0,payments:[],paymentMethod:'',bookingSource:'admin_panel',recurringGroupId:String(createdBooking.id),history:[]};
+            addBookingHistoryEntry(recurringBooking, 'Повторная запись создана', 'Еженедельно · серия из ' + repeatCount + ' записей');
+            bookings.push(recurringBooking);
+        });
     }
 
     const normalizedClientPhone = normalizeClientPhone(clientPhone);
