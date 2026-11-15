@@ -232,7 +232,7 @@
             </div>
             <div id="inventoryOverview" class="inventory-overview-grid"></div>
             <section class="glass-card inventory-catalog-panel">
-                <div class="finance-panel-heading"><div><h3>Каталог товаров</h3><p>Остатки меняются только через приход, списание и будущие продажи</p></div></div>
+                <div class="finance-panel-heading"><div><h3>Каталог товаров</h3><p>Товары и розничные цены синхронизируются с клиентским приложением</p></div><button type="button" class="inventory-sync-btn" onclick="syncClientCatalogFromClientApp(true);renderInventory()">↻ Обновить каталог</button></div>
                 <div class="inventory-toolbar"><input id="inventorySearch" type="search" placeholder="Поиск по названию или артикулу" oninput="renderInventory()"><select id="inventoryCategoryFilter" onchange="renderInventory()"><option value="all">Все категории</option></select></div>
                 <div id="inventoryCatalog" class="inventory-catalog-grid"></div>
             </section>
