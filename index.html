@@ -216,8 +216,8 @@
                 </div>
                 <div class="waitlist-toolbar"><input id="waitlistSearch" type="search" placeholder="Поиск по имени, телефону или услуге" oninput="renderWaitlist()"><select id="waitlistStatusFilter" onchange="renderWaitlist()"><option value="active">Активные</option><option value="all">Все статусы</option><option value="waiting">Ожидает</option><option value="contacted">Связались</option><option value="offered">Предложено время</option><option value="closed">Закрытые</option></select><select id="waitlistPriorityFilter" onchange="renderWaitlist()"><option value="all">Любой приоритет</option><option value="urgent">Срочно</option><option value="high">Высокий</option><option value="normal">Обычный</option></select></div>
                 <div class="waitlist-list" id="waitlistList"><div class="waitlist-empty">Пока нет клиентов в листе ожидания</div></div>
-          
-                <div id="clientsSegmentContainer"></div>
+            </section>
+            <div id="clientsSegmentContainer"></div>
                 <div class="clients-search-wrap"><input type="search" id="clientsSearch" placeholder="Поиск по имени или телефону..." oninput="setClientsSearchQuery(this.value)"></div>
                 <div id="clientsList" class="home-scroll-area clients-list-premium"><!-- Список клиентов --></div>
             </div>
