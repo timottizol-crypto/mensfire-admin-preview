@@ -6119,3 +6119,19 @@ html.light-theme .booking-client-match{background:#fbf8ef}
 .client-followup-arrow{color:var(--gold);font-size:20px}
 .client-followup-empty{padding:12px 2px;border-top:1px solid rgba(255,255,255,.06);color:var(--text-muted);font-size:10px;line-height:1.5}
 @media(max-width:700px){.client-followup-panel{padding:14px}.client-followup-columns{grid-template-columns:1fr}}
+
+
+/* CRM message draft builder */
+.client-message-builder{margin:12px 0 16px;padding:14px;border:1px solid rgba(212,175,55,.2);border-radius:13px;background:rgba(212,175,55,.045);flex-shrink:0}
+.client-message-builder-head{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:11px}
+.client-message-builder-head>div{display:flex;flex-direction:column;gap:3px}
+.client-message-builder-head b{color:var(--text-primary);font-size:12px}
+.client-message-builder-head small,.client-message-footer small{color:var(--text-muted);font-size:9px}
+.client-message-builder-head>span{padding:4px 7px;border-radius:6px;background:rgba(212,175,55,.13);color:var(--gold);font-size:8px;font-weight:800;letter-spacing:1px}
+.client-message-modes{display:flex;gap:6px;margin-bottom:9px}
+.client-message-modes button{flex:1;padding:8px 9px;border:1px solid rgba(255,255,255,.09);border-radius:8px;background:rgba(255,255,255,.025);color:var(--text-muted);font:inherit;font-size:10px;cursor:pointer}
+.client-message-modes button.active{border-color:rgba(212,175,55,.5);background:rgba(212,175,55,.12);color:var(--gold)}
+#clientMessageDraft{display:block;width:100%;min-height:86px;padding:10px;border:1px solid rgba(255,255,255,.1);border-radius:9px;background:rgba(0,0,0,.16);color:var(--text-primary);font:inherit;font-size:11px;line-height:1.55;resize:vertical}
+.client-message-footer{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-top:9px}
+.client-message-footer button{padding:8px 12px;border:1px solid rgba(212,175,55,.35);border-radius:8px;background:rgba(212,175,55,.12);color:var(--gold);font:inherit;font-size:10px;font-weight:700;cursor:pointer}
+@media(max-width:480px){.client-message-footer{align-items:flex-start;flex-direction:column}.client-message-footer button{width:100%}}
