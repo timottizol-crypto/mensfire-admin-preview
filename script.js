@@ -3961,7 +3961,7 @@ function renderClientRetailPurchases(clientBookings = []) {
                     (item.sku ? inventoryProducts.find(product => String(product.sku || '').toLowerCase() === String(item.sku).toLowerCase()) : null) ||
                     (!item.productId && !item.sku ? inventoryProducts.find(product => String(product.title || '').toLowerCase() === String(item.titleSnapshot || '').toLowerCase()) : null);
                 const productAction = product
-                    ? '<button type="button" class="client-retail-link" onclick="openRetailHistoryProduct(\\'' + escapeBookingHtml(String(product.id)) + '\\',\\'' + escapeBookingHtml(String(item.sku || product.sku || '')) + '\\',\\'' + escapeBookingHtml(String(item.titleSnapshot || product.title || '')) + '\\')">Открыть товар</button>'
+                    ? '<button type="button" class="client-retail-link" onclick="openRetailHistoryProduct(' + escapeBookingHtml(JSON.stringify(String(product.id))) + ',' + escapeBookingHtml(JSON.stringify(String(item.sku || product.sku || ''))) + ',' + escapeBookingHtml(JSON.stringify(String(item.titleSnapshot || product.title || ''))) + ')">Открыть товар</button>'
                     : '';
                 return '<div class="client-retail-item"><span>' + escapeBookingHtml(item.titleSnapshot) + (item.sku ? ' · ' + escapeBookingHtml(item.sku) : '') + ' <small>× ' + remaining + (returned?' · возврат '+returned:'') + '</small>' + productAction + '</span><b>' + fmt(remaining*item.unitPrice) + '</b></div>';
             }).join('');
@@ -3969,7 +3969,7 @@ function renderClientRetailPurchases(clientBookings = []) {
                 '<div class="client-retail-refund"><span>Возврат · ' + dateLabel(refund.createdAt) + (refund.note ? ' · ' + escapeBookingHtml(refund.note) : '') + '</span><b>−' + fmt(refund.value) + '</b></div>'
             ).join('');
             const bookingAction = booking
-                ? '<button type="button" class="client-retail-link" onclick="openRetailHistoryBooking(\\'' + escapeBookingHtml(String(booking.id)) + '\\')">Открыть визит</button>'
+                ? '<button type="button" class="client-retail-link" onclick="openRetailHistoryBooking(' + escapeBookingHtml(JSON.stringify(String(booking.id))) + ')">Открыть визит</button>'
                 : '';
             return '<article class="client-retail-sale"><div class="client-retail-sale-head"><div><strong>' + dateLabel(sale.soldAt) + '</strong><span>' + (booking ? 'Связано с визитом · ' + escapeBookingHtml(booking.date + ' в ' + booking.time) : sale.bookingId ? 'Визит не найден · ' + escapeBookingHtml(sale.bookingId) : 'Отдельная покупка') + '</span>' + bookingAction + '</div><b class="client-retail-status status-' + sale.paymentStatus + '">' + (statusLabels[sale.paymentStatus] || 'Статус не указан') + '</b></div>' +
                 (items || '<div class="client-retail-empty-items">Состав покупки не указан</div>') +
