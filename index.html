@@ -243,6 +243,15 @@
         </div>
 
 
+        <!-- АНАЛИТИКА СКЛАДА (ТОЛЬКО ПК) -->
+        <div id="viewInventoryAnalytics" class="view inventory-analytics-workspace">
+            <div class="workspace-heading inventory-heading"><div><span class="workspace-eyebrow">MENSFIRE INSIGHTS</span><h2>Аналитика товаров</h2><p>Продажи, возвраты, себестоимость и контроль пополнения</p></div></div>
+            <section class="glass-card inventory-analytics-filter"><div class="inventory-analytics-filter-label"><strong>Период отчёта</strong><span>Данные по товарным чекам</span></div><div class="inventory-analytics-date-fields"><label>С даты<input id="inventoryAnalyticsFrom" type="date" onchange="renderInventoryAnalytics()"></label><label>По дату<input id="inventoryAnalyticsTo" type="date" onchange="renderInventoryAnalytics()"></label><button type="button" class="inventory-sync-btn" onclick="document.getElementById('inventoryAnalyticsFrom').value='';document.getElementById('inventoryAnalyticsTo').value='';renderInventoryAnalytics()">Последние 30 дней</button></div></section>
+            <div id="inventoryAnalyticsOverview" class="inventory-overview-grid inventory-analytics-kpis"></div>
+            <section class="glass-card inventory-analytics-panel"><div class="finance-panel-heading"><div><h3>Эффективность товаров</h3><p>Продажи и возвраты в выбранном периоде</p></div></div><div id="inventoryAnalyticsProducts"></div><p id="inventoryAnalyticsNote" class="inventory-analytics-note"></p></section>
+            <section class="glass-card inventory-analytics-panel"><div class="finance-panel-heading"><div><h3>Пополнение склада</h3><p>Активные товары, остаток которых достиг минимума</p></div></div><div id="inventoryAnalyticsRestock"></div></section>
+        </div>
+
         <!-- ЭКРАН РОЗНИЧНЫХ ПРОДАЖ (ТОЛЬКО ПК) -->
         <div id="viewSales" class="view retail-sales-workspace">
             <div class="workspace-heading inventory-heading"><div><span class="workspace-eyebrow">MENSFIRE RETAIL</span><h2>Продажи товаров</h2><p>Товарный чек, оплата и автоматическое списание со склада</p></div></div>
@@ -860,6 +869,6 @@
         </div>
     </div>
 
-    <script src="script.js?v=mensfire-retail-refunds-20261115-9"></script>
+    <script src="script.js?v=mensfire-inventory-analytics-20261115-10"></script>
 </body>
 </html>
