@@ -805,7 +805,7 @@ let clientRetailSales = (() => {
                 : Math.max(0, (Number(sale.total) || 0) - (Array.isArray(sale.refunds)
                     ? sale.refunds.reduce((sum, refund) => sum + Math.max(0, Number(refund?.value) || 0), 0)
                     : 0)),
-            grossPaidAmount: Math.max(0,Number(sale.grossPaidAmount ?? sale.paidAmount ?? (sale.paymentStatus==='paid'?sale.total:0))||0),
+            grossPaidAmount: Math.min(Math.max(0,Number(sale.total)||0),Math.max(0,Number(sale.grossPaidAmount ?? ((Number(sale.paidAmount ?? (sale.paymentStatus==='paid'?sale.total:0))||0)+(Array.isArray(sale.refunds)?sale.refunds.reduce((sum,refund)=>sum+Math.max(0,Number(refund?.paidAmount)||0),0):0)))||0)),
             refunds: (Array.isArray(sale.refunds)?sale.refunds:[]).filter(refund=>refund&&typeof refund==='object').map(refund=>({
                 id:String(refund.id||''),createdAt:String(refund.createdAt||''),value:Math.max(0,Number(refund.value)||0),
                 paidAmount:Math.max(0,Number(refund.paidAmount)||0),paymentMethod:String(refund.paymentMethod||sale.paymentMethod||'other'),
