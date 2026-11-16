@@ -6195,6 +6195,8 @@ function exportSupplierStatement(supplierId){
 }
 
 
+let supplierFinanceJournalFilteredEvents=[];
+
 function renderSupplierFinanceJournal(){
     const root=document.getElementById('supplierFinanceJournal');if(!root)return;
     const supplierFilter=document.getElementById('supplierJournalSupplier')?.value||'all';
@@ -6233,6 +6235,7 @@ function renderSupplierFinanceJournal(){
         const parsedDate=event.date?new Date(event.date):null;const day=parsedDate&&!Number.isNaN(parsedDate.getTime())?parsedDate.toISOString().slice(0,10):'';
         return (supplierFilter==='all'||event.supplierId===supplierFilter)&&(typeFilter==='all'||event.kind===typeFilter)&&(!from||day>=from)&&(!to||day<=to);
     }).sort((a,b)=>new Date(b.date||0)-new Date(a.date||0));
+    supplierFinanceJournalFilteredEvents=filtered;
     const total=filtered.reduce((sum,event)=>sum+(event.kind==='payment'?-event.amount:event.amount),0);
     const fmt=value=>Math.round(value*100/100).toLocaleString('ru-RU',{maximumFractionDigits:2})+' ₽';
     const dateLabel=value=>{const date=new Date(value);return value&&!Number.isNaN(date.getTime())?date.toLocaleDateString('ru-RU'):'Дата не указана';};
@@ -6244,6 +6247,33 @@ function renderSupplierFinanceJournal(){
         return '<article class="supplier-journal-row"><div class="supplier-journal-main"><span class="supplier-journal-kind '+(isPayment?'is-payment':'is-receipt')+'">'+(isPayment?'Оплата':'Приёмка')+'</span><b>'+escapeBookingHtml(event.supplierName)+'</b><small>'+dateLabel(event.date)+' · '+(isPayment?escapeBookingHtml(event.method):'Поступление товара')+'</small></div><strong class="'+(isPayment?'is-payment':'is-receipt')+'">'+(isPayment?'−':'+')+fmt(event.amount)+'</strong><small class="supplier-journal-detail">'+detail+(event.note?' · '+escapeBookingHtml(event.note):'')+'</small></article>';
     }).join(''):'<div class="inventory-empty compact">Операций по выбранным фильтрам нет</div>';
 }
+
+function exportSupplierFinanceJournal(){
+    if(!requireAdminAction('Экспортировать журнал финансовых операций может только Али'))return;
+    const events=Array.isArray(supplierFinanceJournalFilteredEvents)?supplierFinanceJournalFilteredEvents:[];
+    if(!events.length)return showToast('Нет операций для экспорта','info');
+    const columns=['Дата','Тип операции','Поставщик','Товар','Количество','Заказ','Сумма, ₽','Способ оплаты','Комментарий','Распределение оплат'];
+    const cell=value=>{const text=String(value??'');return /[",;\\r\\n]/.test(text)?'"'+text.replace(/"/g,'""')+'"':text;};
+    const rows=events.map(event=>[
+        event.date?new Date(event.date).toLocaleString('ru-RU'):'',
+        event.kind==='payment'?'Оплата':'Приёмка',
+        event.supplierName||'',
+        event.item||'',
+        event.quantity??'',
+        event.orderId||'',
+        (Number(event.amount)||0).toFixed(2).replace('.',','),
+        event.method||'',
+        event.note||'',
+        (event.allocations||[]).map(item=>(item.purchaseOrderId||'')+': '+(Number(item.amount)||0).toFixed(2)).join(' | ')
+    ]);
+    const csv='\\uFEFF'+[columns,...rows].map(row=>row.map(cell).join(';')).join('\\r\\n');
+    const blob=new Blob([csv],{type:'text/csv;charset=utf-8;'});
+    const url=URL.createObjectURL(blob),link=document.createElement('a');
+    link.href=url;link.download='mensfire-supplier-finance-journal-'+new Date().toISOString().slice(0,10)+'.csv';
+    document.body.appendChild(link);link.click();link.remove();URL.revokeObjectURL(url);
+    showToast('Журнал операций экспортирован в CSV','success');
+}
+
 function filterSupplierFinanceJournal(){renderSupplierFinanceJournal();}
 
 function renderSuppliers(){
