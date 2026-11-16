@@ -6881,6 +6881,29 @@ function renderInventoryAnalytics(){
         const known=row.costUnknownUnits===0;
         return '<tr><td><strong>'+escapeBookingHtml(row.product.title)+'</strong><small>'+escapeBookingHtml(row.product.category)+'</small></td><td>'+row.unitsSold+'</td><td>'+row.unitsReturned+'</td><td>'+fmt(net)+'</td><td>'+ (known?fmt(net-(row.cost-row.returnedCost)):'Нет полной себестоимости')+'</td></tr>';
     }).join('')+'</tbody></table></div>':'<div class="inventory-empty">За выбранный период товарных продаж и возвратов нет</div>';
+    const priceRoot=document.getElementById('inventoryPurchasePriceChanges');
+    if(priceRoot){
+        const history=new Map();
+        inventoryPurchaseOrders.filter(order=>order.status!=='cancelled').forEach(order=>(order.items||[]).forEach(item=>{
+            (Array.isArray(item.receivedBatches)?item.receivedBatches:[]).forEach(batch=>{
+                const date=batch.receivedAt||order.updatedAt||order.createdAt;
+                if(!inRange(date)||!(Number(batch.quantity)>0)||!Number.isFinite(Number(batch.unitCost)))return;
+                const key=item.productId||item.titleSnapshot;
+                if(!history.has(key))history.set(key,{title:item.titleSnapshot||'Товар',batches:[]});
+                history.get(key).batches.push({date,quantity:Number(batch.quantity),unitCost:Number(batch.unitCost),supplier:order.supplier||'Поставщик не указан'});
+            });
+        }));
+        const changes=[...history.values()].map(row=>{
+            const batches=row.batches.sort((a,b)=>new Date(a.date)-new Date(b.date));
+            const first=batches[0],last=batches[batches.length-1];
+            const firstCost=first.unitCost,lastCost=last.unitCost;
+            return {...row,first,last,firstCost,lastCost,delta:lastCost-firstCost,percent:firstCost>0?(lastCost-firstCost)/firstCost*100:null};
+        }).filter(row=>row.batches.length>1&&Math.abs(row.delta)>0.001).sort((a,b)=>Math.abs(b.percent??0)-Math.abs(a.percent??0));
+        priceRoot.innerHTML=changes.length?'<div class="inventory-price-change-list">'+changes.slice(0,12).map(row=>{
+            const up=row.delta>0,percent=row.percent===null?'—':(up?'+':'')+row.percent.toFixed(1)+'%';
+            return '<div class="inventory-price-change-row"><div><strong>'+escapeBookingHtml(row.title)+'</strong><small>'+row.batches.length+' партий · '+row.first.supplier+' → '+row.last.supplier+'</small></div><div class="inventory-price-change-values"><span>'+fmt(row.firstCost)+' → '+fmt(row.lastCost)+'</span><b class="'+(up?'is-up':'is-down')+'">'+(up?'▲ ':'▼ ')+percent+'</b></div></div>';
+        }).join('')+'</div>':'<div class="inventory-empty compact">За выбранный период пока нет товаров с несколькими приёмками для сравнения закупочной цены</div>';
+    }
     const restock=low.slice().sort((a,b)=>(a.stock-a.minStock)-(b.stock-b.minStock));
     restockRoot.innerHTML=restock.length?restock.map(item=>'<div class="inventory-movement-row"><div><strong>'+escapeBookingHtml(item.title)+'</strong><small>Остаток: '+item.stock+' '+escapeBookingHtml(item.unit)+' · минимум: '+item.minStock+' · рекомендуется добавить '+Math.max(0,item.minStock-item.stock)+'</small></div><span class="is-negative">'+(item.stock<=0?'Нет': 'Мало')+'</span></div>').join(''):'<div class="inventory-empty compact">Все активные товары выше минимального остатка</div>';
     const note=document.getElementById('inventoryAnalyticsNote');
