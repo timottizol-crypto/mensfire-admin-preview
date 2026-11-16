@@ -6697,3 +6697,12 @@ html.light-theme .booking-client-match{background:#fbf8ef}
 .inventory-price-alert-row span{font-size:11px;color:var(--text-main)}
 .inventory-price-alert-row small{font-size:10px;color:var(--text-muted);line-height:1.45}
 @media(max-width:600px){.inventory-price-alert-row{align-items:flex-start;flex-direction:column}.inventory-price-alert-row>div:last-child{align-items:flex-start;text-align:left}}
+
+
+/* Возраст задолженности поставщикам */
+.supplier-debt-age{display:flex;flex-direction:column;gap:4px;padding:10px 12px;margin:10px 0;border:1px solid var(--glass-border,rgba(255,255,255,.08));border-radius:12px;background:rgba(255,255,255,.025)}
+.supplier-debt-age span,.supplier-debt-age small,.supplier-debt-age-note{font-size:10px;color:var(--text-muted);line-height:1.5}
+.supplier-debt-age strong{font-size:13px;color:var(--text-main)}
+.supplier-debt-age.is-warning{border-color:rgba(229,163,75,.35);background:rgba(229,163,75,.06)}
+.supplier-debt-age.is-warning strong{color:#e5a34b}
+.supplier-debt-age-note{margin:8px 2px 14px}
