@@ -6670,3 +6670,17 @@ html.light-theme .booking-client-match{background:#fbf8ef}
 .inventory-price-change-values b.is-up{color:#e5ad48}
 .inventory-price-change-values b.is-down{color:#69c995}
 @media(max-width:600px){.inventory-price-change-row{align-items:flex-start}.inventory-price-change-values span{font-size:10px}}
+
+
+/* Сравнение закупочных цен у разных поставщиков */
+.inventory-supplier-compare-list{display:flex;flex-direction:column;gap:2px}
+.inventory-supplier-compare-row{display:flex;justify-content:space-between;gap:16px;padding:12px 2px;border-bottom:1px solid var(--glass-border,rgba(255,255,255,.07))}
+.inventory-supplier-compare-row:last-child{border-bottom:0}
+.inventory-supplier-compare-product,.inventory-supplier-compare-prices{display:flex;flex-direction:column;gap:5px;min-width:0}
+.inventory-supplier-compare-product strong{font-size:12px;color:var(--text-main)}
+.inventory-supplier-compare-product small,.inventory-supplier-compare-prices small{font-size:10px;color:var(--text-muted);line-height:1.45}
+.inventory-supplier-compare-prices{align-items:flex-end;text-align:right}
+.inventory-supplier-compare-prices span{font-size:10px;color:var(--text-muted)}
+.inventory-supplier-compare-prices span b{color:var(--text-main)}
+.inventory-supplier-compare-prices strong{font-size:11px;color:#69c995}
+@media(max-width:600px){.inventory-supplier-compare-row{flex-direction:column}.inventory-supplier-compare-prices{align-items:flex-start;text-align:left}}
