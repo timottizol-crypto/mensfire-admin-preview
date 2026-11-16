@@ -6613,23 +6613,39 @@ function openPurchaseReceiving(orderId){
 }
 function receivePurchaseOrder(){
     if(!requireAdminAction('Принимать поставки может только Али'))return;
-    const order=inventoryPurchaseOrders.find(item=>item.id===activeReceivingOrderId);if(!order)return;
-    const root=document.getElementById('purchaseReceivingRows'),now=new Date().toISOString(),receipts=[];
+    const order=inventoryPurchaseOrders.find(item=>item.id===activeReceivingOrderId);
+    if(!order||!['ordered','partial'].includes(order.status)||!Array.isArray(order.items)||!order.items.length)return showToast('Заказ уже закрыт или недоступен для приёмки','error');
+    const root=document.getElementById('purchaseReceivingRows');
+    if(!root)return showToast('Не удалось открыть список позиций приёмки','error');
+    const now=new Date().toISOString(),receipts=[],projectedStocks=new Map(),projectedCosts=new Map();
     for(const input of root.querySelectorAll('[data-receive-qty]')){
-        const index=Number(input.dataset.receiveQty),line=order.items[index],qty=Number(input.value),costInput=root.querySelector('[data-receive-cost="'+index+'"]'),unitCost=Number(costInput?.value);
-        const remaining=line.quantity-line.receivedQuantity;
-        if(!Number.isInteger(qty)||qty<0||qty>remaining||!Number.isFinite(unitCost)||unitCost<0)return showToast('Проверь количество и закупочную цену каждой позиции','error');
-        if(qty>0){const product=inventoryProducts.find(item=>item.id===line.productId);if(!product)return showToast('Один из товаров больше не найден. Приёмка отменена','error');receipts.push({index,line,product,qty,unitCost});}
+        const index=Number(input.dataset.receiveQty),line=Number.isSafeInteger(index)&&index>=0?order.items[index]:null;
+        if(!line||!Number.isSafeInteger(Number(line.quantity))||Number(line.quantity)<=0||!Number.isSafeInteger(Number(line.receivedQuantity))||Number(line.receivedQuantity)<0||Number(line.receivedQuantity)>Number(line.quantity))return showToast('В заказе обнаружено некорректное количество. Приёмка отменена','error');
+        const qty=Number(input.value),costInput=root.querySelector('[data-receive-cost="'+index+'"]'),unitCost=Number(costInput?.value),remaining=Number(line.quantity)-Number(line.receivedQuantity);
+        if(!Number.isSafeInteger(qty)||qty<0||qty>remaining||!Number.isFinite(unitCost)||unitCost<0)return showToast('Проверь количество и закупочную цену каждой позиции','error');
+        if(qty>0){
+            const product=inventoryProducts.find(item=>item.id===line.productId);
+            if(!product)return showToast('Один из товаров больше не найден. Приёмка отменена','error');
+            const currentStock=projectedStocks.has(product.id)?projectedStocks.get(product.id):Number(product.stock);
+            const currentCost=projectedCosts.has(product.id)?projectedCosts.get(product.id):Number(product.purchasePrice)||0;
+            if(!Number.isSafeInteger(currentStock)||currentStock<0)return showToast('У одного из товаров некорректный остаток. Приёмка отменена','error');
+            const nextStock=currentStock+qty,totalCost=qty*unitCost;
+            if(!Number.isSafeInteger(nextStock)||!Number.isFinite(totalCost))return showToast('Количество или стоимость приёмки превышает допустимые значения','error');
+            const nextCost=currentStock>0&&currentCost>0?((currentStock*currentCost)+totalCost)/nextStock:unitCost;
+            if(!Number.isFinite(nextCost)||nextCost<0)return showToast('Не удалось безопасно рассчитать себестоимость товара','error');
+            projectedStocks.set(product.id,nextStock);projectedCosts.set(product.id,nextCost);
+            receipts.push({line,product,qty,unitCost,nextStock,nextCost,totalCost});
+        }
     }
     if(!receipts.length)return showToast('Укажи количество хотя бы для одной позиции','error');
-    receipts.forEach(({index,line,product,qty,unitCost})=>{
-        const previousStock=product.stock,previousCost=Number(product.purchasePrice)||0;
-        product.stock+=qty;
-        product.purchasePrice=previousStock>0&&previousCost>0?((previousStock*previousCost)+(qty*unitCost))/(previousStock+qty):unitCost;
-        product.updatedAt=now;line.receivedQuantity+=qty;if(!Array.isArray(line.receivedBatches))line.receivedBatches=[];line.receivedBatches.push({quantity:qty,unitCost,receivedAt:now});
-        inventoryMovements.push({id:'mov_'+Date.now()+'_'+Math.random().toString(36).slice(2,8),productId:product.id,productTitle:product.title,type:'receipt',quantity:qty,supplier:order.supplier,unitCost,totalCost:qty*unitCost,note:'Приёмка заказа '+order.id+' · '+(order.note||'Заказ поставщику'),purchaseOrderId:order.id,createdAt:now});
+    receipts.forEach(({line,product,qty,unitCost,nextStock,nextCost,totalCost})=>{
+        product.stock=nextStock;product.purchasePrice=nextCost;product.updatedAt=now;
+        line.receivedQuantity=Number(line.receivedQuantity)+qty;
+        if(!Array.isArray(line.receivedBatches))line.receivedBatches=[];
+        line.receivedBatches.push({quantity:qty,unitCost,receivedAt:now});
+        inventoryMovements.push({id:'mov_'+Date.now()+'_'+Math.random().toString(36).slice(2,8),productId:product.id,productTitle:product.title,type:'receipt',quantity:qty,supplier:order.supplier,unitCost,totalCost,note:'Приёмка заказа '+order.id+' · '+(order.note||'Заказ поставщику'),purchaseOrderId:order.id,createdAt:now});
     });
-    const complete=order.items.every(item=>item.receivedQuantity>=item.quantity);
+    const complete=order.items.every(item=>Number(item.receivedQuantity)>=Number(item.quantity));
     order.status=complete?'received':'partial';order.updatedAt=now;
     persistInventory();persistPurchaseOrders();closeModal('purchaseReceivingModal');renderPurchaseOrders();
     showToast(complete?'Заказ полностью принят':'Частичная поставка зафиксирована','success');
