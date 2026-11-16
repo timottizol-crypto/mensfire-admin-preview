@@ -5919,15 +5919,25 @@ function importMensfireBackup(input) {
     }
     const file = input?.files?.[0];
     if (!file) return;
+    const MAX_BACKUP_SIZE = 20 * 1024 * 1024;
+    if (file.size > MAX_BACKUP_SIZE) {
+        showToast('Файл резервной копии слишком большой (максимум 20 МБ)', 'error');
+        input.value = '';
+        return;
+    }
     const reader = new FileReader();
     reader.onload = () => {
         let backup;
         try {
             backup = JSON.parse(String(reader.result || ''));
-            if (backup?.app !== 'MENSFIRE' || backup?.version !== 1 || !backup.data) {
+            if (backup?.app !== 'MENSFIRE' || backup?.version !== 1 ||
+                !backup.data || typeof backup.data !== 'object' || Array.isArray(backup.data)) {
                 throw new Error('Неподдерживаемый формат резервной копии');
             }
-            // Совместимость со старыми копиями, в которых ещё не было склада.
+            // Совместимость с копиями, созданными до появления отдельных модулей.
+            if (backup.data.mensfire_admin_services === undefined) {
+                backup.data.mensfire_admin_services = JSON.parse(JSON.stringify(defaultServicesData));
+            }
             if (backup.data.mensfire_inventory_products === undefined) backup.data.mensfire_inventory_products = [];
             if (backup.data.mensfire_inventory_movements === undefined) backup.data.mensfire_inventory_movements = [];
             if (backup.data.mensfire_inventory_purchase_orders === undefined) backup.data.mensfire_inventory_purchase_orders = [];
@@ -5939,6 +5949,8 @@ function importMensfireBackup(input) {
                 mensfire_admin_blocks: Array.isArray,
                 mensfire_admin_expenses: Array.isArray,
                 mensfire_admin_staff: Array.isArray,
+                mensfire_admin_services: value => value && typeof value === 'object' && !Array.isArray(value) &&
+                    Array.isArray(value.top) && Array.isArray(value.barber),
                 mensfire_inventory_products: Array.isArray,
                 mensfire_inventory_movements: Array.isArray,
                 mensfire_inventory_purchase_orders: Array.isArray,
@@ -5950,6 +5962,21 @@ function importMensfireBackup(input) {
             for (const [key, validator] of Object.entries(expected)) {
                 if (!validator(backup.data[key])) {
                     throw new Error('В копии отсутствуют или повреждены данные: ' + key);
+                }
+            }
+
+            for (const group of ['top', 'barber']) {
+                const serviceIds = new Set();
+                for (const service of backup.data.mensfire_admin_services[group]) {
+                    if (!service || typeof service !== 'object' || Array.isArray(service) ||
+                        typeof service.id !== 'string' || !service.id.trim() ||
+                        typeof service.title !== 'string' || !service.title.trim() ||
+                        !Number.isFinite(Number(service.price)) || Number(service.price) < 0 ||
+                        !Number.isFinite(Number(service.duration)) || Number(service.duration) < 5 ||
+                        serviceIds.has(service.id)) {
+                        throw new Error('Каталог услуг в резервной копии повреждён. Восстановление отменено.');
+                    }
+                    serviceIds.add(service.id);
                 }
             }
 
@@ -5983,9 +6010,34 @@ function importMensfireBackup(input) {
             'Текущие записи, перерывы, расходы, мастера и карточки клиентов будут заменены данными из файла. Перед восстановлением скачай текущую копию.',
             'Восстановить',
             () => {
-                MENSFIRE_BACKUP_KEYS.forEach(key => {
-                    localStorage.setItem(appStorageKey(key), JSON.stringify(backup.data[key]));
-                });
+                // Подготавливаем весь набор до записи и сохраняем исходное состояние для отката.
+                const prepared = new Map();
+                const previous = new Map();
+                try {
+                    MENSFIRE_BACKUP_KEYS.forEach(key => {
+                        if (!Object.prototype.hasOwnProperty.call(backup.data, key)) {
+                            throw new Error('В копии отсутствуют данные: ' + key);
+                        }
+                        prepared.set(appStorageKey(key), JSON.stringify(backup.data[key]));
+                    });
+                    prepared.forEach((value, key) => previous.set(key, localStorage.getItem(key)));
+                    prepared.forEach((value, key) => localStorage.setItem(key, value));
+                } catch (error) {
+                    let rollbackFailed = false;
+                    previous.forEach((value, key) => {
+                        try {
+                            if (value === null) localStorage.removeItem(key);
+                            else localStorage.setItem(key, value);
+                        } catch (rollbackError) {
+                            rollbackFailed = true;
+                        }
+                    });
+                    showToast(rollbackFailed
+                        ? 'Не удалось полностью восстановить прежние данные. Проверь локальное хранилище и резервную копию.'
+                        : 'Восстановление отменено: данные не были полностью сохранены. Освободи место в браузере и попробуй снова.',
+                        'error');
+                    return;
+                }
                 showToast('Данные восстановлены. Перезагружаю приложение…', 'success');
                 setTimeout(() => window.location.reload(), 700);
             }
