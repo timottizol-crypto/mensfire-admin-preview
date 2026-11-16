@@ -6551,6 +6551,7 @@ function syncClientCatalogFromClientApp(notify = false) {
     return { added, updated, total: clientAppNishmanCatalog.length };
 }
 
+let inventoryMovementHistoryLimit = 12;
 let editingInventoryProductId = null;
 
 function persistInventory() {
@@ -6904,11 +6905,39 @@ function renderInventory() {
             '<div class="inventory-product-metrics"><div><span>Остаток</span><strong>' + item.stock.toLocaleString('ru-RU') + ' ' + escapeBookingHtml(item.unit) + '</strong></div><div><span>Мин. остаток</span><strong>' + item.minStock.toLocaleString('ru-RU') + ' ' + escapeBookingHtml(item.unit) + '</strong></div><div><span>Цена продажи</span><strong>' + Math.round(item.salePrice).toLocaleString('ru-RU') + ' ₽</strong></div><div><span>Закупка</span><strong>' + (item.purchasePrice > 0 ? Math.round(item.purchasePrice).toLocaleString('ru-RU') + ' ₽' : 'Не задана') + '</strong></div></div>' +
             '<div class="inventory-product-actions"><button type="button" onclick="openInventoryProductModal(\'' + item.id + '\')">Изменить</button><button type="button" onclick="openInventoryMovementModal(\'' + item.id + '\',\'receipt\')">＋ Приход</button><button type="button" onclick="openInventoryMovementModal(\'' + item.id + '\',\'writeoff\')">− Списание</button></div></article>';
     }).join('') : '<div class="inventory-empty"><strong>' + (inventoryProducts.length ? 'Ничего не найдено' : 'Каталог пока пуст') + '</strong><span>' + (inventoryProducts.length ? 'Измени поисковый запрос или категорию.' : 'Добавь первые товары, укажи закупочную и розничную цену, а затем фиксируй приход и списание.') + '</span></div>';
-    const history = document.getElementById('inventoryMovementHistory');
-    if (history) {
-        const recent = inventoryMovements.slice().sort((a,b) => String(b.createdAt).localeCompare(String(a.createdAt))).slice(0,12);
-        history.innerHTML = recent.length ? recent.map(move => { const positive=move.type==='receipt'||move.type==='return'; const label=move.type==='return'?'Возврат':move.type==='sale'?'Продажа':move.type==='receipt'?'Приход':'Списание'; return '<div class="inventory-movement-row"><div><strong>' + escapeBookingHtml(move.productTitle || 'Товар') + '</strong><small>' + new Date(move.createdAt).toLocaleString('ru-RU') + ' · '+label+(move.supplier ? ' · Поставщик: ' + escapeBookingHtml(move.supplier) : '') + (move.unitCost !== null && move.unitCost !== undefined ? ' · Закупка: ' + Number(move.unitCost).toLocaleString('ru-RU') + ' ₽/ед.' : '') + ' · ' + escapeBookingHtml(move.note || 'Без комментария') + '</small></div><span class="' + (positive ? 'is-positive' : 'is-negative') + '">' + (positive ? '+' : '−') + move.quantity + '</span></div>'; }).join('') : '<div class="inventory-empty compact">Движений пока нет</div>';
-    }
+    renderInventoryMovementHistory();
+}
+function renderInventoryMovementHistory(){
+    const history=document.getElementById('inventoryMovementHistory');
+    if(!history)return;
+    const search=(document.getElementById('inventoryMovementSearch')?.value||'').trim().toLocaleLowerCase('ru');
+    const type=document.getElementById('inventoryMovementTypeFilter')?.value||'all';
+    const labels={return:'Возврат',sale:'Продажа',receipt:'Приход',writeoff:'Списание'};
+    const sorted=inventoryMovements.slice().sort((a,b)=>String(b.createdAt||'').localeCompare(String(a.createdAt||'')));
+    const filtered=sorted.filter(move=>{
+        if(type!=='all'&&move.type!==type)return false;
+        if(!search)return true;
+        const product=inventoryProducts.find(item=>item.id===move.productId);
+        const haystack=[move.productTitle,product?.title,move.note,move.supplier,move.saleId,move.refundId,move.purchaseOrderId,move.createdAt].filter(Boolean).join(' ').toLocaleLowerCase('ru');
+        return haystack.includes(search);
+    });
+    const shown=filtered.slice(0,inventoryMovementHistoryLimit);
+    history.innerHTML=shown.length?shown.map(move=>{
+        const positive=move.type==='receipt'||move.type==='return';
+        const label=labels[move.type]||'Движение';
+        const date=new Date(move.createdAt);
+        const dateLabel=Number.isNaN(date.getTime())?'Дата не указана':date.toLocaleString('ru-RU');
+        const costLabel=move.unitCost!==null&&move.unitCost!==undefined?' · Себестоимость: '+Number(move.unitCost).toLocaleString('ru-RU')+' ₽/ед.':'';
+        return '<div class="inventory-movement-row"><div><strong>'+escapeBookingHtml(move.productTitle||'Товар')+'</strong><small>'+dateLabel+' · '+label+(move.supplier?' · Поставщик: '+escapeBookingHtml(move.supplier):'')+costLabel+' · '+escapeBookingHtml(move.note||'Без комментария')+'</small></div><span class="'+(positive?'is-positive':'is-negative')+'">'+(positive?'+':'−')+Number(move.quantity||0)+'</span></div>';
+    }).join(''):'<div class="inventory-empty compact">'+(inventoryMovements.length?'По заданным условиям движений не найдено':'Движений пока нет')+'</div>';
+    const meta=document.getElementById('inventoryMovementHistoryMeta');
+    if(meta)meta.textContent='Показано '+shown.length+' из '+filtered.length+' движений';
+    const more=document.getElementById('inventoryMovementHistoryMore');
+    if(more)more.hidden=shown.length>=filtered.length;
+}
+function showMoreInventoryMovements(){
+    inventoryMovementHistoryLimit+=24;
+    renderInventoryMovementHistory();
 }
 function openInventoryProductModal(id = '') {
     if (!requireAdminAction('Управлять складом может только Али')) return;
