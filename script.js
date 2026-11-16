@@ -6282,6 +6282,8 @@ function exportSupplierStatement(supplierId){
         const allocationText=payment.allocations.map(item=>item.purchaseOrderId+': '+money(item.amount)+' ₽').join(' | ');
         rows.push([dateLabel(payment.paidAt),'Оплата',payment.id,'Проведена','',money(payment.amount),'','',payment.paymentMethod,(payment.note?payment.note+' · ':'')+allocationText]);
     });
+    inventorySupplierReturns.filter(record=>record.supplierId===supplierId).forEach(record=>rows.push([dateLabel(record.returnedAt),'Возврат поставщику',record.id,'Проведён','-'+money((Number(record.quantity)||0)*(Number(record.unitCost)||0)),'','', '', '',(record.productTitle||'Товар')+' · '+(record.quantity||0)+' ед. · '+(record.reason||'')]));
+    inventorySupplierRefunds.filter(record=>record.supplierId===supplierId).forEach(record=>rows.push([dateLabel(record.refundedAt),'Возврат денег от поставщика',record.id,'Получен','',money(record.amount),'','','', (record.method||'')+' · '+(record.note||'')]));
     if(rows.length===1)return showToast('Для этого поставщика пока нет операций для экспорта','info');
     const csv='\uFEFF'+rows.map(row=>row.map(value=>'"'+String(value??'').replace(/"/g,'""')+'"').join(';')).join('\r\n');
     const blob=new Blob([csv],{type:'text/csv;charset=utf-8;'});
@@ -6322,6 +6324,17 @@ function getSupplierFinanceIntegrityIssues(){
         const gross=Number(record.batchIndex)>=0?Number(batches[Number(record.batchIndex)]?.quantity)||0:Number(line.receivedQuantity)||0;
         const returned=supplierReturnedQuantity(order.id,Number(record.itemIndex),Number(record.batchIndex));
         if(returned>gross+0.001)issues.push({title:'Возврат превышает принятую партию',detail:'Заказ '+String(order.id).slice(-8)+' · '+(line.titleSnapshot||'Товар')});
+    });
+    const refundTotals=new Map();
+    inventorySupplierRefunds.forEach(record=>{
+        const order=inventoryPurchaseOrders.find(item=>item.id===record.orderId);
+        if(!order){issues.push({title:'Возврат денег ссылается на отсутствующий заказ',detail:'Операция '+String(record.id).slice(-8)});return;}
+        if(order.supplierId!==record.supplierId)issues.push({title:'Несовпадение поставщика в возврате денег',detail:'Операция '+String(record.id).slice(-8)});
+        refundTotals.set(order.id,(refundTotals.get(order.id)||0)+(Number(record.amount)||0));
+    });
+    inventoryPurchaseOrders.forEach(order=>{
+        const available=Math.max(0,(allocatedByOrder.get(order.id)||0)-supplierReceivedTotal(order));
+        if((refundTotals.get(order.id)||0)>available+0.01)issues.push({title:'Возврат денег превышает кредит поставщика',detail:'Заказ '+String(order.id).slice(-8)});
     });
     inventoryPurchaseOrders.forEach(order=>{
         const allocated=allocatedByOrder.get(order.id)||0,received=supplierGrossReceivedTotal(order);
@@ -6657,7 +6670,7 @@ function renderPurchaseOrders(){
             }).join('')+'</div>':'';
             return '<div class="purchase-line-reconcile"><div><span>'+escapeBookingHtml(item.titleSnapshot||'Товар')+'</span><small>Принято '+(Number(item.receivedQuantity)||0)+' / '+(Number(item.quantity)||0)+' шт. · Цена заказа '+fmt(item.unitCost)+'/ед. · Факт. средняя '+(hasBatchData?fmt(actualCost):'нет разбивки')+'/ед.</small>'+batchDetails+'</div></div>';
         }).join('');
-        return '<article class="purchase-order-card"><div class="purchase-order-top"><div><span class="purchase-order-status status-'+order.status+'">'+(labels[order.status]||'Заказ')+'</span><h3>'+escapeBookingHtml(order.supplier)+'</h3><small>'+new Date(order.createdAt).toLocaleDateString('ru-RU')+' · № '+escapeBookingHtml(order.id.slice(-8))+(order.expectedAt?' · Ожидается: '+escapeBookingHtml(order.expectedAt):'')+'</small></div><strong>'+fmt(total)+'</strong></div><div class="supplier-order-finance"><span>Принято: <b>'+fmt(receivedValue)+'</b></span><span>Оплачено: <b>'+fmt(paidValue)+'</b></span><span>Долг: <b>'+fmt(debtValue)+'</b></span></div><div class="purchase-order-lines">'+lines+'</div>'+ledgerStatus+(order.note?'<p class="purchase-order-note">'+escapeBookingHtml(order.note)+'</p>':'')+'<div class="purchase-order-actions">'+(['ordered','partial'].includes(order.status)?'<button type="button" class="inventory-sync-btn" onclick="openPurchaseReceiving(\''+order.id+'\')">Принять поставку · осталось '+remaining+'</button>':'')+(supplierOrderCredit(order)>0?'<button type="button" class="inventory-sync-btn" onclick="openSupplierRefund(\\''+order.id+'\\')">Возврат денег · '+supplierOrderCredit(order).toFixed(2)+' ₽</button>':'')+(supplierOrderReturnableQuantity(order)>0?'<button type="button" class="purchase-order-cancel" onclick="openSupplierReturn(\''+order.id+'\')">Вернуть поставщику</button>':'')+(order.status==='ordered'&&order.items.every(item=>!item.receivedQuantity)?'<button type="button" class="purchase-order-cancel" onclick="cancelPurchaseOrder(\''+order.id+'\')">Отменить</button>':'')+'</div></article>';
+        return '<article class="purchase-order-card"><div class="purchase-order-top"><div><span class="purchase-order-status status-'+order.status+'">'+(labels[order.status]||'Заказ')+'</span><h3>'+escapeBookingHtml(order.supplier)+'</h3><small>'+new Date(order.createdAt).toLocaleDateString('ru-RU')+' · № '+escapeBookingHtml(order.id.slice(-8))+(order.expectedAt?' · Ожидается: '+escapeBookingHtml(order.expectedAt):'')+'</small></div><strong>'+fmt(total)+'</strong></div><div class="supplier-order-finance"><span>Принято: <b>'+fmt(receivedValue)+'</b></span><span>Оплачено: <b>'+fmt(paidValue)+'</b></span><span>Долг: <b>'+fmt(debtValue)+'</b></span></div><div class="purchase-order-lines">'+lines+'</div>'+ledgerStatus+(order.note?'<p class="purchase-order-note">'+escapeBookingHtml(order.note)+'</p>':'')+'<div class="purchase-order-actions">'+(['ordered','partial'].includes(order.status)?'<button type="button" class="inventory-sync-btn" onclick="openPurchaseReceiving(\''+order.id+'\')">Принять поставку · осталось '+remaining+'</button>':'')+(supplierOrderCredit(order)>0?'<button type="button" class="inventory-sync-btn" onclick="openSupplierRefund(\''+order.id+'\')">Возврат денег · '+supplierOrderCredit(order).toFixed(2)+' ₽</button>':'')+(supplierOrderReturnableQuantity(order)>0?'<button type="button" class="purchase-order-cancel" onclick="openSupplierReturn(\''+order.id+'\')">Вернуть поставщику</button>':'')+(order.status==='ordered'&&order.items.every(item=>!item.receivedQuantity)?'<button type="button" class="purchase-order-cancel" onclick="cancelPurchaseOrder(\''+order.id+'\')">Отменить</button>':'')+'</div></article>';
     }).join(''):'<div class="inventory-empty">Заказов поставщикам пока нет. Создай первый заказ, чтобы контролировать ожидаемые поставки.</div>';
 }
 
