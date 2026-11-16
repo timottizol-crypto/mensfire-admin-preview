@@ -6736,3 +6736,22 @@ html.light-theme .booking-client-match{background:#fbf8ef}
 .supplier-allocation-row small{font-size:10px;line-height:1.4;color:var(--text-muted)}
 .supplier-allocation-row input{width:100%;min-width:0;padding:9px;border:1px solid var(--glass-border,rgba(255,255,255,.12));border-radius:9px;background:var(--input-bg,rgba(255,255,255,.04));color:var(--text-main);font:inherit;font-size:12px}
 .supplier-allocation-edit{align-self:flex-start;margin-top:4px;font-size:10px}
+
+
+/* Журнал финансовых операций поставщиков */
+.supplier-journal-panel{margin-top:18px;padding:clamp(14px,2vw,22px)}
+.supplier-journal-filters{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;margin:14px 0 8px}
+.supplier-journal-filters select,.supplier-journal-filters input{width:100%;min-width:0;min-height:38px;padding:8px 10px;border:1px solid var(--glass-border,rgba(255,255,255,.12));border-radius:9px;background:var(--input-bg,rgba(255,255,255,.04));color:var(--text-main);font:inherit;font-size:11px}
+.supplier-journal-filters label{display:flex;flex-direction:column;gap:5px;color:var(--text-muted);font-size:10px}
+.supplier-journal-summary{margin:8px 0 10px;color:var(--text-muted);font-size:10px}
+.supplier-finance-journal{display:flex;flex-direction:column}
+.supplier-journal-row{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:5px 14px;padding:12px 2px;border-top:1px solid var(--glass-border,rgba(255,255,255,.07))}
+.supplier-journal-main{display:flex;flex-direction:column;gap:4px;min-width:0}
+.supplier-journal-main>b{font-size:11px;color:var(--text-main)}
+.supplier-journal-main>small,.supplier-journal-detail{font-size:10px;line-height:1.5;color:var(--text-muted);overflow-wrap:anywhere}
+.supplier-journal-kind{font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.04em}
+.supplier-journal-kind.is-payment,.supplier-journal-row>strong.is-payment{color:#e5a34b}
+.supplier-journal-kind.is-receipt,.supplier-journal-row>strong.is-receipt{color:var(--text-main)}
+.supplier-journal-row>strong{font-size:12px;white-space:nowrap;align-self:center}
+.supplier-journal-detail{grid-column:1/-1}
+@media(max-width:700px){.supplier-journal-filters{grid-template-columns:repeat(2,minmax(0,1fr))}.supplier-journal-panel{padding:13px}.supplier-journal-row{gap:5px 8px}}
