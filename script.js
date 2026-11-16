@@ -4657,7 +4657,7 @@ function exportClientTaskAuditCsv(events) {
     const cell = value => {
         let text = String(value ?? '');
         // Защита CSV от formula injection при открытии в Excel/LibreOffice.
-        if (/^[\\s\\u0000-\\u001f]*[=+\\-@]/.test(text)) text = "'" + text;
+        if (/^[\s\u0000-\u001f]*[=+\-@]/.test(text)) text = "'" + text;
         return /[",\\r\\n;]/.test(text) ? '"' + text.replace(/"/g, '""') + '"' : text;
     };
     const rows = (Array.isArray(events) ? events : []).map(event => [
