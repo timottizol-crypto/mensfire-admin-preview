@@ -6642,3 +6642,16 @@ html.light-theme .booking-client-match{background:#fbf8ef}
 .inventory-history-more{display:block;margin:12px auto 0;padding:9px 16px;border:1px solid var(--glass-border,rgba(255,255,255,.12));border-radius:10px;background:transparent;color:var(--text-main);font-size:11px;font-weight:700;cursor:pointer}
 .inventory-history-more[hidden]{display:none}
 @media(max-width:520px){.inventory-movement-toolbar{grid-template-columns:1fr}.inventory-movement-toolbar select{width:100%}}
+
+
+/* Сверка фактических партий поставок с заказами и журналом склада */
+.purchase-line-reconcile{padding:8px 0;border-bottom:1px solid var(--glass-border,rgba(255,255,255,.07))}
+.purchase-line-reconcile:last-child{border-bottom:0}
+.purchase-line-reconcile>div{display:flex;flex-direction:column;gap:4px}
+.purchase-line-reconcile>div>span{font-size:12px;font-weight:700;color:var(--text-main)}
+.purchase-line-reconcile small{font-size:10px;line-height:1.5;color:var(--text-muted)}
+.purchase-line-batches{display:flex;flex-wrap:wrap;gap:5px;margin-top:3px}
+.purchase-line-batches span{padding:4px 7px;border-radius:6px;background:var(--glass-bg,rgba(255,255,255,.04));font-size:9px;color:var(--text-muted)}
+.purchase-ledger-check{display:inline-flex;margin-top:8px;padding:5px 8px;border-radius:7px;font-size:10px}
+.purchase-ledger-check.is-matched{color:#69c995;background:rgba(105,201,149,.09)}
+.purchase-ledger-check.is-mismatch{color:#e5ad48;background:rgba(229,173,72,.1)}
