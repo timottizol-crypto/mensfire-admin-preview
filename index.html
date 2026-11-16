@@ -268,7 +268,7 @@
 <div id="suppliersTab" class="purchase-subview" hidden>
             <div class="workspace-heading inventory-heading"><div><span class="workspace-eyebrow">MENSFIRE PARTNERS</span><h2>Поставщики</h2><p>Контакты, история заказов и объём закупок по каждому поставщику</p></div><button type="button" class="home-cta-btn" onclick="openSupplierModal()"><div class="cta-text"><span>＋ Добавить поставщика</span></div></button></div>
             <div id="suppliersOverview" class="inventory-overview-grid"></div>
-            <p class="supplier-debt-age-note">Возраст задолженности считается с первой фактической приёмки товара. Это контроль возраста долга, а не договорная просрочка: сроки оплаты по договорам пока не учитываются.</p>
+            <p class="supplier-debt-age-note">Просрочка рассчитывается от даты первой фактической приёмки по сроку оплаты, заданному в карточке поставщика. Условия конкретного заказа могут отличаться — при необходимости скорректируй срок поставщика.</p>
             <section class="glass-card suppliers-panel"><div class="finance-panel-heading"><div><h3>Справочник</h3><p>Поставщики автоматически связываются с новыми и существующими заказами</p></div></div><div class="inventory-toolbar"><input id="suppliersSearch" type="search" placeholder="Поиск по названию, контакту или телефону" oninput="renderSuppliers()"></div><div id="suppliersList" class="suppliers-grid"></div></section>
         </div>
         </div>
@@ -401,6 +401,7 @@
             <div class="supplier-form-grid"><div class="form-group"><label for="supplierPhone">Телефон</label><input id="supplierPhone" type="tel" maxlength="40" placeholder="+7 ..."></div><div class="form-group"><label for="supplierEmail">Электронная почта</label><input id="supplierEmail" type="email" maxlength="120" placeholder="name@example.com"></div></div>
             <div class="form-group"><label for="supplierAddress">Адрес</label><input id="supplierAddress" type="text" maxlength="180" placeholder="Адрес или город"></div>
             <div class="form-group"><label for="supplierNotes">Заметки</label><textarea id="supplierNotes" rows="3" maxlength="500" placeholder="Условия, особенности сотрудничества"></textarea></div>
+            <div class="form-group"><label for="supplierPaymentTermDays">Срок оплаты после приёмки, дней</label><input id="supplierPaymentTermDays" type="number" min="0" max="365" step="1" value="30"><small class="form-hint">0 — оплата в день приёмки; 30 — стандартный срок в 30 дней</small></div>
             <button type="button" class="checkout-btn" onclick="saveSupplier()">Сохранить поставщика</button>
         </div>
     </div>
