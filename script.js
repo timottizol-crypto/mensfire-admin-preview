@@ -3275,14 +3275,26 @@ function renderFinance() {
     const periodCompleted = bookings.filter(item => inRange(item.date, periodStart, periodEnd) && item.status === 'completed');
     const retailSaleDate = sale => { const date = new Date(sale.soldAt || sale.createdAt || ''); return Number.isNaN(date.getTime()) ? '' : formatReportDate(date); };
     const retailSalesInRange = (start,end) => clientRetailSales.filter(sale => inRange(retailSaleDate(sale),start,end));
-    const retailRefundsInRange = (start,end) => clientRetailSales.flatMap(sale=>(Array.isArray(sale.refunds)?sale.refunds:[]).filter(refund=>inRange(retailSaleDate({soldAt:refund.createdAt}),start,end)).map(refund=>({sale,refund})));
+    const getRetailCashLedger = sale => {
+        const totalRaw=Number(sale?.total),total=Number.isFinite(totalRaw)?Math.max(0,totalRaw):0;
+        const refunds=Array.isArray(sale?.refunds)?sale.refunds:[];
+        const recordedRefunds=refunds.reduce((sum,refund)=>{const amount=Number(refund?.paidAmount);return sum+(Number.isFinite(amount)?Math.max(0,amount):0);},0);
+        const currentPaid=Number(sale?.paidAmount);
+        const grossRaw=sale?.grossPaidAmount!=null?Number(sale.grossPaidAmount):(Number.isFinite(currentPaid)?Math.max(0,currentPaid):0)+recordedRefunds;
+        const originalPaid=Number.isFinite(grossRaw)?Math.min(total,Math.max(0,grossRaw)):0;
+        let refundable=originalPaid;
+        const refundRows=refunds.map(refund=>{
+            const raw=Number(refund?.paidAmount),requested=Number.isFinite(raw)?Math.max(0,raw):0;
+            const paidAmount=Math.min(refundable,requested);
+            refundable-=paidAmount;
+            return {refund,paidAmount};
+        });
+        return {originalPaid,refundRows};
+    };
+    const retailRefundsInRange = (start,end) => clientRetailSales.flatMap(sale=>getRetailCashLedger(sale).refundRows.filter(row=>inRange(retailSaleDate({soldAt:row.refund.createdAt}),start,end)).map(row=>({sale,refund:row.refund,paidAmount:row.paidAmount})));
     const retailCollected = (start,end) => {
-        const gross=retailSalesInRange(start,end).reduce((sum,sale)=>{
-            const refundedPaid=(Array.isArray(sale.refunds)?sale.refunds:[]).reduce((n,refund)=>n+(Number(refund.paidAmount)||0),0);
-            const originalPaid=Number(sale.grossPaidAmount ?? ((Number(sale.paidAmount)||0)+refundedPaid));
-            return sum+Math.max(0,Math.min(Number(sale.total)||0,originalPaid));
-        },0);
-        return gross-retailRefundsInRange(start,end).reduce((sum,row)=>sum+(Number(row.refund.paidAmount)||0),0);
+        const gross=retailSalesInRange(start,end).reduce((sum,sale)=>sum+getRetailCashLedger(sale).originalPaid,0);
+        return gross-retailRefundsInRange(start,end).reduce((sum,row)=>sum+row.paidAmount,0);
     };
     const revenue = (start, end) => bookings.filter(item => inRange(item.date, start, end))
         .reduce((sum, item) => sum + getBookingCollectedAmount(item), 0) + retailCollected(start,end);
@@ -3330,14 +3342,13 @@ function renderFinance() {
         }
     });
     retailSalesInRange(aggregationStart,aggregationEnd).forEach(sale=>{
-        const refundedPaid=(Array.isArray(sale.refunds)?sale.refunds:[]).reduce((n,refund)=>n+(Number(refund.paidAmount)||0),0);
-        const amount=Math.max(0,Math.min(Number(sale.total)||0,Number(sale.grossPaidAmount ?? ((Number(sale.paidAmount)||0)+refundedPaid))));
+        const amount=getRetailCashLedger(sale).originalPaid;
         const method=Object.prototype.hasOwnProperty.call(paymentTotals,sale.paymentMethod)?sale.paymentMethod:'other';
         paymentTotals[method]+=amount;
     });
-    retailRefundsInRange(aggregationStart,aggregationEnd).forEach(({sale,refund})=>{
+    retailRefundsInRange(aggregationStart,aggregationEnd).forEach(({sale,refund,paidAmount})=>{
         const method=Object.prototype.hasOwnProperty.call(paymentTotals,refund.paymentMethod||sale.paymentMethod)?(refund.paymentMethod||sale.paymentMethod):'other';
-        paymentTotals[method]-=Number(refund.paidAmount)||0;
+        paymentTotals[method]-=paidAmount;
     });
 
     const setText = (id, value) => { const node = document.getElementById(id); if (node) node.textContent = value; };
