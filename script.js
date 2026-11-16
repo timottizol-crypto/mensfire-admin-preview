@@ -6413,7 +6413,7 @@ function exportSupplierFinanceJournal(){
     const cell=value=>{const text=String(value??'');return /[",;\\r\\n]/.test(text)?'"'+text.replace(/"/g,'""')+'"':text;};
     const rows=events.map(event=>[
         event.date?new Date(event.date).toLocaleString('ru-RU'):'',
-        event.kind==='payment'?'Оплата':'Приёмка',
+        event.kind==='payment'?'Оплата':event.kind==='return'?'Возврат поставщику':'Приёмка',
         event.supplierName||'',
         event.item||'',
         event.quantity??'',
