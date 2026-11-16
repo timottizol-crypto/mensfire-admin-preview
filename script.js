@@ -6194,6 +6194,58 @@ function exportSupplierStatement(supplierId){
     showToast('Ведомость поставщика экспортирована','success');
 }
 
+
+function renderSupplierFinanceJournal(){
+    const root=document.getElementById('supplierFinanceJournal');if(!root)return;
+    const supplierFilter=document.getElementById('supplierJournalSupplier')?.value||'all';
+    const typeFilter=document.getElementById('supplierJournalType')?.value||'all';
+    const from=document.getElementById('supplierJournalFrom')?.value||'';
+    const to=document.getElementById('supplierJournalTo')?.value||'';
+    const suppliers=[...inventorySuppliers].sort((a,b)=>a.name.localeCompare(b.name,'ru'));
+    const supplierSelect=document.getElementById('supplierJournalSupplier');
+    if(supplierSelect){
+        const current=supplierSelect.value||'all';
+        supplierSelect.innerHTML='<option value="all">Все поставщики</option>'+suppliers.map(item=>'<option value="'+escapeBookingHtml(item.id)+'">'+escapeBookingHtml(item.name)+'</option>').join('');
+        supplierSelect.value=suppliers.some(item=>item.id===current)?current:'all';
+    }
+    const events=[];
+    inventorySupplierPayments.forEach(payment=>{
+        const supplier=inventorySuppliers.find(item=>item.id===payment.supplierId);
+        events.push({kind:'payment',date:payment.paidAt,supplierId:payment.supplierId,supplierName:supplier?.name||payment.supplierNameSnapshot||'Поставщик',amount:Number(payment.amount)||0,method:payment.paymentMethod||'Перевод',note:payment.note||'',id:payment.id,allocations:payment.allocations||[]});
+    });
+    inventoryPurchaseOrders.forEach(order=>{
+        const supplier=inventorySuppliers.find(item=>item.id===order.supplierId);
+        if(order.status==='cancelled')return;
+        (order.items||[]).forEach(item=>{
+            const batches=Array.isArray(item.receivedBatches)?item.receivedBatches:[];
+            if(batches.length){
+                batches.forEach((batch,index)=>{
+                    const amount=(Number(batch.quantity)||0)*(Number(batch.unitCost)||0);
+                    if(amount>0)events.push({kind:'receipt',date:batch.receivedAt||order.updatedAt||order.createdAt,supplierId:order.supplierId,supplierName:supplier?.name||order.supplier||'Поставщик',amount,item:item.titleSnapshot||'Товар',quantity:Number(batch.quantity)||0,orderId:order.id});
+                });
+            }else if((Number(item.receivedQuantity)||0)>0){
+                const amount=(Number(item.receivedQuantity)||0)*(Number(item.unitCost)||0);
+                if(amount>0)events.push({kind:'receipt',date:order.updatedAt||order.createdAt,supplierId:order.supplierId,supplierName:supplier?.name||order.supplier||'Поставщик',amount,item:item.titleSnapshot||'Товар',quantity:Number(item.receivedQuantity)||0,orderId:order.id});
+            }
+        });
+    });
+    const filtered=events.filter(event=>{
+        const day=event.date?new Date(event.date).toISOString().slice(0,10):'';
+        return (supplierFilter==='all'||event.supplierId===supplierFilter)&&(typeFilter==='all'||event.kind===typeFilter)&&(!from||day>=from)&&(!to||day<=to);
+    }).sort((a,b)=>new Date(b.date||0)-new Date(a.date||0));
+    const total=filtered.reduce((sum,event)=>sum+(event.kind==='payment'?-event.amount:event.amount),0);
+    const fmt=value=>Math.round(value*100/100).toLocaleString('ru-RU',{maximumFractionDigits:2})+' ₽';
+    const dateLabel=value=>{const date=new Date(value);return value&&!Number.isNaN(date.getTime())?date.toLocaleDateString('ru-RU'):'Дата не указана';};
+    const summary=document.getElementById('supplierJournalSummary');
+    if(summary)summary.textContent=filtered.length+' операций · '+(total>=0?'приёмки ':'оплаты ')+fmt(Math.abs(total))+' (приёмки минус оплаты)';
+    root.innerHTML=filtered.length?filtered.map(event=>{
+        const isPayment=event.kind==='payment';
+        const detail=isPayment?(event.allocations.length?event.allocations.map(allocation=>'Заказ № '+escapeBookingHtml(String(allocation.purchaseOrderId).slice(-8))+' — '+fmt(allocation.amount)).join(' · '):'Распределение не указано'):(escapeBookingHtml(event.item)+' · '+event.quantity+' ед. · заказ № '+escapeBookingHtml(String(event.orderId).slice(-8)));
+        return '<article class="supplier-journal-row"><div class="supplier-journal-main"><span class="supplier-journal-kind '+(isPayment?'is-payment':'is-receipt')+'">'+(isPayment?'Оплата':'Приёмка')+'</span><b>'+escapeBookingHtml(event.supplierName)+'</b><small>'+dateLabel(event.date)+' · '+(isPayment?escapeBookingHtml(event.method):'Поступление товара')+'</small></div><strong class="'+(isPayment?'is-payment':'is-receipt')+'">'+(isPayment?'−':'+')+fmt(event.amount)+'</strong><small class="supplier-journal-detail">'+detail+(event.note?' · '+escapeBookingHtml(event.note):'')+'</small></article>';
+    }).join(''):'<div class="inventory-empty compact">Операций по выбранным фильтрам нет</div>';
+}
+function filterSupplierFinanceJournal(){renderSupplierFinanceJournal();}
+
 function renderSuppliers(){
     const root=document.getElementById('suppliersList');if(!root)return;
     const query=String(document.getElementById('suppliersSearch')?.value||'').trim().toLocaleLowerCase('ru-RU');
