@@ -7561,10 +7561,10 @@ function saveInventoryProduct() {
     const minStock = Number(document.getElementById('inventoryProductMin').value);
     const openingStock = Number(document.getElementById('inventoryProductStock').value);
     if (!title || !Number.isFinite(purchasePrice) || purchasePrice < 0 || !Number.isFinite(salePrice) || salePrice < 0 ||
-        !Number.isFinite(minStock) || minStock < 0 || !Number.isFinite(openingStock) || openingStock < 0) {
-        return showToast('Проверь название и числовые значения товара', 'error');
+        !Number.isSafeInteger(minStock) || minStock < 0 || !Number.isSafeInteger(openingStock) || openingStock < 0) {
+        return showToast('Проверь название, цены и целые неотрицательные остатки товара', 'error');
     }
-    if (sku && inventoryProducts.some(item => item.sku.toLowerCase() === sku.toLowerCase() && item.id !== editingInventoryProductId)) {
+    if (sku && inventoryProducts.some(item => String(item.sku || '').toLowerCase() === sku.toLowerCase() && item.id !== editingInventoryProductId)) {
         return showToast('Такой артикул уже используется', 'error');
     }
     const now = new Date().toISOString();
@@ -7611,17 +7611,22 @@ function saveInventoryMovement() {
     const supplier = document.getElementById('inventoryMovementSupplier').value.trim();
     const unitCostRaw = document.getElementById('inventoryMovementUnitCost').value.trim();
     const unitCost = unitCostRaw === '' ? null : Number(unitCostRaw);
-    if (!item || !Number.isInteger(quantity) || quantity <= 0) return showToast('Укажи целое количество больше нуля', 'error');
-    if (type === 'writeoff' && quantity > item.stock) return showToast('Нельзя списать больше, чем есть на складе', 'error');
+    if (!item || !['receipt','writeoff'].includes(type)) return showToast('Не удалось определить товар или тип складской операции','error');
+    if (!Number.isSafeInteger(quantity) || quantity <= 0) return showToast('Укажи целое количество больше нуля','error');
+    const previousStock=Number(item.stock);
+    if (!Number.isSafeInteger(previousStock) || previousStock < 0) return showToast('Текущий остаток товара некорректен. Сначала проверь склад','error');
+    if (type === 'writeoff' && quantity > previousStock) return showToast('Нельзя списать больше, чем есть на складе', 'error');
+    const nextStock=type==='receipt'?previousStock+quantity:previousStock-quantity;
+    if (!Number.isSafeInteger(nextStock) || nextStock < 0) return showToast('Операция приведёт к некорректному остатку. Проверь количество','error');
     if (type === 'receipt' && unitCost !== null && (!Number.isFinite(unitCost) || unitCost < 0)) return showToast('Проверь закупочную цену за единицу', 'error');
-    const previousStock = item.stock;
-    item.stock += type === 'receipt' ? quantity : -quantity;
+    const now=new Date().toISOString();
     if (type === 'receipt' && unitCost !== null) {
         item.purchasePrice = previousStock > 0 && Number(item.purchasePrice) > 0
-            ? ((previousStock * Number(item.purchasePrice)) + (quantity * unitCost)) / (previousStock + quantity)
+            ? ((previousStock * Number(item.purchasePrice)) + (quantity * unitCost)) / nextStock
             : unitCost;
     }
-    item.updatedAt = new Date().toISOString();
+    item.stock=nextStock;
+    item.updatedAt=now;
     inventoryMovements.push({
         id:'mov_' + Date.now() + '_' + Math.random().toString(36).slice(2,6),
         productId:item.id,
@@ -7632,11 +7637,10 @@ function saveInventoryMovement() {
         unitCost: type === 'receipt' ? unitCost : null,
         totalCost: type === 'receipt' && unitCost !== null ? quantity * unitCost : null,
         note:document.getElementById('inventoryMovementNote').value.trim(),
-        createdAt:item.updatedAt
+        createdAt:now
     });
     persistInventory();
     closeModal('inventoryMovementModal');
     renderInventory();
     showToast(type === 'receipt' ? 'Приход зафиксирован' : 'Списание зафиксировано', 'success');
 }
-
