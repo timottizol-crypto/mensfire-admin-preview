@@ -6101,20 +6101,50 @@ function persistSupplierReturns(){localStorage.setItem(appStorageKey('mensfire_i
 function supplierReturnedQuantity(orderId,itemIndex,batchIndex=-1){return inventorySupplierReturns.filter(item=>item.orderId===String(orderId)&&item.itemIndex===Number(itemIndex)&&item.batchIndex===Number(batchIndex)).reduce((sum,item)=>sum+(Number(item.quantity)||0),0);}
 function supplierReceivedTotal(order){return (order.items||[]).reduce((sum,line,itemIndex)=>{const gross=Array.isArray(line.receivedBatches)&&line.receivedBatches.length?line.receivedBatches.reduce((n,b)=>n+(Number(b.quantity)||0)*(Number(b.unitCost)||0),0):(Number(line.receivedQuantity)||0)*(Number(line.unitCost)||0);const returned=inventorySupplierReturns.filter(item=>item.orderId===String(order.id)&&item.itemIndex===itemIndex).reduce((n,item)=>n+(Number(item.quantity)||0)*(Number(item.unitCost)||0),0);return sum+Math.max(0,gross-returned);},0);}
 function supplierOrderGrossReceivedTotal(order){return (order.items||[]).reduce((sum,line)=>sum+(Array.isArray(line.receivedBatches)&&line.receivedBatches.length?line.receivedBatches.reduce((n,b)=>n+(Number(b.quantity)||0)*(Number(b.unitCost)||0),0):(Number(line.receivedQuantity)||0)*(Number(line.unitCost)||0)),0);}
-function supplierOrderGrossPaid(id){return inventorySupplierPayments.reduce((sum,p)=>sum+p.allocations.filter(a=>a.purchaseOrderId===id).reduce((n,a)=>n+a.amount,0),0);}
-function supplierOrderRefunded(id){return inventorySupplierRefunds.filter(item=>item.orderId===String(id)).reduce((sum,item)=>sum+(Number(item.amount)||0),0);}
-function supplierOrderPaid(id){return Math.max(0,supplierOrderGrossPaid(id)-supplierOrderRefunded(id));}
-function supplierOrderCredit(order){return Math.max(0,supplierOrderPaid(order.id)-supplierReceivedTotal(order));}
-function supplierOrderDebt(order){return Math.max(0,supplierReceivedTotal(order)-supplierOrderPaid(order.id));}
+function supplierOrderGrossPaid(id){
+    const cents=inventorySupplierPayments.reduce((sum,p)=>sum+(Array.isArray(p.allocations)?p.allocations.filter(a=>String(a.purchaseOrderId)===String(id)).reduce((n,a)=>n+Math.round(Number(a.amount)*100),0):0),0);
+    return Number.isSafeInteger(cents)?cents/100:NaN;
+}
+function supplierOrderRefunded(id){
+    const cents=inventorySupplierRefunds.filter(item=>String(item.orderId)===String(id)).reduce((sum,item)=>sum+Math.round(Number(item.amount)*100),0);
+    return Number.isSafeInteger(cents)?cents/100:NaN;
+}
+function supplierOrderPaid(id){
+    const paid=supplierOrderGrossPaid(id),refunded=supplierOrderRefunded(id);
+    if(!Number.isFinite(paid)||!Number.isFinite(refunded))return 0;
+    return Math.max(0,Math.round((paid-refunded)*100)/100);
+}
+function supplierOrderCredit(order){
+    const paid=supplierOrderPaid(order.id),received=supplierReceivedTotal(order);
+    if(!Number.isFinite(paid)||!Number.isFinite(received))return 0;
+    return Math.max(0,Math.round((paid-received)*100)/100);
+}
+function supplierOrderDebt(order){
+    const paid=supplierOrderPaid(order.id),received=supplierReceivedTotal(order);
+    if(!Number.isFinite(paid)||!Number.isFinite(received))return 0;
+    return Math.max(0,Math.round((received-paid)*100)/100);
+}
 function createSupplierRefund(data){
     if(!requireAdminAction('Фиксировать возврат денег от поставщика может только Али'))return false;
     const order=inventoryPurchaseOrders.find(item=>item.id===String(data?.orderId||''));
-    if(!order||order.status==='cancelled')return showToast('Заказ не найден или отменён','error'),false;
-    const amount=Math.round(Number(data.amount)*100)/100,credit=supplierOrderCredit(order);
-    if(!Number.isFinite(amount)||amount<=0||amount>credit+0.009)return showToast('Сумма превышает доступную переплату поставщику','error'),false;
-    const date=String(data.date||new Date().toISOString().slice(0,10));
-    const record={id:'srefund_'+Date.now()+'_'+Math.random().toString(36).slice(2,7),orderId:order.id,supplierId:order.supplierId,supplierNameSnapshot:order.supplier||'',amount,refundedAt:new Date(date+'T12:00:00').toISOString(),method:String(data.method||'Перевод'),note:String(data.note||'').trim()};
-    inventorySupplierRefunds.unshift(record);persistSupplierRefunds();renderSuppliers();renderPurchaseOrders();showToast('Возврат денег от поставщика сохранён','success');return record;
+    if(!order||order.status==='cancelled'||!Array.isArray(order.items))return showToast('Заказ не найден или отменён','error'),false;
+    const rawAmount=Number(data?.amount);
+    if(!Number.isFinite(rawAmount)||rawAmount<=0)return showToast('Укажи корректную сумму возврата','error'),false;
+    const amount=Math.round((rawAmount+Number.EPSILON)*100)/100;
+    const amountCents=Math.round(amount*100),credit=supplierOrderCredit(order),creditCents=Math.round(credit*100);
+    if(!Number.isSafeInteger(amountCents)||amountCents<=0||!Number.isSafeInteger(creditCents)||amountCents>creditCents)return showToast('Сумма превышает доступную переплату поставщику','error'),false;
+    const date=String(data?.date||'');
+    if(!/^\d{4}-\d{2}-\d{2}$/.test(date)||Number.isNaN(new Date(date+'T12:00:00').getTime())||new Date(date+'T12:00:00').toISOString().slice(0,10)!==date)return showToast('Укажи корректную дату возврата','error'),false;
+    const allowedMethods=['Перевод','Наличные','Карта','Зачёт'];
+    const method=String(data?.method||'');
+    if(!allowedMethods.includes(method))return showToast('Выбери корректный способ возврата','error'),false;
+    const refunded=supplierOrderRefunded(order.id),grossPaid=supplierOrderGrossPaid(order.id);
+    if(!Number.isFinite(refunded)||!Number.isFinite(grossPaid)||refunded<0||grossPaid<0||refunded>grossPaid)return showToast('В истории оплат или возвратов поставщику обнаружено расхождение','error'),false;
+    const record={id:'srefund_'+Date.now()+'_'+Math.random().toString(36).slice(2,7),orderId:order.id,supplierId:order.supplierId,supplierNameSnapshot:order.supplier||'',amount,refundedAt:new Date(date+'T12:00:00').toISOString(),method,note:String(data?.note||'').trim().slice(0,300)};
+    inventorySupplierRefunds.unshift(record);
+    try{persistSupplierRefunds();}
+    catch(error){inventorySupplierRefunds.shift();return showToast('Не удалось сохранить возврат. Данные не изменены','error'),false;}
+    renderSuppliers();renderPurchaseOrders();showToast('Возврат денег от поставщика сохранён','success');return record;
 }
 
 function createSupplierReturn(data){
