@@ -6726,3 +6726,13 @@ html.light-theme .booking-client-match{background:#fbf8ef}
 .supplier-reconciliation-row small,.supplier-payment-record small{font-size:10px;line-height:1.5;color:var(--text-muted)}
 .supplier-payment-record>small{padding-left:2px;overflow-wrap:anywhere}
 @media(min-width:700px){.supplier-reconciliation-row{display:grid;grid-template-columns:minmax(150px,1.5fr) minmax(100px,1fr) minmax(100px,1fr);align-items:center;column-gap:12px}.supplier-reconciliation-row>small{grid-column:1/-1}}
+
+
+/* Редактирование распределения платежа поставщику */
+.supplier-allocation-rows{display:flex;flex-direction:column;gap:7px;max-height:48vh;overflow:auto;margin:12px 0}
+.supplier-allocation-row{display:grid;grid-template-columns:minmax(0,1fr) minmax(105px,130px);align-items:center;gap:12px;padding:10px 0;border-bottom:1px solid var(--glass-border,rgba(255,255,255,.08));cursor:default}
+.supplier-allocation-row>span{display:flex;flex-direction:column;gap:4px;min-width:0}
+.supplier-allocation-row b{font-size:11px;color:var(--text-main)}
+.supplier-allocation-row small{font-size:10px;line-height:1.4;color:var(--text-muted)}
+.supplier-allocation-row input{width:100%;min-width:0;padding:9px;border:1px solid var(--glass-border,rgba(255,255,255,.12));border-radius:9px;background:var(--input-bg,rgba(255,255,255,.04));color:var(--text-main);font:inherit;font-size:12px}
+.supplier-allocation-edit{align-self:flex-start;margin-top:4px;font-size:10px}
