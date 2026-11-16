@@ -7168,8 +7168,11 @@ function saveRetailSale(){
     if(checked.some(item=>!item.product||!item.product.active||item.product.stock<item.row.quantity))return showToast('Остатки изменились. Обнови чек и проверь количество','error');
     const now=new Date().toISOString();
     const saleId='sale_'+Date.now()+'_'+Math.random().toString(36).slice(2,7);
-    const bookingId=document.getElementById('retailSaleBooking').value||'';
-    const linkedBooking=bookings.find(item=>String(item.id)===bookingId);
+    const bookingId=document.getElementById('retailSaleBooking')?.value||'';
+    const linkedBooking=bookingId ? bookings.find(item=>String(item.id)===bookingId) : null;
+    if (bookingId && (!linkedBooking || !(Array.isArray(client.bookings) && client.bookings.some(item=>String(item.id)===bookingId)))) {
+        return showToast('Выбранный визит не относится к этому клиенту. Обнови список визитов и попробуй снова','error');
+    }
     const items=checked.map(({row,product})=>{
         const movementId='mov_'+Date.now()+'_'+Math.random().toString(36).slice(2,8);
         const unitCostSnapshot=Number(product.purchasePrice)>0?Number(product.purchasePrice):null;
