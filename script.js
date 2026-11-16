@@ -6445,10 +6445,10 @@ function renderSupplierFinanceJournal(){
     const fmt=value=>Math.round(value*100/100).toLocaleString('ru-RU',{maximumFractionDigits:2})+' ₽';
     const dateLabel=value=>{const date=new Date(value);return value&&!Number.isNaN(date.getTime())?date.toLocaleDateString('ru-RU'):'Дата не указана';};
     const summary=document.getElementById('supplierJournalSummary');
-    if(summary)summary.textContent=filtered.length+' операций · '+(total>=0?'приёмки ':'оплаты ')+fmt(Math.abs(total))+' (приёмки минус оплаты)';
+    if(summary)summary.textContent=filtered.length+' операций · '+(total>=0?'поступления ':'списания ')+fmt(Math.abs(total))+' (приёмки и возвраты денег минус оплаты и возвраты товара)';
     root.innerHTML=filtered.length?filtered.map(event=>{
         const isPayment=event.kind==='payment',isReturn=event.kind==='return',isRefund=event.kind==='refund';
-        const detail=isPayment?(event.allocations.length?event.allocations.map(allocation=>'Заказ № '+escapeBookingHtml(String(allocation.purchaseOrderId).slice(-8))+' — '+fmt(allocation.amount)).join(' · '):'Распределение не указано'):(escapeBookingHtml(event.item)+' · '+event.quantity+' ед. · заказ № '+escapeBookingHtml(String(event.orderId).slice(-8)));
+        const detail=isPayment?(event.allocations.length?event.allocations.map(allocation=>'Заказ № '+escapeBookingHtml(String(allocation.purchaseOrderId).slice(-8))+' — '+fmt(allocation.amount)).join(' · '):'Распределение не указано'):isRefund?'Заказ № '+escapeBookingHtml(String(event.orderId).slice(-8)):(escapeBookingHtml(event.item)+' · '+event.quantity+' ед. · заказ № '+escapeBookingHtml(String(event.orderId).slice(-8)));
         return '<article class="supplier-journal-row"><div class="supplier-journal-main"><span class="supplier-journal-kind '+(isPayment||isReturn?'is-payment':'is-receipt')+'">'+(isPayment?'Оплата':isReturn?'Возврат поставщику':isRefund?'Возврат денег от поставщика':'Приёмка')+'</span><b>'+escapeBookingHtml(event.supplierName)+'</b><small>'+dateLabel(event.date)+' · '+(isPayment||isRefund?escapeBookingHtml(event.method):isReturn?'Возврат товара':'Поступление товара')+'</small></div><strong class="'+(isPayment||isReturn?'is-payment':'is-receipt')+'">'+(isPayment||isReturn?'−':'+')+fmt(event.amount)+'</strong><small class="supplier-journal-detail">'+detail+(event.note?' · '+escapeBookingHtml(event.note):'')+'</small></article>';
     }).join(''):'<div class="inventory-empty compact">Операций по выбранным фильтрам нет</div>';
 }
