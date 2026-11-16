@@ -6953,7 +6953,8 @@ function saveInventoryProduct() {
         inventoryProducts.push(item);
         if (openingStock > 0) {
             item.stock = openingStock;
-            inventoryMovements.push({id:'mov_' + Date.now(),productId:item.id,productTitle:item.title,type:'receipt',quantity:openingStock,note:'Начальный остаток',createdAt:now});
+            const openingUnitCost=purchasePrice>0?purchasePrice:null;
+            inventoryMovements.push({id:'mov_' + Date.now()+'_'+Math.random().toString(36).slice(2,7),productId:item.id,productTitle:item.title,type:'receipt',quantity:openingStock,unitCost:openingUnitCost,totalCost:openingUnitCost===null?null:openingUnitCost*openingStock,note:'Начальный остаток',createdAt:now});
         }
     }
     persistInventory();
