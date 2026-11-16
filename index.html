@@ -394,6 +394,7 @@
 
 
     <div class="modal" id="supplierPaymentModal"><div class="modal-content supplier-modal-content"><div class="booking-detail-heading"><h2 id="supplierPaymentTitle">Оплата поставщику</h2><button class="close-btn" type="button" onclick="closeModal('supplierPaymentModal')">&times;</button></div><p id="supplierPaymentDebt" class="purchase-order-note"></p><div class="form-group"><label for="supplierPaymentAmount">Сумма оплаты, ₽</label><input id="supplierPaymentAmount" type="number" min="0.01" step="0.01"></div><div class="supplier-form-grid"><div class="form-group"><label for="supplierPaymentDate">Дата оплаты</label><input id="supplierPaymentDate" type="date"></div><div class="form-group"><label for="supplierPaymentMethod">Способ оплаты</label><select id="supplierPaymentMethod"><option>Перевод</option><option>Наличные</option><option>Карта</option><option>Другое</option></select></div></div><div class="form-group"><label for="supplierPaymentNote">Комментарий</label><textarea id="supplierPaymentNote" rows="2" maxlength="300"></textarea></div><button type="button" class="checkout-btn" onclick="saveSupplierPayment()">Сохранить оплату</button></div></div>
+    <div class="modal" id="supplierAllocationModal"><div class="modal-content supplier-modal-content"><div class="booking-detail-heading"><h2 id="supplierAllocationTitle">Распределение оплаты</h2><button class="close-btn" type="button" onclick="closeModal('supplierAllocationModal')">&times;</button></div><p id="supplierAllocationTotal" class="purchase-order-note"></p><p class="inventory-modal-hint">Распредели платёж между заказами. Общая сумма должна совпадать с платежом, а распределение не может превышать стоимость принятого товара.</p><div id="supplierAllocationRows" class="supplier-allocation-rows"></div><button type="button" class="checkout-btn" onclick="saveSupplierPaymentAllocation()">Сохранить распределение</button></div></div>
     <div class="modal" id="supplierModal">
         <div class="modal-content supplier-modal-content"><div class="booking-detail-heading"><h2 id="supplierModalTitle">Новый поставщик</h2><button class="close-btn" type="button" onclick="closeModal('supplierModal')">&times;</button></div>
             <div class="form-group"><label for="supplierName">Название компании / поставщика</label><input id="supplierName" type="text" maxlength="120" placeholder="Название поставщика"></div>
@@ -930,6 +931,6 @@
         </div>
     </div>
 
-    <script src="script.js?v=mensfire-supplier-reconciliation-20261116-59"></script>
+    <script src="script.js?v=mensfire-payment-allocation-20261116-60"></script>
 </body>
 </html>
