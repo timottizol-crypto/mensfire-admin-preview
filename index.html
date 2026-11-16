@@ -240,7 +240,7 @@
             </section>
             <section class="glass-card inventory-history-panel">
                 <div class="finance-panel-heading"><div><h3>Последние движения</h3><p>Начальные остатки, закупки, продажи, возвраты и списания</p></div></div>
-                <div id="inventoryMovementHistory"></div>
+                <div class="inventory-movement-toolbar"><input id="inventoryMovementSearch" type="search" placeholder="Поиск по товару, поставщику, чеку или дате" oninput="inventoryMovementHistoryLimit=12;renderInventoryMovementHistory()"><select id="inventoryMovementTypeFilter" onchange="inventoryMovementHistoryLimit=12;renderInventoryMovementHistory()"><option value="all">Все операции</option><option value="receipt">Приходы</option><option value="sale">Продажи</option><option value="return">Возвраты</option><option value="writeoff">Списания</option></select></div><div id="inventoryMovementHistoryMeta" class="inventory-movement-meta"></div><div id="inventoryMovementHistory"></div><button id="inventoryMovementHistoryMore" class="inventory-history-more" type="button" onclick="showMoreInventoryMovements()" hidden>Показать ещё движения</button>
             </section>
         </div>
 
