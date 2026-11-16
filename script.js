@@ -7442,12 +7442,65 @@ function getRetailInventoryIntegrityIssues(){
     });
     return issues;
 }
+function getInventoryStockIntegrityIssues(){
+    const issues=[];
+    const movementTypes=new Set(['receipt','return','sale','writeoff','supplier_return']);
+    inventoryProducts.forEach(product=>{
+        const productMoves=inventoryMovements.filter(move=>String(move.productId)===String(product.id));
+        const actual=Number(product.stock);
+        if(!Number.isSafeInteger(actual)||actual<0){
+            issues.push({title:'Некорректный фактический остаток',detail:(product.title||'Товар')+' · записано: '+String(product.stock)});
+            return;
+        }
+        if(!productMoves.length){
+            if(actual>0)issues.push({title:'Остаток без истории движений',detail:(product.title||'Товар')+' · на складе '+actual+' '+(product.unit||'шт.')+' · исходный остаток не подтверждён журналом'});
+            return;
+        }
+        let expected=0,canReconcile=true;
+        productMoves.forEach(move=>{
+            if(!movementTypes.has(move.type)){
+                issues.push({title:'Неизвестный тип складского движения',detail:(product.title||'Товар')+' · '+String(move.type||'без типа')+' · движение '+String(move.id||'').slice(-8)});
+                canReconcile=false;
+                return;
+            }
+            const quantity=Number(move.quantity);
+            if(!Number.isSafeInteger(quantity)||quantity===0){
+                issues.push({title:'Некорректное количество в журнале',detail:(product.title||'Товар')+' · движение '+String(move.id||'').slice(-8)+' · '+String(move.quantity)});
+                canReconcile=false;
+                return;
+            }
+            if((move.type==='receipt'||move.type==='return'||move.type==='sale'||move.type==='writeoff')&&quantity<0){
+                issues.push({title:'Неверный знак количества движения',detail:(product.title||'Товар')+' · '+move.type+' · движение '+String(move.id||'').slice(-8)});
+                canReconcile=false;
+                return;
+            }
+            if(move.type==='supplier_return'&&quantity>0){
+                issues.push({title:'Неверный знак возврата поставщику',detail:(product.title||'Товар')+' · движение '+String(move.id||'').slice(-8)});
+                canReconcile=false;
+                return;
+            }
+            expected+=move.type==='receipt'||move.type==='return' ? quantity : move.type==='sale'||move.type==='writeoff' ? -quantity : quantity;
+        });
+        if(!Number.isSafeInteger(expected)){
+            issues.push({title:'Не удалось рассчитать остаток по журналу',detail:product.title||'Товар'});
+            return;
+        }
+        if(canReconcile&&expected<0){
+            issues.push({title:'Журнал приводит к отрицательному остатку',detail:(product.title||'Товар')+' · расчётный остаток: '+expected});
+            canReconcile=false;
+        }
+        if(canReconcile&&actual!==expected){
+            issues.push({title:'Фактический остаток не совпадает с журналом',detail:(product.title||'Товар')+' · на складе '+actual+', по движениям '+expected+' '+(product.unit||'шт.')});
+        }
+    });
+    return issues;
+}
 function renderInventoryMovementHistory(){
     const history=document.getElementById('inventoryMovementHistory');
     if(!history)return;
     const search=(document.getElementById('inventoryMovementSearch')?.value||'').trim().toLocaleLowerCase('ru');
     const type=document.getElementById('inventoryMovementTypeFilter')?.value||'all';
-    const labels={return:'Возврат',sale:'Продажа',receipt:'Приход',writeoff:'Списание'};
+    const labels={return:'Возврат',sale:'Продажа',receipt:'Приход',writeoff:'Списание',supplier_return:'Возврат поставщику'};
     const sorted=inventoryMovements.slice().sort((a,b)=>String(b.createdAt||'').localeCompare(String(a.createdAt||'')));
     const filtered=sorted.filter(move=>{
         if(type!=='all'&&move.type!==type)return false;
@@ -7457,18 +7510,21 @@ function renderInventoryMovementHistory(){
         return haystack.includes(search);
     });
     const shown=filtered.slice(0,inventoryMovementHistoryLimit);
-    const integrityIssues=getRetailInventoryIntegrityIssues();
+    const retailIssues=getRetailInventoryIntegrityIssues();
+    const stockIssues=getInventoryStockIntegrityIssues();
+    const integrityIssues=retailIssues.concat(stockIssues);
     const integrityBanner=integrityIssues.length
-        ?'<div class="inventory-empty" style="border-color:var(--danger,#dc6262);margin-bottom:12px"><strong>Проверка товарных чеков: '+integrityIssues.length+' расхождений</strong>'+integrityIssues.slice(0,5).map(issue=>'<small>'+escapeBookingHtml(issue.title)+' · '+escapeBookingHtml(issue.detail)+'</small>').join('')+(integrityIssues.length>5?'<small>И ещё '+(integrityIssues.length-5)+' расхождений</small>':'')+'</div>'
-        :'<div class="inventory-empty compact" style="margin-bottom:12px">Связи товарных чеков и складских движений проверены · расхождений нет</div>';
+        ?'<div class="inventory-empty" style="border-color:var(--danger,#dc6262);margin-bottom:12px"><strong>Проверка склада: '+integrityIssues.length+' замечаний</strong>'+integrityIssues.slice(0,7).map(issue=>'<small>'+escapeBookingHtml(issue.title)+' · '+escapeBookingHtml(issue.detail)+'</small>').join('')+(integrityIssues.length>7?'<small>И ещё '+(integrityIssues.length-7)+' замечаний</small>':'')+'</div>'
+        :'<div class="inventory-empty compact" style="margin-bottom:12px">Товарные чеки и фактические остатки сверены с журналом · расхождений нет</div>';
     history.innerHTML=integrityBanner+(shown.length?shown.map(move=>{
         const positive=move.type==='receipt'||move.type==='return';
         const label=labels[move.type]||'Движение';
         const date=new Date(move.createdAt);
         const dateLabel=Number.isNaN(date.getTime())?'Дата не указана':date.toLocaleString('ru-RU');
         const costLabel=move.unitCost!==null&&move.unitCost!==undefined?' · Себестоимость: '+Number(move.unitCost).toLocaleString('ru-RU')+' ₽/ед.':'';
-        return '<div class="inventory-movement-row"><div><strong>'+escapeBookingHtml(move.productTitle||'Товар')+'</strong><small>'+dateLabel+' · '+label+(move.supplier?' · Поставщик: '+escapeBookingHtml(move.supplier):'')+costLabel+' · '+escapeBookingHtml(move.note||'Без комментария')+'</small></div><span class="'+(positive?'is-positive':'is-negative')+'">'+(positive?'+':'−')+Number(move.quantity||0)+'</span></div>';
-    }).join(''):'<div class="inventory-empty compact">'+(inventoryMovements.length?'По заданным условиям движений не найдено':'Движений пока нет')+'</div>';
+        const quantity=Math.abs(Number(move.quantity)||0);
+        return '<div class="inventory-movement-row"><div><strong>'+escapeBookingHtml(move.productTitle||'Товар')+'</strong><small>'+dateLabel+' · '+label+(move.supplier?' · Поставщик: '+escapeBookingHtml(move.supplier):'')+costLabel+' · '+escapeBookingHtml(move.note||'Без комментария')+'</small></div><span class="'+(positive?'is-positive':'is-negative')+'">'+(positive?'+':'−')+quantity+'</span></div>';
+    }).join(''):'<div class="inventory-empty compact">'+(inventoryMovements.length?'По заданным условиям движений не найдено':'Движений пока нет')+'</div>');
     const meta=document.getElementById('inventoryMovementHistoryMeta');
     if(meta)meta.textContent='Показано '+shown.length+' из '+filtered.length+' движений';
     const more=document.getElementById('inventoryMovementHistoryMore');
