@@ -6512,8 +6512,26 @@ function getSupplierFinanceIntegrityIssues(){
         if(linkedMovements.length!==1)issues.push({title:'Нет единственного складского движения возврата',detail:'Возврат '+String(record.id).slice(-8)+' · найдено движений: '+linkedMovements.length});
         else if(linkedMovements[0].type!=='supplier_return'||linkedMovements[0].productId!==record.productId||Math.abs((Number(linkedMovements[0].quantity)||0)+quantity)>0.001)issues.push({title:'Складское движение не совпадает с возвратом',detail:'Возврат '+String(record.id).slice(-8)+' · проверь товар и количество'});
     });
+    const purchaseOrderIds=new Set(inventoryPurchaseOrders.map(order=>String(order.id)));
+    inventoryMovements.filter(move=>move.type==='receipt'&&move.purchaseOrderId).forEach(move=>{
+        if(!purchaseOrderIds.has(String(move.purchaseOrderId)))issues.push({title:'Приход склада ссылается на отсутствующий заказ',detail:'Движение '+String(move.id||'').slice(-8)+' · заказ '+String(move.purchaseOrderId).slice(-8)});
+    });
     inventoryPurchaseOrders.forEach(order=>{
-        const allocatedCents=allocatedByOrder.get(String(order.id))||0,receivedGross=Number(supplierGrossReceivedTotal(order));
+        const orderReceipts=inventoryMovements.filter(move=>move.type==='receipt'&&String(move.purchaseOrderId||'')===String(order.id));
+        const ledgerQty=orderReceipts.reduce((sum,move)=>sum+(Number(move.quantity)||0),0);
+        const expectedQty=(order.items||[]).reduce((sum,line)=>sum+(Number(line.receivedQuantity)||0),0);
+        const ledgerValue=orderReceipts.reduce((sum,move)=>{
+            const value=Number(move.totalCost);
+            const unitCost=Number(move.unitCost);
+            return sum+(Number.isFinite(value)&&value>=0?value:(Number(move.quantity)||0)*(Number.isFinite(unitCost)&&unitCost>=0?unitCost:0));
+        },0);
+        const expectedValue=supplierOrderGrossReceivedTotal(order);
+        if(Math.abs(ledgerQty-expectedQty)>0.001)issues.push({title:'Приёмка не совпадает с приходами склада',detail:'Заказ '+String(order.id).slice(-8)+' · принято '+expectedQty+' ед., в журнале '+ledgerQty+' ед.'});
+        if(Math.abs(ledgerValue-expectedValue)>0.01)issues.push({title:'Стоимость приёмки не совпадает с журналом склада',detail:'Заказ '+String(order.id).slice(-8)+' · по партиям '+expectedValue.toFixed(2)+' ₽, по движениям '+ledgerValue.toFixed(2)+' ₽'});
+        if(order.status==='cancelled'&&(expectedQty>0||orderReceipts.length))issues.push({title:'Отменённый заказ содержит принятую поставку',detail:'Заказ '+String(order.id).slice(-8)+' · движений прихода: '+orderReceipts.length});
+    });
+    inventoryPurchaseOrders.forEach(order=>{
+        const allocatedCents=allocatedByOrder.get(String(order.id))||0,receivedGross=Number(supplierOrderGrossReceivedTotal(order));
         const grossCents=cents(receivedGross);
         if(grossCents===null)issues.push({title:'Некорректная стоимость приёмки',detail:'Заказ '+String(order.id).slice(-8)});
         else if(order.status!=='cancelled'&&allocatedCents>grossCents)issues.push({title:'Распределено больше стоимости приёмки',detail:'Заказ '+String(order.id).slice(-8)+' · принято '+(grossCents/100).toFixed(2)+' ₽, распределено '+(allocatedCents/100).toFixed(2)+' ₽'});
