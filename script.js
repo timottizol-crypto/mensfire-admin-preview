@@ -6266,16 +6266,34 @@ function setPurchaseWorkspaceTab(tab){
 }
 function renderPurchaseOrders(){
     const root=document.getElementById('purchaseOrdersList');if(!root)return;
-    const fmt=value=>Math.round(value).toLocaleString('ru-RU')+' ₽';
+    const fmt=value=>Math.round(Number(value)||0).toLocaleString('ru-RU')+' ₽';
     const labels={draft:'Черновик',ordered:'Ожидается',partial:'Частично принят',received:'Принят',cancelled:'Отменён'};
     const active=inventoryPurchaseOrders.filter(order=>['ordered','partial'].includes(order.status)).length;
     const pending=inventoryPurchaseOrders.filter(order=>['ordered','partial'].includes(order.status)).reduce((sum,order)=>sum+order.items.reduce((sub,item)=>sub+Math.max(0,item.quantity-item.receivedQuantity)*item.unitCost,0),0);
+    const receivedUnits=inventoryPurchaseOrders.reduce((sum,order)=>sum+order.items.reduce((n,item)=>n+(Number(item.receivedQuantity)||0),0),0);
+    const receivedValueAll=inventoryPurchaseOrders.reduce((sum,order)=>sum+supplierReceivedTotal(order),0);
     const kpis=document.getElementById('purchaseOrdersOverview');
-    if(kpis)kpis.innerHTML='<div class="inventory-kpi"><span>Ожидают поставки</span><strong>'+active+'</strong></div><div class="inventory-kpi"><span>Стоимость ожидаемых товаров</span><strong>'+fmt(pending)+'</strong></div><div class="inventory-kpi"><span>Всего заказов</span><strong>'+inventoryPurchaseOrders.length+'</strong></div>';
+    if(kpis)kpis.innerHTML='<div class="inventory-kpi"><span>Ожидают поставки</span><strong>'+active+'</strong></div><div class="inventory-kpi"><span>Стоимость ожидаемых товаров</span><strong>'+fmt(pending)+'</strong></div><div class="inventory-kpi"><span>Принято единиц</span><strong>'+receivedUnits.toLocaleString('ru-RU')+'</strong></div><div class="inventory-kpi"><span>Фактическая стоимость приёмок</span><strong>'+fmt(receivedValueAll)+'</strong></div>';
     root.innerHTML=inventoryPurchaseOrders.length?inventoryPurchaseOrders.map(order=>{
-        const total=order.items.reduce((sum,item)=>sum+item.quantity*item.unitCost,0);const receivedValue=supplierReceivedTotal(order),paidValue=supplierOrderPaid(order.id),debtValue=Math.max(0,receivedValue-paidValue);
+        const total=order.items.reduce((sum,item)=>sum+item.quantity*item.unitCost,0),receivedValue=supplierReceivedTotal(order),paidValue=supplierOrderPaid(order.id),debtValue=Math.max(0,receivedValue-paidValue);
         const remaining=order.items.reduce((sum,item)=>sum+Math.max(0,item.quantity-item.receivedQuantity),0);
-        return '<article class="purchase-order-card"><div class="purchase-order-top"><div><span class="purchase-order-status status-'+order.status+'">'+labels[order.status]+'</span><h3>'+escapeBookingHtml(order.supplier)+'</h3><small>'+new Date(order.createdAt).toLocaleDateString('ru-RU')+' · № '+escapeBookingHtml(order.id.slice(-8))+(order.expectedAt?' · Ожидается: '+escapeBookingHtml(order.expectedAt):'')+'</small></div><strong>'+fmt(total)+'</strong></div><div class="supplier-order-finance"><span>Принято: <b>'+fmt(receivedValue)+'</b></span><span>Оплачено: <b>'+fmt(paidValue)+'</b></span><span>Долг: <b>'+fmt(debtValue)+'</b></span></div><div class="purchase-order-lines">'+order.items.map(item=>'<div><span>'+escapeBookingHtml(item.titleSnapshot)+'</span><small>'+item.receivedQuantity+' / '+item.quantity+' шт.</small></div>').join('')+'</div>'+(order.note?'<p class="purchase-order-note">'+escapeBookingHtml(order.note)+'</p>':'')+'<div class="purchase-order-actions">'+(['ordered','partial'].includes(order.status)?'<button type="button" class="inventory-sync-btn" onclick="openPurchaseReceiving(\''+order.id+'\')">Принять поставку · осталось '+remaining+'</button>':'')+(order.status==='ordered'&&order.items.every(item=>!item.receivedQuantity)?'<button type="button" class="purchase-order-cancel" onclick="cancelPurchaseOrder(\''+order.id+'\')">Отменить</button>':'')+'</div></article>';
+        const linkedMovements=inventoryMovements.filter(move=>move.purchaseOrderId===order.id&&move.type==='receipt');
+        const ledgerQty=linkedMovements.reduce((sum,move)=>sum+(Number(move.quantity)||0),0);
+        const orderReceivedQty=order.items.reduce((sum,item)=>sum+(Number(item.receivedQuantity)||0),0);
+        const ledgerStatus=linkedMovements.length?'<small class="purchase-ledger-check '+(ledgerQty===orderReceivedQty?'is-matched':'is-mismatch')+'">Журнал склада: '+ledgerQty+' из '+orderReceivedQty+' принятых ед.</small>':'';
+        const lines=order.items.map(item=>{
+            const batches=Array.isArray(item.receivedBatches)?item.receivedBatches:[];
+            const batchQty=batches.reduce((sum,b)=>sum+(Number(b.quantity)||0),0);
+            const batchCost=batches.reduce((sum,b)=>sum+(Number(b.quantity)||0)*(Number(b.unitCost)||0),0);
+            const hasBatchData=batches.length>0;
+            const actualCost=hasBatchData&&batchQty>0?batchCost/batchQty:Number(item.unitCost)||0;
+            const batchDetails=hasBatchData?'<div class="purchase-line-batches">'+batches.map(batch=>{
+                const date=batch.receivedAt?new Date(batch.receivedAt).toLocaleDateString('ru-RU'):'Дата не указана';
+                return '<span>'+date+' · '+(Number(batch.quantity)||0)+' шт. × '+fmt(batch.unitCost)+'/ед.</span>';
+            }).join('')+'</div>':'';
+            return '<div class="purchase-line-reconcile"><div><span>'+escapeBookingHtml(item.titleSnapshot||'Товар')+'</span><small>Принято '+(Number(item.receivedQuantity)||0)+' / '+(Number(item.quantity)||0)+' шт. · Цена заказа '+fmt(item.unitCost)+'/ед. · Факт. средняя '+(hasBatchData?fmt(actualCost):'нет разбивки')+'/ед.</small>'+batchDetails+'</div></div>';
+        }).join('');
+        return '<article class="purchase-order-card"><div class="purchase-order-top"><div><span class="purchase-order-status status-'+order.status+'">'+(labels[order.status]||'Заказ')+'</span><h3>'+escapeBookingHtml(order.supplier)+'</h3><small>'+new Date(order.createdAt).toLocaleDateString('ru-RU')+' · № '+escapeBookingHtml(order.id.slice(-8))+(order.expectedAt?' · Ожидается: '+escapeBookingHtml(order.expectedAt):'')+'</small></div><strong>'+fmt(total)+'</strong></div><div class="supplier-order-finance"><span>Принято: <b>'+fmt(receivedValue)+'</b></span><span>Оплачено: <b>'+fmt(paidValue)+'</b></span><span>Долг: <b>'+fmt(debtValue)+'</b></span></div><div class="purchase-order-lines">'+lines+'</div>'+ledgerStatus+(order.note?'<p class="purchase-order-note">'+escapeBookingHtml(order.note)+'</p>':'')+'<div class="purchase-order-actions">'+(['ordered','partial'].includes(order.status)?'<button type="button" class="inventory-sync-btn" onclick="openPurchaseReceiving(\''+order.id+'\')">Принять поставку · осталось '+remaining+'</button>':'')+(order.status==='ordered'&&order.items.every(item=>!item.receivedQuantity)?'<button type="button" class="purchase-order-cancel" onclick="cancelPurchaseOrder(\''+order.id+'\')">Отменить</button>':'')+'</div></article>';
     }).join(''):'<div class="inventory-empty">Заказов поставщикам пока нет. Создай первый заказ, чтобы контролировать ожидаемые поставки.</div>';
 }
 
