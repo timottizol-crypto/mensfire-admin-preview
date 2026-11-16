@@ -6197,6 +6197,31 @@ function exportSupplierStatement(supplierId){
 
 let supplierFinanceJournalFilteredEvents=[];
 
+
+function renderSupplierFinanceSummary(events,from,to){
+    const root=document.getElementById('supplierFinanceSummary');if(!root)return;
+    const validDay=value=>{const date=value?new Date(value):null;return date&&!Number.isNaN(date.getTime())?date.toISOString().slice(0,10):'';};
+    const suppliers=new Map();
+    (Array.isArray(events)?events:[]).forEach(event=>{
+        const id=event.supplierId||'unknown';
+        if(!suppliers.has(id))suppliers.set(id,{name:event.supplierName||'Поставщик',opening:0,receipts:0,payments:0,receiptCount:0,paymentCount:0});
+        const row=suppliers.get(id),day=validDay(event.date),amount=Math.max(0,Number(event.amount)||0);
+        if(from&&day&&day<from){row.opening+=event.kind==='payment'?-amount:amount;return;}
+        if(from&&(!day||day<from))return;
+        if(to&&(!day||day>to))return;
+        if(event.kind==='payment'){row.payments+=amount;row.paymentCount++;}
+        else{row.receipts+=amount;row.receiptCount++;}
+    });
+    const rows=[...suppliers.values()].map(row=>({...row,closing:row.opening+row.receipts-row.payments,change:row.receipts-row.payments}))
+        .sort((a,b)=>b.closing-a.closing||a.name.localeCompare(b.name,'ru'));
+    const fmt=value=>Math.round((Number(value)||0)*100/100).toLocaleString('ru-RU',{maximumFractionDigits:2})+' ₽';
+    const totals=rows.reduce((acc,row)=>{acc.opening+=row.opening;acc.receipts+=row.receipts;acc.payments+=row.payments;acc.closing+=row.closing;return acc;},{opening:0,receipts:0,payments:0,closing:0});
+    const period=(from||to)?((from?new Date(from+'T00:00:00').toLocaleDateString('ru-RU'):'С начала')+' — '+(to?new Date(to+'T00:00:00').toLocaleDateString('ru-RU'):'по сегодня')):'За всё время';
+    root.innerHTML='<div class="supplier-summary-heading"><div><strong>Сводка по поставщикам</strong><small>'+period+' · начальный долг рассчитан по операциям до начала периода</small></div><span>'+rows.length+' поставщиков</span></div>'+
+        '<div class="supplier-summary-totals"><div><small>Долг на начало</small><b>'+fmt(totals.opening)+'</b></div><div><small>Приёмки за период</small><b>'+fmt(totals.receipts)+'</b></div><div><small>Оплаты за период</small><b>'+fmt(totals.payments)+'</b></div><div><small>Расчётный долг на конец</small><b>'+fmt(totals.closing)+'</b></div></div>'+
+        (rows.length?'<div class="supplier-summary-table-wrap"><table class="supplier-summary-table"><thead><tr><th>Поставщик</th><th>На начало</th><th>Приёмки</th><th>Оплаты</th><th>На конец</th></tr></thead><tbody>'+rows.map(row=>'<tr><td>'+escapeBookingHtml(row.name)+'<small>'+row.receiptCount+' приёмок · '+row.paymentCount+' оплат</small></td><td>'+fmt(row.opening)+'</td><td>'+fmt(row.receipts)+'</td><td>'+fmt(row.payments)+'</td><td><b>'+fmt(row.closing)+'</b></td></tr>').join('')+'</tbody></table></div>':'<div class="inventory-empty compact">Нет финансовых операций за выбранный период</div>');
+}
+
 function renderSupplierFinanceJournal(){
     const root=document.getElementById('supplierFinanceJournal');if(!root)return;
     const supplierFilter=document.getElementById('supplierJournalSupplier')?.value||'all';
@@ -6235,6 +6260,7 @@ function renderSupplierFinanceJournal(){
         const parsedDate=event.date?new Date(event.date):null;const day=parsedDate&&!Number.isNaN(parsedDate.getTime())?parsedDate.toISOString().slice(0,10):'';
         return (supplierFilter==='all'||event.supplierId===supplierFilter)&&(typeFilter==='all'||event.kind===typeFilter)&&(!from||day>=from)&&(!to||day<=to);
     }).sort((a,b)=>new Date(b.date||0)-new Date(a.date||0));
+    renderSupplierFinanceSummary(events,from,to);
     supplierFinanceJournalFilteredEvents=filtered;
     const total=filtered.reduce((sum,event)=>sum+(event.kind==='payment'?-event.amount:event.amount),0);
     const fmt=value=>Math.round(value*100/100).toLocaleString('ru-RU',{maximumFractionDigits:2})+' ₽';
