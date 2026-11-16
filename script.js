@@ -6376,7 +6376,8 @@ function exportSupplierStatement(supplierId){
     inventorySupplierReturns.filter(record=>record.supplierId===supplierId).forEach(record=>rows.push([dateLabel(record.returnedAt),'Возврат поставщику',record.id,'Проведён','-'+money((Number(record.quantity)||0)*(Number(record.unitCost)||0)),'','', '', '',(record.productTitle||'Товар')+' · '+(record.quantity||0)+' ед. · '+(record.reason||'')]));
     inventorySupplierRefunds.filter(record=>record.supplierId===supplierId).forEach(record=>rows.push([dateLabel(record.refundedAt),'Возврат денег от поставщика',record.id,'Получен','',money(record.amount),'','','', (record.method||'')+' · '+(record.note||'')]));
     if(rows.length===1)return showToast('Для этого поставщика пока нет операций для экспорта','info');
-    const csv='\uFEFF'+rows.map(row=>row.map(value=>'"'+String(value??'').replace(/"/g,'""')+'"').join(';')).join('\r\n');
+    const csvCell=value=>{let text=String(value??'');if(/^[\s\u0000-\u001f]*[=+\-@]/.test(text))text="'"+text;return '"'+text.replace(/"/g,'""')+'"';};
+    const csv='\uFEFF'+rows.map(row=>row.map(csvCell).join(';')).join('\r\n');
     const blob=new Blob([csv],{type:'text/csv;charset=utf-8;'});
     const url=URL.createObjectURL(blob),link=document.createElement('a');
     const safeName=supplier.name.replace(/[^a-z0-9а-яё_-]+/gi,'_').replace(/^_+|_+$/g,'')||'supplier';
@@ -6516,7 +6517,7 @@ function exportSupplierFinanceSummary(){
     if(!rows.length)return showToast('Нет данных для экспорта','info');
     const columns=['Поставщик','Долг на начало, ₽','Приёмки за период, ₽','Оплаты за период, ₽','Возвраты поставщику, ₽','Возврат денег, ₽','Изменение долга, ₽','Расчётный долг на конец, ₽','Количество приёмок','Количество оплат'];
     const money=value=>(Number(value)||0).toFixed(2).replace('.',',');
-    const cell=value=>{const text=String(value??'');return /[",;\\r\\n]/.test(text)?'"'+text.replace(/"/g,'""')+'"':text;};
+    const cell=value=>{let text=String(value??'');if(/^[\s\u0000-\u001f]*[=+\-@]/.test(text))text="'"+text;return /[\",;\r\n]/.test(text)?'"'+text.replace(/"/g,'""')+'"':text;};
     const data=rows.map(row=>[row.name,money(row.opening),money(row.receipts),money(row.payments),money(row.returns),money(row.refunds),money(row.change),money(row.closing),row.receiptCount,row.paymentCount]);
     const total=rows.reduce((acc,row)=>{acc.opening+=row.opening;acc.receipts+=row.receipts;acc.payments+=row.payments;acc.returns+=row.returns;acc.refunds+=row.refunds;acc.change+=row.change;acc.closing+=row.closing;acc.receiptCount+=row.receiptCount;acc.paymentCount+=row.paymentCount;return acc;},{opening:0,receipts:0,payments:0,returns:0,refunds:0,change:0,receiptCount:0,paymentCount:0});
     data.push(['ИТОГО',money(total.opening),money(total.receipts),money(total.payments),money(total.returns),money(total.refunds),money(total.change),money(total.closing),total.receiptCount,total.paymentCount]);
@@ -6589,7 +6590,7 @@ function exportSupplierFinanceJournal(){
     const events=Array.isArray(supplierFinanceJournalFilteredEvents)?supplierFinanceJournalFilteredEvents:[];
     if(!events.length)return showToast('Нет операций для экспорта','info');
     const columns=['Дата','Тип операции','Поставщик','Товар','Количество','Заказ','Сумма, ₽','Способ оплаты','Комментарий','Распределение оплат'];
-    const cell=value=>{const text=String(value??'');return /[",;\\r\\n]/.test(text)?'"'+text.replace(/"/g,'""')+'"':text;};
+    const cell=value=>{let text=String(value??'');if(/^[\s\u0000-\u001f]*[=+\-@]/.test(text))text="'"+text;return /[\",;\r\n]/.test(text)?'"'+text.replace(/"/g,'""')+'"':text;};
     const rows=events.map(event=>[
         event.date?new Date(event.date).toLocaleString('ru-RU'):'',
         event.kind==='payment'?'Оплата':event.kind==='return'?'Возврат поставщику':event.kind==='refund'?'Возврат денег от поставщика':'Приёмка',
