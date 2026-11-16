@@ -7409,6 +7409,39 @@ function renderInventory() {
     }).join('') : '<div class="inventory-empty"><strong>' + (inventoryProducts.length ? 'Ничего не найдено' : 'Каталог пока пуст') + '</strong><span>' + (inventoryProducts.length ? 'Измени поисковый запрос или категорию.' : 'Добавь первые товары, укажи закупочную и розничную цену, а затем фиксируй приход и списание.') + '</span></div>';
     renderInventoryMovementHistory();
 }
+function getRetailInventoryIntegrityIssues(){
+    const issues=[];
+    clientRetailSales.forEach(sale=>{
+        const saleItems=Array.isArray(sale.items)?sale.items:[];
+        saleItems.forEach(item=>{
+            const linked=inventoryMovements.filter(move=>move.saleId===sale.id&&move.type==='sale'&&(item.stockMovementId?move.id===item.stockMovementId:move.productId===item.productId));
+            const soldQty=Number(item.quantity)||0;
+            const movementQty=linked.reduce((sum,move)=>sum+(Number(move.quantity)||0),0);
+            if(linked.length!==1||Math.abs(movementQty-soldQty)>0.001||linked[0]?.productId!==item.productId){
+                issues.push({title:'Продажа не совпадает со складским списанием',detail:'Чек '+String(sale.id).slice(-8)+' · '+(item.titleSnapshot||'Товар')+' · движений: '+linked.length+', списано: '+movementQty+'/'+soldQty});
+            }
+        });
+        (Array.isArray(sale.refunds)?sale.refunds:[]).forEach(refund=>{
+            const linked=inventoryMovements.filter(move=>move.refundId===refund.id&&move.saleId===sale.id&&move.type==='return');
+            const expected=new Map();
+            (Array.isArray(refund.items)?refund.items:[]).forEach(item=>expected.set(String(item.productId),(expected.get(String(item.productId))||0)+(Number(item.quantity)||0)));
+            const actual=new Map();
+            linked.forEach(move=>actual.set(String(move.productId),(actual.get(String(move.productId))||0)+(Number(move.quantity)||0)));
+            const keys=new Set([...expected.keys(),...actual.keys()]);
+            const mismatch=[...keys].some(key=>Math.abs((expected.get(key)||0)-(actual.get(key)||0))>0.001);
+            if(mismatch||linked.length!==expected.size){
+                issues.push({title:'Возврат не совпадает со складским приходом',detail:'Возврат '+String(refund.id).slice(-8)+' · чек '+String(sale.id).slice(-8)+' · движений: '+linked.length});
+            }
+        });
+    });
+    const retailSaleIds=new Set(clientRetailSales.map(sale=>String(sale.id)));
+    inventoryMovements.filter(move=>move.type==='sale'&&move.saleId&&retailSaleIds.has(String(move.saleId))).forEach(move=>{
+        const sale=clientRetailSales.find(item=>String(item.id)===String(move.saleId));
+        const linkedItems=(sale?.items||[]).filter(item=>item.stockMovementId?String(item.stockMovementId)===String(move.id):String(item.productId)===String(move.productId));
+        if(linkedItems.length!==1)issues.push({title:'Складское списание привязано неоднозначно',detail:'Движение '+String(move.id).slice(-8)+' · чек '+String(move.saleId).slice(-8)});
+    });
+    return issues;
+}
 function renderInventoryMovementHistory(){
     const history=document.getElementById('inventoryMovementHistory');
     if(!history)return;
@@ -7424,7 +7457,11 @@ function renderInventoryMovementHistory(){
         return haystack.includes(search);
     });
     const shown=filtered.slice(0,inventoryMovementHistoryLimit);
-    history.innerHTML=shown.length?shown.map(move=>{
+    const integrityIssues=getRetailInventoryIntegrityIssues();
+    const integrityBanner=integrityIssues.length
+        ?'<div class="inventory-empty" style="border-color:var(--danger,#dc6262);margin-bottom:12px"><strong>Проверка товарных чеков: '+integrityIssues.length+' расхождений</strong>'+integrityIssues.slice(0,5).map(issue=>'<small>'+escapeBookingHtml(issue.title)+' · '+escapeBookingHtml(issue.detail)+'</small>').join('')+(integrityIssues.length>5?'<small>И ещё '+(integrityIssues.length-5)+' расхождений</small>':'')+'</div>'
+        :'<div class="inventory-empty compact" style="margin-bottom:12px">Связи товарных чеков и складских движений проверены · расхождений нет</div>';
+    history.innerHTML=integrityBanner+(shown.length?shown.map(move=>{
         const positive=move.type==='receipt'||move.type==='return';
         const label=labels[move.type]||'Движение';
         const date=new Date(move.createdAt);
