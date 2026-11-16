@@ -6632,3 +6632,13 @@ html.light-theme .booking-client-match{background:#fbf8ef}
 .client-product-recommendation-action button{padding:6px 8px;border:1px solid rgba(198,158,91,.32);border-radius:7px;background:rgba(198,158,91,.09);color:var(--gold);font:inherit;font-size:9px;cursor:pointer}
 .client-product-recommendation-empty{padding:10px 2px;color:var(--text-muted);font-size:10px;line-height:1.5}
 @media(max-width:480px){.client-product-recommendations-section{padding:10px}.client-product-recommendation-grid{grid-template-columns:1fr}.client-product-recommendation{padding:9px}}
+
+
+/* Расширенная история складских движений */
+.inventory-movement-toolbar{display:grid;grid-template-columns:minmax(0,1fr) minmax(150px,220px);gap:10px;margin:14px 0 8px}
+.inventory-movement-toolbar input,.inventory-movement-toolbar select{width:100%;min-width:0;min-height:40px;padding:9px 12px;border:1px solid var(--glass-border,rgba(255,255,255,.12));border-radius:10px;background:var(--input-bg,rgba(255,255,255,.04));color:var(--text-main);font:inherit;font-size:12px}
+.inventory-movement-toolbar select option{background:var(--bg-card,#202329);color:var(--text-main)}
+.inventory-movement-meta{margin:0 0 4px;color:var(--text-muted);font-size:10px}
+.inventory-history-more{display:block;margin:12px auto 0;padding:9px 16px;border:1px solid var(--glass-border,rgba(255,255,255,.12));border-radius:10px;background:transparent;color:var(--text-main);font-size:11px;font-weight:700;cursor:pointer}
+.inventory-history-more[hidden]{display:none}
+@media(max-width:520px){.inventory-movement-toolbar{grid-template-columns:1fr}.inventory-movement-toolbar select{width:100%}}
