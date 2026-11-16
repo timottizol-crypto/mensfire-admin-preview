@@ -6706,3 +6706,7 @@ html.light-theme .booking-client-match{background:#fbf8ef}
 .supplier-debt-age.is-warning{border-color:rgba(229,163,75,.35);background:rgba(229,163,75,.06)}
 .supplier-debt-age.is-warning strong{color:#e5a34b}
 .supplier-debt-age-note{margin:8px 2px 14px}
+
+
+.supplier-debt-age.is-warning{border-color:rgba(229,163,75,.4);background:rgba(229,163,75,.07)}
+.supplier-debt-age-note{max-width:900px}
