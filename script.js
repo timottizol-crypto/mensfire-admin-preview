@@ -6394,47 +6394,82 @@ let supplierFinanceSummaryPeriod={from:'',to:''};
 
 
 function getSupplierFinanceIntegrityIssues(){
-    const issues=[],allocatedByOrder=new Map();
+    const issues=[],allocatedByOrder=new Map(),paymentIds=new Set(),refundIds=new Set(),returnIds=new Set();
+    const cents=value=>{
+        const number=Number(value);
+        if(!Number.isFinite(number)||number<0||!Number.isSafeInteger(Math.round(number*100))||Math.abs(number*100-Math.round(number*100))>0.001)return null;
+        return Math.round(number*100);
+    };
+    const validDate=value=>{const date=String(value||'');return /^\d{4}-\d{2}-\d{2}T/.test(date)&&!Number.isNaN(new Date(date).getTime());};
     inventorySupplierPayments.forEach(payment=>{
-        const allocations=Array.isArray(payment.allocations)?payment.allocations:[];
-        const allocated=allocations.reduce((sum,item)=>sum+(Number(item.amount)||0),0);
-        if(Math.abs(allocated-(Number(payment.amount)||0))>0.01)issues.push({title:'Платёж распределён не полностью',detail:'Платёж '+String(payment.id).slice(-8)+': сумма '+(Number(payment.amount)||0).toFixed(2)+' ₽, распределено '+allocated.toFixed(2)+' ₽'});
+        if(paymentIds.has(String(payment.id)))issues.push({title:'Повторяется ID платежа',detail:'Платёж '+String(payment.id).slice(-8)});
+        paymentIds.add(String(payment.id));
+        const paymentCents=cents(payment.amount);
+        if(!payment.id||!payment.supplierId||paymentCents===null||paymentCents<=0)issues.push({title:'Некорректные данные платежа',detail:'Платёж '+String(payment.id||'без ID').slice(-8)+' · проверь поставщика и сумму'});
+        if(!inventorySuppliers.some(item=>item.id===payment.supplierId))issues.push({title:'Платёж ссылается на отсутствующего поставщика',detail:'Платёж '+String(payment.id).slice(-8)});
+        if(!validDate(payment.paidAt))issues.push({title:'Некорректная дата платежа',detail:'Платёж '+String(payment.id).slice(-8)});
+        const allocations=Array.isArray(payment.allocations)?payment.allocations:null;
+        if(!allocations){issues.push({title:'У платежа повреждено распределение',detail:'Платёж '+String(payment.id).slice(-8)});return;}
+        let allocatedCents=0;const seenOrders=new Set();
         allocations.forEach(allocation=>{
-            const order=inventoryPurchaseOrders.find(item=>item.id===allocation.purchaseOrderId);
-            if(!order){issues.push({title:'Платёж ссылается на отсутствующий заказ',detail:'Платёж '+String(payment.id).slice(-8)+' · заказ '+String(allocation.purchaseOrderId)});return;}
+            const orderId=String(allocation?.purchaseOrderId||''),amountCents=cents(allocation?.amount);
+            if(!orderId||amountCents===null||amountCents<=0){issues.push({title:'Некорректная строка распределения',detail:'Платёж '+String(payment.id).slice(-8)});return;}
+            if(seenOrders.has(orderId))issues.push({title:'Заказ повторяется в распределении платежа',detail:'Платёж '+String(payment.id).slice(-8)+' · заказ '+orderId.slice(-8)});
+            seenOrders.add(orderId);
+            allocatedCents+=amountCents;
+            const order=inventoryPurchaseOrders.find(item=>String(item.id)===orderId);
+            if(!order){issues.push({title:'Платёж ссылается на отсутствующий заказ',detail:'Платёж '+String(payment.id).slice(-8)+' · заказ '+orderId});return;}
             if(order.supplierId!==payment.supplierId)issues.push({title:'Несовпадение поставщика',detail:'Платёж '+String(payment.id).slice(-8)+' привязан к заказу другого поставщика'});
-            if(order.status==='cancelled'&&(Number(allocation.amount)||0)>0)issues.push({title:'Оплата привязана к отменённому заказу',detail:'Заказ '+String(order.id).slice(-8)+' · '+(Number(allocation.amount)||0).toFixed(2)+' ₽'});
-            allocatedByOrder.set(order.id,(allocatedByOrder.get(order.id)||0)+(Number(allocation.amount)||0));
+            if(order.status==='cancelled')issues.push({title:'Оплата привязана к отменённому заказу',detail:'Заказ '+String(order.id).slice(-8)+' · '+(amountCents/100).toFixed(2)+' ₽'});
+            allocatedByOrder.set(String(order.id),(allocatedByOrder.get(String(order.id))||0)+amountCents);
         });
+        if(paymentCents!==null&&allocatedCents!==paymentCents)issues.push({title:'Платёж распределён не полностью',detail:'Платёж '+String(payment.id).slice(-8)+': сумма '+(paymentCents/100).toFixed(2)+' ₽, распределено '+(allocatedCents/100).toFixed(2)+' ₽'});
+        if(!Number.isSafeInteger(allocatedCents))issues.push({title:'Переполнение суммы распределений',detail:'Платёж '+String(payment.id).slice(-8)});
     });
+    inventorySupplierRefunds.forEach(record=>{
+        if(refundIds.has(String(record.id)))issues.push({title:'Повторяется ID возврата денег',detail:'Операция '+String(record.id).slice(-8)});
+        refundIds.add(String(record.id));
+        const amountCents=cents(record.amount),order=inventoryPurchaseOrders.find(item=>String(item.id)===String(record.orderId));
+        if(!record.id||amountCents===null||amountCents<=0)issues.push({title:'Некорректная сумма возврата денег',detail:'Операция '+String(record.id||'без ID').slice(-8)});
+        if(!validDate(record.refundedAt))issues.push({title:'Некорректная дата возврата денег',detail:'Операция '+String(record.id).slice(-8)});
+        if(!order){issues.push({title:'Возврат денег ссылается на отсутствующий заказ',detail:'Операция '+String(record.id).slice(-8)});return;}
+        if(order.supplierId!==record.supplierId)issues.push({title:'Несовпадение поставщика в возврате денег',detail:'Операция '+String(record.id).slice(-8)});
+        if(amountCents!==null)refundTotalsSet(record.orderId,amountCents);
+    });
+    function refundTotalsSet(orderId,amountCents){refundTotals.set(String(orderId),(refundTotals.get(String(orderId))||0)+amountCents);}
+    const refundTotals=new Map();
     inventorySupplierReturns.forEach(record=>{
-        const order=inventoryPurchaseOrders.find(item=>item.id===record.orderId),line=order?.items?.[Number(record.itemIndex)];
+        if(returnIds.has(String(record.id)))issues.push({title:'Повторяется ID возврата товара',detail:'Возврат '+String(record.id).slice(-8)});
+        returnIds.add(String(record.id));
+        const order=inventoryPurchaseOrders.find(item=>String(item.id)===String(record.orderId)),itemIndex=Number(record.itemIndex),line=order?.items?.[itemIndex];
+        const quantity=Number(record.quantity),unitCost=Number(record.unitCost);
+        if(!record.id||!Number.isSafeInteger(itemIndex)||itemIndex<0||!Number.isSafeInteger(quantity)||quantity<=0||!Number.isFinite(unitCost)||unitCost<0)issues.push({title:'Некорректные данные возврата товара',detail:'Возврат '+String(record.id).slice(-8)});
+        if(!validDate(record.returnedAt))issues.push({title:'Некорректная дата возврата товара',detail:'Возврат '+String(record.id).slice(-8)});
         if(!order||!line){issues.push({title:'Возврат ссылается на отсутствующую позицию',detail:'Возврат '+String(record.id).slice(-8)});return;}
         if(order.supplierId!==record.supplierId)issues.push({title:'Несовпадение поставщика в возврате',detail:'Возврат '+String(record.id).slice(-8)});
         const batches=Array.isArray(line.receivedBatches)?line.receivedBatches:[];
-        const gross=Number(record.batchIndex)>=0?Number(batches[Number(record.batchIndex)]?.quantity)||0:Number(line.receivedQuantity)||0;
-        const returned=supplierReturnedQuantity(order.id,Number(record.itemIndex),Number(record.batchIndex));
-        if(returned>gross+0.001)issues.push({title:'Возврат превышает принятую партию',detail:'Заказ '+String(order.id).slice(-8)+' · '+(line.titleSnapshot||'Товар')});
+        const batchIndex=Number(record.batchIndex??-1);
+        if(!Number.isSafeInteger(batchIndex)||batchIndex< -1||(batchIndex===-1&&batches.length)||(batchIndex>=0&&!batches[batchIndex]))issues.push({title:'Некорректная ссылка на партию возврата',detail:'Возврат '+String(record.id).slice(-8)});
+        const gross=batchIndex>=0?Number(batches[batchIndex]?.quantity)||0:Number(line.receivedQuantity)||0;
+        const returned=supplierReturnedQuantity(order.id,itemIndex,batchIndex);
+        if(returned>gross)issues.push({title:'Возврат превышает принятую партию',detail:'Заказ '+String(order.id).slice(-8)+' · '+(line.titleSnapshot||'Товар')});
         const product=inventoryProducts.find(item=>item.id===record.productId);
         if(!product||product.id!==line.productId)issues.push({title:'Возврат связан с неверным товаром',detail:'Возврат '+String(record.id).slice(-8)+' · заказ '+String(order.id).slice(-8)});
         const linkedMovements=inventoryMovements.filter(movement=>movement.supplierReturnId===record.id);
         if(linkedMovements.length!==1)issues.push({title:'Нет единственного складского движения возврата',detail:'Возврат '+String(record.id).slice(-8)+' · найдено движений: '+linkedMovements.length});
-        else if(linkedMovements[0].type!=='supplier_return'||linkedMovements[0].productId!==record.productId||Math.abs((Number(linkedMovements[0].quantity)||0)+Number(record.quantity))>0.001)issues.push({title:'Складское движение не совпадает с возвратом',detail:'Возврат '+String(record.id).slice(-8)+' · проверь товар и количество'});
-    });
-    const refundTotals=new Map();
-    inventorySupplierRefunds.forEach(record=>{
-        const order=inventoryPurchaseOrders.find(item=>item.id===record.orderId);
-        if(!order){issues.push({title:'Возврат денег ссылается на отсутствующий заказ',detail:'Операция '+String(record.id).slice(-8)});return;}
-        if(order.supplierId!==record.supplierId)issues.push({title:'Несовпадение поставщика в возврате денег',detail:'Операция '+String(record.id).slice(-8)});
-        refundTotals.set(order.id,(refundTotals.get(order.id)||0)+(Number(record.amount)||0));
+        else if(linkedMovements[0].type!=='supplier_return'||linkedMovements[0].productId!==record.productId||Math.abs((Number(linkedMovements[0].quantity)||0)+quantity)>0.001)issues.push({title:'Складское движение не совпадает с возвратом',detail:'Возврат '+String(record.id).slice(-8)+' · проверь товар и количество'});
     });
     inventoryPurchaseOrders.forEach(order=>{
-        const available=Math.max(0,(allocatedByOrder.get(order.id)||0)-supplierReceivedTotal(order));
-        if((refundTotals.get(order.id)||0)>available+0.01)issues.push({title:'Возврат денег превышает кредит поставщика',detail:'Заказ '+String(order.id).slice(-8)});
-    });
-    inventoryPurchaseOrders.forEach(order=>{
-        const allocated=allocatedByOrder.get(order.id)||0,received=supplierGrossReceivedTotal(order);
-        if(order.status!=='cancelled'&&allocated>received+0.01)issues.push({title:'Распределено больше стоимости приёмки',detail:'Заказ '+String(order.id).slice(-8)+' · принято '+received.toFixed(2)+' ₽, распределено '+allocated.toFixed(2)+' ₽'});
+        const allocatedCents=allocatedByOrder.get(String(order.id))||0,receivedGross=Number(supplierGrossReceivedTotal(order));
+        const grossCents=cents(receivedGross);
+        if(grossCents===null)issues.push({title:'Некорректная стоимость приёмки',detail:'Заказ '+String(order.id).slice(-8)});
+        else if(order.status!=='cancelled'&&allocatedCents>grossCents)issues.push({title:'Распределено больше стоимости приёмки',detail:'Заказ '+String(order.id).slice(-8)+' · принято '+(grossCents/100).toFixed(2)+' ₽, распределено '+(allocatedCents/100).toFixed(2)+' ₽'});
+        const refundCents=refundTotals.get(String(order.id))||0,netReceived=cents(supplierReceivedTotal(order));
+        if(netReceived===null)issues.push({title:'Некорректная чистая стоимость заказа',detail:'Заказ '+String(order.id).slice(-8)});
+        else{
+            const available=Math.max(0,allocatedCents-netReceived);
+            if(refundCents>available)issues.push({title:'Возврат денег превышает кредит поставщика',detail:'Заказ '+String(order.id).slice(-8)+' · возвраты '+(refundCents/100).toFixed(2)+' ₽, доступно '+(available/100).toFixed(2)+' ₽'});
+        }
         (order.items||[]).forEach(item=>{
             if(Array.isArray(item.receivedBatches)&&item.receivedBatches.length){
                 const batchQty=item.receivedBatches.reduce((sum,batch)=>sum+(Number(batch.quantity)||0),0);
