@@ -4655,8 +4655,10 @@ function exportClientTaskAuditCsv(events) {
     const actionLabels = {created:'Создание задачи',updated:'Изменение задачи',completed:'Выполнение задачи',deleted:'Удаление задачи',booking_created:'Создание записи',booking_updated:'Изменение записи',booking_cancelled:'Отмена записи',booking_completed:'Завершение визита',payment_received:'Получение оплаты'};
     const columns = ['Дата и время','Клиент','Действие','Задача','Сотрудник','Подробности'];
     const cell = value => {
-        const text = String(value ?? '');
-        return /[",\r\n;]/.test(text) ? '"' + text.replace(/"/g, '""') + '"' : text;
+        let text = String(value ?? '');
+        // Защита CSV от formula injection при открытии в Excel/LibreOffice.
+        if (/^[\\s\\u0000-\\u001f]*[=+\\-@]/.test(text)) text = "'" + text;
+        return /[",\\r\\n;]/.test(text) ? '"' + text.replace(/"/g, '""') + '"' : text;
     };
     const rows = (Array.isArray(events) ? events : []).map(event => [
         event.createdAt ? new Date(event.createdAt).toLocaleString('ru-RU') : '',
