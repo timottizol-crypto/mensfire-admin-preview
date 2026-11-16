@@ -6087,7 +6087,6 @@ let inventorySupplierReturns=(()=>{try{const a=JSON.parse(localStorage.getItem(a
 function persistSupplierReturns(){localStorage.setItem(appStorageKey('mensfire_inventory_supplier_returns'),JSON.stringify(inventorySupplierReturns));}
 function supplierReturnedQuantity(orderId,itemIndex,batchIndex=-1){return inventorySupplierReturns.filter(item=>item.orderId===String(orderId)&&item.itemIndex===Number(itemIndex)&&item.batchIndex===Number(batchIndex)).reduce((sum,item)=>sum+(Number(item.quantity)||0),0);}
 function supplierReceivedTotal(order){return (order.items||[]).reduce((sum,line,itemIndex)=>{const gross=Array.isArray(line.receivedBatches)&&line.receivedBatches.length?line.receivedBatches.reduce((n,b)=>n+(Number(b.quantity)||0)*(Number(b.unitCost)||0),0):(Number(line.receivedQuantity)||0)*(Number(line.unitCost)||0);const returned=inventorySupplierReturns.filter(item=>item.orderId===String(order.id)&&item.itemIndex===itemIndex).reduce((n,item)=>n+(Number(item.quantity)||0)*(Number(item.unitCost)||0),0);return sum+Math.max(0,gross-returned);},0);}
-function supplierReceivedTotal(order){return (order.items||[]).reduce((sum,line)=>sum+(Array.isArray(line.receivedBatches)&&line.receivedBatches.length?line.receivedBatches.reduce((n,b)=>n+(Number(b.quantity)||0)*(Number(b.unitCost)||0),0):(Number(line.receivedQuantity)||0)*(Number(line.unitCost)||0)),0);}
 function supplierOrderGrossReceivedTotal(order){return (order.items||[]).reduce((sum,line)=>sum+(Array.isArray(line.receivedBatches)&&line.receivedBatches.length?line.receivedBatches.reduce((n,b)=>n+(Number(b.quantity)||0)*(Number(b.unitCost)||0),0):(Number(line.receivedQuantity)||0)*(Number(line.unitCost)||0)),0);}
 function supplierOrderGrossPaid(id){return inventorySupplierPayments.reduce((sum,p)=>sum+p.allocations.filter(a=>a.purchaseOrderId===id).reduce((n,a)=>n+a.amount,0),0);}
 function supplierOrderRefunded(id){return inventorySupplierRefunds.filter(item=>item.orderId===String(id)).reduce((sum,item)=>sum+(Number(item.amount)||0),0);}
@@ -6163,7 +6162,7 @@ function openSupplierReturn(orderId){
     const options=[];
     (order.items||[]).forEach((line,itemIndex)=>{
         const batches=Array.isArray(line.receivedBatches)?line.receivedBatches:[];
-        const add=(batchIndex,batch)=>{const gross=Number(batch?batch.quantity:line.receivedQuantity)||0,available=Math.max(0,gross-supplierReturnedQuantity(order.id,itemIndex,batchIndex));if(available<=0)return;const cost=Math.max(0,Number(batch?batch.unitCost:line.unitCost)||0),label=(line.titleSnapshot||'Товар')+(batch?' · '+new Date(batch.receivedAt||order.createdAt).toLocaleDateString('ru-RU'):' · без разбивки партий');options.push('<option value="'+itemIndex+':'+batchIndex+'" data-max="'+available+'" data-cost="'+cost+'">'+escapeBookingHtml(label)+' · доступно '+available+' шт. · '+cost.toFixed(2)+' ₽/ед.</option>');};
+        const add=(batchIndex,batch)=>{const gross=Number(batch?batch.quantity:line.receivedQuantity)||0,product=inventoryProducts.find(item=>item.id===line.productId),batchAvailable=Math.max(0,gross-supplierReturnedQuantity(order.id,itemIndex,batchIndex)),available=Math.min(batchAvailable,Math.max(0,Number(product?.stock)||0));if(available<=0)return;const cost=Math.max(0,Number(batch?batch.unitCost:line.unitCost)||0),label=(line.titleSnapshot||'Товар')+(batch?' · '+new Date(batch.receivedAt||order.createdAt).toLocaleDateString('ru-RU'):' · без разбивки партий');options.push('<option value="'+itemIndex+':'+batchIndex+'" data-max="'+available+'" data-cost="'+cost+'">'+escapeBookingHtml(label)+' · доступно '+available+' шт. · '+cost.toFixed(2)+' ₽/ед.</option>');};
         if(batches.length)batches.forEach((batch,batchIndex)=>add(batchIndex,batch));else add(-1,null);
     });
     select.innerHTML=options.join('')||'<option value="">Нет доступных для возврата товаров</option>';
@@ -6324,6 +6323,11 @@ function getSupplierFinanceIntegrityIssues(){
         const gross=Number(record.batchIndex)>=0?Number(batches[Number(record.batchIndex)]?.quantity)||0:Number(line.receivedQuantity)||0;
         const returned=supplierReturnedQuantity(order.id,Number(record.itemIndex),Number(record.batchIndex));
         if(returned>gross+0.001)issues.push({title:'Возврат превышает принятую партию',detail:'Заказ '+String(order.id).slice(-8)+' · '+(line.titleSnapshot||'Товар')});
+        const product=inventoryProducts.find(item=>item.id===record.productId);
+        if(!product||product.id!==line.productId)issues.push({title:'Возврат связан с неверным товаром',detail:'Возврат '+String(record.id).slice(-8)+' · заказ '+String(order.id).slice(-8)});
+        const linkedMovements=inventoryMovements.filter(movement=>movement.supplierReturnId===record.id);
+        if(linkedMovements.length!==1)issues.push({title:'Нет единственного складского движения возврата',detail:'Возврат '+String(record.id).slice(-8)+' · найдено движений: '+linkedMovements.length});
+        else if(linkedMovements[0].type!=='supplier_return'||linkedMovements[0].productId!==record.productId||Math.abs((Number(linkedMovements[0].quantity)||0)+Number(record.quantity))>0.001)issues.push({title:'Складское движение не совпадает с возвратом',detail:'Возврат '+String(record.id).slice(-8)+' · проверь товар и количество'});
     });
     const refundTotals=new Map();
     inventorySupplierRefunds.forEach(record=>{
