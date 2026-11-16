@@ -6710,3 +6710,19 @@ html.light-theme .booking-client-match{background:#fbf8ef}
 
 .supplier-debt-age.is-warning{border-color:rgba(229,163,75,.4);background:rgba(229,163,75,.07)}
 .supplier-debt-age-note{max-width:900px}
+
+
+/* Полная финансовая сверка поставщика */
+.supplier-finance-details{margin:12px 0;border:1px solid var(--glass-border,rgba(255,255,255,.09));border-radius:12px;background:rgba(255,255,255,.025);overflow:hidden}
+.supplier-finance-details>summary{padding:11px 13px;cursor:pointer;color:var(--text-main);font-size:11px;font-weight:700;list-style:none}
+.supplier-finance-details>summary::-webkit-details-marker{display:none}
+.supplier-finance-details>summary:after{content:'＋';float:right;color:var(--text-muted)}
+.supplier-finance-details[open]>summary:after{content:'−'}
+.supplier-reconciliation,.supplier-full-payment-history{padding:0 13px 12px;display:flex;flex-direction:column;gap:8px}
+.supplier-reconciliation>strong,.supplier-full-payment-history>strong{font-size:11px;color:var(--text-main);padding-top:5px}
+.supplier-reconciliation-row,.supplier-payment-record{display:flex;flex-direction:column;gap:5px;padding:9px 0;border-top:1px solid var(--glass-border,rgba(255,255,255,.07));font-size:10px;color:var(--text-muted)}
+.supplier-reconciliation-row>div,.supplier-payment-record>div{display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap}
+.supplier-reconciliation-row b,.supplier-payment-record b{color:var(--text-main)}
+.supplier-reconciliation-row small,.supplier-payment-record small{font-size:10px;line-height:1.5;color:var(--text-muted)}
+.supplier-payment-record>small{padding-left:2px;overflow-wrap:anywhere}
+@media(min-width:700px){.supplier-reconciliation-row{display:grid;grid-template-columns:minmax(150px,1.5fr) minmax(100px,1fr) minmax(100px,1fr);align-items:center;column-gap:12px}.supplier-reconciliation-row>small{grid-column:1/-1}}
