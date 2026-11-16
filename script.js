@@ -6081,13 +6081,28 @@ let inventorySuppliers = (() => {
 function persistSuppliers(){localStorage.setItem(appStorageKey('mensfire_inventory_suppliers'),JSON.stringify(inventorySuppliers));}
 let inventorySupplierPayments=(()=>{try{const a=JSON.parse(localStorage.getItem(appStorageKey('mensfire_inventory_supplier_payments'))||'[]');return Array.isArray(a)?a.filter(p=>p&&p.id&&p.supplierId&&Number(p.amount)>0).map(p=>({id:String(p.id),supplierId:String(p.supplierId),supplierNameSnapshot:String(p.supplierNameSnapshot||''),amount:Number(p.amount),paidAt:String(p.paidAt||''),paymentMethod:String(p.paymentMethod||'Перевод'),note:String(p.note||''),allocations:(Array.isArray(p.allocations)?p.allocations:[]).filter(x=>x&&x.purchaseOrderId).map(x=>({purchaseOrderId:String(x.purchaseOrderId),amount:Math.max(0,Number(x.amount)||0)}))})):[];}catch(e){return [];}})();
 function persistSupplierPayments(){localStorage.setItem(appStorageKey('mensfire_inventory_supplier_payments'),JSON.stringify(inventorySupplierPayments));}
+let inventorySupplierRefunds=(()=>{try{const a=JSON.parse(localStorage.getItem(appStorageKey('mensfire_inventory_supplier_refunds'))||'[]');return Array.isArray(a)?a.filter(x=>x&&x.id&&x.orderId&&x.supplierId&&Number(x.amount)>0):[];}catch(e){return [];}})();
+function persistSupplierRefunds(){localStorage.setItem(appStorageKey('mensfire_inventory_supplier_refunds'),JSON.stringify(inventorySupplierRefunds));}
 let inventorySupplierReturns=(()=>{try{const a=JSON.parse(localStorage.getItem(appStorageKey('mensfire_inventory_supplier_returns'))||'[]');return Array.isArray(a)?a.filter(item=>item&&item.id&&item.orderId&&item.supplierId&&Number(item.quantity)>0).map(item=>({id:String(item.id),orderId:String(item.orderId),supplierId:String(item.supplierId),supplierNameSnapshot:String(item.supplierNameSnapshot||''),productId:String(item.productId||''),productTitle:String(item.productTitle||'Товар'),itemIndex:Number(item.itemIndex),batchIndex:Number(item.batchIndex??-1),quantity:Number(item.quantity),unitCost:Math.max(0,Number(item.unitCost)||0),returnedAt:String(item.returnedAt||''),reason:String(item.reason||'')})):[];}catch(e){return [];}})();
 function persistSupplierReturns(){localStorage.setItem(appStorageKey('mensfire_inventory_supplier_returns'),JSON.stringify(inventorySupplierReturns));}
 function supplierReturnedQuantity(orderId,itemIndex,batchIndex=-1){return inventorySupplierReturns.filter(item=>item.orderId===String(orderId)&&item.itemIndex===Number(itemIndex)&&item.batchIndex===Number(batchIndex)).reduce((sum,item)=>sum+(Number(item.quantity)||0),0);}
 function supplierReceivedTotal(order){return (order.items||[]).reduce((sum,line,itemIndex)=>{const gross=Array.isArray(line.receivedBatches)&&line.receivedBatches.length?line.receivedBatches.reduce((n,b)=>n+(Number(b.quantity)||0)*(Number(b.unitCost)||0),0):(Number(line.receivedQuantity)||0)*(Number(line.unitCost)||0);const returned=inventorySupplierReturns.filter(item=>item.orderId===String(order.id)&&item.itemIndex===itemIndex).reduce((n,item)=>n+(Number(item.quantity)||0)*(Number(item.unitCost)||0),0);return sum+Math.max(0,gross-returned);},0);}
 function supplierReceivedTotal(order){return (order.items||[]).reduce((sum,line)=>sum+(Array.isArray(line.receivedBatches)&&line.receivedBatches.length?line.receivedBatches.reduce((n,b)=>n+(Number(b.quantity)||0)*(Number(b.unitCost)||0),0):(Number(line.receivedQuantity)||0)*(Number(line.unitCost)||0)),0);}
-function supplierOrderPaid(id){return inventorySupplierPayments.reduce((sum,p)=>sum+p.allocations.filter(a=>a.purchaseOrderId===id).reduce((n,a)=>n+a.amount,0),0);}
+function supplierOrderGrossPaid(id){return inventorySupplierPayments.reduce((sum,p)=>sum+p.allocations.filter(a=>a.purchaseOrderId===id).reduce((n,a)=>n+a.amount,0),0);}
+function supplierOrderRefunded(id){return inventorySupplierRefunds.filter(item=>item.orderId===String(id)).reduce((sum,item)=>sum+(Number(item.amount)||0),0);}
+function supplierOrderPaid(id){return Math.max(0,supplierOrderGrossPaid(id)-supplierOrderRefunded(id));}
+function supplierOrderCredit(order){return Math.max(0,supplierOrderPaid(order.id)-supplierReceivedTotal(order));}
 function supplierOrderDebt(order){return Math.max(0,supplierReceivedTotal(order)-supplierOrderPaid(order.id));}
+function createSupplierRefund(data){
+    if(!requireAdminAction('Фиксировать возврат денег от поставщика может только Али'))return false;
+    const order=inventoryPurchaseOrders.find(item=>item.id===String(data?.orderId||''));
+    if(!order||order.status==='cancelled')return showToast('Заказ не найден или отменён','error'),false;
+    const amount=Math.round(Number(data.amount)*100)/100,credit=supplierOrderCredit(order);
+    if(!Number.isFinite(amount)||amount<=0||amount>credit+0.009)return showToast('Сумма превышает доступную переплату поставщику','error'),false;
+    const date=String(data.date||new Date().toISOString().slice(0,10));
+    const record={id:'srefund_'+Date.now()+'_'+Math.random().toString(36).slice(2,7),orderId:order.id,supplierId:order.supplierId,supplierNameSnapshot:order.supplier||'',amount,refundedAt:new Date(date+'T12:00:00').toISOString(),method:String(data.method||'Перевод'),note:String(data.note||'').trim()};
+    inventorySupplierRefunds.unshift(record);persistSupplierRefunds();renderSuppliers();renderPurchaseOrders();showToast('Возврат денег от поставщика сохранён','success');return record;
+}
 
 function createSupplierReturn(data){
     if(!requireAdminAction('Оформлять возвраты поставщикам может только Али'))return false;
@@ -6106,7 +6121,6 @@ function createSupplierReturn(data){
     const available=Math.max(0,grossQty-supplierReturnedQuantity(order.id,itemIndex,batchIndex));
     if(!Number.isInteger(quantity)||quantity<1||quantity>available)return showToast('Количество возврата превышает доступный остаток партии','error'),false;
     const amount=quantity*unitCost;
-    if(amount>supplierOrderDebt(order)+0.009)return showToast('Нельзя вернуть уже оплаченную часть заказа: сначала требуется оформить кредит-ноту или возврат оплаты','error'),false;
     const product=inventoryProducts.find(item=>item.id===line.productId);
     if(!product)return showToast('Товар не найден на складе','error'),false;
     if((Number(product.stock)||0)<quantity)return showToast('На складе недостаточно товара для возврата','error'),false;
@@ -6120,6 +6134,24 @@ function createSupplierReturn(data){
     return record;
 }
 
+function openSupplierRefund(orderId){
+    if(!requireAdminAction('Фиксировать возврат денег от поставщика может только Али'))return;
+    const order=inventoryPurchaseOrders.find(item=>item.id===orderId);if(!order)return;
+    const credit=supplierOrderCredit(order);if(credit<=0)return showToast('По заказу нет переплаты поставщику','info');
+    document.getElementById('supplierRefundTitle').textContent='Возврат денег · '+order.supplier;
+    document.getElementById('supplierRefundOrderId').value=order.id;
+    document.getElementById('supplierRefundAmount').value=credit.toFixed(2);
+    document.getElementById('supplierRefundAmount').max=credit.toFixed(2);
+    document.getElementById('supplierRefundLimit').textContent='Доступная переплата: '+credit.toFixed(2)+' ₽';
+    document.getElementById('supplierRefundDate').value=new Date().toISOString().slice(0,10);
+    document.getElementById('supplierRefundMethod').value='Перевод';
+    document.getElementById('supplierRefundNote').value='';
+    openModal('supplierRefundModal');
+}
+function submitSupplierRefund(){
+    const record=createSupplierRefund({orderId:document.getElementById('supplierRefundOrderId')?.value,amount:document.getElementById('supplierRefundAmount')?.value,date:document.getElementById('supplierRefundDate')?.value,method:document.getElementById('supplierRefundMethod')?.value,note:document.getElementById('supplierRefundNote')?.value});
+    if(record)closeModal('supplierRefundModal');
+}
 function supplierOrderReturnableQuantity(order){
     return (order.items||[]).reduce((sum,line,index)=>{const batches=Array.isArray(line.receivedBatches)?line.receivedBatches:[];if(batches.length)return sum+batches.reduce((n,batch,batchIndex)=>n+Math.max(0,(Number(batch.quantity)||0)-supplierReturnedQuantity(order.id,index,batchIndex)),0);return sum+Math.max(0,(Number(line.receivedQuantity)||0)-supplierReturnedQuantity(order.id,index,-1));},0);
 }
@@ -6622,7 +6654,7 @@ function renderPurchaseOrders(){
             }).join('')+'</div>':'';
             return '<div class="purchase-line-reconcile"><div><span>'+escapeBookingHtml(item.titleSnapshot||'Товар')+'</span><small>Принято '+(Number(item.receivedQuantity)||0)+' / '+(Number(item.quantity)||0)+' шт. · Цена заказа '+fmt(item.unitCost)+'/ед. · Факт. средняя '+(hasBatchData?fmt(actualCost):'нет разбивки')+'/ед.</small>'+batchDetails+'</div></div>';
         }).join('');
-        return '<article class="purchase-order-card"><div class="purchase-order-top"><div><span class="purchase-order-status status-'+order.status+'">'+(labels[order.status]||'Заказ')+'</span><h3>'+escapeBookingHtml(order.supplier)+'</h3><small>'+new Date(order.createdAt).toLocaleDateString('ru-RU')+' · № '+escapeBookingHtml(order.id.slice(-8))+(order.expectedAt?' · Ожидается: '+escapeBookingHtml(order.expectedAt):'')+'</small></div><strong>'+fmt(total)+'</strong></div><div class="supplier-order-finance"><span>Принято: <b>'+fmt(receivedValue)+'</b></span><span>Оплачено: <b>'+fmt(paidValue)+'</b></span><span>Долг: <b>'+fmt(debtValue)+'</b></span></div><div class="purchase-order-lines">'+lines+'</div>'+ledgerStatus+(order.note?'<p class="purchase-order-note">'+escapeBookingHtml(order.note)+'</p>':'')+'<div class="purchase-order-actions">'+(['ordered','partial'].includes(order.status)?'<button type="button" class="inventory-sync-btn" onclick="openPurchaseReceiving(\''+order.id+'\')">Принять поставку · осталось '+remaining+'</button>':'')+(supplierOrderReturnableQuantity(order)>0?'<button type="button" class="purchase-order-cancel" onclick="openSupplierReturn(\''+order.id+'\')">Вернуть поставщику</button>':'')+(order.status==='ordered'&&order.items.every(item=>!item.receivedQuantity)?'<button type="button" class="purchase-order-cancel" onclick="cancelPurchaseOrder(\''+order.id+'\')">Отменить</button>':'')+'</div></article>';
+        return '<article class="purchase-order-card"><div class="purchase-order-top"><div><span class="purchase-order-status status-'+order.status+'">'+(labels[order.status]||'Заказ')+'</span><h3>'+escapeBookingHtml(order.supplier)+'</h3><small>'+new Date(order.createdAt).toLocaleDateString('ru-RU')+' · № '+escapeBookingHtml(order.id.slice(-8))+(order.expectedAt?' · Ожидается: '+escapeBookingHtml(order.expectedAt):'')+'</small></div><strong>'+fmt(total)+'</strong></div><div class="supplier-order-finance"><span>Принято: <b>'+fmt(receivedValue)+'</b></span><span>Оплачено: <b>'+fmt(paidValue)+'</b></span><span>Долг: <b>'+fmt(debtValue)+'</b></span></div><div class="purchase-order-lines">'+lines+'</div>'+ledgerStatus+(order.note?'<p class="purchase-order-note">'+escapeBookingHtml(order.note)+'</p>':'')+'<div class="purchase-order-actions">'+(['ordered','partial'].includes(order.status)?'<button type="button" class="inventory-sync-btn" onclick="openPurchaseReceiving(\''+order.id+'\')">Принять поставку · осталось '+remaining+'</button>':'')+(supplierOrderCredit(order)>0?'<button type="button" class="inventory-sync-btn" onclick="openSupplierRefund(\\''+order.id+'\\')">Возврат денег · '+supplierOrderCredit(order).toFixed(2)+' ₽</button>':'')+(supplierOrderReturnableQuantity(order)>0?'<button type="button" class="purchase-order-cancel" onclick="openSupplierReturn(\''+order.id+'\')">Вернуть поставщику</button>':'')+(order.status==='ordered'&&order.items.every(item=>!item.receivedQuantity)?'<button type="button" class="purchase-order-cancel" onclick="cancelPurchaseOrder(\''+order.id+'\')">Отменить</button>':'')+'</div></article>';
     }).join(''):'<div class="inventory-empty">Заказов поставщикам пока нет. Создай первый заказ, чтобы контролировать ожидаемые поставки.</div>';
 }
 
