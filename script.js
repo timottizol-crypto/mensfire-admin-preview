@@ -6252,7 +6252,34 @@ function supplierOrderOverdue(order,now=Date.now()){
 function supplierDebt(id){return inventoryPurchaseOrders.filter(o=>o.supplierId===id&&o.status!=='cancelled').reduce((n,o)=>n+supplierOrderDebt(o),0);}
 let activeSupplierPaymentId=null;
 function openSupplierPayment(id){if(!requireAdminAction('Вносить оплаты поставщикам может только Али'))return;const supplier=inventorySuppliers.find(x=>x.id===id);if(!supplier)return;const debt=supplierDebt(id);if(debt<=0)return showToast('По этому поставщику задолженности нет','info');activeSupplierPaymentId=id;document.getElementById('supplierPaymentTitle').textContent='Оплата · '+supplier.name;document.getElementById('supplierPaymentAmount').value=debt.toFixed(2);document.getElementById('supplierPaymentDate').value=new Date().toISOString().slice(0,10);document.getElementById('supplierPaymentMethod').value='Перевод';document.getElementById('supplierPaymentNote').value='';document.getElementById('supplierPaymentDebt').textContent='Текущая задолженность: '+Math.round(debt).toLocaleString('ru-RU')+' ₽';openModal('supplierPaymentModal');}
-function saveSupplierPayment(){if(!requireAdminAction('Вносить оплаты поставщикам может только Али'))return;const supplier=inventorySuppliers.find(x=>x.id===activeSupplierPaymentId);if(!supplier)return;const amount=Math.round(Number(document.getElementById('supplierPaymentAmount').value)*100)/100,debt=supplierDebt(supplier.id);if(!Number.isFinite(amount)||amount<=0)return showToast('Укажи корректную сумму оплаты','error');if(amount>debt+0.009)return showToast('Сумма не может превышать фактическую задолженность','error');let left=amount;const allocations=[];const orders=inventoryPurchaseOrders.filter(o=>o.supplierId===supplier.id&&o.status!=='cancelled'&&supplierOrderDebt(o)>0).sort((a,b)=>new Date(a.createdAt)-new Date(b.createdAt));for(const order of orders){if(left<=0.001)break;const part=Math.min(left,supplierOrderDebt(order));if(part>0){allocations.push({purchaseOrderId:order.id,amount:Math.round(part*100)/100});left=Math.round((left-part)*100)/100;}}if(left>0.009)return showToast('Не удалось распределить оплату','error');inventorySupplierPayments.unshift({id:'spay_'+Date.now()+'_'+Math.random().toString(36).slice(2,7),supplierId:supplier.id,supplierNameSnapshot:supplier.name,amount,paidAt:new Date(document.getElementById('supplierPaymentDate').value+'T12:00:00').toISOString(),paymentMethod:document.getElementById('supplierPaymentMethod').value,note:document.getElementById('supplierPaymentNote').value.trim(),allocations});persistSupplierPayments();closeModal('supplierPaymentModal');renderSuppliers();renderPurchaseOrders();showToast('Оплата поставщику сохранена','success');}
+function saveSupplierPayment(){
+    if(!requireAdminAction('Вносить оплаты поставщикам может только Али'))return;
+    const supplier=inventorySuppliers.find(item=>item.id===activeSupplierPaymentId);if(!supplier)return;
+    const rawAmount=Number(document.getElementById('supplierPaymentAmount')?.value);
+    if(!Number.isFinite(rawAmount)||rawAmount<=0)return showToast('Укажи корректную сумму оплаты','error');
+    const amount=Math.round((rawAmount+Number.EPSILON)*100)/100,amountCents=Math.round(amount*100);
+    const debt=supplierDebt(supplier.id),debtCents=Math.round(debt*100);
+    if(!Number.isSafeInteger(amountCents)||amountCents<=0||!Number.isSafeInteger(debtCents)||amountCents>debtCents)return showToast('Сумма не может превышать фактическую задолженность','error');
+    const date=String(document.getElementById('supplierPaymentDate')?.value||'');
+    if(!/^\d{4}-\d{2}-\d{2}$/.test(date)||Number.isNaN(new Date(date+'T12:00:00').getTime())||new Date(date+'T12:00:00').toISOString().slice(0,10)!==date)return showToast('Укажи корректную дату оплаты','error');
+    const method=String(document.getElementById('supplierPaymentMethod')?.value||'');
+    if(!['Перевод','Наличные','Карта','Другое'].includes(method))return showToast('Выбери корректный способ оплаты','error');
+    let left=amountCents;const allocations=[];
+    const orders=inventoryPurchaseOrders.filter(order=>order.supplierId===supplier.id&&order.status!=='cancelled'&&supplierOrderDebt(order)>0).sort((a,b)=>new Date(a.createdAt)-new Date(b.createdAt));
+    for(const order of orders){
+        if(left<=0)break;
+        const orderDebtCents=Math.round(supplierOrderDebt(order)*100);
+        if(!Number.isSafeInteger(orderDebtCents)||orderDebtCents<0)return showToast('В задолженности заказа обнаружено некорректное значение','error');
+        const part=Math.min(left,orderDebtCents);
+        if(part>0){allocations.push({purchaseOrderId:order.id,amount:part/100});left-=part;}
+    }
+    if(left!==0)return showToast('Не удалось полностью распределить оплату','error');
+    const record={id:'spay_'+Date.now()+'_'+Math.random().toString(36).slice(2,7),supplierId:supplier.id,supplierNameSnapshot:supplier.name,amount,paidAt:new Date(date+'T12:00:00').toISOString(),paymentMethod:method,note:String(document.getElementById('supplierPaymentNote')?.value||'').trim().slice(0,300),allocations};
+    inventorySupplierPayments.unshift(record);
+    try{persistSupplierPayments();}
+    catch(error){inventorySupplierPayments.shift();return showToast('Не удалось сохранить оплату. Данные не изменены','error');}
+    closeModal('supplierPaymentModal');renderSuppliers();renderPurchaseOrders();showToast('Оплата поставщику сохранена','success');
+}
 
 
 let editingSupplierPaymentId=null;
@@ -6264,11 +6291,13 @@ function openSupplierPaymentAllocation(paymentId){
     const root=document.getElementById('supplierAllocationRows');if(!root)return;
     const fmt=value=>(Math.round((Number(value)||0)*100)/100).toLocaleString('ru-RU',{minimumFractionDigits:2,maximumFractionDigits:2})+' ₽';
     root.innerHTML=supplierOrders.length?supplierOrders.map(order=>{
-        const current=payment.allocations.filter(item=>item.purchaseOrderId===order.id).reduce((sum,item)=>sum+item.amount,0);
-        const allocatedElsewhere=inventorySupplierPayments.filter(item=>item.id!==payment.id).reduce((sum,item)=>sum+item.allocations.filter(a=>a.purchaseOrderId===order.id).reduce((n,a)=>n+a.amount,0),0);
-        const capacity=Math.max(0,supplierReceivedTotal(order)-allocatedElsewhere);
-        const max=order.status==='cancelled'?current:capacity;
-        return '<label class="supplier-allocation-row"><span><b>Заказ № '+escapeBookingHtml(order.id.slice(-8))+'</b><small>'+(order.status==='cancelled'?'Отменён · текущую сумму можно сохранить':'Принято '+fmt(supplierReceivedTotal(order))+' · доступно '+fmt(capacity))+'</small></span><input type="number" min="0" max="'+max.toFixed(2)+'" step="0.01" data-order-id="'+escapeBookingHtml(order.id)+'" value="'+current.toFixed(2)+'" '+(order.status==='cancelled'?'max="'+current.toFixed(2)+'"':'')+'></label>';
+        const currentCents=payment.allocations.filter(item=>String(item.purchaseOrderId)===String(order.id)).reduce((sum,item)=>sum+Math.round(Number(item.amount)*100),0);
+        const allocatedElsewhereCents=inventorySupplierPayments.filter(item=>item.id!==payment.id).reduce((sum,item)=>sum+item.allocations.filter(a=>String(a.purchaseOrderId)===String(order.id)).reduce((n,a)=>n+Math.round(Number(a.amount)*100),0),0);
+        const receivedCents=Math.round(supplierReceivedTotal(order)*100),refundedCents=Math.round(supplierOrderRefunded(order.id)*100);
+        const capacityCents=receivedCents+refundedCents-allocatedElsewhereCents;
+        const maxCents=order.status==='cancelled'?currentCents:Math.max(0,capacityCents);
+        const safeMax=Number.isSafeInteger(maxCents)?maxCents:currentCents;
+        return '<label class="supplier-allocation-row"><span><b>Заказ № '+escapeBookingHtml(String(order.id).slice(-8))+'</b><small>'+(order.status==='cancelled'?'Отменён · текущую сумму можно сохранить':'Принято '+fmt(supplierReceivedTotal(order))+' · возвраты денег '+fmt(refundedCents/100)+' · доступно '+fmt(safeMax/100))+'</small></span><input type="number" min="0" max="'+(safeMax/100).toFixed(2)+'" step="0.01" data-order-id="'+escapeBookingHtml(order.id)+'" value="'+(currentCents/100).toFixed(2)+'" '+(order.status==='cancelled'?'readonly':'')+'></label>';
     }).join(''):'<small>Заказов поставщика не найдено</small>';
     document.getElementById('supplierAllocationTitle').textContent='Распределение оплаты · '+payment.supplierNameSnapshot;
     document.getElementById('supplierAllocationTotal').textContent='Сумма платежа: '+fmt(payment.amount);
@@ -6278,20 +6307,29 @@ function saveSupplierPaymentAllocation(){
     if(!requireAdminAction('Изменять распределение оплат может только Али'))return;
     const payment=inventorySupplierPayments.find(item=>item.id===editingSupplierPaymentId);if(!payment)return;
     const inputs=Array.from(document.querySelectorAll('#supplierAllocationRows [data-order-id]'));
-    let totalCents=0;const allocations=[];
+    const paymentCents=Math.round(Number(payment.amount)*100);
+    if(!Number.isSafeInteger(paymentCents)||paymentCents<=0)return showToast('У платежа некорректная сумма','error');
+    let totalCents=0;const allocations=[],seen=new Set();
     for(const input of inputs){
-        const orderId=input.dataset.orderId,order=inventoryPurchaseOrders.find(item=>item.id===orderId);
+        const orderId=String(input.dataset.orderId||''),order=inventoryPurchaseOrders.find(item=>String(item.id)===orderId);
         const amount=Number(input.value),cents=Math.round(amount*100);
-        if(!order||order.supplierId!==payment.supplierId||!Number.isFinite(amount)||amount<0||Math.abs(amount*100-cents)>0.001)return showToast('Проверь суммы распределения','error');
-        const previous=payment.allocations.filter(item=>item.purchaseOrderId===orderId).reduce((sum,item)=>sum+Math.round(item.amount*100),0);
-        const otherPayments=inventorySupplierPayments.filter(item=>item.id!==payment.id).reduce((sum,item)=>sum+item.allocations.filter(a=>a.purchaseOrderId===orderId).reduce((n,a)=>n+Math.round(a.amount*100),0),0);
-        const capacity=Math.max(0,Math.round(supplierReceivedTotal(order)*100)-otherPayments);
-        if(order.status==='cancelled'&&cents>previous)return showToast('Нельзя перенести дополнительную оплату на отменённый заказ','error');
-        if(cents>capacity)return showToast('По заказу № '+order.id.slice(-8)+' сумма превышает доступный остаток','error');
+        if(!order||order.supplierId!==payment.supplierId||seen.has(orderId)||!Number.isFinite(amount)||amount<0||!Number.isSafeInteger(cents)||Math.abs(amount*100-cents)>0.001)return showToast('Проверь суммы распределения','error');
+        seen.add(orderId);
+        const previousCents=payment.allocations.filter(item=>String(item.purchaseOrderId)===orderId).reduce((sum,item)=>sum+Math.round(Number(item.amount)*100),0);
+        const otherPaymentsCents=inventorySupplierPayments.filter(item=>item.id!==payment.id).reduce((sum,item)=>sum+item.allocations.filter(a=>String(a.purchaseOrderId)===orderId).reduce((n,a)=>n+Math.round(Number(a.amount)*100),0),0);
+        const receivedCents=Math.round(supplierReceivedTotal(order)*100),refundedCents=Math.round(supplierOrderRefunded(orderId)*100);
+        const capacityCents=receivedCents+refundedCents-otherPaymentsCents;
+        if(!Number.isSafeInteger(previousCents)||!Number.isSafeInteger(otherPaymentsCents)||!Number.isSafeInteger(receivedCents)||!Number.isSafeInteger(refundedCents)||!Number.isSafeInteger(capacityCents))return showToast('В финансовых данных заказа обнаружено некорректное значение','error');
+        if(order.status==='cancelled'&&cents>previousCents)return showToast('Нельзя перенести дополнительную оплату на отменённый заказ','error');
+        if(cents>Math.max(0,capacityCents))return showToast('По заказу № '+String(order.id).slice(-8)+' сумма превышает доступный остаток с учётом возвратов','error');
         if(cents>0){allocations.push({purchaseOrderId:orderId,amount:cents/100});totalCents+=cents;}
     }
-    if(totalCents!==Math.round(payment.amount*100))return showToast('Распределение должно точно равняться сумме платежа','error');
-    payment.allocations=allocations;persistSupplierPayments();closeModal('supplierAllocationModal');renderSuppliers();renderPurchaseOrders();showToast('Распределение платежа обновлено','success');
+    if(totalCents!==paymentCents)return showToast('Распределение должно точно равняться сумме платежа','error');
+    const previous=payment.allocations;
+    payment.allocations=allocations;
+    try{persistSupplierPayments();}
+    catch(error){payment.allocations=previous;return showToast('Не удалось сохранить распределение. Данные не изменены','error');}
+    closeModal('supplierAllocationModal');renderSuppliers();renderPurchaseOrders();showToast('Распределение платежа обновлено','success');
 }
 function normalizeSupplierName(value){return String(value||'').trim().toLocaleLowerCase('ru-RU').replace(/\\s+/g,' ');}
 function findOrCreateSupplier(name){
