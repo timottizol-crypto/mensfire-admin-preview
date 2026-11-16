@@ -6119,6 +6119,36 @@ function createSupplierReturn(data){
     showToast('Возврат поставщику зафиксирован','success');
     return record;
 }
+
+function supplierOrderReturnableQuantity(order){
+    return (order.items||[]).reduce((sum,line,index)=>{const batches=Array.isArray(line.receivedBatches)?line.receivedBatches:[];if(batches.length)return sum+batches.reduce((n,batch,batchIndex)=>n+Math.max(0,(Number(batch.quantity)||0)-supplierReturnedQuantity(order.id,index,batchIndex)),0);return sum+Math.max(0,(Number(line.receivedQuantity)||0)-supplierReturnedQuantity(order.id,index,-1));},0);
+}
+function openSupplierReturn(orderId){
+    if(!requireAdminAction('Оформлять возвраты поставщикам может только Али'))return;
+    const order=inventoryPurchaseOrders.find(item=>item.id===orderId);if(!order||order.status==='cancelled')return;
+    const select=document.getElementById('supplierReturnBatch');if(!select)return;
+    const options=[];
+    (order.items||[]).forEach((line,itemIndex)=>{
+        const batches=Array.isArray(line.receivedBatches)?line.receivedBatches:[];
+        const add=(batchIndex,batch)=>{const gross=Number(batch?batch.quantity:line.receivedQuantity)||0,available=Math.max(0,gross-supplierReturnedQuantity(order.id,itemIndex,batchIndex));if(available<=0)return;const cost=Math.max(0,Number(batch?batch.unitCost:line.unitCost)||0),label=(line.titleSnapshot||'Товар')+(batch?' · '+new Date(batch.receivedAt||order.createdAt).toLocaleDateString('ru-RU'):' · без разбивки партий');options.push('<option value="'+itemIndex+':'+batchIndex+'" data-max="'+available+'" data-cost="'+cost+'">'+escapeBookingHtml(label)+' · доступно '+available+' шт. · '+cost.toFixed(2)+' ₽/ед.</option>');};
+        if(batches.length)batches.forEach((batch,batchIndex)=>add(batchIndex,batch));else add(-1,null);
+    });
+    select.innerHTML=options.join('')||'<option value="">Нет доступных для возврата товаров</option>';
+    document.getElementById('supplierReturnTitle').textContent='Возврат поставщику · '+order.supplier;
+    document.getElementById('supplierReturnQuantity').value='1';document.getElementById('supplierReturnReason').value='';
+    document.getElementById('supplierReturnOrderId').value=order.id;
+    updateSupplierReturnLimit();openModal('supplierReturnModal');
+}
+function updateSupplierReturnLimit(){
+    const select=document.getElementById('supplierReturnBatch'),option=select?.selectedOptions?.[0],qty=document.getElementById('supplierReturnQuantity');
+    if(!option||!qty)return;const max=Number(option.dataset.max)||0;qty.max=String(max);qty.value=String(Math.min(Math.max(1,Number(qty.value)||1),max));document.getElementById('supplierReturnLimit').textContent='Максимум к возврату: '+max+' шт. · '+(Number(option.dataset.cost)||0).toFixed(2)+' ₽/ед.';
+}
+function submitSupplierReturn(){
+    const orderId=document.getElementById('supplierReturnOrderId')?.value||'',parts=(document.getElementById('supplierReturnBatch')?.value||'').split(':');
+    if(parts.length!==2||!orderId)return showToast('Выбери партию товара','error');
+    const result=createSupplierReturn({orderId,itemIndex:Number(parts[0]),batchIndex:Number(parts[1]),quantity:Number(document.getElementById('supplierReturnQuantity')?.value),reason:document.getElementById('supplierReturnReason')?.value||''});
+    if(result)closeModal('supplierReturnModal');
+}
 function supplierOrderFirstReceipt(order){
     const dates=(order.items||[]).flatMap(item=>(item.receivedBatches||[]).map(batch=>batch.receivedAt).filter(Boolean)).filter(value=>!Number.isNaN(new Date(value).getTime())).sort((a,b)=>new Date(a)-new Date(b));
     return dates[0]||order.updatedAt||order.createdAt||'';
@@ -6581,7 +6611,7 @@ function renderPurchaseOrders(){
             }).join('')+'</div>':'';
             return '<div class="purchase-line-reconcile"><div><span>'+escapeBookingHtml(item.titleSnapshot||'Товар')+'</span><small>Принято '+(Number(item.receivedQuantity)||0)+' / '+(Number(item.quantity)||0)+' шт. · Цена заказа '+fmt(item.unitCost)+'/ед. · Факт. средняя '+(hasBatchData?fmt(actualCost):'нет разбивки')+'/ед.</small>'+batchDetails+'</div></div>';
         }).join('');
-        return '<article class="purchase-order-card"><div class="purchase-order-top"><div><span class="purchase-order-status status-'+order.status+'">'+(labels[order.status]||'Заказ')+'</span><h3>'+escapeBookingHtml(order.supplier)+'</h3><small>'+new Date(order.createdAt).toLocaleDateString('ru-RU')+' · № '+escapeBookingHtml(order.id.slice(-8))+(order.expectedAt?' · Ожидается: '+escapeBookingHtml(order.expectedAt):'')+'</small></div><strong>'+fmt(total)+'</strong></div><div class="supplier-order-finance"><span>Принято: <b>'+fmt(receivedValue)+'</b></span><span>Оплачено: <b>'+fmt(paidValue)+'</b></span><span>Долг: <b>'+fmt(debtValue)+'</b></span></div><div class="purchase-order-lines">'+lines+'</div>'+ledgerStatus+(order.note?'<p class="purchase-order-note">'+escapeBookingHtml(order.note)+'</p>':'')+'<div class="purchase-order-actions">'+(['ordered','partial'].includes(order.status)?'<button type="button" class="inventory-sync-btn" onclick="openPurchaseReceiving(\''+order.id+'\')">Принять поставку · осталось '+remaining+'</button>':'')+(order.status==='ordered'&&order.items.every(item=>!item.receivedQuantity)?'<button type="button" class="purchase-order-cancel" onclick="cancelPurchaseOrder(\''+order.id+'\')">Отменить</button>':'')+'</div></article>';
+        return '<article class="purchase-order-card"><div class="purchase-order-top"><div><span class="purchase-order-status status-'+order.status+'">'+(labels[order.status]||'Заказ')+'</span><h3>'+escapeBookingHtml(order.supplier)+'</h3><small>'+new Date(order.createdAt).toLocaleDateString('ru-RU')+' · № '+escapeBookingHtml(order.id.slice(-8))+(order.expectedAt?' · Ожидается: '+escapeBookingHtml(order.expectedAt):'')+'</small></div><strong>'+fmt(total)+'</strong></div><div class="supplier-order-finance"><span>Принято: <b>'+fmt(receivedValue)+'</b></span><span>Оплачено: <b>'+fmt(paidValue)+'</b></span><span>Долг: <b>'+fmt(debtValue)+'</b></span></div><div class="purchase-order-lines">'+lines+'</div>'+ledgerStatus+(order.note?'<p class="purchase-order-note">'+escapeBookingHtml(order.note)+'</p>':'')+'<div class="purchase-order-actions">'+(['ordered','partial'].includes(order.status)?'<button type="button" class="inventory-sync-btn" onclick="openPurchaseReceiving(\''+order.id+'\')">Принять поставку · осталось '+remaining+'</button>':'')+(supplierOrderReturnableQuantity(order)>0?'<button type="button" class="purchase-order-cancel" onclick="openSupplierReturn(\\''+order.id+'\\')">Вернуть поставщику</button>':'')+(order.status==='ordered'&&order.items.every(item=>!item.receivedQuantity)?'<button type="button" class="purchase-order-cancel" onclick="cancelPurchaseOrder(\''+order.id+'\')">Отменить</button>':'')+'</div></article>';
     }).join(''):'<div class="inventory-empty">Заказов поставщикам пока нет. Создай первый заказ, чтобы контролировать ожидаемые поставки.</div>';
 }
 
