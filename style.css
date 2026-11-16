@@ -6755,3 +6755,22 @@ html.light-theme .booking-client-match{background:#fbf8ef}
 .supplier-journal-row>strong{font-size:12px;white-space:nowrap;align-self:center}
 .supplier-journal-detail{grid-column:1/-1}
 @media(max-width:700px){.supplier-journal-filters{grid-template-columns:repeat(2,minmax(0,1fr))}.supplier-journal-panel{padding:13px}.supplier-journal-row{gap:5px 8px}}
+
+.supplier-summary-panel{margin-top:18px;padding:clamp(14px,2vw,22px)}
+.supplier-summary-heading{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;margin-bottom:12px}
+.supplier-summary-heading>div{display:flex;flex-direction:column;gap:4px}
+.supplier-summary-heading strong{font-size:13px;color:var(--text-main)}
+.supplier-summary-heading small,.supplier-summary-heading>span{font-size:10px;color:var(--text-muted)}
+.supplier-summary-totals{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:9px;margin-bottom:14px}
+.supplier-summary-totals>div{display:flex;flex-direction:column;gap:5px;padding:11px;border:1px solid var(--glass-border,rgba(255,255,255,.08));border-radius:10px;min-width:0}
+.supplier-summary-totals small{font-size:10px;color:var(--text-muted)}
+.supplier-summary-totals b{font-size:clamp(11px,1.2vw,15px);color:var(--text-main);overflow-wrap:anywhere}
+.supplier-summary-table-wrap{width:100%;overflow-x:auto}
+.supplier-summary-table{width:100%;border-collapse:collapse;min-width:560px}
+.supplier-summary-table th,.supplier-summary-table td{padding:10px 9px;text-align:right;border-top:1px solid var(--glass-border,rgba(255,255,255,.08));font-size:10px;white-space:nowrap}
+.supplier-summary-table th:first-child,.supplier-summary-table td:first-child{text-align:left}
+.supplier-summary-table th{color:var(--text-muted);font-weight:600}
+.supplier-summary-table td{color:var(--text-main)}
+.supplier-summary-table td:first-child{font-weight:650}
+.supplier-summary-table td small{display:block;margin-top:3px;color:var(--text-muted);font-size:9px;font-weight:400}
+@media(max-width:700px){.supplier-summary-totals{grid-template-columns:repeat(2,minmax(0,1fr))}.supplier-summary-heading{flex-direction:column}}
