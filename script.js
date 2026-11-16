@@ -6201,6 +6201,34 @@ let supplierFinanceJournalFilteredEvents=[];
 let supplierFinanceSummaryRows=[];
 let supplierFinanceSummaryPeriod={from:'',to:''};
 
+
+function getSupplierFinanceIntegrityIssues(){
+    const issues=[],allocatedByOrder=new Map();
+    inventorySupplierPayments.forEach(payment=>{
+        const allocations=Array.isArray(payment.allocations)?payment.allocations:[];
+        const allocated=allocations.reduce((sum,item)=>sum+(Number(item.amount)||0),0);
+        if(Math.abs(allocated-(Number(payment.amount)||0))>0.01)issues.push({title:'Платёж распределён не полностью',detail:'Платёж '+String(payment.id).slice(-8)+': сумма '+(Number(payment.amount)||0).toFixed(2)+' ₽, распределено '+allocated.toFixed(2)+' ₽'});
+        allocations.forEach(allocation=>{
+            const order=inventoryPurchaseOrders.find(item=>item.id===allocation.purchaseOrderId);
+            if(!order){issues.push({title:'Платёж ссылается на отсутствующий заказ',detail:'Платёж '+String(payment.id).slice(-8)+' · заказ '+String(allocation.purchaseOrderId)});return;}
+            if(order.supplierId!==payment.supplierId)issues.push({title:'Несовпадение поставщика',detail:'Платёж '+String(payment.id).slice(-8)+' привязан к заказу другого поставщика'});
+            if(order.status==='cancelled'&&(Number(allocation.amount)||0)>0)issues.push({title:'Оплата привязана к отменённому заказу',detail:'Заказ '+String(order.id).slice(-8)+' · '+(Number(allocation.amount)||0).toFixed(2)+' ₽'});
+            allocatedByOrder.set(order.id,(allocatedByOrder.get(order.id)||0)+(Number(allocation.amount)||0));
+        });
+    });
+    inventoryPurchaseOrders.forEach(order=>{
+        const allocated=allocatedByOrder.get(order.id)||0,received=supplierReceivedTotal(order);
+        if(order.status!=='cancelled'&&allocated>received+0.01)issues.push({title:'Распределено больше стоимости приёмки',detail:'Заказ '+String(order.id).slice(-8)+' · принято '+received.toFixed(2)+' ₽, распределено '+allocated.toFixed(2)+' ₽'});
+        (order.items||[]).forEach(item=>{
+            if(Array.isArray(item.receivedBatches)&&item.receivedBatches.length){
+                const batchQty=item.receivedBatches.reduce((sum,batch)=>sum+(Number(batch.quantity)||0),0);
+                if(Math.abs(batchQty-(Number(item.receivedQuantity)||0))>0.001)issues.push({title:'Количество партий не совпадает с приёмкой',detail:(item.titleSnapshot||'Товар')+' · заказ '+String(order.id).slice(-8)});
+            }
+        });
+    });
+    return issues;
+}
+
 function renderSupplierFinanceSummary(events,from,to){
     const root=document.getElementById('supplierFinanceSummary');if(!root)return;
     const validDay=value=>{const date=value?new Date(value):null;return date&&!Number.isNaN(date.getTime())?date.toISOString().slice(0,10):'';};
@@ -6222,9 +6250,10 @@ function renderSupplierFinanceSummary(events,from,to){
     const fmt=value=>Math.round((Number(value)||0)*100/100).toLocaleString('ru-RU',{maximumFractionDigits:2})+' ₽';
     const totals=rows.reduce((acc,row)=>{acc.opening+=row.opening;acc.receipts+=row.receipts;acc.payments+=row.payments;acc.closing+=row.closing;return acc;},{opening:0,receipts:0,payments:0,closing:0});
     const period=(from||to)?((from?new Date(from+'T00:00:00').toLocaleDateString('ru-RU'):'С начала')+' — '+(to?new Date(to+'T00:00:00').toLocaleDateString('ru-RU'):'по сегодня')):'За всё время';
+    const integrityIssues=getSupplierFinanceIntegrityIssues();
     root.innerHTML='<div class="supplier-summary-heading"><div><strong>Сводка по поставщикам</strong><small>'+period+' · начальный долг рассчитан по операциям до начала периода</small></div><div class="supplier-summary-actions"><span>'+rows.length+' поставщиков</span><button type="button" class="inventory-sync-btn" onclick="exportSupplierFinanceSummary()">Экспорт CSV</button></div></div>'+
         '<div class="supplier-summary-totals"><div><small>Долг на начало</small><b>'+fmt(totals.opening)+'</b></div><div><small>Приёмки за период</small><b>'+fmt(totals.receipts)+'</b></div><div><small>Оплаты за период</small><b>'+fmt(totals.payments)+'</b></div><div><small>Расчётный долг на конец</small><b>'+fmt(totals.closing)+'</b></div></div>'+
-        (rows.length?'<div class="supplier-summary-table-wrap"><table class="supplier-summary-table"><thead><tr><th>Поставщик</th><th>На начало</th><th>Приёмки</th><th>Оплаты</th><th>На конец</th></tr></thead><tbody>'+rows.map(row=>'<tr><td>'+escapeBookingHtml(row.name)+'<small>'+row.receiptCount+' приёмок · '+row.paymentCount+' оплат</small></td><td>'+fmt(row.opening)+'</td><td>'+fmt(row.receipts)+'</td><td>'+fmt(row.payments)+'</td><td><b>'+fmt(row.closing)+'</b></td></tr>').join('')+'</tbody></table></div>':'<div class="inventory-empty compact">Нет финансовых операций за выбранный период</div>');
+        (rows.length?'<div class="supplier-summary-table-wrap"><table class="supplier-summary-table"><thead><tr><th>Поставщик</th><th>На начало</th><th>Приёмки</th><th>Оплаты</th><th>На конец</th></tr></thead><tbody>'+rows.map(row=>'<tr><td>'+escapeBookingHtml(row.name)+'<small>'+row.receiptCount+' приёмок · '+row.paymentCount+' оплат</small></td><td>'+fmt(row.opening)+'</td><td>'+fmt(row.receipts)+'</td><td>'+fmt(row.payments)+'</td><td><b>'+fmt(row.closing)+'</b></td></tr>').join('')+'</tbody></table></div>':'<div class="inventory-empty compact">Нет финансовых операций за выбранный период</div>')+'<div class="supplier-integrity-check '+(integrityIssues.length?'has-issues':'is-clean')+'"><strong>'+(integrityIssues.length?'Найдены несоответствия: '+integrityIssues.length:'Проверка распределения оплат пройдена')+'</strong>'+(integrityIssues.length?'<ul>'+integrityIssues.map(issue=>'<li><b>'+escapeBookingHtml(issue.title)+'</b><small>'+escapeBookingHtml(issue.detail)+'</small></li>').join('')+'</ul>':'<small>Проверены суммы платежей, привязка к заказам и соответствие партий приёмки</small>')+'</div>');
 }
 
 
