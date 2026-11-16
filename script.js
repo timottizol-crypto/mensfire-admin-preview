@@ -7159,10 +7159,14 @@ function saveRetailSale(){
     if(!client)return showToast('Выбери клиента из CRM','error');
     if(!retailSaleCart.length)return showToast('Добавь хотя бы один товар','error');
     const status=document.getElementById('retailSalePaymentStatus').value;
-    const total=retailSaleCart.reduce((sum,row)=>sum+row.quantity*row.unitPrice,0);
+    if(!['paid','unpaid','partial'].includes(status))return showToast('Выбран неизвестный статус оплаты','error');
+    if(retailSaleCart.some(row=>!Number.isSafeInteger(Number(row.quantity))||Number(row.quantity)<=0||!Number.isFinite(Number(row.unitPrice))||Number(row.unitPrice)<0))return showToast('Проверь количество и цену каждого товара в чеке','error');
+    const total=retailSaleCart.reduce((sum,row)=>sum+Number(row.quantity)*Number(row.unitPrice),0);
+    if(!Number.isFinite(total)||total<0)return showToast('Не удалось рассчитать сумму товарного чека','error');
     const paidRaw=Number(document.getElementById('retailSalePaidAmount').value);
     const paid=status==='paid'?total:status==='unpaid'?0:paidRaw;
-    if(status==='partial'&&(!Number.isFinite(paid)||paid<=0||paid>=total))return showToast('Для частичной оплаты укажи сумму больше 0 и меньше итога','error');
+    if(!Number.isFinite(paid)||paid<0||paid>total)return showToast('Сумма оплаты не может быть меньше 0 или больше суммы чека','error');
+    if(status==='partial'&&(paid<=0||paid>=total))return showToast('Для частичной оплаты укажи сумму больше 0 и меньше итога','error');
     const checked=retailSaleCart.map(row=>{
         const product=inventoryProducts.find(item=>item.id===row.productId);
         return {row,product};
