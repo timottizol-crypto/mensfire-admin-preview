@@ -7429,7 +7429,7 @@ function getRetailInventoryIntegrityIssues(){
             linked.forEach(move=>actual.set(String(move.productId),(actual.get(String(move.productId))||0)+(Number(move.quantity)||0)));
             const keys=new Set([...expected.keys(),...actual.keys()]);
             const mismatch=[...keys].some(key=>Math.abs((expected.get(key)||0)-(actual.get(key)||0))>0.001);
-            if(mismatch||linked.length!==expected.size){
+            if(mismatch){
                 issues.push({title:'Возврат не совпадает со складским приходом',detail:'Возврат '+String(refund.id).slice(-8)+' · чек '+String(sale.id).slice(-8)+' · движений: '+linked.length});
             }
         });
