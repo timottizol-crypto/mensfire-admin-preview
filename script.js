@@ -6426,6 +6426,7 @@ function getSupplierFinanceIntegrityIssues(){
         if(paymentCents!==null&&allocatedCents!==paymentCents)issues.push({title:'Платёж распределён не полностью',detail:'Платёж '+String(payment.id).slice(-8)+': сумма '+(paymentCents/100).toFixed(2)+' ₽, распределено '+(allocatedCents/100).toFixed(2)+' ₽'});
         if(!Number.isSafeInteger(allocatedCents))issues.push({title:'Переполнение суммы распределений',detail:'Платёж '+String(payment.id).slice(-8)});
     });
+    const refundTotals=new Map();
     inventorySupplierRefunds.forEach(record=>{
         if(refundIds.has(String(record.id)))issues.push({title:'Повторяется ID возврата денег',detail:'Операция '+String(record.id).slice(-8)});
         refundIds.add(String(record.id));
@@ -6437,7 +6438,6 @@ function getSupplierFinanceIntegrityIssues(){
         if(amountCents!==null)refundTotalsSet(record.orderId,amountCents);
     });
     function refundTotalsSet(orderId,amountCents){refundTotals.set(String(orderId),(refundTotals.get(String(orderId))||0)+amountCents);}
-    const refundTotals=new Map();
     inventorySupplierReturns.forEach(record=>{
         if(returnIds.has(String(record.id)))issues.push({title:'Повторяется ID возврата товара',detail:'Возврат '+String(record.id).slice(-8)});
         returnIds.add(String(record.id));
