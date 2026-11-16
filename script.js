@@ -6102,7 +6102,7 @@ function createSupplierReturn(data){
     if(batchIndex<0&&batches.length)return showToast('Выбери конкретную партию приёмки','error'),false;
     const grossQty=batch?Number(batch.quantity)||0:Number(line.receivedQuantity)||0;
     const unitCost=Math.max(0,Number(batch?batch.unitCost:line.unitCost)||0);
-    const quantity=Math.round(Number(data.quantity));
+    const quantity=Number(data.quantity);
     const available=Math.max(0,grossQty-supplierReturnedQuantity(order.id,itemIndex,batchIndex));
     if(!Number.isInteger(quantity)||quantity<1||quantity>available)return showToast('Количество возврата превышает доступный остаток партии','error'),false;
     const amount=quantity*unitCost;
@@ -6281,6 +6281,15 @@ function getSupplierFinanceIntegrityIssues(){
             allocatedByOrder.set(order.id,(allocatedByOrder.get(order.id)||0)+(Number(allocation.amount)||0));
         });
     });
+    inventorySupplierReturns.forEach(record=>{
+        const order=inventoryPurchaseOrders.find(item=>item.id===record.orderId),line=order?.items?.[Number(record.itemIndex)];
+        if(!order||!line){issues.push({title:'Возврат ссылается на отсутствующую позицию',detail:'Возврат '+String(record.id).slice(-8)});return;}
+        if(order.supplierId!==record.supplierId)issues.push({title:'Несовпадение поставщика в возврате',detail:'Возврат '+String(record.id).slice(-8)});
+        const batches=Array.isArray(line.receivedBatches)?line.receivedBatches:[];
+        const gross=Number(record.batchIndex)>=0?Number(batches[Number(record.batchIndex)]?.quantity)||0:Number(line.receivedQuantity)||0;
+        const returned=supplierReturnedQuantity(order.id,Number(record.itemIndex),Number(record.batchIndex));
+        if(returned>gross+0.001)issues.push({title:'Возврат превышает принятую партию',detail:'Заказ '+String(order.id).slice(-8)+' · '+(line.titleSnapshot||'Товар')});
+    });
     inventoryPurchaseOrders.forEach(order=>{
         const allocated=allocatedByOrder.get(order.id)||0,received=supplierReceivedTotal(order);
         if(order.status!=='cancelled'&&allocated>received+0.01)issues.push({title:'Распределено больше стоимости приёмки',detail:'Заказ '+String(order.id).slice(-8)+' · принято '+received.toFixed(2)+' ₽, распределено '+allocated.toFixed(2)+' ₽'});
@@ -6302,7 +6311,7 @@ function renderSupplierFinanceSummary(events,from,to){
         const id=event.supplierId||'unknown';
         if(!suppliers.has(id))suppliers.set(id,{name:event.supplierName||'Поставщик',opening:0,receipts:0,payments:0,returns:0,receiptCount:0,paymentCount:0,returnCount:0});
         const row=suppliers.get(id),day=validDay(event.date),amount=Math.max(0,Number(event.amount)||0);
-        if(from&&day&&day<from){row.opening+=event.kind==='payment'?-amount:amount;return;}
+        if(from&&day&&day<from){row.opening+=(event.kind==='payment'||event.kind==='return')?-amount:amount;return;}
         if(from&&(!day||day<from))return;
         if(to&&(!day||day>to))return;
         if(event.kind==='payment'){row.payments+=amount;row.paymentCount++;}
