@@ -6684,3 +6684,16 @@ html.light-theme .booking-client-match{background:#fbf8ef}
 .inventory-supplier-compare-prices span b{color:var(--text-main)}
 .inventory-supplier-compare-prices strong{font-size:11px;color:#69c995}
 @media(max-width:600px){.inventory-supplier-compare-row{flex-direction:column}.inventory-supplier-compare-prices{align-items:flex-start;text-align:left}}
+
+
+/* Контроль заметного роста закупочных цен */
+.inventory-price-alert-list{display:flex;flex-direction:column;gap:2px}
+.inventory-price-alert-row{display:flex;justify-content:space-between;align-items:center;gap:16px;padding:12px 2px;border-bottom:1px solid var(--glass-border,rgba(255,255,255,.07))}
+.inventory-price-alert-row:last-child{border-bottom:0}
+.inventory-price-alert-row>div{display:flex;flex-direction:column;gap:5px;min-width:0}
+.inventory-price-alert-row>div:last-child{align-items:flex-end;text-align:right}
+.inventory-price-alert-row strong{font-size:12px;color:var(--text-main)}
+.inventory-price-alert-row b{font-size:12px;color:#e5a34b}
+.inventory-price-alert-row span{font-size:11px;color:var(--text-main)}
+.inventory-price-alert-row small{font-size:10px;color:var(--text-muted);line-height:1.45}
+@media(max-width:600px){.inventory-price-alert-row{align-items:flex-start;flex-direction:column}.inventory-price-alert-row>div:last-child{align-items:flex-start;text-align:left}}
