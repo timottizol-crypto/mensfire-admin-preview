@@ -6198,6 +6198,9 @@ function exportSupplierStatement(supplierId){
 let supplierFinanceJournalFilteredEvents=[];
 
 
+let supplierFinanceSummaryRows=[];
+let supplierFinanceSummaryPeriod={from:'',to:''};
+
 function renderSupplierFinanceSummary(events,from,to){
     const root=document.getElementById('supplierFinanceSummary');if(!root)return;
     const validDay=value=>{const date=value?new Date(value):null;return date&&!Number.isNaN(date.getTime())?date.toISOString().slice(0,10):'';};
@@ -6214,12 +6217,35 @@ function renderSupplierFinanceSummary(events,from,to){
     });
     const rows=[...suppliers.values()].map(row=>({...row,closing:row.opening+row.receipts-row.payments,change:row.receipts-row.payments}))
         .sort((a,b)=>b.closing-a.closing||a.name.localeCompare(b.name,'ru'));
+    supplierFinanceSummaryRows=rows;
+    supplierFinanceSummaryPeriod={from:from||'',to:to||''};
     const fmt=value=>Math.round((Number(value)||0)*100/100).toLocaleString('ru-RU',{maximumFractionDigits:2})+' ₽';
     const totals=rows.reduce((acc,row)=>{acc.opening+=row.opening;acc.receipts+=row.receipts;acc.payments+=row.payments;acc.closing+=row.closing;return acc;},{opening:0,receipts:0,payments:0,closing:0});
     const period=(from||to)?((from?new Date(from+'T00:00:00').toLocaleDateString('ru-RU'):'С начала')+' — '+(to?new Date(to+'T00:00:00').toLocaleDateString('ru-RU'):'по сегодня')):'За всё время';
-    root.innerHTML='<div class="supplier-summary-heading"><div><strong>Сводка по поставщикам</strong><small>'+period+' · начальный долг рассчитан по операциям до начала периода</small></div><span>'+rows.length+' поставщиков</span></div>'+
+    root.innerHTML='<div class="supplier-summary-heading"><div><strong>Сводка по поставщикам</strong><small>'+period+' · начальный долг рассчитан по операциям до начала периода</small></div><div class="supplier-summary-actions"><span>'+rows.length+' поставщиков</span><button type="button" class="inventory-sync-btn" onclick="exportSupplierFinanceSummary()">Экспорт CSV</button></div></div>'+
         '<div class="supplier-summary-totals"><div><small>Долг на начало</small><b>'+fmt(totals.opening)+'</b></div><div><small>Приёмки за период</small><b>'+fmt(totals.receipts)+'</b></div><div><small>Оплаты за период</small><b>'+fmt(totals.payments)+'</b></div><div><small>Расчётный долг на конец</small><b>'+fmt(totals.closing)+'</b></div></div>'+
         (rows.length?'<div class="supplier-summary-table-wrap"><table class="supplier-summary-table"><thead><tr><th>Поставщик</th><th>На начало</th><th>Приёмки</th><th>Оплаты</th><th>На конец</th></tr></thead><tbody>'+rows.map(row=>'<tr><td>'+escapeBookingHtml(row.name)+'<small>'+row.receiptCount+' приёмок · '+row.paymentCount+' оплат</small></td><td>'+fmt(row.opening)+'</td><td>'+fmt(row.receipts)+'</td><td>'+fmt(row.payments)+'</td><td><b>'+fmt(row.closing)+'</b></td></tr>').join('')+'</tbody></table></div>':'<div class="inventory-empty compact">Нет финансовых операций за выбранный период</div>');
+}
+
+
+function exportSupplierFinanceSummary(){
+    if(!requireAdminAction('Экспортировать финансовую сводку поставщиков может только Али'))return;
+    const rows=Array.isArray(supplierFinanceSummaryRows)?supplierFinanceSummaryRows:[];
+    if(!rows.length)return showToast('Нет данных для экспорта','info');
+    const columns=['Поставщик','Долг на начало, ₽','Приёмки за период, ₽','Оплаты за период, ₽','Изменение долга, ₽','Расчётный долг на конец, ₽','Количество приёмок','Количество оплат'];
+    const money=value=>(Number(value)||0).toFixed(2).replace('.',',');
+    const cell=value=>{const text=String(value??'');return /[",;\\r\\n]/.test(text)?'"'+text.replace(/"/g,'""')+'"':text;};
+    const data=rows.map(row=>[row.name,money(row.opening),money(row.receipts),money(row.payments),money(row.change),money(row.closing),row.receiptCount,row.paymentCount]);
+    const total=rows.reduce((acc,row)=>{acc.opening+=row.opening;acc.receipts+=row.receipts;acc.payments+=row.payments;acc.change+=row.change;acc.closing+=row.closing;acc.receiptCount+=row.receiptCount;acc.paymentCount+=row.paymentCount;return acc;},{opening:0,receipts:0,payments:0,change:0,closing:0,receiptCount:0,paymentCount:0});
+    data.push(['ИТОГО',money(total.opening),money(total.receipts),money(total.payments),money(total.change),money(total.closing),total.receiptCount,total.paymentCount]);
+    const period=supplierFinanceSummaryPeriod||{};
+    const csv='\\uFEFF'+[columns,...data].map(row=>row.map(cell).join(';')).join('\\r\\n');
+    const blob=new Blob([csv],{type:'text/csv;charset=utf-8;'});
+    const url=URL.createObjectURL(blob),link=document.createElement('a');
+    const suffix=(period.from||'start')+'_'+(period.to||'today');
+    link.href=url;link.download='mensfire-supplier-summary-'+suffix+'.csv';
+    document.body.appendChild(link);link.click();link.remove();URL.revokeObjectURL(url);
+    showToast('Финансовая сводка экспортирована в CSV','success');
 }
 
 function renderSupplierFinanceJournal(){
