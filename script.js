@@ -6073,7 +6073,7 @@ let inventorySuppliers = (() => {
         return Array.isArray(saved)?saved.filter(item=>item&&item.id&&String(item.name||'').trim()).map(item=>({
             id:String(item.id),name:String(item.name||'').trim(),contactPerson:String(item.contactPerson||''),
             phone:String(item.phone||''),email:String(item.email||''),address:String(item.address||''),
-            notes:String(item.notes||''),active:item.active!==false,createdAt:String(item.createdAt||''),
+            notes:String(item.notes||''),paymentTermDays:Math.min(365,Math.max(0,Number(item.paymentTermDays??30)||0)),active:item.active!==false,createdAt:String(item.createdAt||''),
             updatedAt:String(item.updatedAt||'')
         })):[];
     } catch(error){console.warn('Не удалось загрузить поставщиков:',error);return [];}
@@ -6084,6 +6084,20 @@ function persistSupplierPayments(){localStorage.setItem(appStorageKey('mensfire_
 function supplierReceivedTotal(order){return (order.items||[]).reduce((sum,line)=>sum+(Array.isArray(line.receivedBatches)&&line.receivedBatches.length?line.receivedBatches.reduce((n,b)=>n+(Number(b.quantity)||0)*(Number(b.unitCost)||0),0):(Number(line.receivedQuantity)||0)*(Number(line.unitCost)||0)),0);}
 function supplierOrderPaid(id){return inventorySupplierPayments.reduce((sum,p)=>sum+p.allocations.filter(a=>a.purchaseOrderId===id).reduce((n,a)=>n+a.amount,0),0);}
 function supplierOrderDebt(order){return Math.max(0,supplierReceivedTotal(order)-supplierOrderPaid(order.id));}
+function supplierOrderFirstReceipt(order){
+    const dates=(order.items||[]).flatMap(item=>(item.receivedBatches||[]).map(batch=>batch.receivedAt).filter(Boolean)).filter(value=>!Number.isNaN(new Date(value).getTime())).sort((a,b)=>new Date(a)-new Date(b));
+    return dates[0]||order.updatedAt||order.createdAt||'';
+}
+function supplierOrderDueDate(order){
+    const supplier=inventorySuppliers.find(item=>item.id===order.supplierId);
+    const base=supplierOrderFirstReceipt(order),days=Math.max(0,Number(supplier?.paymentTermDays??30)||0);
+    if(!base)return null;
+    const date=new Date(base);date.setDate(date.getDate()+days);return date;
+}
+function supplierOrderOverdue(order,now=Date.now()){
+    const due=supplierOrderDueDate(order);
+    return due&&supplierOrderDebt(order)>0&&due.getTime()<now?supplierOrderDebt(order):0;
+}
 function supplierDebt(id){return inventoryPurchaseOrders.filter(o=>o.supplierId===id&&o.status!=='cancelled').reduce((n,o)=>n+supplierOrderDebt(o),0);}
 let activeSupplierPaymentId=null;
 function openSupplierPayment(id){if(!requireAdminAction('Вносить оплаты поставщикам может только Али'))return;const supplier=inventorySuppliers.find(x=>x.id===id);if(!supplier)return;const debt=supplierDebt(id);if(debt<=0)return showToast('По этому поставщику задолженности нет','info');activeSupplierPaymentId=id;document.getElementById('supplierPaymentTitle').textContent='Оплата · '+supplier.name;document.getElementById('supplierPaymentAmount').value=debt.toFixed(2);document.getElementById('supplierPaymentDate').value=new Date().toISOString().slice(0,10);document.getElementById('supplierPaymentMethod').value='Перевод';document.getElementById('supplierPaymentNote').value='';document.getElementById('supplierPaymentDebt').textContent='Текущая задолженность: '+Math.round(debt).toLocaleString('ru-RU')+' ₽';openModal('supplierPaymentModal');}
@@ -6101,7 +6115,7 @@ function openSupplierModal(supplierId=''){
     if(!requireAdminAction('Управлять поставщиками может только Али'))return;
     const supplier=inventorySuppliers.find(item=>item.id===supplierId);editingSupplierId=supplier?.id||null;
     document.getElementById('supplierModalTitle').textContent=supplier?'Редактировать поставщика':'Новый поставщик';
-    const fields={Name:'name',Contact:'contactPerson',Phone:'phone',Email:'email',Address:'address',Notes:'notes'};Object.entries(fields).forEach(([field,key])=>{const node=document.getElementById('supplier'+field);if(node)node.value=supplier?(supplier[key]||''):'';});
+    const fields={Name:'name',Contact:'contactPerson',Phone:'phone',Email:'email',Address:'address',Notes:'notes'};Object.entries(fields).forEach(([field,key])=>{const node=document.getElementById('supplier'+field);if(node)node.value=supplier?(supplier[key]||''):'';});const termNode=document.getElementById('supplierPaymentTermDays');if(termNode)termNode.value=String(supplier?.paymentTermDays??30);
     openModal('supplierModal');
 }
 function saveSupplier(){
@@ -6109,7 +6123,7 @@ function saveSupplier(){
     const name=document.getElementById('supplierName').value.trim();if(!name)return showToast('Укажи название поставщика','error');
     const duplicate=inventorySuppliers.find(item=>normalizeSupplierName(item.name)===normalizeSupplierName(name)&&item.id!==editingSupplierId);
     if(duplicate)return showToast('Поставщик с таким названием уже есть','error');
-    const now=new Date().toISOString(),data={name,contactPerson:document.getElementById('supplierContact').value.trim(),phone:document.getElementById('supplierPhone').value.trim(),email:document.getElementById('supplierEmail').value.trim(),address:document.getElementById('supplierAddress').value.trim(),notes:document.getElementById('supplierNotes').value.trim(),updatedAt:now};
+    const now=new Date().toISOString(),data={name,contactPerson:document.getElementById('supplierContact').value.trim(),phone:document.getElementById('supplierPhone').value.trim(),email:document.getElementById('supplierEmail').value.trim(),address:document.getElementById('supplierAddress').value.trim(),notes:document.getElementById('supplierNotes').value.trim(),paymentTermDays:Math.min(365,Math.max(0,Number(document.getElementById('supplierPaymentTermDays')?.value??30)||0)),updatedAt:now};
     let supplier=inventorySuppliers.find(item=>item.id===editingSupplierId);
     if(supplier)Object.assign(supplier,data);else inventorySuppliers.unshift({id:'sup_'+Date.now()+'_'+Math.random().toString(36).slice(2,7),...data,active:true,createdAt:now});
     persistSuppliers();closeModal('supplierModal');renderSuppliers();showToast('Поставщик сохранён','success');
@@ -6129,14 +6143,10 @@ function renderSuppliers(){
     const totalOrders=inventoryPurchaseOrders.length;
     const totalValue=inventoryPurchaseOrders.filter(order=>order.status!=='cancelled').reduce((sum,order)=>sum+order.items.reduce((n,line)=>n+line.quantity*line.unitCost,0),0);
     const fmt=v=>Math.round(v).toLocaleString('ru-RU')+' ₽';
-    const now=Date.now(),ageDays=date=>Math.max(0,Math.floor((now-new Date(date).getTime())/86400000));
+    const now=Date.now();
     const debtOrders=inventoryPurchaseOrders.filter(order=>order.status!=='cancelled'&&supplierOrderDebt(order)>0);
     const outstanding=debtOrders.reduce((sum,order)=>sum+supplierOrderDebt(order),0);
-    const agedDebt=debtOrders.reduce((sum,order)=>{
-        const dates=(order.items||[]).flatMap(item=>(item.receivedBatches||[]).map(batch=>batch.receivedAt).filter(Boolean));
-        const first=dates.length?dates.sort((a,b)=>new Date(a)-new Date(b))[0]:(order.updatedAt||order.createdAt);
-        return sum+(first&&ageDays(first)>30?supplierOrderDebt(order):0);
-    },0);
+    const overdue=debtOrders.reduce((sum,order)=>sum+supplierOrderOverdue(order,now),0);
     const overview=document.getElementById('suppliersOverview');
     if(overview)overview.innerHTML='<div class="inventory-kpi"><span>Поставщиков</span><strong>'+active+'</strong></div><div class="inventory-kpi"><span>Заказов</span><strong>'+totalOrders+'</strong></div><div class="inventory-kpi"><span>Сумма заказов</span><strong>'+Math.round(totalValue).toLocaleString('ru-RU')+' ₽</strong></div><div class="inventory-kpi"><span>Текущая задолженность</span><strong>'+fmt(outstanding)+'</strong><small>За фактически принятый товар</small></div><div class="inventory-kpi '+(agedDebt?'is-warning':'')+'"><span>Долг старше 30 дней</span><strong>'+fmt(agedDebt)+'</strong><small>Отсчёт от первой приёмки</small></div>';
     root.innerHTML=visible.length?visible.map(supplier=>{
@@ -6145,13 +6155,12 @@ function renderSuppliers(){
         const received=orders.reduce((sum,order)=>sum+order.items.reduce((n,line)=>n+line.receivedQuantity,0),0);
         const receivedValue=orders.reduce((n,o)=>n+supplierReceivedTotal(o),0),paidValue=orders.reduce((n,o)=>n+supplierOrderPaid(o.id),0),debtValue=Math.max(0,receivedValue-paidValue),payments=inventorySupplierPayments.filter(p=>p.supplierId===supplier.id).sort((a,b)=>new Date(b.paidAt)-new Date(a.paidAt));
         const outstandingOrders=orders.filter(order=>order.status!=='cancelled'&&supplierOrderDebt(order)>0).map(order=>{
-            const dates=(order.items||[]).flatMap(item=>(item.receivedBatches||[]).map(batch=>batch.receivedAt).filter(Boolean));
-            const since=dates.length?dates.sort((a,b)=>new Date(a)-new Date(b))[0]:(order.updatedAt||order.createdAt);
-            return {order,debt:supplierOrderDebt(order),since,age:since?ageDays(since):null};
-        }).sort((a,b)=>(b.age??-1)-(a.age??-1));
+            const due=supplierOrderDueDate(order),daysLeft=due?Math.ceil((due.getTime()-Date.now())/86400000):null;
+            return {order,debt:supplierOrderDebt(order),due,daysLeft,overdue:supplierOrderOverdue(order)};
+        }).sort((a,b)=>(b.overdue-a.overdue)||((a.due?.getTime()||Infinity)-(b.due?.getTime()||Infinity)));
         const oldestDebt=outstandingOrders[0];
         const latest=orders[0];
-        return '<article class="supplier-card"><div class="supplier-card-top"><div><span class="purchase-order-status '+(supplier.active?'status-received':'status-cancelled')+'">'+(supplier.active?'Активен':'Архив')+'</span><h3>'+escapeBookingHtml(supplier.name)+'</h3><small>'+orders.length+' заказов · '+received+' ед. принято · '+fmt(value)+'</small></div><button type="button" class="inventory-sync-btn" onclick="openSupplierModal(\''+supplier.id+'\')">Изменить</button></div><div class="supplier-balance-grid"><div><small>Принято на</small><b>'+fmt(receivedValue)+'</b></div><div><small>Оплачено</small><b>'+fmt(paidValue)+'</b></div><div><small>Долг</small><b>'+fmt(debtValue)+'</b></div></div>'+(oldestDebt?'<div class="supplier-debt-age '+(oldestDebt.age>30?'is-warning':'')+'"><span>Самый старый непогашенный долг</span><strong>'+fmt(oldestDebt.debt)+'</strong><small>'+(oldestDebt.age===null?'Дата приёмки не указана':oldestDebt.age+' дн. с первой приёмки · заказ № '+escapeBookingHtml(oldestDebt.order.id.slice(-8)))+'</small></div>':'')+'<button type="button" class="inventory-sync-btn supplier-payment-action" '+(debtValue<=0?'disabled':'')+' onclick="openSupplierPayment(&quot;'+supplier.id+'&quot;)">＋ Внести оплату</button><div class="supplier-payment-history"><strong>История оплат</strong>'+(payments.length?payments.slice(0,4).map(p=>'<div><span>'+new Date(p.paidAt).toLocaleDateString('ru-RU')+' · '+escapeBookingHtml(p.paymentMethod)+'</span><b>'+fmt(p.amount)+'</b></div>').join(''):'<small>Оплат пока нет</small>')+'</div><div class="supplier-contacts">'+(supplier.contactPerson?'<span>Контакт: '+escapeBookingHtml(supplier.contactPerson)+'</span>':'')+(supplier.phone?'<span>Телефон: '+escapeBookingHtml(supplier.phone)+'</span>':'')+(supplier.email?'<span>'+escapeBookingHtml(supplier.email)+'</span>':'')+(supplier.address?'<span>'+escapeBookingHtml(supplier.address)+'</span>':'')+'</div>'+(supplier.notes?'<p class="purchase-order-note">'+escapeBookingHtml(supplier.notes)+'</p>':'')+'<div class="supplier-order-history"><strong>Последние закупки</strong>'+(orders.length?orders.slice(0,3).map(order=>'<div><span>№ '+escapeBookingHtml(order.id.slice(-8))+' · '+new Date(order.createdAt).toLocaleDateString('ru-RU')+'</span><b>'+fmt(order.items.reduce((sum,line)=>sum+line.quantity*line.unitCost,0))+'</b></div>').join(''):'<small>Закупок пока нет</small>')+'</div>'+(latest?'<small class="supplier-last-order">Последний заказ: '+new Date(latest.createdAt).toLocaleDateString('ru-RU')+'</small>':'')+'</article>';
+        return '<article class="supplier-card"><div class="supplier-card-top"><div><span class="purchase-order-status '+(supplier.active?'status-received':'status-cancelled')+'">'+(supplier.active?'Активен':'Архив')+'</span><h3>'+escapeBookingHtml(supplier.name)+'</h3><small>'+orders.length+' заказов · '+received+' ед. принято · '+fmt(value)+'</small></div><button type="button" class="inventory-sync-btn" onclick="openSupplierModal(\''+supplier.id+'\')">Изменить</button></div><div class="supplier-balance-grid"><div><small>Принято на</small><b>'+fmt(receivedValue)+'</b></div><div><small>Оплачено</small><b>'+fmt(paidValue)+'</b></div><div><small>Долг</small><b>'+fmt(debtValue)+'</b></div></div>'+(oldestDebt?'<div class="supplier-debt-age '+(oldestDebt.overdue?'is-warning':'')+'"><span>'+(oldestDebt.overdue?'Просроченная задолженность':'Ближайший срок оплаты')+'</span><strong>'+fmt(oldestDebt.debt)+'</strong><small>'+(oldestDebt.due?'Срок: '+oldestDebt.due.toLocaleDateString('ru-RU')+(oldestDebt.overdue?' · просрочено на '+Math.abs(oldestDebt.daysLeft)+' дн.':oldestDebt.daysLeft===0?' · срок сегодня':' · осталось '+oldestDebt.daysLeft+' дн.'):'Срок не определён')+' · заказ № '+escapeBookingHtml(oldestDebt.order.id.slice(-8))+'</small></div>':'')+'<button type="button" class="inventory-sync-btn supplier-payment-action" '+(debtValue<=0?'disabled':'')+' onclick="openSupplierPayment(&quot;'+supplier.id+'&quot;)">＋ Внести оплату</button><div class="supplier-payment-history"><strong>История оплат</strong>'+(payments.length?payments.slice(0,4).map(p=>'<div><span>'+new Date(p.paidAt).toLocaleDateString('ru-RU')+' · '+escapeBookingHtml(p.paymentMethod)+'</span><b>'+fmt(p.amount)+'</b></div>').join(''):'<small>Оплат пока нет</small>')+'</div><div class="supplier-contacts">'+(supplier.contactPerson?'<span>Контакт: '+escapeBookingHtml(supplier.contactPerson)+'</span>':'')+(supplier.phone?'<span>Телефон: '+escapeBookingHtml(supplier.phone)+'</span>':'')+(supplier.email?'<span>'+escapeBookingHtml(supplier.email)+'</span>':'')+(supplier.address?'<span>'+escapeBookingHtml(supplier.address)+'</span>':'')+'</div>'+(supplier.notes?'<p class="purchase-order-note">'+escapeBookingHtml(supplier.notes)+'</p>':'')+'<div class="supplier-order-history"><strong>Последние закупки</strong>'+(orders.length?orders.slice(0,3).map(order=>'<div><span>№ '+escapeBookingHtml(order.id.slice(-8))+' · '+new Date(order.createdAt).toLocaleDateString('ru-RU')+'</span><b>'+fmt(order.items.reduce((sum,line)=>sum+line.quantity*line.unitCost,0))+'</b></div>').join(''):'<small>Закупок пока нет</small>')+'</div>'+(latest?'<small class="supplier-last-order">Последний заказ: '+new Date(latest.createdAt).toLocaleDateString('ru-RU')+'</small>':'')+'</article>';
     }).join(''):'<div class="inventory-empty">'+(query?'Поставщики не найдены':'Пока нет поставщиков. Добавь первого поставщика.')+'</div>';
 }
 let inventoryPurchaseOrders = (() => {
