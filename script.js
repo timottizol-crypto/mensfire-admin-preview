@@ -7083,31 +7083,39 @@ function previewRetailRefund() {
     const root=document.getElementById('retailRefundItems');
     const summary=document.getElementById('retailRefundSummary');
     if(!sale||!root||!summary)return;
-    let value=0,valid=true;
+    let value=0,selectedCount=0,valid=true;
     root.querySelectorAll('[data-refund-index]').forEach(input=>{
-        const item=sale.items[Number(input.dataset.refundIndex)];
+        const index=Number(input.dataset.refundIndex);
+        const item=Number.isInteger(index)?sale.items[index]:null;
+        if(!item){valid=false;return;}
         const available=Math.max(0,Number(item.quantity)||0)-(Number(item.refundedQuantity)||0);
         const qty=Number(input.value||0);
         if(!Number.isInteger(qty)||qty<0||qty>available)valid=false;
-        else value+=qty*(Number(item.unitPrice)||0);
+        else {value+=qty*(Number(item.unitPrice)||0);if(qty>0)selectedCount+=qty;}
     });
-    summary.textContent=valid&&value>0?'Сумма возврата: '+Math.round(value).toLocaleString('ru-RU')+' ₽': 'Укажи количество для возврата';
+    summary.textContent=valid&&selectedCount>0?'Выбрано '+selectedCount+' шт. · сумма возврата: '+Math.round(value).toLocaleString('ru-RU')+' ₽': 'Укажи количество для возврата';
 }
 function saveRetailRefund() {
     if(!requireAdminAction('Оформлять возвраты может только Али'))return;
     const sale=clientRetailSales.find(item=>item.id===activeRetailRefundSaleId);
     if(!sale||sale.paymentStatus==='refunded')return showToast('Чек уже возвращён или не найден','error');
     const root=document.getElementById('retailRefundItems');
+    if(!root)return showToast('Не удалось открыть список товаров для возврата','error');
+    if(!Array.isArray(sale.items))return showToast('В чеке отсутствуют товарные позиции','error');
     const selections=[];
     let refundValue=0;
     for(const input of root.querySelectorAll('[data-refund-index]')){
-        const index=Number(input.dataset.refundIndex),item=sale.items[index];
+        const index=Number(input.dataset.refundIndex),item=Number.isInteger(index)?sale.items[index]:null;
+        if(!item)return showToast('Позиция возврата не найдена. Обнови чек','error');
         const qty=Number(input.value||0);
-        const available=Math.max(0,Number(item?.quantity)||0)-(Number(item?.refundedQuantity)||0);
-        if(!Number.isInteger(qty)||qty<0||qty>available)return showToast('Проверь количество возвращаемого товара','error');
-        if(qty>0){selections.push({index,item,qty});refundValue+=qty*(Number(item.unitPrice)||0);}
+        const originalQty=Number(item.quantity),alreadyRefunded=Number(item.refundedQuantity)||0;
+        const unitPrice=Number(item.unitPrice);
+        const available=Math.max(0,originalQty-alreadyRefunded);
+        if(!Number.isSafeInteger(qty)||qty<0||!Number.isSafeInteger(originalQty)||originalQty<=0||!Number.isSafeInteger(alreadyRefunded)||alreadyRefunded<0||alreadyRefunded>originalQty||!Number.isFinite(unitPrice)||unitPrice<0||qty>available)return showToast('Проверь количество и цену возвращаемого товара','error');
+        if(qty>0){selections.push({index,item,qty});refundValue+=qty*unitPrice;}
     }
-    if(!selections.length||refundValue<=0)return showToast('Выбери хотя бы одну позицию для возврата','error');
+    if(!selections.length)return showToast('Выбери хотя бы одну позицию для возврата','error');
+    if(!Number.isFinite(refundValue)||refundValue<0)return showToast('Не удалось рассчитать сумму возврата','error');
     const netBefore=getRetailSaleNetTotal(sale);
     if(refundValue>netBefore+0.001)return showToast('Сумма возврата превышает остаток чека','error');
     const paidBefore=Math.max(0,Number(sale.paidAmount ?? (sale.paymentStatus==='paid'?sale.total:0))||0);
