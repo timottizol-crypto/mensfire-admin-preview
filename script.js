@@ -6081,9 +6081,44 @@ let inventorySuppliers = (() => {
 function persistSuppliers(){localStorage.setItem(appStorageKey('mensfire_inventory_suppliers'),JSON.stringify(inventorySuppliers));}
 let inventorySupplierPayments=(()=>{try{const a=JSON.parse(localStorage.getItem(appStorageKey('mensfire_inventory_supplier_payments'))||'[]');return Array.isArray(a)?a.filter(p=>p&&p.id&&p.supplierId&&Number(p.amount)>0).map(p=>({id:String(p.id),supplierId:String(p.supplierId),supplierNameSnapshot:String(p.supplierNameSnapshot||''),amount:Number(p.amount),paidAt:String(p.paidAt||''),paymentMethod:String(p.paymentMethod||'Перевод'),note:String(p.note||''),allocations:(Array.isArray(p.allocations)?p.allocations:[]).filter(x=>x&&x.purchaseOrderId).map(x=>({purchaseOrderId:String(x.purchaseOrderId),amount:Math.max(0,Number(x.amount)||0)}))})):[];}catch(e){return [];}})();
 function persistSupplierPayments(){localStorage.setItem(appStorageKey('mensfire_inventory_supplier_payments'),JSON.stringify(inventorySupplierPayments));}
+let inventorySupplierReturns=(()=>{try{const a=JSON.parse(localStorage.getItem(appStorageKey('mensfire_inventory_supplier_returns'))||'[]');return Array.isArray(a)?a.filter(item=>item&&item.id&&item.orderId&&item.supplierId&&Number(item.quantity)>0).map(item=>({id:String(item.id),orderId:String(item.orderId),supplierId:String(item.supplierId),supplierNameSnapshot:String(item.supplierNameSnapshot||''),productId:String(item.productId||''),productTitle:String(item.productTitle||'Товар'),itemIndex:Number(item.itemIndex),batchIndex:Number(item.batchIndex??-1),quantity:Number(item.quantity),unitCost:Math.max(0,Number(item.unitCost)||0),returnedAt:String(item.returnedAt||''),reason:String(item.reason||'')})):[];}catch(e){return [];}})();
+function persistSupplierReturns(){localStorage.setItem(appStorageKey('mensfire_inventory_supplier_returns'),JSON.stringify(inventorySupplierReturns));}
+function supplierReturnedQuantity(orderId,itemIndex,batchIndex=-1){return inventorySupplierReturns.filter(item=>item.orderId===String(orderId)&&item.itemIndex===Number(itemIndex)&&item.batchIndex===Number(batchIndex)).reduce((sum,item)=>sum+(Number(item.quantity)||0),0);}
+function supplierReceivedTotal(order){return (order.items||[]).reduce((sum,line,itemIndex)=>{const gross=Array.isArray(line.receivedBatches)&&line.receivedBatches.length?line.receivedBatches.reduce((n,b)=>n+(Number(b.quantity)||0)*(Number(b.unitCost)||0),0):(Number(line.receivedQuantity)||0)*(Number(line.unitCost)||0);const returned=inventorySupplierReturns.filter(item=>item.orderId===String(order.id)&&item.itemIndex===itemIndex).reduce((n,item)=>n+(Number(item.quantity)||0)*(Number(item.unitCost)||0),0);return sum+Math.max(0,gross-returned);},0);}
 function supplierReceivedTotal(order){return (order.items||[]).reduce((sum,line)=>sum+(Array.isArray(line.receivedBatches)&&line.receivedBatches.length?line.receivedBatches.reduce((n,b)=>n+(Number(b.quantity)||0)*(Number(b.unitCost)||0),0):(Number(line.receivedQuantity)||0)*(Number(line.unitCost)||0)),0);}
 function supplierOrderPaid(id){return inventorySupplierPayments.reduce((sum,p)=>sum+p.allocations.filter(a=>a.purchaseOrderId===id).reduce((n,a)=>n+a.amount,0),0);}
 function supplierOrderDebt(order){return Math.max(0,supplierReceivedTotal(order)-supplierOrderPaid(order.id));}
+
+function createSupplierReturn(data){
+    if(!requireAdminAction('Оформлять возвраты поставщикам может только Али'))return false;
+    const order=inventoryPurchaseOrders.find(item=>item.id===String(data?.orderId||''));
+    if(!order||order.status==='cancelled')return showToast('Заказ не найден или отменён','error'),false;
+    const itemIndex=Number(data.itemIndex),line=order.items[itemIndex];
+    if(!line)return showToast('Позиция заказа не найдена','error'),false;
+    const batchIndex=Number.isInteger(Number(data.batchIndex))?Number(data.batchIndex):-1;
+    const batches=Array.isArray(line.receivedBatches)?line.receivedBatches:[];
+    const batch=batchIndex>=0?batches[batchIndex]:null;
+    if(batchIndex>=0&&!batch)return showToast('Партия приёмки не найдена','error'),false;
+    if(batchIndex<0&&batches.length)return showToast('Выбери конкретную партию приёмки','error'),false;
+    const grossQty=batch?Number(batch.quantity)||0:Number(line.receivedQuantity)||0;
+    const unitCost=Math.max(0,Number(batch?batch.unitCost:line.unitCost)||0);
+    const quantity=Math.round(Number(data.quantity));
+    const available=Math.max(0,grossQty-supplierReturnedQuantity(order.id,itemIndex,batchIndex));
+    if(!Number.isInteger(quantity)||quantity<1||quantity>available)return showToast('Количество возврата превышает доступный остаток партии','error'),false;
+    const amount=quantity*unitCost;
+    if(amount>supplierOrderDebt(order)+0.009)return showToast('Нельзя вернуть уже оплаченную часть заказа: сначала требуется оформить кредит-ноту или возврат оплаты','error'),false;
+    const product=inventoryProducts.find(item=>item.id===line.productId);
+    if(!product)return showToast('Товар не найден на складе','error'),false;
+    if((Number(product.stock)||0)<quantity)return showToast('На складе недостаточно товара для возврата','error'),false;
+    const now=new Date().toISOString();
+    const record={id:'sret_'+Date.now()+'_'+Math.random().toString(36).slice(2,7),orderId:order.id,supplierId:order.supplierId,supplierNameSnapshot:order.supplier||'',productId:product.id,productTitle:line.titleSnapshot||product.title,itemIndex,batchIndex,quantity,unitCost,returnedAt:now,reason:String(data.reason||'').trim()};
+    inventorySupplierReturns.unshift(record);
+    product.stock-=quantity;product.updatedAt=now;
+    inventoryMovements.push({id:'mov_'+Date.now()+'_'+Math.random().toString(36).slice(2,8),productId:product.id,productTitle:product.title,type:'supplier_return',quantity:-quantity,supplier:order.supplier,totalCost:-amount,note:'Возврат поставщику по заказу '+order.id+(record.reason?' · '+record.reason:''),purchaseOrderId:order.id,supplierReturnId:record.id,createdAt:now});
+    persistInventory();persistSupplierReturns();renderPurchaseOrders();renderSuppliers();
+    showToast('Возврат поставщику зафиксирован','success');
+    return record;
+}
 function supplierOrderFirstReceipt(order){
     const dates=(order.items||[]).flatMap(item=>(item.receivedBatches||[]).map(batch=>batch.receivedAt).filter(Boolean)).filter(value=>!Number.isNaN(new Date(value).getTime())).sort((a,b)=>new Date(a)-new Date(b));
     return dates[0]||order.updatedAt||order.createdAt||'';
