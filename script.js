@@ -6300,25 +6300,26 @@ function renderSupplierFinanceSummary(events,from,to){
     const suppliers=new Map();
     (Array.isArray(events)?events:[]).forEach(event=>{
         const id=event.supplierId||'unknown';
-        if(!suppliers.has(id))suppliers.set(id,{name:event.supplierName||'Поставщик',opening:0,receipts:0,payments:0,receiptCount:0,paymentCount:0});
+        if(!suppliers.has(id))suppliers.set(id,{name:event.supplierName||'Поставщик',opening:0,receipts:0,payments:0,returns:0,receiptCount:0,paymentCount:0,returnCount:0});
         const row=suppliers.get(id),day=validDay(event.date),amount=Math.max(0,Number(event.amount)||0);
         if(from&&day&&day<from){row.opening+=event.kind==='payment'?-amount:amount;return;}
         if(from&&(!day||day<from))return;
         if(to&&(!day||day>to))return;
         if(event.kind==='payment'){row.payments+=amount;row.paymentCount++;}
+        else if(event.kind==='return'){row.returns+=amount;row.returnCount++;}
         else{row.receipts+=amount;row.receiptCount++;}
     });
-    const rows=[...suppliers.values()].map(row=>({...row,closing:row.opening+row.receipts-row.payments,change:row.receipts-row.payments}))
+    const rows=[...suppliers.values()].map(row=>({...row,closing:row.opening+row.receipts-row.payments-row.returns,change:row.receipts-row.payments-row.returns}))
         .sort((a,b)=>b.closing-a.closing||a.name.localeCompare(b.name,'ru'));
     supplierFinanceSummaryRows=rows;
     supplierFinanceSummaryPeriod={from:from||'',to:to||''};
     const fmt=value=>Math.round((Number(value)||0)*100/100).toLocaleString('ru-RU',{maximumFractionDigits:2})+' ₽';
-    const totals=rows.reduce((acc,row)=>{acc.opening+=row.opening;acc.receipts+=row.receipts;acc.payments+=row.payments;acc.closing+=row.closing;return acc;},{opening:0,receipts:0,payments:0,closing:0});
+    const totals=rows.reduce((acc,row)=>{acc.opening+=row.opening;acc.receipts+=row.receipts;acc.payments+=row.payments;acc.returns+=row.returns;acc.closing+=row.closing;return acc;},{opening:0,receipts:0,payments:0,returns:0,closing:0});
     const period=(from||to)?((from?new Date(from+'T00:00:00').toLocaleDateString('ru-RU'):'С начала')+' — '+(to?new Date(to+'T00:00:00').toLocaleDateString('ru-RU'):'по сегодня')):'За всё время';
     const integrityIssues=getSupplierFinanceIntegrityIssues();
     root.innerHTML='<div class="supplier-summary-heading"><div><strong>Сводка по поставщикам</strong><small>'+period+' · начальный долг рассчитан по операциям до начала периода</small></div><div class="supplier-summary-actions"><span>'+rows.length+' поставщиков</span><button type="button" class="inventory-sync-btn" onclick="exportSupplierFinanceSummary()">Экспорт CSV</button></div></div>'+
-        '<div class="supplier-summary-totals"><div><small>Долг на начало</small><b>'+fmt(totals.opening)+'</b></div><div><small>Приёмки за период</small><b>'+fmt(totals.receipts)+'</b></div><div><small>Оплаты за период</small><b>'+fmt(totals.payments)+'</b></div><div><small>Расчётный долг на конец</small><b>'+fmt(totals.closing)+'</b></div></div>'+
-        (rows.length?'<div class="supplier-summary-table-wrap"><table class="supplier-summary-table"><thead><tr><th>Поставщик</th><th>На начало</th><th>Приёмки</th><th>Оплаты</th><th>На конец</th></tr></thead><tbody>'+rows.map(row=>'<tr><td>'+escapeBookingHtml(row.name)+'<small>'+row.receiptCount+' приёмок · '+row.paymentCount+' оплат</small></td><td>'+fmt(row.opening)+'</td><td>'+fmt(row.receipts)+'</td><td>'+fmt(row.payments)+'</td><td><b>'+fmt(row.closing)+'</b></td></tr>').join('')+'</tbody></table></div>':'<div class="inventory-empty compact">Нет финансовых операций за выбранный период</div>')+'<div class="supplier-integrity-check '+(integrityIssues.length?'has-issues':'is-clean')+'"><strong>'+(integrityIssues.length?'Найдены несоответствия: '+integrityIssues.length:'Проверка распределения оплат пройдена')+'</strong>'+(integrityIssues.length?'<ul>'+integrityIssues.map(issue=>'<li><b>'+escapeBookingHtml(issue.title)+'</b><small>'+escapeBookingHtml(issue.detail)+'</small></li>').join('')+'</ul>':'<small>Проверены суммы платежей, привязка к заказам и соответствие партий приёмки</small>')+'</div>';
+        '<div class="supplier-summary-totals"><div><small>Долг на начало</small><b>'+fmt(totals.opening)+'</b></div><div><small>Приёмки за период</small><b>'+fmt(totals.receipts)+'</b></div><div><small>Оплаты за период</small><b>'+fmt(totals.payments)+'</b></div><div><small>Возвраты поставщику</small><b>'+fmt(totals.returns)+'</b></div><div><small>Расчётный долг на конец</small><b>'+fmt(totals.closing)+'</b></div></div>'+
+        (rows.length?'<div class="supplier-summary-table-wrap"><table class="supplier-summary-table"><thead><tr><th>Поставщик</th><th>На начало</th><th>Приёмки</th><th>Оплаты</th><th>Возвраты</th><th>На конец</th></tr></thead><tbody>'+rows.map(row=>'<tr><td>'+escapeBookingHtml(row.name)+'<small>'+row.receiptCount+' приёмок · '+row.paymentCount+' оплат</small></td><td>'+fmt(row.opening)+'</td><td>'+fmt(row.receipts)+'</td><td>'+fmt(row.payments)+'</td><td>'+fmt(row.returns)+'</td><td><b>'+fmt(row.closing+'</b></td></tr>').join('')+'</tbody></table></div>':'<div class="inventory-empty compact">Нет финансовых операций за выбранный период</div>')+'<div class="supplier-integrity-check '+(integrityIssues.length?'has-issues':'is-clean')+'"><strong>'+(integrityIssues.length?'Найдены несоответствия: '+integrityIssues.length:'Проверка распределения оплат пройдена')+'</strong>'+(integrityIssues.length?'<ul>'+integrityIssues.map(issue=>'<li><b>'+escapeBookingHtml(issue.title)+'</b><small>'+escapeBookingHtml(issue.detail)+'</small></li>').join('')+'</ul>':'<small>Проверены суммы платежей, привязка к заказам и соответствие партий приёмки</small>')+'</div>';
 }
 
 
@@ -6326,12 +6327,12 @@ function exportSupplierFinanceSummary(){
     if(!requireAdminAction('Экспортировать финансовую сводку поставщиков может только Али'))return;
     const rows=Array.isArray(supplierFinanceSummaryRows)?supplierFinanceSummaryRows:[];
     if(!rows.length)return showToast('Нет данных для экспорта','info');
-    const columns=['Поставщик','Долг на начало, ₽','Приёмки за период, ₽','Оплаты за период, ₽','Изменение долга, ₽','Расчётный долг на конец, ₽','Количество приёмок','Количество оплат'];
+    const columns=['Поставщик','Долг на начало, ₽','Приёмки за период, ₽','Оплаты за период, ₽','Возвраты поставщику, ₽','Изменение долга, ₽','Расчётный долг на конец, ₽','Количество приёмок','Количество оплат'];
     const money=value=>(Number(value)||0).toFixed(2).replace('.',',');
     const cell=value=>{const text=String(value??'');return /[",;\\r\\n]/.test(text)?'"'+text.replace(/"/g,'""')+'"':text;};
-    const data=rows.map(row=>[row.name,money(row.opening),money(row.receipts),money(row.payments),money(row.change),money(row.closing),row.receiptCount,row.paymentCount]);
-    const total=rows.reduce((acc,row)=>{acc.opening+=row.opening;acc.receipts+=row.receipts;acc.payments+=row.payments;acc.change+=row.change;acc.closing+=row.closing;acc.receiptCount+=row.receiptCount;acc.paymentCount+=row.paymentCount;return acc;},{opening:0,receipts:0,payments:0,change:0,closing:0,receiptCount:0,paymentCount:0});
-    data.push(['ИТОГО',money(total.opening),money(total.receipts),money(total.payments),money(total.change),money(total.closing),total.receiptCount,total.paymentCount]);
+    const data=rows.map(row=>[row.name,money(row.opening),money(row.receipts),money(row.payments),money(row.returns),money(row.change),money(row.closing),row.receiptCount,row.paymentCount]);
+    const total=rows.reduce((acc,row)=>{acc.opening+=row.opening;acc.receipts+=row.receipts;acc.payments+=row.payments;acc.returns+=row.returns;acc.change+=row.change;acc.closing+=row.closing;acc.receiptCount+=row.receiptCount;acc.paymentCount+=row.paymentCount;return acc;},{opening:0,receipts:0,payments:0,returns:0,change:0,receiptCount:0,paymentCount:0});
+    data.push(['ИТОГО',money(total.opening),money(total.receipts),money(total.payments),money(total.returns),money(total.change),money(total.closing),total.receiptCount,total.paymentCount]);
     const period=supplierFinanceSummaryPeriod||{};
     const csv='\\uFEFF'+[columns,...data].map(row=>row.map(cell).join(';')).join('\\r\\n');
     const blob=new Blob([csv],{type:'text/csv;charset=utf-8;'});
@@ -6376,21 +6377,22 @@ function renderSupplierFinanceJournal(){
             }
         });
     });
+    inventorySupplierReturns.forEach(record=>{const order=inventoryPurchaseOrders.find(item=>item.id===record.orderId);const supplier=inventorySuppliers.find(item=>item.id===record.supplierId);events.push({kind:'return',date:record.returnedAt,supplierId:record.supplierId,supplierName:supplier?.name||record.supplierNameSnapshot||'Поставщик',amount:(Number(record.quantity)||0)*(Number(record.unitCost)||0),item:record.productTitle||'Товар',quantity:Number(record.quantity)||0,orderId:record.orderId,note:record.reason||'',id:record.id});});
     const filtered=events.filter(event=>{
         const parsedDate=event.date?new Date(event.date):null;const day=parsedDate&&!Number.isNaN(parsedDate.getTime())?parsedDate.toISOString().slice(0,10):'';
         return (supplierFilter==='all'||event.supplierId===supplierFilter)&&(typeFilter==='all'||event.kind===typeFilter)&&(!from||day>=from)&&(!to||day<=to);
     }).sort((a,b)=>new Date(b.date||0)-new Date(a.date||0));
     renderSupplierFinanceSummary(events,from,to);
     supplierFinanceJournalFilteredEvents=filtered;
-    const total=filtered.reduce((sum,event)=>sum+(event.kind==='payment'?-event.amount:event.amount),0);
+    const total=filtered.reduce((sum,event)=>sum+(event.kind==='payment'||event.kind==='return'?-event.amount:event.amount),0);
     const fmt=value=>Math.round(value*100/100).toLocaleString('ru-RU',{maximumFractionDigits:2})+' ₽';
     const dateLabel=value=>{const date=new Date(value);return value&&!Number.isNaN(date.getTime())?date.toLocaleDateString('ru-RU'):'Дата не указана';};
     const summary=document.getElementById('supplierJournalSummary');
     if(summary)summary.textContent=filtered.length+' операций · '+(total>=0?'приёмки ':'оплаты ')+fmt(Math.abs(total))+' (приёмки минус оплаты)';
     root.innerHTML=filtered.length?filtered.map(event=>{
-        const isPayment=event.kind==='payment';
+        const isPayment=event.kind==='payment',isReturn=event.kind==='return';
         const detail=isPayment?(event.allocations.length?event.allocations.map(allocation=>'Заказ № '+escapeBookingHtml(String(allocation.purchaseOrderId).slice(-8))+' — '+fmt(allocation.amount)).join(' · '):'Распределение не указано'):(escapeBookingHtml(event.item)+' · '+event.quantity+' ед. · заказ № '+escapeBookingHtml(String(event.orderId).slice(-8)));
-        return '<article class="supplier-journal-row"><div class="supplier-journal-main"><span class="supplier-journal-kind '+(isPayment?'is-payment':'is-receipt')+'">'+(isPayment?'Оплата':'Приёмка')+'</span><b>'+escapeBookingHtml(event.supplierName)+'</b><small>'+dateLabel(event.date)+' · '+(isPayment?escapeBookingHtml(event.method):'Поступление товара')+'</small></div><strong class="'+(isPayment?'is-payment':'is-receipt')+'">'+(isPayment?'−':'+')+fmt(event.amount)+'</strong><small class="supplier-journal-detail">'+detail+(event.note?' · '+escapeBookingHtml(event.note):'')+'</small></article>';
+        return '<article class="supplier-journal-row"><div class="supplier-journal-main"><span class="supplier-journal-kind '+(isPayment||isReturn?'is-payment':'is-receipt')+'">'+(isPayment?'Оплата':isReturn?'Возврат поставщику':'Приёмка')+'</span><b>'+escapeBookingHtml(event.supplierName)+'</b><small>'+dateLabel(event.date)+' · '+(isPayment?escapeBookingHtml(event.method):isReturn?'Возврат товара':'Поступление товара')+'</small></div><strong class="'+(isPayment||isReturn?'is-payment':'is-receipt')+'">'+(isPayment||isReturn?'−':'+')+fmt(event.amount)+'</strong><small class="supplier-journal-detail">'+detail+(event.note?' · '+escapeBookingHtml(event.note):'')+'</small></article>';
     }).join(''):'<div class="inventory-empty compact">Операций по выбранным фильтрам нет</div>';
 }
 
