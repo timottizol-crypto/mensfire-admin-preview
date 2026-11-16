@@ -6774,3 +6774,12 @@ html.light-theme .booking-client-match{background:#fbf8ef}
 .supplier-summary-table td:first-child{font-weight:650}
 .supplier-summary-table td small{display:block;margin-top:3px;color:var(--text-muted);font-size:9px;font-weight:400}
 @media(max-width:700px){.supplier-summary-totals{grid-template-columns:repeat(2,minmax(0,1fr))}.supplier-summary-heading{flex-direction:column}}
+
+.supplier-integrity-check{margin-top:14px;padding:12px;border:1px solid var(--glass-border,rgba(255,255,255,.1));border-radius:10px;display:flex;flex-direction:column;gap:7px}
+.supplier-integrity-check>strong{font-size:11px;color:var(--text-main)}
+.supplier-integrity-check>small,.supplier-integrity-check li small{font-size:10px;line-height:1.45;color:var(--text-muted)}
+.supplier-integrity-check.is-clean{background:rgba(67,160,111,.06)}
+.supplier-integrity-check.has-issues{background:rgba(220,150,55,.08);border-color:rgba(220,150,55,.35)}
+.supplier-integrity-check ul{margin:0;padding-left:18px;display:flex;flex-direction:column;gap:8px}
+.supplier-integrity-check li{font-size:10px;color:var(--text-main)}
+.supplier-integrity-check li small{display:block;margin-top:2px}
