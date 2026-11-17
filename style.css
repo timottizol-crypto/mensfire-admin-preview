@@ -7769,3 +7769,68 @@ html.light-theme :is(input,textarea,select) {
 .dashboard-chart-summary{display:flex;justify-content:space-between;align-items:center;padding:0 7px;margin-top:-1px;color:var(--text-muted);font-size:9px}
 .dashboard-chart-summary strong{color:var(--text-main);font-size:11px}
 @media(max-width:760px){.dashboard-line-chart{min-height:132px}.dashboard-chart-date{font-size:10px}}
+
+
+/* Dashboard title above transparent period controls */
+.dashboard-topline{
+  grid-template-columns:minmax(330px,1fr) minmax(300px,1.05fr);
+  align-items:stretch;
+}
+.dashboard-title-period{
+  display:flex;
+  min-width:0;
+  flex-direction:column;
+  justify-content:space-between;
+  gap:12px;
+}
+.dashboard-title-period>.dashboard-heading{
+  min-height:0;
+  flex:1 1 auto;
+}
+.dashboard-title-period .dashboard-period-controls{
+  flex:0 0 auto;
+  width:100%;
+}
+.dashboard-title-period .finance-range-toolbar{
+  height:auto;
+  min-height:0;
+  max-height:none;
+  padding:0;
+  border:0;
+  border-radius:0;
+  background:transparent;
+  box-shadow:none;
+  backdrop-filter:none;
+  flex-direction:row;
+  align-items:center;
+  justify-content:flex-start;
+  gap:9px;
+}
+.dashboard-title-period .finance-range-presets{
+  flex:0 0 auto;
+  width:auto;
+  grid-template-columns:repeat(3,minmax(70px,1fr));
+}
+.dashboard-title-period .finance-range-btn{min-height:35px;padding:7px 11px}
+.dashboard-title-period .finance-range-fields{flex:1 1 auto;min-width:0}
+.dashboard-title-period .finance-range-date{min-height:35px}
+.dashboard-topline .dashboard-upcoming-panel{
+  height:190px;
+  min-height:190px;
+  max-height:190px;
+}
+@media(max-width:1050px) and (min-width:761px){
+  .dashboard-topline{grid-template-columns:minmax(0,1fr)}
+  .dashboard-title-period{gap:10px}
+  .dashboard-title-period .finance-range-toolbar{justify-content:flex-start}
+  .dashboard-topline .dashboard-upcoming-panel{height:190px;min-height:190px;max-height:190px}
+}
+@media(max-width:760px){
+  .dashboard-topline{grid-template-columns:1fr;gap:10px}
+  .dashboard-title-period{gap:10px}
+  .dashboard-title-period>.dashboard-heading{flex-direction:row;align-items:center;justify-content:space-between}
+  .dashboard-title-period .finance-range-toolbar{height:auto;min-height:0;flex-wrap:wrap;gap:8px}
+  .dashboard-title-period .finance-range-presets{width:100%;grid-template-columns:repeat(3,minmax(0,1fr))}
+  .dashboard-title-period .finance-range-fields{width:100%;flex:1 1 100%}
+  .dashboard-topline .dashboard-upcoming-panel{height:176px;min-height:176px;max-height:176px}
+}
