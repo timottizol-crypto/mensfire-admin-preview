@@ -3182,7 +3182,21 @@ function renderDashboard() {
             buckets.push({label:days===1?startKey:from.toLocaleDateString('ru-RU',{day:'numeric',month:'short'}),value});
         }
         const max=Math.max(1,...buckets.map(b=>b.value));
-        chart.innerHTML='<div class="dashboard-bars">'+buckets.map(b=>`<div class="dashboard-bar-col"><div class="dashboard-bar-track"><i style="height:${Math.max(4,b.value/max*100)}%"></i></div><strong>${Math.round(b.value).toLocaleString('ru-RU')} ₽</strong><span>${dashboardEscape(b.label)}</span></div>`).join('')+'</div>';
+        const chartWidth=700, chartTop=24, chartBottom=126, chartLeft=34, chartRight=666;
+        const points=buckets.map((bucket,index)=>{
+            const x=buckets.length===1?(chartLeft+chartRight)/2:chartLeft+(chartRight-chartLeft)*index/(buckets.length-1);
+            const y=chartBottom-(bucket.value/max)*(chartBottom-chartTop);
+            return {...bucket,x,y};
+        });
+        const linePath=points.map((point,index)=>(index?'L':'M')+` ${point.x.toFixed(1)} ${point.y.toFixed(1)}`).join(' ');
+        const areaPath=linePath+` L ${points[points.length-1].x.toFixed(1)} ${chartBottom} L ${points[0].x.toFixed(1)} ${chartBottom} Z`;
+        const gridLines=[0,.5,1].map(ratio=>{
+            const y=chartTop+(chartBottom-chartTop)*ratio;
+            return `<line x1="${chartLeft}" y1="${y}" x2="${chartRight}" y2="${y}" class="dashboard-chart-gridline"/>`;
+        }).join('');
+        const marks=points.map(point=>`<g><title>${dashboardEscape(point.label)}: ${Math.round(point.value).toLocaleString('ru-RU')} ₽</title><circle cx="${point.x}" cy="${point.y}" r="5" class="dashboard-chart-point"/><circle cx="${point.x}" cy="${point.y}" r="10" class="dashboard-chart-point-halo"/></g>`).join('');
+        const labels=points.map(point=>`<text x="${point.x}" y="157" text-anchor="middle" class="dashboard-chart-date">${dashboardEscape(point.label)}</text>`).join('');
+        chart.innerHTML=`<div class="dashboard-line-chart"><svg viewBox="0 0 700 174" role="img" aria-label="График поступлений за выбранный период">${gridLines}<path d="${areaPath}" class="dashboard-chart-area"/><path d="${linePath}" class="dashboard-chart-line"/>${marks}${labels}</svg><div class="dashboard-chart-summary"><span>Максимум за точку</span><strong>${Math.round(Math.max(...buckets.map(b=>b.value))).toLocaleString('ru-RU')} ₽</strong></div></div>`;
         const caption=document.getElementById('dashboardChartCaption'); if(caption)caption.textContent='Оплаченные завершённые визиты · '+periodLabel;
     }
     const mix=document.getElementById('dashboardBookingMix');
