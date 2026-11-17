@@ -8061,3 +8061,44 @@ html.light-theme .dashboard-topline .dashboard-upcoming-row {
 @media (max-width:1050px) {
   .dashboard-topline { position:relative !important; }
 }
+
+
+/* Upcoming bookings: taller cards, two visible rows; overflow remains scrollable. */
+.dashboard-topline .dashboard-upcoming-list {
+  grid-template-rows:repeat(2,minmax(0,1fr)) !important;
+  grid-auto-rows:minmax(0,1fr) !important;
+  overflow-y:auto !important;
+  overscroll-behavior:contain;
+}
+.dashboard-topline .dashboard-upcoming-row {
+  justify-content:flex-start !important;
+  gap:5px !important;
+  padding:9px 9px !important;
+  min-height:0 !important;
+}
+.dashboard-topline .dashboard-upcoming-info>strong,
+.dashboard-topline .dashboard-upcoming-info>small {
+  white-space:normal !important;
+  display:-webkit-box !important;
+  -webkit-box-orient:vertical !important;
+  -webkit-line-clamp:2 !important;
+  overflow:hidden !important;
+}
+.dashboard-topline .dashboard-upcoming-time {
+  min-height:16px !important;
+}
+.dashboard-topline .dashboard-upcoming-time strong {font-size:10px !important}
+.dashboard-topline .dashboard-upcoming-time small {font-size:8px !important}
+.dashboard-topline .dashboard-upcoming-info>strong {font-size:10px !important;line-height:1.25 !important}
+.dashboard-topline .dashboard-upcoming-info>small {font-size:8px !important;line-height:1.2 !important}
+@media(max-width:1050px) {
+  .dashboard-topline .dashboard-upcoming-list {
+    grid-template-rows:repeat(2,minmax(0,1fr)) !important;
+  }
+}
+@media(max-width:760px) {
+  .dashboard-topline .dashboard-upcoming-list {
+    grid-template-columns:repeat(2,minmax(0,1fr)) !important;
+    grid-template-rows:repeat(2,minmax(0,1fr)) !important;
+  }
+}
