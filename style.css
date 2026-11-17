@@ -6937,3 +6937,140 @@ html.light-theme .booking-client-match{background:#fbf8ef}
 @media (max-width:767px) {
   #bottomNav .desktop-sidebar-toggle { display:none !important; }
 }
+
+
+/* =========================================================
+   MENSFIRE GLASS UI — unified surfaces inspired by the client app
+   ========================================================= */
+:root {
+  --mf-glass-bg:linear-gradient(145deg,rgba(255,255,255,.075),rgba(255,255,255,.022));
+  --mf-glass-bg-soft:rgba(255,255,255,.035);
+  --mf-glass-border:rgba(255,255,255,.095);
+  --mf-glass-highlight:rgba(255,255,255,.065);
+  --mf-glass-shadow:0 16px 42px rgba(0,0,0,.19),inset 0 1px 0 rgba(255,255,255,.055);
+  --mf-glass-blur:blur(22px) saturate(150%);
+}
+html:not(.light-theme) .glass-card,
+html:not(.light-theme) .finance-panel,
+html:not(.light-theme) .finance-kpi-card,
+html:not(.light-theme) .dashboard-panel,
+html:not(.light-theme) .dashboard-kpi-card,
+html:not(.light-theme) .clients-chart-card,
+html:not(.light-theme) .team-trend-panel,
+html:not(.light-theme) .schedule-main-card,
+html:not(.light-theme) .clients-workspace,
+html:not(.light-theme) .profile-main-card,
+html:not(.light-theme) .profile-backup-card,
+html:not(.light-theme) #barberRevenueCard,
+html:not(.light-theme) .supplier-panel,
+html:not(.light-theme) .supplier-summary-panel,
+html:not(.light-theme) .supplier-integrity-check,
+html:not(.light-theme) .inventory-kpi,
+html:not(.light-theme) .inventory-product-card,
+html:not(.light-theme) .schedule-waitlist,
+html:not(.light-theme) .waitlist-row,
+html:not(.light-theme) .client-retail-section,
+html:not(.light-theme) .client-retail-sale,
+html:not(.light-theme) .modal-content,
+html:not(.light-theme) .modal-dialog,
+html:not(.light-theme) .modal-card,
+html:not(.light-theme) .toast,
+html:not(.light-theme) .bottom-nav,
+html:not(.light-theme) .app-header,
+html:not(.light-theme) .header-pill,
+html:not(.light-theme) .booking-card-item,
+html:not(.light-theme) .client-card,
+html:not(.light-theme) .team-card {
+  background:var(--mf-glass-bg);
+  border-color:var(--mf-glass-border);
+  box-shadow:var(--mf-glass-shadow);
+  -webkit-backdrop-filter:var(--mf-glass-blur);
+  backdrop-filter:var(--mf-glass-blur);
+}
+html:not(.light-theme) .finance-kpi-primary,
+html:not(.light-theme) .dashboard-kpi-card.is-primary {
+  background:linear-gradient(145deg,rgba(212,175,55,.19),rgba(255,255,255,.025)) !important;
+  border-color:rgba(212,175,55,.3) !important;
+}
+html:not(.light-theme) .finance-period-metrics>div,
+html:not(.light-theme) .supplier-summary-totals>div,
+html:not(.light-theme) .supplier-integrity-check,
+html:not(.light-theme) .work-schedule-day,
+html:not(.light-theme) .available-slots-panel,
+html:not(.light-theme) .booking-client-lookup-new,
+html:not(.light-theme) .booking-client-match,
+html:not(.light-theme) .client-retail-item,
+html:not(.light-theme) .inventory-movement-row,
+html:not(.light-theme) .waitlist-form,
+html:not(.light-theme) .waitlist-row {
+  background:linear-gradient(145deg,rgba(255,255,255,.052),rgba(255,255,255,.018));
+  border-color:rgba(255,255,255,.085);
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.035);
+  -webkit-backdrop-filter:blur(14px) saturate(135%);
+  backdrop-filter:blur(14px) saturate(135%);
+}
+html:not(.light-theme) .tab-btn,
+html:not(.light-theme) .date-selector-item,
+html:not(.light-theme) .finance-range-presets,
+html:not(.light-theme) .finance-range-date,
+html:not(.light-theme) .schedule-barber-filter button,
+html:not(.light-theme) .schedule-barber-filter-mobile button,
+html:not(.light-theme) .available-slot,
+html:not(.light-theme) .inventory-sync-btn,
+html:not(.light-theme) .inventory-product-actions button,
+html:not(.light-theme) #bottomNav .desktop-sidebar-toggle {
+  background:rgba(255,255,255,.045);
+  border-color:rgba(255,255,255,.10);
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.04);
+  -webkit-backdrop-filter:blur(12px) saturate(140%);
+  backdrop-filter:blur(12px) saturate(140%);
+}
+html:not(.light-theme) .tab-btn.active,
+html:not(.light-theme) .date-selector-item.selected,
+html:not(.light-theme) .schedule-barber-filter button.active,
+html:not(.light-theme) .schedule-barber-filter-mobile button.active,
+html:not(.light-theme) .available-slot.is-selected {
+  background:linear-gradient(135deg,rgba(212,175,55,.25),rgba(212,175,55,.09));
+  border-color:rgba(212,175,55,.48);
+  box-shadow:0 6px 20px rgba(0,0,0,.14),inset 0 1px 0 rgba(255,255,255,.08);
+}
+html:not(.light-theme) input:not([type="checkbox"]):not([type="radio"]):not([type="range"]):not([type="hidden"]),
+html:not(.light-theme) textarea,
+html:not(.light-theme) select:not(.visually-hidden-select) {
+  background-color:rgba(255,255,255,.045);
+  border-color:rgba(255,255,255,.11);
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.035);
+  -webkit-backdrop-filter:blur(12px);
+  backdrop-filter:blur(12px);
+}
+html:not(.light-theme) input:focus,
+html:not(.light-theme) textarea:focus,
+html:not(.light-theme) select:focus {
+  border-color:rgba(212,175,55,.62);
+  box-shadow:0 0 0 3px rgba(212,175,55,.10),inset 0 1px 0 rgba(255,255,255,.04);
+}
+html:not(.light-theme) .glass-card:hover,
+html:not(.light-theme) .finance-panel:hover,
+html:not(.light-theme) .dashboard-panel:hover,
+html:not(.light-theme) .clients-chart-card:hover,
+html:not(.light-theme) .inventory-product-card:hover {
+  border-color:rgba(212,175,55,.19);
+  box-shadow:0 18px 46px rgba(0,0,0,.22),inset 0 1px 0 rgba(255,255,255,.065);
+}
+html:not(.light-theme) .modal {
+  -webkit-backdrop-filter:blur(8px);
+  backdrop-filter:blur(8px);
+}
+html:not(.light-theme) table thead th {
+  background:rgba(255,255,255,.035);
+  border-color:rgba(255,255,255,.08);
+}
+html:not(.light-theme) table tbody tr {
+  border-color:rgba(255,255,255,.065);
+}
+@media (prefers-reduced-motion:no-preference) {
+  .glass-card,.finance-panel,.finance-kpi-card,.dashboard-panel,.dashboard-kpi-card,
+  .clients-chart-card,.inventory-product-card,.modal-content,.bottom-nav {
+    transition:background .24s ease,border-color .24s ease,box-shadow .24s ease,backdrop-filter .24s ease;
+  }
+}
