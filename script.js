@@ -1851,8 +1851,10 @@ function saveBookingPayment() {
     const amount = Number(String(amountInput?.value || '').replace(',', '.'));
     const method = methodInput?.value || '';
 
-    if (!Number.isFinite(amount) || amount <= 0 || amount > balance) {
-        return showToast('Введите сумму больше 0 и не больше остатка ' + balance + ' ₽', 'error');
+    const amountCents = Math.round(amount * 100);
+    if (!Number.isFinite(amount) || amount <= 0 || !Number.isSafeInteger(amountCents) ||
+        Math.abs(amount * 100 - amountCents) > 0.001 || amount > balance) {
+        return showToast('Введите сумму больше 0, с точностью до копеек и не больше остатка ' + balance + ' ₽', 'error');
     }
     if (!['cash', 'card', 'transfer', 'online'].includes(method)) {
         return showToast('Выберите корректный способ оплаты', 'error');
