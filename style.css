@@ -7320,3 +7320,108 @@ html.light-theme :is(input,textarea,select) {
     box-shadow:inset 0 1px 0 #fff,0 5px 14px rgba(40,55,75,.07) !important;
   }
 }
+
+
+/* =========================================================
+   MENSFIRE — sidebar restored to its original flat treatment
+   Dark theme is simply deeper; no white highlights or gradients.
+   ========================================================= */
+@media (min-width:768px) {
+  html:not(.light-theme) #bottomNav.bottom-nav {
+    background:rgba(10,10,12,.97) !important;
+    border:1px solid rgba(255,255,255,.075) !important;
+    border-radius:22px !important;
+    box-shadow:0 12px 40px rgba(0,0,0,.38) !important;
+    -webkit-backdrop-filter:none !important;
+    backdrop-filter:none !important;
+    clip-path:none !important;
+    overflow:visible !important;
+  }
+  html:not(.light-theme) #bottomNav.bottom-nav::before,
+  html:not(.light-theme) #bottomNav.bottom-nav::after {
+    content:none !important;
+    display:none !important;
+  }
+  html:not(.light-theme) #bottomNav .nav-item {
+    color:var(--text-muted) !important;
+    background:transparent !important;
+    border:1px solid transparent !important;
+    border-radius:12px !important;
+    box-shadow:none !important;
+    text-shadow:none !important;
+    -webkit-backdrop-filter:none !important;
+    backdrop-filter:none !important;
+  }
+  html:not(.light-theme) #bottomNav .nav-item:hover {
+    color:var(--gold) !important;
+    background:rgba(255,255,255,.035) !important;
+    border-color:rgba(255,255,255,.045) !important;
+    box-shadow:none !important;
+  }
+  html:not(.light-theme) #bottomNav .nav-item.active {
+    color:var(--gold) !important;
+    background:rgba(212,175,55,.12) !important;
+    border-color:transparent !important;
+    box-shadow:none !important;
+  }
+  html:not(.light-theme) #bottomNav .desktop-sidebar-toggle {
+    color:var(--text-muted) !important;
+    background:transparent !important;
+    border:1px solid rgba(255,255,255,.08) !important;
+    border-radius:12px !important;
+    box-shadow:none !important;
+    -webkit-backdrop-filter:none !important;
+    backdrop-filter:none !important;
+  }
+  html:not(.light-theme) #bottomNav .desktop-sidebar-toggle:hover {
+    color:var(--gold) !important;
+    background:rgba(212,175,55,.07) !important;
+    border-color:var(--gold) !important;
+    box-shadow:none !important;
+  }
+
+  /* Keep light theme close to its previous appearance. */
+  html.light-theme #bottomNav.bottom-nav {
+    background:rgba(255,255,255,.94) !important;
+    border:1px solid rgba(0,0,0,.09) !important;
+    border-radius:22px !important;
+    box-shadow:0 12px 40px rgba(0,0,0,.06) !important;
+    -webkit-backdrop-filter:none !important;
+    backdrop-filter:none !important;
+    clip-path:none !important;
+    overflow:visible !important;
+  }
+  html.light-theme #bottomNav.bottom-nav::before,
+  html.light-theme #bottomNav.bottom-nav::after {
+    content:none !important;
+    display:none !important;
+  }
+  html.light-theme #bottomNav .nav-item {
+    color:var(--text-muted) !important;
+    background:transparent !important;
+    border:1px solid transparent !important;
+    border-radius:12px !important;
+    box-shadow:none !important;
+    text-shadow:none !important;
+  }
+  html.light-theme #bottomNav .nav-item:hover {
+    color:var(--gold) !important;
+    background:rgba(0,0,0,.035) !important;
+    border-color:transparent !important;
+    box-shadow:none !important;
+  }
+  html.light-theme #bottomNav .nav-item.active {
+    color:var(--gold) !important;
+    background:rgba(212,175,55,.12) !important;
+    border-color:transparent !important;
+    box-shadow:none !important;
+  }
+  html.light-theme #bottomNav .desktop-sidebar-toggle {
+    color:var(--text-muted) !important;
+    background:transparent !important;
+    border:1px solid rgba(0,0,0,.08) !important;
+    box-shadow:none !important;
+    -webkit-backdrop-filter:none !important;
+    backdrop-filter:none !important;
+  }
+}
