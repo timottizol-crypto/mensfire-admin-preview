@@ -7899,3 +7899,27 @@ html.light-theme :is(input,textarea,select) {
     max-width:45.4545% !important;
   }
 }
+
+
+/* Dashboard refinement: pin DEMO DATA to the top-right and widen upcoming bookings. */
+@media (min-width:1051px) {
+  .dashboard-topline {
+    grid-template-columns:minmax(0,1fr) minmax(0,1.7fr) !important;
+  }
+}
+.dashboard-title-period > .dashboard-heading {
+  position:relative;
+}
+.dashboard-title-period .dashboard-demo-tag {
+  position:absolute;
+  top:0;
+  right:0;
+  align-self:auto;
+  margin:0;
+}
+@media (max-width:760px) {
+  .dashboard-title-period .dashboard-demo-tag {
+    top:0;
+    right:0;
+  }
+}
