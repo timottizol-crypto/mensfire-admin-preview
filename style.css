@@ -7425,3 +7425,89 @@ html.light-theme :is(input,textarea,select) {
     backdrop-filter:none !important;
   }
 }
+
+
+/* =========================================================
+   MENSFIRE — WORKSPACE REFLOW WHEN SIDEBAR COLLAPSES
+   Content, tables and dashboards reclaim the freed sidebar width.
+   ========================================================= */
+@media (min-width:768px) {
+  #appContainer {
+    --mensfire-content-left:84px !important; /* 64px sidebar + 20px breathing room */
+  }
+  #appContainer.sidebar-expanded {
+    --mensfire-content-left:210px !important; /* 190px sidebar + 20px */
+  }
+
+  /* All screens follow the actual sidebar state, not stale legacy offsets. */
+  #appContainer:not(.sidebar-expanded) .view,
+  #appContainer:not(.sidebar-expanded) .view.active {
+    width:calc(100% - 84px) !important;
+    max-width:none !important;
+    margin-left:84px !important;
+    margin-right:0 !important;
+  }
+  #appContainer.sidebar-expanded .view,
+  #appContainer.sidebar-expanded .view.active {
+    width:calc(100% - 210px) !important;
+    max-width:none !important;
+    margin-left:210px !important;
+    margin-right:0 !important;
+  }
+
+  #appContainer:not(.sidebar-expanded) .app-header {
+    left:84px !important;
+    width:calc(100% - 84px) !important;
+  }
+  #appContainer.sidebar-expanded .app-header {
+    left:210px !important;
+    width:calc(100% - 210px) !important;
+  }
+
+  /* Remove legacy fixed offsets and max-width limits from main screen sections. */
+  #appContainer .view.active > .view-content,
+  #appContainer .view.active > .workspace,
+  #appContainer .view.active > .page-content,
+  #appContainer .view.active > .content-wrapper,
+  #appContainer .view.active > .dashboard-content,
+  #appContainer .view.active > .clients-workspace,
+  #appContainer .view.active > .finance-workspace,
+  #appContainer .view.active > .inventory-workspace,
+  #appContainer .view.active > .schedule-workspace {
+    width:100% !important;
+    max-width:none !important;
+    box-sizing:border-box !important;
+  }
+
+  /* Tables and their scroll containers expand with the available workspace. */
+  #appContainer .view.active .table-wrap,
+  #appContainer .view.active .table-wrapper,
+  #appContainer .view.active .table-responsive,
+  #appContainer .view.active .inventory-analytics-table-wrap,
+  #appContainer .view.active .supplier-summary-table-wrap,
+  #appContainer .view.active .clients-table-wrap,
+  #appContainer .view.active .finance-table-wrap,
+  #appContainer .view.active .schedule-table-wrap {
+    width:100% !important;
+    max-width:none !important;
+    box-sizing:border-box !important;
+  }
+  #appContainer .view.active table {
+    max-width:none;
+  }
+
+  /* Responsive grids use the newly available width instead of retaining narrow columns. */
+  #appContainer .view.active :is(.dashboard-grid,.dashboard-kpi-grid,.finance-kpi-grid,
+    .clients-grid,.team-grid,.inventory-grid,.inventory-overview-grid,
+    .supplier-summary-grid,.analytics-grid) {
+    width:100%;
+    max-width:none;
+  }
+
+  #appContainer .view,
+  #appContainer .app-header {
+    transition:width .32s cubic-bezier(.22,.8,.25,1),
+      margin-left .32s cubic-bezier(.22,.8,.25,1),
+      left .32s cubic-bezier(.22,.8,.25,1) !important;
+  }
+}
