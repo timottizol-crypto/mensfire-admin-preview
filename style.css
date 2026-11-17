@@ -6783,3 +6783,81 @@ html.light-theme .booking-client-match{background:#fbf8ef}
 .supplier-integrity-check ul{margin:0;padding-left:18px;display:flex;flex-direction:column;gap:8px}
 .supplier-integrity-check li{font-size:10px;color:var(--text-main)}
 .supplier-integrity-check li small{display:block;margin-top:2px}
+
+
+/* MENSFIRE — LEFT-EDGE SIDEBAR WITH DELAYED DESKTOP EXPANSION */
+@media (min-width:768px) {
+  #bottomNav.bottom-nav {
+    left:0 !important;
+    right:auto !important;
+    border-top-left-radius:0 !important;
+    border-bottom-left-radius:0 !important;
+    width:64px !important;
+    min-width:64px !important;
+    max-width:64px !important;
+    transition:width .38s cubic-bezier(.22,.8,.25,1),
+      min-width .38s cubic-bezier(.22,.8,.25,1),
+      max-width .38s cubic-bezier(.22,.8,.25,1) !important;
+    will-change:width;
+  }
+  #appContainer {
+    --mensfire-sidebar:64px !important;
+    --mensfire-content-left:100px !important;
+  }
+  #appContainer.sidebar-expanded {
+    --mensfire-sidebar:190px !important;
+    --mensfire-content-left:226px !important;
+  }
+  #bottomNav.bottom-nav.sidebar-expanded {
+    width:190px !important;
+    min-width:190px !important;
+    max-width:190px !important;
+    overflow-y:auto !important;
+  }
+  #appContainer .view,
+  #appContainer .view.active {
+    width:calc(100% - 100px) !important;
+    margin-left:100px !important;
+  }
+  #appContainer.sidebar-expanded .view,
+  #appContainer.sidebar-expanded .view.active {
+    width:calc(100% - 226px) !important;
+    margin-left:226px !important;
+  }
+  #appContainer .app-header {
+    left:100px !important;
+    width:calc(100% - 100px) !important;
+  }
+  #appContainer.sidebar-expanded .app-header {
+    left:226px !important;
+    width:calc(100% - 226px) !important;
+  }
+  #bottomNav .nav-item {
+    justify-content:center !important;
+    gap:0 !important;
+    padding-left:0 !important;
+    padding-right:0 !important;
+  }
+  #bottomNav.sidebar-expanded .nav-item {
+    justify-content:flex-start !important;
+    gap:11px !important;
+    padding-left:13px !important;
+    padding-right:9px !important;
+  }
+  #bottomNav .nav-item-label {
+    display:block !important;
+    flex:0 1 auto !important;
+    min-width:0 !important;
+    max-width:0 !important;
+    overflow:hidden !important;
+    opacity:0 !important;
+    white-space:nowrap !important;
+    transform:translateX(-5px) !important;
+    transition:max-width .3s ease,opacity .2s ease,transform .3s ease !important;
+  }
+  #bottomNav.sidebar-expanded .nav-item-label {
+    max-width:150px !important;
+    opacity:1 !important;
+    transform:translateX(0) !important;
+  }
+}
