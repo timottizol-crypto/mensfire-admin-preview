@@ -7834,3 +7834,50 @@ html.light-theme :is(input,textarea,select) {
   .dashboard-title-period .finance-range-fields{width:100%;flex:1 1 100%}
   .dashboard-topline .dashboard-upcoming-panel{height:176px;min-height:176px;max-height:176px}
 }
+
+/* Dashboard period controls: full-width selector with an equally wide date row. */
+.dashboard-title-period .finance-range-toolbar {
+  display:flex !important;
+  width:100% !important;
+  flex-direction:column !important;
+  align-items:stretch !important;
+  gap:9px !important;
+}
+.dashboard-title-period .finance-range-presets {
+  display:grid !important;
+  grid-template-columns:repeat(3,minmax(0,1fr)) !important;
+  flex:0 0 auto !important;
+  width:100% !important;
+  min-width:0 !important;
+}
+.dashboard-title-period .finance-range-btn {
+  width:100% !important;
+  min-width:0 !important;
+}
+.dashboard-title-period .finance-range-fields {
+  display:flex;
+  width:100% !important;
+  flex:0 0 auto !important;
+  min-width:0 !important;
+  gap:9px !important;
+}
+.dashboard-title-period .finance-range-fields .finance-range-date {
+  flex:1 1 0% !important;
+  width:0 !important;
+  min-width:0 !important;
+  text-align:center;
+}
+.dashboard-title-period .finance-range-fields > span {
+  flex:0 0 auto;
+}
+@media(max-width:760px) {
+  .dashboard-title-period .finance-range-toolbar {
+    height:auto !important;
+    min-height:0 !important;
+    max-height:none !important;
+  }
+  .dashboard-title-period .finance-range-presets,
+  .dashboard-title-period .finance-range-fields {
+    width:100% !important;
+  }
+}
