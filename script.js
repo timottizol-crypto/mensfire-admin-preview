@@ -6504,13 +6504,22 @@ function getSupplierFinanceIntegrityIssues(){
         const batchIndex=Number(record.batchIndex??-1);
         if(!Number.isSafeInteger(batchIndex)||batchIndex< -1||(batchIndex===-1&&batches.length)||(batchIndex>=0&&!batches[batchIndex]))issues.push({title:'Некорректная ссылка на партию возврата',detail:'Возврат '+String(record.id).slice(-8)});
         const gross=batchIndex>=0?Number(batches[batchIndex]?.quantity)||0:Number(line.receivedQuantity)||0;
+        const batchCost=Number(batchIndex>=0?batches[batchIndex]?.unitCost:line.unitCost);
         const returned=supplierReturnedQuantity(order.id,itemIndex,batchIndex);
         if(returned>gross)issues.push({title:'Возврат превышает принятую партию',detail:'Заказ '+String(order.id).slice(-8)+' · '+(line.titleSnapshot||'Товар')});
+        if(!Number.isFinite(batchCost)||Math.abs(batchCost-unitCost)>0.001)issues.push({title:'Цена возврата не совпадает с партией',detail:'Возврат '+String(record.id).slice(-8)+' · цена возврата '+(Number.isFinite(unitCost)?unitCost.toFixed(2):'—')+' ₽, цена партии '+(Number.isFinite(batchCost)?batchCost.toFixed(2):'—')+' ₽'});
         const product=inventoryProducts.find(item=>item.id===record.productId);
         if(!product||product.id!==line.productId)issues.push({title:'Возврат связан с неверным товаром',detail:'Возврат '+String(record.id).slice(-8)+' · заказ '+String(order.id).slice(-8)});
         const linkedMovements=inventoryMovements.filter(movement=>movement.supplierReturnId===record.id);
         if(linkedMovements.length!==1)issues.push({title:'Нет единственного складского движения возврата',detail:'Возврат '+String(record.id).slice(-8)+' · найдено движений: '+linkedMovements.length});
-        else if(linkedMovements[0].type!=='supplier_return'||linkedMovements[0].productId!==record.productId||Math.abs((Number(linkedMovements[0].quantity)||0)+quantity)>0.001)issues.push({title:'Складское движение не совпадает с возвратом',detail:'Возврат '+String(record.id).slice(-8)+' · проверь товар и количество'});
+        else{
+            const movement=linkedMovements[0],movementQty=Number(movement.quantity),movementCost=Number(movement.totalCost);
+            if(movement.type!=='supplier_return'||movement.productId!==record.productId||String(movement.purchaseOrderId||'')!==String(record.orderId)||!Number.isFinite(movementQty)||Math.abs(movementQty+quantity)>0.001||!Number.isFinite(movementCost)||Math.abs(movementCost+quantity*unitCost)>0.01)
+                issues.push({title:'Складское движение не совпадает с возвратом',detail:'Возврат '+String(record.id).slice(-8)+' · проверь заказ, товар, количество и сумму'});
+        }
+    });
+    inventoryMovements.filter(move=>move.type==='supplier_return'&&!inventorySupplierReturns.some(record=>String(record.id)===String(move.supplierReturnId||''))).forEach(move=>{
+        issues.push({title:'Складской возврат не связан с операцией поставщику',detail:'Движение '+String(move.id||'').slice(-8)+' · проверь журнал возвратов'});
     });
     const purchaseOrderIds=new Set(inventoryPurchaseOrders.map(order=>String(order.id)));
     inventoryMovements.filter(move=>move.type==='receipt'&&move.purchaseOrderId).forEach(move=>{
