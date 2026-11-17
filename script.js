@@ -344,8 +344,16 @@ function buildBottomNav() {
         div.innerHTML = `<svg viewBox="0 0 24 24">${item.icon}</svg><span class="nav-item-label">${item.title}</span>`;
         div.onclick = () => switchView(item.id, div);
         nav.appendChild(div);
-
     });
+
+    const sidebarToggle = document.createElement('button');
+    sidebarToggle.type = 'button';
+    sidebarToggle.className = 'desktop-sidebar-toggle';
+    sidebarToggle.setAttribute('aria-label', 'Раскрыть меню');
+    sidebarToggle.title = 'Раскрыть меню';
+    sidebarToggle.innerHTML = '<svg class="desktop-sidebar-toggle-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="m9 18 6-6-6-6"/></svg>';
+    sidebarToggle.addEventListener('click', toggleDesktopNav);
+    nav.appendChild(sidebarToggle);
 
     initDesktopNav();
     initNavBubble();
@@ -358,32 +366,20 @@ function initDesktopNav() {
 
     if (!nav || !app) return;
 
-    // На ПК меню всегда компактное; расширение происходит наведением.
     const isDesktop = window.innerWidth >= 768;
-    nav.classList.toggle('desktop-collapsed', isDesktop);
-    app.classList.toggle('desktop-nav-collapsed', isDesktop);
+    const shouldExpand = isDesktop && localStorage.getItem('mensfire_desktop_nav') === 'expanded';
 
-    if (!nav._mensfireHoverBound) {
-        nav._mensfireHoverBound = true;
-        nav.addEventListener('pointerenter', () => {
-            if (window.innerWidth < 768) return;
-            clearTimeout(nav._mensfireExpandTimer);
-            nav._mensfireExpandTimer = setTimeout(() => {
-                nav.classList.add('sidebar-expanded');
-                app.classList.add('sidebar-expanded');
-            }, 300);
-        });
-        nav.addEventListener('pointerleave', () => {
-            clearTimeout(nav._mensfireExpandTimer);
-            nav.classList.remove('sidebar-expanded');
-            app.classList.remove('sidebar-expanded');
-        });
-    }
+    nav.classList.toggle('desktop-collapsed', isDesktop && !shouldExpand);
+    app.classList.toggle('desktop-nav-collapsed', isDesktop && !shouldExpand);
+    nav.classList.toggle('sidebar-expanded', shouldExpand);
+    app.classList.toggle('sidebar-expanded', shouldExpand);
+
     if (!isDesktop) {
-        clearTimeout(nav._mensfireExpandTimer);
         nav.classList.remove('sidebar-expanded');
         app.classList.remove('sidebar-expanded');
     }
+
+    updateDesktopNavToggle();
 }
 
 function toggleDesktopNav() {
@@ -391,35 +387,28 @@ function toggleDesktopNav() {
 
     const nav = document.getElementById('bottomNav');
     const app = document.getElementById('appContainer');
-
     if (!nav || !app) return;
 
-    const isCollapsed = !nav.classList.contains('desktop-collapsed');
+    const shouldExpand = !nav.classList.contains('sidebar-expanded');
+    nav.classList.toggle('sidebar-expanded', shouldExpand);
+    app.classList.toggle('sidebar-expanded', shouldExpand);
+    nav.classList.toggle('desktop-collapsed', !shouldExpand);
+    app.classList.toggle('desktop-nav-collapsed', !shouldExpand);
 
-    nav.classList.toggle('desktop-collapsed', isCollapsed);
-    app.classList.toggle('desktop-nav-collapsed', isCollapsed);
-
-    localStorage.setItem(
-        'mensfire_desktop_nav',
-        isCollapsed ? 'collapsed' : 'expanded'
-    );
-
+    localStorage.setItem('mensfire_desktop_nav', shouldExpand ? 'expanded' : 'collapsed');
     updateDesktopNavToggle();
 }
 
-
 function updateDesktopNavToggle() {
     const nav = document.getElementById('bottomNav');
-    const toggle = document.getElementById('desktopNavToggle');
-
+    const toggle = nav?.querySelector('.desktop-sidebar-toggle');
     if (!nav || !toggle) return;
 
-    const isCollapsed = nav.classList.contains('desktop-collapsed');
-    const icon = toggle.querySelector('.nav-toggle-icon');
-    const label = toggle.querySelector('.nav-toggle-label');
-
-    if (icon) icon.textContent = isCollapsed ? '›' : '‹';
-    if (label) label.textContent = isCollapsed ? 'Развернуть меню' : 'Свернуть меню';
+    const isExpanded = nav.classList.contains('sidebar-expanded');
+    toggle.setAttribute('aria-label', isExpanded ? 'Свернуть меню' : 'Раскрыть меню');
+    toggle.title = isExpanded ? 'Свернуть меню' : 'Раскрыть меню';
+    const icon = toggle.querySelector('.desktop-sidebar-toggle-icon');
+    if (icon) icon.style.transform = isExpanded ? 'rotate(180deg)' : 'rotate(0deg)';
 }
 
 
