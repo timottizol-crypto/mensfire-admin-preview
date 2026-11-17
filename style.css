@@ -8244,3 +8244,15 @@ html.light-theme .dashboard-topline .dashboard-upcoming-row {
     grid-auto-rows:minmax(81px,1fr) !important;
   }
 }
+
+
+/* Upcoming booking typography refinement: keep the card size and status badge size. */
+.dashboard-topline .dashboard-upcoming-time strong {font-size:13px !important}
+.dashboard-topline .dashboard-upcoming-time small {font-size:9px !important}
+.dashboard-topline .dashboard-upcoming-info>strong {font-size:12px !important}
+.dashboard-topline .dashboard-upcoming-info>small {font-size:9px !important}
+.dashboard-topline .dashboard-upcoming-status {
+  align-self:center !important;
+  justify-self:end !important;
+  font-size:12px !important;
+}
