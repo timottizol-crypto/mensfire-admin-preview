@@ -6159,6 +6159,7 @@ let inventorySupplierRefunds=(()=>{try{const a=JSON.parse(localStorage.getItem(a
 function persistSupplierRefunds(){localStorage.setItem(appStorageKey('mensfire_inventory_supplier_refunds'),JSON.stringify(inventorySupplierRefunds));}
 let inventorySupplierReturns=(()=>{try{const a=JSON.parse(localStorage.getItem(appStorageKey('mensfire_inventory_supplier_returns'))||'[]');return Array.isArray(a)?a.filter(item=>item&&item.id&&item.orderId&&item.supplierId&&Number(item.quantity)>0).map(item=>({id:String(item.id),orderId:String(item.orderId),supplierId:String(item.supplierId),supplierNameSnapshot:String(item.supplierNameSnapshot||''),productId:String(item.productId||''),productTitle:String(item.productTitle||'Товар'),itemIndex:Number(item.itemIndex),batchIndex:Number(item.batchIndex??-1),quantity:Number(item.quantity),unitCost:Math.max(0,Number(item.unitCost)||0),returnedAt:String(item.returnedAt||''),reason:String(item.reason||'')})):[];}catch(e){return [];}})();
 function persistSupplierReturns(){localStorage.setItem(appStorageKey('mensfire_inventory_supplier_returns'),JSON.stringify(inventorySupplierReturns));}
+function isSupplierMoneyAmount(value,allowZero=true){const amount=Number(value),cents=Math.round(amount*100);return Number.isFinite(amount)&&amount>=(allowZero?0:0.01)&&Number.isSafeInteger(cents)&&Math.abs(amount*100-cents)<=0.001;}
 function supplierReturnedQuantity(orderId,itemIndex,batchIndex=-1){return inventorySupplierReturns.filter(item=>item.orderId===String(orderId)&&item.itemIndex===Number(itemIndex)&&item.batchIndex===Number(batchIndex)).reduce((sum,item)=>sum+(Number(item.quantity)||0),0);}
 function supplierReceivedTotal(order){return (order.items||[]).reduce((sum,line,itemIndex)=>{const gross=Array.isArray(line.receivedBatches)&&line.receivedBatches.length?line.receivedBatches.reduce((n,b)=>n+(Number(b.quantity)||0)*(Number(b.unitCost)||0),0):(Number(line.receivedQuantity)||0)*(Number(line.unitCost)||0);const returned=inventorySupplierReturns.filter(item=>item.orderId===String(order.id)&&item.itemIndex===itemIndex).reduce((n,item)=>n+(Number(item.quantity)||0)*(Number(item.unitCost)||0),0);return sum+Math.max(0,gross-returned);},0);}
 function supplierOrderGrossReceivedTotal(order){return (order.items||[]).reduce((sum,line)=>sum+(Array.isArray(line.receivedBatches)&&line.receivedBatches.length?line.receivedBatches.reduce((n,b)=>n+(Number(b.quantity)||0)*(Number(b.unitCost)||0),0):(Number(line.receivedQuantity)||0)*(Number(line.unitCost)||0)),0);}
@@ -6190,7 +6191,7 @@ function createSupplierRefund(data){
     const order=inventoryPurchaseOrders.find(item=>item.id===String(data?.orderId||''));
     if(!order||order.status==='cancelled'||!Array.isArray(order.items))return showToast('Заказ не найден или отменён','error'),false;
     const rawAmount=Number(data?.amount);
-    if(!Number.isFinite(rawAmount)||rawAmount<=0)return showToast('Укажи корректную сумму возврата','error'),false;
+    if(!isSupplierMoneyAmount(rawAmount,false))return showToast('Сумма возврата должна быть положительной и указана с точностью до копеек','error'),false;
     const amount=Math.round((rawAmount+Number.EPSILON)*100)/100;
     const amountCents=Math.round(amount*100),credit=supplierOrderCredit(order),creditCents=Math.round(credit*100);
     if(!Number.isSafeInteger(amountCents)||amountCents<=0||!Number.isSafeInteger(creditCents)||amountCents>creditCents)return showToast('Сумма превышает доступную переплату поставщику','error'),false;
@@ -6317,7 +6318,7 @@ function saveSupplierPayment(){
     if(!requireAdminAction('Вносить оплаты поставщикам может только Али'))return;
     const supplier=inventorySuppliers.find(item=>item.id===activeSupplierPaymentId);if(!supplier)return;
     const rawAmount=Number(document.getElementById('supplierPaymentAmount')?.value);
-    if(!Number.isFinite(rawAmount)||rawAmount<=0)return showToast('Укажи корректную сумму оплаты','error');
+    if(!isSupplierMoneyAmount(rawAmount,false))return showToast('Сумма оплаты должна быть положительной и указана с точностью до копеек','error');
     const amount=Math.round((rawAmount+Number.EPSILON)*100)/100,amountCents=Math.round(amount*100);
     const debt=supplierDebt(supplier.id),debtCents=Math.round(debt*100);
     if(!Number.isSafeInteger(amountCents)||amountCents<=0||!Number.isSafeInteger(debtCents)||amountCents>debtCents)return showToast('Сумма не может превышать фактическую задолженность','error');
@@ -6610,7 +6611,7 @@ function exportSupplierFinanceSummary(){
     const total=rows.reduce((acc,row)=>{acc.opening+=Math.max(0,row.opening);acc.receipts+=row.receipts;acc.payments+=row.payments;acc.returns+=row.returns;acc.refunds+=row.refunds;acc.change+=row.change;acc.debt+=row.debt;acc.credit+=row.credit;acc.receiptCount+=row.receiptCount;acc.paymentCount+=row.paymentCount;return acc;},{opening:0,receipts:0,payments:0,returns:0,refunds:0,change:0,debt:0,credit:0,receiptCount:0,paymentCount:0});
     data.push(['ИТОГО',money(total.opening),money(total.receipts),money(total.payments),money(total.returns),money(total.refunds),money(total.change),money(total.debt),money(total.credit),total.receiptCount,total.paymentCount]);
     const period=supplierFinanceSummaryPeriod||{};
-    const csv='\\uFEFF'+[columns,...data].map(row=>row.map(cell).join(';')).join('\\r\\n');
+    const csv='\uFEFF'+[columns,...data].map(row=>row.map(cell).join(';')).join('\r\n');
     const blob=new Blob([csv],{type:'text/csv;charset=utf-8;'});
     const url=URL.createObjectURL(blob),link=document.createElement('a');
     const suffix=(period.from||'start')+'_'+(period.to||'today');
@@ -6691,7 +6692,7 @@ function exportSupplierFinanceJournal(){
         event.note||'',
         (event.allocations||[]).map(item=>(item.purchaseOrderId||'')+': '+(Number(item.amount)||0).toFixed(2)).join(' | ')
     ]);
-    const csv='\\uFEFF'+[columns,...rows].map(row=>row.map(cell).join(';')).join('\\r\\n');
+    const csv='\uFEFF'+[columns,...rows].map(row=>row.map(cell).join(';')).join('\r\n');
     const blob=new Blob([csv],{type:'text/csv;charset=utf-8;'});
     const url=URL.createObjectURL(blob),link=document.createElement('a');
     link.href=url;link.download='mensfire-supplier-finance-journal-'+new Date().toISOString().slice(0,10)+'.csv';
@@ -6771,7 +6772,7 @@ function addPurchaseDraftItem(){
     const quantity=Number(document.getElementById('purchaseOrderQuantity')?.value);
     const unitCost=Number(document.getElementById('purchaseOrderUnitCost')?.value);
     const product=inventoryProducts.find(item=>item.id===productId&&item.active);
-    if(!product||!Number.isInteger(quantity)||quantity<=0||!Number.isFinite(unitCost)||unitCost<0)return showToast('Проверь товар, количество и закупочную цену','error');
+    if(!product||!Number.isSafeInteger(quantity)||quantity<=0||!isSupplierMoneyAmount(unitCost))return showToast('Проверь товар, целое количество и закупочную цену до копеек','error');
     const existing=purchaseOrderDraft.find(row=>row.productId===productId);
     if(existing){existing.quantity+=quantity;existing.unitCost=unitCost;}else purchaseOrderDraft.push({productId,quantity,unitCost});
     document.getElementById('purchaseOrderQuantity').value='1';renderPurchaseOrderDraft();
@@ -6792,6 +6793,7 @@ function savePurchaseOrder(){
     const supplier=document.getElementById('purchaseOrderSupplier').value.trim();
     if(!supplier)return showToast('Укажи поставщика','error');
     if(!purchaseOrderDraft.length)return showToast('Добавь хотя бы один товар','error');
+    if(purchaseOrderDraft.some(row=>!inventoryProducts.some(product=>product.id===row.productId&&product.active)||!Number.isSafeInteger(Number(row.quantity))||Number(row.quantity)<=0||!isSupplierMoneyAmount(row.unitCost)))return showToast('В заказе обнаружены некорректные товары, количества или цены','error');
     const now=new Date().toISOString();
     inventoryPurchaseOrders.unshift({
         id:'po_'+Date.now()+'_'+Math.random().toString(36).slice(2,7),supplier,supplierId:findOrCreateSupplier(supplier)?.id||'',
@@ -6826,7 +6828,7 @@ function receivePurchaseOrder(){
         const index=Number(input.dataset.receiveQty),line=Number.isSafeInteger(index)&&index>=0?order.items[index]:null;
         if(!line||!Number.isSafeInteger(Number(line.quantity))||Number(line.quantity)<=0||!Number.isSafeInteger(Number(line.receivedQuantity))||Number(line.receivedQuantity)<0||Number(line.receivedQuantity)>Number(line.quantity))return showToast('В заказе обнаружено некорректное количество. Приёмка отменена','error');
         const qty=Number(input.value),costInput=root.querySelector('[data-receive-cost="'+index+'"]'),unitCost=Number(costInput?.value),remaining=Number(line.quantity)-Number(line.receivedQuantity);
-        if(!Number.isSafeInteger(qty)||qty<0||qty>remaining||!Number.isFinite(unitCost)||unitCost<0)return showToast('Проверь количество и закупочную цену каждой позиции','error');
+        if(!Number.isSafeInteger(qty)||qty<0||qty>remaining||!isSupplierMoneyAmount(unitCost))return showToast('Проверь количество и закупочную цену каждой позиции: цена должна быть указана до копеек','error');
         if(qty>0){
             const product=inventoryProducts.find(item=>item.id===line.productId);
             if(!product)return showToast('Один из товаров больше не найден. Приёмка отменена','error');
