@@ -3156,15 +3156,16 @@ function renderDashboard() {
         const cards = [
             ['Записей',scoped.length,'Активные и завершённые визиты'],
             ['Завершено',completed.length,'Успешно оказанные услуги'],
-            ['Получено',Math.round(collected).toLocaleString('ru-RU')+' ₽','Фактические оплаты'],
-            ['К оплате',Math.round(outstanding).toLocaleString('ru-RU')+' ₽','Остаток по записям']
+            ['Получено',Math.round(collected).toLocaleString('ru-RU')+' ₽','Фактические оплаты']
         ];
         if (currentUser.role === 'admin') {
-            cards.push(['Расходы',Math.round(periodExpenses).toLocaleString('ru-RU')+' ₽','За выбранный период']);
             cards.push(['Результат',Math.round(collected-periodExpenses).toLocaleString('ru-RU')+' ₽','Получено минус расходы']);
+            cards.push(['К оплате',Math.round(outstanding).toLocaleString('ru-RU')+' ₽','Остаток по записям']);
+            cards.push(['Расходы',Math.round(periodExpenses).toLocaleString('ru-RU')+' ₽','За выбранный период']);
         } else {
-            cards.push(['Новые клиенты',newClients,'По завершённым визитам']);
             cards.push(['Средний чек',completed.length?Math.round(completed.reduce((sum,item)=>sum+getBookingCollectedAmount(item),0)/completed.length).toLocaleString('ru-RU')+' ₽':'0 ₽','По завершённым визитам']);
+            cards.push(['К оплате',Math.round(outstanding).toLocaleString('ru-RU')+' ₽','Остаток по записям']);
+            cards.push(['Новые клиенты',newClients,'По завершённым визитам']);
         }
         kpis.innerHTML = cards.map((card,index)=>`<article class="dashboard-kpi-card ${index===2?'is-primary':''}"><span>${dashboardEscape(card[0])}</span><strong>${dashboardEscape(card[1])}</strong><small>${dashboardEscape(card[2])}</small></article>`).join('');
     }
