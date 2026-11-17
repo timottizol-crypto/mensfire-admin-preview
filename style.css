@@ -7937,6 +7937,14 @@ html.light-theme :is(input,textarea,select) {
     align-self:start !important;
   }
 }
+/* Preserve the period selector's previous rendered width after widening upcoming bookings. */
+@media (min-width:1051px) {
+  .dashboard-title-period .finance-range-toolbar {
+    width:54.2% !important;
+    max-width:54.2% !important;
+  }
+}
+
 /* Anchor the label to the full dashboard row, not the title column. */
 .dashboard-title-period > .dashboard-heading {
   position:static !important;
