@@ -7089,7 +7089,7 @@ html:not(.light-theme) table tbody tr {
   --mf-glass-depth-light:0 14px 34px rgba(28,42,60,.085),inset 0 1px 0 rgba(255,255,255,.96);
 }
 html:not(.light-theme) :is(
-  [class*="-card"],[class*="-panel"],[class*="-workspace"],[class*="-kpi"],
+  [class*="-card"]:not([class*="-card-"]),[class*="-panel"],[class*="-workspace"],[class*="-kpi"],
   [class*="-summary"],[class*="-overview"],[class*="-widget"],[class*="-tile"],
   [class*="-chart-card"],[class*="-table-wrap"],[class*="-list-card"],
   .booking-history-section,.booking-payment-panel,.client-followup-section,
@@ -7107,7 +7107,7 @@ html:not(.light-theme) :is(
   backdrop-filter:blur(24px) saturate(155%) !important;
 }
 html.light-theme :is(
-  [class*="-card"],[class*="-panel"],[class*="-workspace"],[class*="-kpi"],
+  [class*="-card"]:not([class*="-card-"]),[class*="-panel"],[class*="-workspace"],[class*="-kpi"],
   [class*="-summary"],[class*="-overview"],[class*="-widget"],[class*="-tile"],
   [class*="-chart-card"],[class*="-table-wrap"],[class*="-list-card"],
   .booking-history-section,.booking-payment-panel,.client-followup-section,
