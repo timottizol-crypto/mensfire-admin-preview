@@ -371,7 +371,7 @@ function initDesktopNav() {
             nav._mensfireExpandTimer = setTimeout(() => {
                 nav.classList.add('sidebar-expanded');
                 app.classList.add('sidebar-expanded');
-            }, 1200);
+            }, 300);
         });
         nav.addEventListener('pointerleave', () => {
             clearTimeout(nav._mensfireExpandTimer);
