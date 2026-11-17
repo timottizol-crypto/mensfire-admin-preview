@@ -6225,14 +6225,14 @@ function createSupplierReturn(data){
     const grossQty=Number(batch?batch.quantity:line.receivedQuantity);
     if(!Number.isSafeInteger(grossQty)||grossQty<0)return showToast('В заказе указано некорректное принятое количество','error'),false;
     const rawCost=Number(batch?batch.unitCost:line.unitCost);
-    if(!Number.isFinite(rawCost)||rawCost<0)return showToast('В заказе указана некорректная закупочная цена','error'),false;
+    if(!isSupplierMoneyAmount(rawCost))return showToast('Закупочная цена партии должна быть указана с точностью до копеек','error'),false;
     const unitCost=rawCost,quantity=Number(data.quantity);
     const alreadyReturned=supplierReturnedQuantity(order.id,itemIndex,batchIndex);
     if(!Number.isSafeInteger(alreadyReturned)||alreadyReturned<0||alreadyReturned>grossQty)return showToast('В истории возвратов обнаружено некорректное количество','error'),false;
     const available=grossQty-alreadyReturned;
     if(!Number.isSafeInteger(quantity)||quantity<1||quantity>available)return showToast('Количество возврата превышает доступный остаток партии','error'),false;
-    const amount=quantity*unitCost;
-    if(!Number.isFinite(amount))return showToast('Сумма возврата превышает допустимое значение','error'),false;
+    const amount=quantity*unitCost,amountCents=Math.round(amount*100);
+    if(!Number.isFinite(amount)||!Number.isSafeInteger(amountCents)||Math.abs(amount*100-amountCents)>0.001)return showToast('Сумма возврата превышает допустимое значение или не сходится до копеек','error'),false;
     const product=inventoryProducts.find(item=>item.id===line.productId);
     if(!product)return showToast('Товар не найден на складе','error'),false;
     const currentStock=Number(product.stock);
@@ -6793,7 +6793,7 @@ function savePurchaseOrder(){
     const supplier=document.getElementById('purchaseOrderSupplier').value.trim();
     if(!supplier)return showToast('Укажи поставщика','error');
     if(!purchaseOrderDraft.length)return showToast('Добавь хотя бы один товар','error');
-    if(purchaseOrderDraft.some(row=>!inventoryProducts.some(product=>product.id===row.productId&&product.active)||!Number.isSafeInteger(Number(row.quantity))||Number(row.quantity)<=0||!isSupplierMoneyAmount(row.unitCost)))return showToast('В заказе обнаружены некорректные товары, количества или цены','error');
+    if(purchaseOrderDraft.some(row=>!inventoryProducts.some(product=>product.id===row.productId&&product.active)||!Number.isSafeInteger(Number(row.quantity))||Number(row.quantity)<=0||!isSupplierMoneyAmount(row.unitCost)||!Number.isSafeInteger(Math.round(Number(row.quantity)*Number(row.unitCost)*100))))return showToast('В заказе обнаружены некорректные товары, количества или цены','error');
     const now=new Date().toISOString();
     inventoryPurchaseOrders.unshift({
         id:'po_'+Date.now()+'_'+Math.random().toString(36).slice(2,7),supplier,supplierId:findOrCreateSupplier(supplier)?.id||'',
@@ -6836,7 +6836,7 @@ function receivePurchaseOrder(){
             const currentCost=projectedCosts.has(product.id)?projectedCosts.get(product.id):Number(product.purchasePrice)||0;
             if(!Number.isSafeInteger(currentStock)||currentStock<0)return showToast('У одного из товаров некорректный остаток. Приёмка отменена','error');
             const nextStock=currentStock+qty,totalCost=qty*unitCost;
-            if(!Number.isSafeInteger(nextStock)||!Number.isFinite(totalCost))return showToast('Количество или стоимость приёмки превышает допустимые значения','error');
+            if(!Number.isSafeInteger(nextStock)||!Number.isFinite(totalCost)||!Number.isSafeInteger(Math.round(totalCost*100))||Math.abs(totalCost*100-Math.round(totalCost*100))>0.001)return showToast('Количество или стоимость приёмки превышает допустимые значения','error');
             const nextCost=currentStock>0&&currentCost>0?((currentStock*currentCost)+totalCost)/nextStock:unitCost;
             if(!Number.isFinite(nextCost)||nextCost<0)return showToast('Не удалось безопасно рассчитать себестоимость товара','error');
             projectedStocks.set(product.id,nextStock);projectedCosts.set(product.id,nextCost);
