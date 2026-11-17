@@ -7511,3 +7511,54 @@ html.light-theme :is(input,textarea,select) {
       left .32s cubic-bezier(.22,.8,.25,1) !important;
   }
 }
+
+
+/* MENSFIRE — compact overview: revenue chart + 2x3 KPI matrix */
+.dashboard-overview-row{
+  display:grid;
+  grid-template-columns:minmax(260px,.78fr) minmax(0,1.22fr);
+  gap:12px;
+  align-items:stretch;
+  margin:0 0 12px;
+}
+.dashboard-overview-row .dashboard-main-panel{
+  grid-column:auto;
+  min-height:0;
+  padding:15px;
+}
+.dashboard-overview-row .dashboard-kpi-grid{
+  grid-template-columns:repeat(2,minmax(0,1fr));
+  grid-template-rows:repeat(3,minmax(0,1fr));
+  gap:9px;
+  margin:0;
+  min-width:0;
+}
+.dashboard-overview-row .dashboard-kpi-card{
+  min-height:0;
+  justify-content:center;
+  gap:4px;
+  padding:11px 13px;
+  border-radius:15px;
+}
+.dashboard-overview-row .dashboard-kpi-card>span{font-size:10px}
+.dashboard-overview-row .dashboard-kpi-card strong{font-size:clamp(16px,1.55vw,22px);line-height:1.15}
+.dashboard-overview-row .dashboard-kpi-card small{font-size:9px;line-height:1.25}
+.dashboard-overview-row .dashboard-bars{
+  min-height:145px;
+  padding-top:8px;
+  gap:7px;
+}
+.dashboard-overview-row .dashboard-bar-col{height:132px;gap:5px}
+.dashboard-overview-row .dashboard-bar-track{height:88px}
+.dashboard-content-grid{align-items:start}
+.dashboard-content-grid .dashboard-panel{grid-column:auto;align-self:start}
+@media(max-width:900px) and (min-width:761px){
+  .dashboard-overview-row{grid-template-columns:minmax(220px,.72fr) minmax(0,1.28fr);gap:9px}
+  .dashboard-overview-row .dashboard-kpi-card{padding:9px 10px}
+  .dashboard-overview-row .dashboard-kpi-card strong{font-size:16px}
+}
+@media(max-width:760px){
+  .dashboard-overview-row{grid-template-columns:1fr;gap:9px}
+  .dashboard-overview-row .dashboard-kpi-grid{grid-template-columns:repeat(2,minmax(0,1fr));grid-template-rows:auto}
+  .dashboard-overview-row .dashboard-main-panel{grid-column:auto}
+}
