@@ -299,7 +299,10 @@ function buildBottomNav() {
     const financeIcon = '<path d="M11.8 10.9c-2.27-.59-3-1.2-3-2.15 0-1.09 1.01-1.85 2.7-1.85 1.78 0 2.44.85 2.5 2.1h2.21c-.07-1.72-1.12-3.3-3.21-3.81V3h-3v2.16c-1.94.42-3.5 1.68-3.5 3.61 0 2.31 1.91 3.46 4.7 4.13 2.5.6 3 1.48 3 2.41 0 .69-.49 1.79-2.7 1.79-2.06 0-2.87-.92-2.98-2.1h-2.2c.12 2.19 1.76 3.42 3.68 3.83V21h3v-2.15c1.95-.37 3.5-1.5 3.5-3.55 0-2.84-2.43-3.81-4.7-4.4z"/>';
     const teamIcon = '<path d="M16 11c1.66 0 2.99-1.34 2.99-3S17.66 5 16 5c-1.66 0-3 1.34-3 3s1.34 3 3 3zm-8 0c1.66 0 2.99-1.34 2.99-3S9.66 5 8 5C6.34 5 5 6.34 5 8s1.34 3 3 3zm0 2c-2.33 0-7 1.17-7 3.5V19h14v-2.5c0-2.33-4.67-3.5-7-3.5zm8 0c-.29 0-.62.02-.97.05 1.16.84 1.97 1.97 1.97 3.45V19h6v-2.5c0-2.33-4.67-3.5-7-3.5z"/>';
     const servicesIcon = '<path d="M12 2 4 6v12l8 4 8-4V6l-8-4z"/>';
-    const clientsIcon = '<path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/>';
+    const clientsIcon = '<path d="M4 4h16a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2zm2 4v8h5V8H6zm8 1h5V7h-5v2zm0 4h5v-2h-5v2zm0 3h4v-2h-4v2z"/>';
+    const crmIcon = '<path d="M3 3h18v18H3V3zm3 12h2v3H6v-3zm5-5h2v8h-2v-8zm5-3h2v11h-2V7z"/><path d="M5 7h4v2H5z"/>';
+    const clientDirectoryIcon = '<path d="M4 3h16a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2zm5 4a3 3 0 1 0 0 6 3 3 0 0 0 0-6zm-4 10h8c-.3-2-1.7-3-4-3s-3.7 1-4 3zm10-9h4v2h-4V8zm0 4h4v2h-4v-2z"/>';
+    const profileIcon = '<path d="M12 2a10 10 0 1 0 0 20 10 10 0 0 0 0-20zm0 3a3.2 3.2 0 1 1 0 6.4A3.2 3.2 0 0 1 12 5zm0 14a7 7 0 0 1-5.6-2.8c.2-2 3.9-3.1 5.6-3.1s5.4 1.1 5.6 3.1A7 7 0 0 1 12 19z"/>';
 
     const dashboardIcon = '<path d="M3 13h8V3H3v10zm0 8h8v-6H3v6zm10 0h8V11h-8v10zm0-18v6h8V3h-8z"/>';
     if (currentUser.role === 'admin') {
@@ -309,16 +312,16 @@ function buildBottomNav() {
             { id: 'viewFinance', title: 'Финансы', icon: financeIcon },
             { id: 'viewTeam', title: 'Команда', icon: teamIcon },
             { id: 'viewServices', title: 'Услуги', icon: servicesIcon },
-            { id: 'viewClients', title: window.innerWidth >= 768 ? 'CRM' : 'Клиенты', icon: clientsIcon }
+            { id: 'viewClients', title: window.innerWidth >= 768 ? 'CRM' : 'Клиенты', icon: crmIcon }
         ];
         if (window.innerWidth >= 768) {
             navItems.push(
-                { id: 'viewClientDirectory', title: 'Клиенты', icon: clientsIcon },
+                { id: 'viewClientDirectory', title: 'Клиенты', icon: clientDirectoryIcon },
                 { id: 'viewInventory', title: 'Склад', icon: '<path d="M3 7 12 3l9 4-9 4-9-4zm0 5 9 4 9-4M3 17l9 4 9-4"/>' },
                 { id: 'viewSales', title: 'Продажи', icon: '<path d="M4 5h16v14H4zM8 9h8M8 13h5"/>' },
                 { id: 'viewInventoryAnalytics', title: 'Аналитика', icon: '<path d="M3 3v18h18M8 16v-5m5 5V6m5 10V9"/>' },
                 { id: 'viewPurchases', title: 'Закупки', icon: '<path d="M3 7h18l-2 13H5L3 7zm4 0 2-4h6l2 4M9 11v5m6-5v5"/>' },
-                { id: 'viewProfile', title: 'Профиль', icon: clientsIcon }
+                { id: 'viewProfile', title: 'Профиль', icon: profileIcon }
             );
         } else {
             navItems.push({ id: 'viewProfile', title: 'Профиль', icon: clientsIcon });
