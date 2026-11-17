@@ -7096,7 +7096,7 @@ html:not(.light-theme) :is(
   .booking-history-section,.booking-payment-panel,.client-followup-section,
   .client-retail-summary,.work-schedule-day,.available-slots-panel,.service-group,
   .profile-overview-card,.schedule-overview-card,.team-overview-card,.service-overview-card,
-  .finance-date-navigation,.finance-period-heading,.finance-range-toolbar
+  .finance-date-navigation
 ) {
   background:var(--mf-glass-surface-dark) !important;
   border:1px solid var(--mf-glass-edge-dark) !important;
