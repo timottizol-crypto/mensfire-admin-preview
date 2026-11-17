@@ -7339,7 +7339,8 @@ function saveRetailRefund() {
         if(qty>0){selections.push({index,item,qty});refundValue+=qty*unitPrice;}
     }
     if(!selections.length)return showToast('Выбери хотя бы одну позицию для возврата','error');
-    if(!Number.isFinite(refundValue)||refundValue<0)return showToast('Не удалось рассчитать сумму возврата','error');
+    const refundCents=Math.round(refundValue*100);
+    if(!Number.isFinite(refundValue)||refundValue<0||!Number.isSafeInteger(refundCents)||Math.abs(refundValue*100-refundCents)>0.001)return showToast('Сумма возврата должна быть указана с точностью до копеек','error');
     const netBefore=getRetailSaleNetTotal(sale);
     if(refundValue>netBefore+0.001)return showToast('Сумма возврата превышает остаток чека','error');
     const paidBefore=Math.max(0,Number(sale.paidAmount ?? (sale.paymentStatus==='paid'?sale.total:0))||0);
@@ -7350,6 +7351,8 @@ function saveRetailRefund() {
     for(const selection of selections){
         const product=inventoryProducts.find(item=>item.id===selection.item.productId);
         if(!product)return showToast('Товар из чека не найден в каталоге. Возврат отменён','error');
+        const stock=Number(product.stock);
+        if(!Number.isSafeInteger(stock)||stock<0||!Number.isSafeInteger(stock+selection.qty))return showToast('Невозможно безопасно пересчитать остаток товара. Возврат отменён','error');
         movementRows.push({selection,product});
     }
     // Сначала проверяем все позиции, затем одним действием обновляем остатки и чек.
@@ -7394,10 +7397,12 @@ function saveRetailSale(){
     if(!['paid','unpaid','partial'].includes(status))return showToast('Выбран неизвестный статус оплаты','error');
     if(retailSaleCart.some(row=>!Number.isSafeInteger(Number(row.quantity))||Number(row.quantity)<=0||!Number.isFinite(Number(row.unitPrice))||Number(row.unitPrice)<0))return showToast('Проверь количество и цену каждого товара в чеке','error');
     const total=retailSaleCart.reduce((sum,row)=>sum+Number(row.quantity)*Number(row.unitPrice),0);
-    if(!Number.isFinite(total)||total<0)return showToast('Не удалось рассчитать сумму товарного чека','error');
+    const totalCents=Math.round(total*100);
+    if(!Number.isFinite(total)||total<0||!Number.isSafeInteger(totalCents)||Math.abs(total*100-totalCents)>0.001)return showToast('Сумма товарного чека должна быть указана с точностью до копеек','error');
     const paidRaw=Number(document.getElementById('retailSalePaidAmount').value);
     const paid=status==='paid'?total:status==='unpaid'?0:paidRaw;
-    if(!Number.isFinite(paid)||paid<0||paid>total)return showToast('Сумма оплаты не может быть меньше 0 или больше суммы чека','error');
+    const paidCents=Math.round(paid*100);
+    if(!Number.isFinite(paid)||paid<0||paid>total||!Number.isSafeInteger(paidCents)||Math.abs(paid*100-paidCents)>0.001)return showToast('Сумма оплаты должна быть указана с точностью до копеек и не превышать сумму чека','error');
     if(status==='partial'&&(paid<=0||paid>=total))return showToast('Для частичной оплаты укажи сумму больше 0 и меньше итога','error');
     const checked=retailSaleCart.map(row=>{
         const product=inventoryProducts.find(item=>item.id===row.productId);
