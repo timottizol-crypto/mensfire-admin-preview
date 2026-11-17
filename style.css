@@ -7923,3 +7923,28 @@ html.light-theme :is(input,textarea,select) {
     right:0;
   }
 }
+
+
+/* Dashboard: give upcoming bookings more room and lower the panel slightly. */
+@media (min-width:1051px) {
+  .dashboard-topline {
+    grid-template-columns:minmax(0,1fr) minmax(0,2.1fr) !important;
+  }
+  .dashboard-topline > .dashboard-upcoming-panel {
+    margin-top:32px !important;
+    margin-bottom:-32px !important;
+    align-self:start !important;
+  }
+}
+/* Keep the DEMO DATA label anchored to the heading's upper-right corner. */
+.dashboard-title-period > .dashboard-heading {
+  position:relative !important;
+}
+.dashboard-title-period > .dashboard-heading .dashboard-demo-tag {
+  position:absolute !important;
+  top:0 !important;
+  right:0 !important;
+  left:auto !important;
+  align-self:auto !important;
+  margin:0 !important;
+}
