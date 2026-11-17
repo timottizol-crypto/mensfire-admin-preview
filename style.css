@@ -7562,3 +7562,60 @@ html.light-theme :is(input,textarea,select) {
   .dashboard-overview-row .dashboard-kpi-grid{grid-template-columns:repeat(2,minmax(0,1fr));grid-template-rows:auto}
   .dashboard-overview-row .dashboard-main-panel{grid-column:auto}
 }
+
+
+/* Overview: fixed-height, internally scrollable upcoming / team panels */
+.dashboard-upcoming-panel{
+  height:228px;
+  min-height:228px;
+  display:flex;
+  flex-direction:column;
+  margin:0 0 12px;
+  padding:15px 18px;
+}
+.dashboard-upcoming-panel .finance-panel-heading{flex:0 0 auto;margin-bottom:5px}
+.dashboard-upcoming-list{
+  flex:1 1 auto;
+  min-height:0;
+  overflow-y:auto;
+  overscroll-behavior:contain;
+  scrollbar-width:thin;
+  scrollbar-color:rgba(212,175,55,.35) transparent;
+  padding-right:4px;
+}
+.dashboard-upcoming-list::-webkit-scrollbar,
+.dashboard-team-list::-webkit-scrollbar{width:5px}
+.dashboard-upcoming-list::-webkit-scrollbar-thumb,
+.dashboard-team-list::-webkit-scrollbar-thumb{background:rgba(212,175,55,.35);border-radius:8px}
+.dashboard-content-grid{
+  grid-template-columns:repeat(2,minmax(0,1fr));
+  align-items:stretch;
+}
+.dashboard-content-grid>.dashboard-panel{
+  height:260px;
+  min-height:260px;
+  max-height:260px;
+  display:flex;
+  flex-direction:column;
+}
+.dashboard-content-grid>.dashboard-panel .finance-panel-heading{flex:0 0 auto}
+#dashboardBookingMix{
+  flex:1 1 auto;
+  min-height:0;
+  overflow-y:auto;
+  overscroll-behavior:contain;
+}
+#dashboardTeamSnapshot{
+  flex:1 1 auto;
+  min-height:0;
+  overflow-y:auto;
+  overscroll-behavior:contain;
+  scrollbar-width:thin;
+  scrollbar-color:rgba(212,175,55,.35) transparent;
+  padding-right:4px;
+}
+.dashboard-team-row{min-height:54px}
+@media(max-width:760px){
+  .dashboard-upcoming-panel{height:210px;min-height:210px;padding:14px}
+  .dashboard-content-grid>.dashboard-panel{height:250px;min-height:250px;max-height:250px}
+}
