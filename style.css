@@ -7619,3 +7619,96 @@ html.light-theme :is(input,textarea,select) {
   .dashboard-upcoming-panel{height:210px;min-height:210px;padding:14px}
   .dashboard-content-grid>.dashboard-panel{height:250px;min-height:250px;max-height:250px}
 }
+
+
+/* Dashboard top line: title, compact upcoming bookings, enlarged period controls */
+.dashboard-topline{
+  display:grid;
+  grid-template-columns:minmax(205px,.88fr) minmax(300px,1.55fr) minmax(285px,1.05fr);
+  align-items:stretch;
+  gap:12px;
+  margin:0 0 14px;
+}
+.dashboard-topline>.dashboard-heading{
+  min-width:0;
+  display:flex;
+  flex-direction:column;
+  justify-content:center;
+  gap:10px;
+  margin:0;
+}
+.dashboard-topline .dashboard-demo-tag{align-self:flex-start}
+.dashboard-topline .dashboard-upcoming-panel{
+  height:100%;
+  min-height:126px;
+  max-height:100%;
+  margin:0;
+  padding:11px 13px;
+  gap:7px;
+}
+.dashboard-upcoming-heading{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:8px;
+  flex:0 0 auto;
+}
+.dashboard-upcoming-heading h3{margin:0;font-size:12px;letter-spacing:.01em}
+.dashboard-upcoming-heading .finance-text-action{font-size:10px;padding:3px 5px}
+.dashboard-topline .dashboard-upcoming-list{
+  display:flex;
+  flex-direction:column;
+  gap:5px;
+  padding:0 3px 0 0;
+}
+.dashboard-upcoming-row{
+  display:grid;
+  grid-template-columns:43px minmax(0,1fr) auto;
+  align-items:center;
+  gap:8px;
+  min-height:34px;
+  padding:5px 8px;
+  border:1px solid rgba(255,255,255,.075);
+  border-radius:9px;
+  background:rgba(255,255,255,.025);
+}
+.dashboard-upcoming-time{display:flex;flex-direction:column;gap:1px}
+.dashboard-upcoming-time strong{font-size:11px;line-height:1.2}
+.dashboard-upcoming-time small{font-size:8px;line-height:1.2;color:var(--text-muted)}
+.dashboard-upcoming-info{display:flex;flex-direction:column;gap:2px;min-width:0}
+.dashboard-upcoming-info>strong{font-size:10px;line-height:1.2;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.dashboard-upcoming-info>small{font-size:8px;line-height:1.2;color:var(--text-muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.dashboard-upcoming-info .booking-card-badges{display:none}
+.dashboard-upcoming-status{font-size:8px;white-space:nowrap;color:var(--gold);padding:3px 5px;border-radius:5px;background:rgba(212,175,55,.08)}
+.dashboard-period-controls{display:flex;align-items:stretch;min-width:0;margin:0}
+.dashboard-period-controls .finance-range-toolbar{
+  width:100%;
+  min-height:126px;
+  height:100%;
+  display:flex;
+  flex-direction:column;
+  align-items:stretch;
+  justify-content:center;
+  gap:12px;
+  padding:15px;
+  border:1px solid rgba(255,255,255,.075);
+  border-radius:18px;
+  background:rgba(255,255,255,.025);
+}
+.dashboard-period-controls .finance-range-presets{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:7px;width:100%}
+.dashboard-period-controls .finance-range-btn{min-height:39px;padding:8px 12px;font-size:12px;border-radius:10px}
+.dashboard-period-controls .finance-range-fields{display:flex;align-items:center;justify-content:center;gap:8px;width:100%}
+.dashboard-period-controls .finance-range-date{min-height:34px;flex:1;min-width:0;padding:7px 9px;text-align:center;font-size:11px}
+@media(max-width:1050px) and (min-width:761px){
+  .dashboard-topline{grid-template-columns:minmax(180px,.8fr) minmax(260px,1.25fr); }
+  .dashboard-period-controls{grid-column:1/-1}
+  .dashboard-period-controls .finance-range-toolbar{min-height:0;flex-direction:row;align-items:center}
+  .dashboard-period-controls .finance-range-presets{max-width:420px}
+}
+@media(max-width:760px){
+  .dashboard-topline{grid-template-columns:1fr;gap:9px}
+  .dashboard-topline>.dashboard-heading{min-height:0;flex-direction:row;align-items:center;justify-content:space-between}
+  .dashboard-topline .dashboard-upcoming-panel{min-height:145px;max-height:145px}
+  .dashboard-period-controls .finance-range-toolbar{min-height:0;padding:12px;gap:9px}
+  .dashboard-period-controls .finance-range-btn{min-height:36px}
+}
