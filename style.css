@@ -7712,3 +7712,38 @@ html.light-theme :is(input,textarea,select) {
   .dashboard-period-controls .finance-range-toolbar{min-height:0;padding:12px;gap:9px}
   .dashboard-period-controls .finance-range-btn{min-height:36px}
 }
+
+
+/* Dashboard top cards: shared taller height */
+.dashboard-topline{
+  align-items:stretch;
+}
+.dashboard-topline .dashboard-upcoming-panel{
+  height:190px;
+  min-height:190px;
+  max-height:190px;
+}
+.dashboard-period-controls .finance-range-toolbar{
+  height:190px;
+  min-height:190px;
+}
+.dashboard-period-controls{
+  align-self:stretch;
+}
+@media(max-width:1050px) and (min-width:761px){
+  .dashboard-period-controls .finance-range-toolbar{
+    height:190px;
+    min-height:190px;
+  }
+}
+@media(max-width:760px){
+  .dashboard-topline .dashboard-upcoming-panel{
+    height:176px;
+    min-height:176px;
+    max-height:176px;
+  }
+  .dashboard-period-controls .finance-range-toolbar{
+    height:176px;
+    min-height:176px;
+  }
+}
