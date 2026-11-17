@@ -362,6 +362,28 @@ function initDesktopNav() {
     const isDesktop = window.innerWidth >= 768;
     nav.classList.toggle('desktop-collapsed', isDesktop);
     app.classList.toggle('desktop-nav-collapsed', isDesktop);
+
+    if (!nav._mensfireHoverBound) {
+        nav._mensfireHoverBound = true;
+        nav.addEventListener('pointerenter', () => {
+            if (window.innerWidth < 768) return;
+            clearTimeout(nav._mensfireExpandTimer);
+            nav._mensfireExpandTimer = setTimeout(() => {
+                nav.classList.add('sidebar-expanded');
+                app.classList.add('sidebar-expanded');
+            }, 1200);
+        });
+        nav.addEventListener('pointerleave', () => {
+            clearTimeout(nav._mensfireExpandTimer);
+            nav.classList.remove('sidebar-expanded');
+            app.classList.remove('sidebar-expanded');
+        });
+    }
+    if (!isDesktop) {
+        clearTimeout(nav._mensfireExpandTimer);
+        nav.classList.remove('sidebar-expanded');
+        app.classList.remove('sidebar-expanded');
+    }
 }
 
 function toggleDesktopNav() {
