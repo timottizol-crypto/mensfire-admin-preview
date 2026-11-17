@@ -6313,7 +6313,7 @@ function supplierOrderOverdue(order,now=Date.now()){
 }
 function supplierDebt(id){return inventoryPurchaseOrders.filter(o=>o.supplierId===id&&o.status!=='cancelled').reduce((n,o)=>n+supplierOrderDebt(o),0);}
 let activeSupplierPaymentId=null;
-function openSupplierPayment(id){if(!requireAdminAction('Вносить оплаты поставщикам может только Али'))return;const supplier=inventorySuppliers.find(x=>x.id===id);if(!supplier)return;const debt=supplierDebt(id);if(debt<=0)return showToast('По этому поставщику задолженности нет','info');activeSupplierPaymentId=id;document.getElementById('supplierPaymentTitle').textContent='Оплата · '+supplier.name;document.getElementById('supplierPaymentAmount').value=debt.toFixed(2);document.getElementById('supplierPaymentDate').value=new Date().toISOString().slice(0,10);document.getElementById('supplierPaymentMethod').value='Перевод';document.getElementById('supplierPaymentNote').value='';document.getElementById('supplierPaymentDebt').textContent='Текущая задолженность: '+Math.round(debt).toLocaleString('ru-RU')+' ₽';openModal('supplierPaymentModal');}
+function openSupplierPayment(id){if(!requireAdminAction('Вносить оплаты поставщикам может только Али'))return;const supplier=inventorySuppliers.find(x=>x.id===id);if(!supplier)return;const debt=supplierDebt(id);if(debt<=0)return showToast('По этому поставщику задолженности нет','info');activeSupplierPaymentId=id;document.getElementById('supplierPaymentTitle').textContent='Оплата · '+supplier.name;document.getElementById('supplierPaymentAmount').value=debt.toFixed(2);document.getElementById('supplierPaymentDate').value=new Date().toISOString().slice(0,10);document.getElementById('supplierPaymentMethod').value='Перевод';document.getElementById('supplierPaymentNote').value='';document.getElementById('supplierPaymentDebt').textContent='Текущая задолженность: '+debt.toLocaleString('ru-RU',{minimumFractionDigits:2,maximumFractionDigits:2})+' ₽';openModal('supplierPaymentModal');}
 function saveSupplierPayment(){
     if(!requireAdminAction('Вносить оплаты поставщикам может только Али'))return;
     const supplier=inventorySuppliers.find(item=>item.id===activeSupplierPaymentId);if(!supplier)return;
@@ -6590,7 +6590,7 @@ function renderSupplierFinanceSummary(events,from,to){
         .sort((a,b)=>b.closing-a.closing||a.name.localeCompare(b.name,'ru'));
     supplierFinanceSummaryRows=rows;
     supplierFinanceSummaryPeriod={from:from||'',to:to||''};
-    const fmt=value=>Math.round((Number(value)||0)*100/100).toLocaleString('ru-RU',{maximumFractionDigits:2})+' ₽';
+    const fmt=value=>(Number(value)||0).toLocaleString('ru-RU',{minimumFractionDigits:2,maximumFractionDigits:2})+' ₽';
     const totals=rows.reduce((acc,row)=>{acc.opening+=row.opening;acc.receipts+=row.receipts;acc.payments+=row.payments;acc.returns+=row.returns;acc.refunds+=row.refunds;acc.closing+=row.closing;acc.debt+=row.debt;acc.credit+=row.credit;return acc;},{opening:0,receipts:0,payments:0,returns:0,refunds:0,closing:0,debt:0,credit:0});
     const period=(from||to)?((from?new Date(from+'T00:00:00').toLocaleDateString('ru-RU'):'С начала')+' — '+(to?new Date(to+'T00:00:00').toLocaleDateString('ru-RU'):'по сегодня')):'За всё время';
     const integrityIssues=getSupplierFinanceIntegrityIssues();
@@ -6663,7 +6663,7 @@ function renderSupplierFinanceJournal(){
     renderSupplierFinanceSummary(events,from,to);
     supplierFinanceJournalFilteredEvents=filtered;
     const total=filtered.reduce((sum,event)=>sum+(event.kind==='payment'||event.kind==='return'?-event.amount:event.amount),0);
-    const fmt=value=>Math.round(value*100/100).toLocaleString('ru-RU',{maximumFractionDigits:2})+' ₽';
+    const fmt=value=>(Number(value)||0).toLocaleString('ru-RU',{minimumFractionDigits:2,maximumFractionDigits:2})+' ₽';
     const dateLabel=value=>{const date=new Date(value);return value&&!Number.isNaN(date.getTime())?date.toLocaleDateString('ru-RU'):'Дата не указана';};
     const summary=document.getElementById('supplierJournalSummary');
     if(summary)summary.textContent=filtered.length+' операций · '+(total>=0?'поступления ':'списания ')+fmt(Math.abs(total))+' (приёмки и возвраты денег минус оплаты и возвраты товара)';
@@ -6716,7 +6716,7 @@ function renderSuppliers(){
     const active=inventorySuppliers.filter(item=>item.active).length;
     const totalOrders=inventoryPurchaseOrders.length;
     const totalValue=inventoryPurchaseOrders.filter(order=>order.status!=='cancelled').reduce((sum,order)=>sum+order.items.reduce((n,line)=>n+line.quantity*line.unitCost,0),0);
-    const fmt=v=>Math.round(v).toLocaleString('ru-RU')+' ₽';
+    const fmt=v=>(Number(v)||0).toLocaleString('ru-RU',{minimumFractionDigits:2,maximumFractionDigits:2})+' ₽';
     const now=Date.now();
     const debtOrders=inventoryPurchaseOrders.filter(order=>order.status!=='cancelled'&&supplierOrderDebt(order)>0);
     const outstanding=debtOrders.reduce((sum,order)=>sum+supplierOrderDebt(order),0);
@@ -6882,7 +6882,7 @@ function setPurchaseWorkspaceTab(tab){
 }
 function renderPurchaseOrders(){
     const root=document.getElementById('purchaseOrdersList');if(!root)return;
-    const fmt=value=>Math.round(Number(value)||0).toLocaleString('ru-RU')+' ₽';
+    const fmt=value=>(Number(value)||0).toLocaleString('ru-RU',{minimumFractionDigits:2,maximumFractionDigits:2})+' ₽';
     const labels={draft:'Черновик',ordered:'Ожидается',partial:'Частично принят',received:'Принят',cancelled:'Отменён'};
     const active=inventoryPurchaseOrders.filter(order=>['ordered','partial'].includes(order.status)).length;
     const pending=inventoryPurchaseOrders.filter(order=>['ordered','partial'].includes(order.status)).reduce((sum,order)=>sum+order.items.reduce((sub,item)=>sub+Math.max(0,item.quantity-item.receivedQuantity)*item.unitCost,0),0);
