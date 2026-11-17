@@ -8102,3 +8102,45 @@ html.light-theme .dashboard-topline .dashboard-upcoming-row {
     grid-template-rows:repeat(2,minmax(0,1fr)) !important;
   }
 }
+
+
+/* Give upcoming booking cards enough vertical room for their full details. */
+.dashboard-topline .dashboard-upcoming-panel {
+  height:340px !important;
+  min-height:340px !important;
+  max-height:340px !important;
+}
+.dashboard-topline .dashboard-upcoming-list {
+  grid-template-rows:repeat(2,minmax(132px,1fr)) !important;
+  grid-auto-rows:minmax(132px,1fr) !important;
+  align-content:start !important;
+}
+.dashboard-topline .dashboard-upcoming-row {
+  justify-content:flex-start !important;
+  gap:7px !important;
+  padding:12px 11px !important;
+}
+.dashboard-topline .dashboard-upcoming-info>strong,
+.dashboard-topline .dashboard-upcoming-info>small {
+  display:block !important;
+  -webkit-line-clamp:unset !important;
+  white-space:normal !important;
+  overflow:visible !important;
+  overflow-wrap:anywhere !important;
+  text-overflow:clip !important;
+  line-height:1.35 !important;
+}
+.dashboard-topline .dashboard-upcoming-info {gap:4px !important}
+.dashboard-topline .dashboard-upcoming-time {min-height:18px !important}
+.dashboard-topline .dashboard-upcoming-status {max-width:55% !important}
+@media(max-width:760px) {
+  .dashboard-topline .dashboard-upcoming-panel {
+    height:320px !important;
+    min-height:320px !important;
+    max-height:320px !important;
+  }
+  .dashboard-topline .dashboard-upcoming-list {
+    grid-template-rows:repeat(2,minmax(124px,1fr)) !important;
+    grid-auto-rows:minmax(124px,1fr) !important;
+  }
+}
