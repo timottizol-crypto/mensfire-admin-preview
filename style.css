@@ -7881,3 +7881,21 @@ html.light-theme :is(input,textarea,select) {
     width:100% !important;
   }
 }
+
+/* Reduce both dashboard period-control rows to 1/2.2 of their previous width. */
+.dashboard-title-period .finance-range-toolbar {
+  width:45.4545% !important;
+  max-width:45.4545% !important;
+  align-items:stretch !important;
+}
+.dashboard-title-period .finance-range-presets,
+.dashboard-title-period .finance-range-fields {
+  width:100% !important;
+  max-width:100% !important;
+}
+@media(max-width:760px) {
+  .dashboard-title-period .finance-range-toolbar {
+    width:45.4545% !important;
+    max-width:45.4545% !important;
+  }
+}
