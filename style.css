@@ -7747,3 +7747,17 @@ html.light-theme :is(input,textarea,select) {
     min-height:176px;
   }
 }
+
+
+/* Dashboard revenue: responsive line chart */
+.dashboard-line-chart{width:100%;min-height:150px;padding:5px 2px 0}
+.dashboard-line-chart svg{display:block;width:100%;height:auto;max-height:174px;overflow:visible}
+.dashboard-chart-gridline{stroke:rgba(255,255,255,.09);stroke-width:1;stroke-dasharray:3 6}
+.dashboard-chart-area{fill:rgba(212,175,55,.13)}
+.dashboard-chart-line{fill:none;stroke:#d4af37;stroke-width:3;stroke-linecap:round;stroke-linejoin:round;filter:drop-shadow(0 2px 5px rgba(212,175,55,.2))}
+.dashboard-chart-point{fill:#f0d27a;stroke:#171717;stroke-width:2}
+.dashboard-chart-point-halo{fill:rgba(212,175,55,.12);stroke:none}
+.dashboard-chart-date{fill:var(--text-muted);font-size:11px}
+.dashboard-chart-summary{display:flex;justify-content:space-between;align-items:center;padding:0 7px;margin-top:-1px;color:var(--text-muted);font-size:9px}
+.dashboard-chart-summary strong{color:var(--text-main);font-size:11px}
+@media(max-width:760px){.dashboard-line-chart{min-height:132px}.dashboard-chart-date{font-size:10px}}
