@@ -6887,3 +6887,53 @@ html.light-theme .booking-client-match{background:#fbf8ef}
     transform:translateX(-5px) !important;
   }
 }
+
+
+/* Persistent click-to-toggle control for the desktop sidebar */
+@media (min-width:768px) {
+  #bottomNav .desktop-sidebar-toggle {
+    display:flex !important;
+    align-items:center !important;
+    justify-content:center !important;
+    flex:0 0 42px !important;
+    width:42px !important;
+    min-width:42px !important;
+    height:42px !important;
+    min-height:42px !important;
+    margin: auto auto 0 !important;
+    padding:0 !important;
+    color:var(--text-muted) !important;
+    background:transparent !important;
+    border:1px solid rgba(255,255,255,.12) !important;
+    border-radius:12px !important;
+    cursor:pointer !important;
+    transition:color .2s ease,background .2s ease,border-color .2s ease !important;
+  }
+  #bottomNav .desktop-sidebar-toggle:hover {
+    color:var(--gold) !important;
+    background:rgba(212,175,55,.08) !important;
+    border-color:var(--gold) !important;
+  }
+  #bottomNav .desktop-sidebar-toggle-icon {
+    display:block !important;
+    width:20px !important;
+    height:20px !important;
+    fill:none !important;
+    stroke:currentColor !important;
+    stroke-width:2 !important;
+    stroke-linecap:round !important;
+    stroke-linejoin:round !important;
+    transition:transform .25s ease !important;
+  }
+  #bottomNav.sidebar-expanded .desktop-sidebar-toggle {
+    width:100% !important;
+    margin-left:0 !important;
+    margin-right:0 !important;
+  }
+  html.light-theme #bottomNav .desktop-sidebar-toggle {
+    border-color:rgba(0,0,0,.12) !important;
+  }
+}
+@media (max-width:767px) {
+  #bottomNav .desktop-sidebar-toggle { display:none !important; }
+}
