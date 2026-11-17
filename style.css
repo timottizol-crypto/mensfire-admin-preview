@@ -7728,27 +7728,15 @@ html.light-theme :is(input,textarea,select) {
 .dashboard-period-controls .finance-range-toolbar{
   box-sizing:border-box;
   align-self:stretch;
-  height:190px;
-  min-height:190px;
-  max-height:190px;
+  height:auto;
+  min-height:0;
+  max-height:none;
 }
 .dashboard-period-controls{
   align-self:stretch;
 }
-@media(max-width:1050px) and (min-width:761px){
-  .dashboard-period-controls .finance-range-toolbar{
-    height:190px;
-    min-height:190px;
-  }
-}
 @media(max-width:760px){
   .dashboard-topline .dashboard-upcoming-panel{
-    box-sizing:border-box;
-    height:176px;
-    min-height:176px;
-    max-height:176px;
-  }
-  .dashboard-period-controls .finance-range-toolbar{
     box-sizing:border-box;
     height:176px;
     min-height:176px;
@@ -8027,7 +8015,7 @@ html.light-theme .dashboard-topline .dashboard-upcoming-row {
   }
   .dashboard-topline > .dashboard-upcoming-panel {
     margin-top:32px !important;
-    margin-bottom:-32px !important;
+    margin-bottom:0 !important;
     align-self:start !important;
   }
 }
@@ -8249,8 +8237,8 @@ html.light-theme .dashboard-topline .dashboard-upcoming-row {
 /* Upcoming booking typography refinement: keep the card size and status badge size. */
 .dashboard-topline .dashboard-upcoming-time strong {font-size:13px !important}
 .dashboard-topline .dashboard-upcoming-time small {font-size:9px !important}
-.dashboard-topline .dashboard-upcoming-info>strong {font-size:12px !important}
-.dashboard-topline .dashboard-upcoming-info>small {font-size:9px !important}
+.dashboard-topline .dashboard-upcoming-info>strong {font-size:10px !important}
+.dashboard-topline .dashboard-upcoming-info>small {font-size:8px !important}
 .dashboard-topline .dashboard-upcoming-status {
   align-self:center !important;
   justify-self:end !important;
