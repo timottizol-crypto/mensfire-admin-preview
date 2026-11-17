@@ -4396,7 +4396,10 @@ function renderClientTasksHub() {
         if (currentUser?.role === 'barber' && barberId !== String(currentUser.id)) return;
         profile.tasks.forEach(task => {
             const uniqueTaskId = String(task.id || '');
-            const legacySignature = JSON.stringify([String(task.title || '').trim().toLocaleLowerCase('ru-RU'),String(task.dueDate || ''),String(task.createdAt || ''),Boolean(task.done)]);
+            const legacyClientIdentity = normalizeClientPhone(profile.phone).length >= 7
+                ? 'phone:' + normalizeClientPhone(profile.phone)
+                : 'client:' + String(profile.clientName || '').trim().toLocaleLowerCase('ru-RU') + ':' + String(profile.barberId || '');
+            const legacySignature = JSON.stringify([legacyClientIdentity,String(task.title || '').trim().toLocaleLowerCase('ru-RU'),String(task.dueDate || ''),String(task.createdAt || ''),Boolean(task.done)]);
             if (uniqueTaskId && seenTaskIds.has(uniqueTaskId)) return;
             if (!uniqueTaskId && seenLegacyTasks.has(legacySignature)) return;
             if (uniqueTaskId) seenTaskIds.add(uniqueTaskId); else seenLegacyTasks.add(legacySignature);
