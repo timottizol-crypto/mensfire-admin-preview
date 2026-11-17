@@ -19,7 +19,7 @@
         }
     </script>
 
-    <link rel="stylesheet" href="style.css?v=dashboard-upcoming-scroll-20261117-1">
+    <link rel="stylesheet" href="style.css?v=dashboard-topline-20261117-2">
     <link rel="stylesheet" href="theme-light.css?v=mensfire-glass-ui-20261117-1">
 </head>
 <body class="header-hidden">
@@ -96,9 +96,11 @@
 
         <!-- ГЛАВНАЯ ПАНЕЛЬ -->
         <div id="viewDashboard" class="view dashboard-workspace">
-            <div class="workspace-heading dashboard-heading"><div><span class="workspace-eyebrow">MENSFIRE OVERVIEW</span><h2>Обзор бизнеса</h2><p>Ключевые показатели и события за выбранный период</p></div><span class="dashboard-demo-tag">DEMO DATA</span></div>
-            <div id="dashboardPeriodControls" class="clients-period-controls"></div>
-                <article class="glass-card dashboard-panel dashboard-upcoming-panel"><div class="finance-panel-heading"><div><h3>Ближайшие записи</h3><p>Предстоящие визиты в выбранном интервале</p></div><button type="button" class="finance-text-action" onclick="switchView('viewSchedule')">Расписание →</button></div><div id="dashboardUpcoming" class="dashboard-upcoming-list"></div></article>
+            <div class="dashboard-topline">
+                <div class="workspace-heading dashboard-heading"><div><span class="workspace-eyebrow">MENSFIRE OVERVIEW</span><h2>Обзор бизнеса</h2><p>Ключевые показатели и события за выбранный период</p></div><span class="dashboard-demo-tag">DEMO DATA</span></div>
+                <article class="glass-card dashboard-panel dashboard-upcoming-panel"><div class="dashboard-upcoming-heading"><h3>Ближайшие записи</h3><button type="button" class="finance-text-action" onclick="switchView('viewSchedule')">Все →</button></div><div id="dashboardUpcoming" class="dashboard-upcoming-list"></div></article>
+                <div id="dashboardPeriodControls" class="clients-period-controls dashboard-period-controls"></div>
+            </div>
             <div class="dashboard-overview-row">
                 <article class="glass-card dashboard-panel dashboard-main-panel"><div class="finance-panel-heading"><div><h3>Динамика поступлений</h3><p id="dashboardChartCaption">Фактические оплаты за период</p></div><span class="finance-panel-icon">↗</span></div><div id="dashboardRevenueChart"></div></article>
                 <div id="dashboardKpis" class="dashboard-kpi-grid"></div>
