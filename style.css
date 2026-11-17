@@ -7940,8 +7940,14 @@ html.light-theme :is(input,textarea,select) {
 /* Preserve the period selector's previous rendered width after widening upcoming bookings. */
 @media (min-width:1051px) {
   .dashboard-title-period .finance-range-toolbar {
-    width:54.2% !important;
-    max-width:54.2% !important;
+    width:81.3% !important;
+    max-width:81.3% !important;
+  }
+}
+@media (max-width:1050px) {
+  .dashboard-title-period .finance-range-toolbar {
+    width:68.18% !important;
+    max-width:68.18% !important;
   }
 }
 
