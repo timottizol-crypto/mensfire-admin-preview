@@ -3172,14 +3172,22 @@ function renderDashboard() {
     const chart = document.getElementById('dashboardRevenueChart');
     if (chart) {
         const days = Math.max(1,Math.round((endExclusive-rangeStart)/86400000));
-        const bucketCount = days<=1?1:Math.min(7,days);
+        const hourly = days<=1;
+        const bucketCount = hourly?24:Math.min(7,days);
         const buckets=[];
-        for(let i=0;i<bucketCount;i++){
-            const from=new Date(rangeStart); from.setDate(from.getDate()+Math.floor(i*days/bucketCount));
-            const to=new Date(rangeStart); to.setDate(to.getDate()+Math.floor((i+1)*days/bucketCount));
-            if(to<=from)to.setDate(from.getDate()+1);
-            const value=scoped.filter(item=>item.status==='completed'&&(()=>{const d=parseReportDate(item.date);return d&&d>=from&&d<to;})()).reduce((sum,item)=>sum+getBookingCollectedAmount(item),0);
-            buckets.push({label:days===1?startKey:from.toLocaleDateString('ru-RU',{day:'numeric',month:'short'}),value});
+        if(hourly){
+            for(let hour=0;hour<24;hour++){
+                const value=scoped.filter(item=>item.status==='completed'&&(()=>{const d=parseReportDate(item.date);if(!d||d.toDateString()!==rangeStart.toDateString())return false;const bookingHour=parseInt(String(item.time||'00:00').split(':')[0],10);return Number.isFinite(bookingHour)&&bookingHour===hour;})()).reduce((sum,item)=>sum+getBookingCollectedAmount(item),0);
+                buckets.push({label:String(hour).padStart(2,'0')+':00',value});
+            }
+        }else{
+            for(let i=0;i<bucketCount;i++){
+                const from=new Date(rangeStart); from.setDate(from.getDate()+Math.floor(i*days/bucketCount));
+                const to=new Date(rangeStart); to.setDate(to.getDate()+Math.floor((i+1)*days/bucketCount));
+                if(to<=from)to.setDate(from.getDate()+1);
+                const value=scoped.filter(item=>item.status==='completed'&&(()=>{const d=parseReportDate(item.date);return d&&d>=from&&d<to;})()).reduce((sum,item)=>sum+getBookingCollectedAmount(item),0);
+                buckets.push({label:from.toLocaleDateString('ru-RU',{day:'numeric',month:'short'}),value});
+            }
         }
         const max=Math.max(1,...buckets.map(b=>b.value));
         const chartWidth=700, chartTop=24, chartBottom=126, chartLeft=34, chartRight=666;
@@ -3195,9 +3203,9 @@ function renderDashboard() {
             return `<line x1="${chartLeft}" y1="${y}" x2="${chartRight}" y2="${y}" class="dashboard-chart-gridline"/>`;
         }).join('');
         const marks=points.map(point=>`<g><title>${dashboardEscape(point.label)}: ${Math.round(point.value).toLocaleString('ru-RU')} ₽</title><circle cx="${point.x}" cy="${point.y}" r="5" class="dashboard-chart-point"/><circle cx="${point.x}" cy="${point.y}" r="10" class="dashboard-chart-point-halo"/></g>`).join('');
-        const labels=points.map(point=>`<text x="${point.x}" y="157" text-anchor="middle" class="dashboard-chart-date">${dashboardEscape(point.label)}</text>`).join('');
-        chart.innerHTML=`<div class="dashboard-line-chart"><svg viewBox="0 0 700 174" role="img" aria-label="График поступлений за выбранный период">${gridLines}<path d="${areaPath}" class="dashboard-chart-area"/><path d="${linePath}" class="dashboard-chart-line"/>${marks}${labels}</svg><div class="dashboard-chart-summary"><span>Максимум за точку</span><strong>${Math.round(Math.max(...buckets.map(b=>b.value))).toLocaleString('ru-RU')} ₽</strong></div></div>`;
-        const caption=document.getElementById('dashboardChartCaption'); if(caption)caption.textContent='Оплаченные завершённые визиты · '+periodLabel;
+        const labels=points.map((point,index)=>hourly&&index%3!==0?'':`<text x="${point.x}" y="157" text-anchor="middle" class="dashboard-chart-date">${dashboardEscape(point.label)}</text>`).join('');
+        chart.innerHTML=`<div class="dashboard-line-chart"><svg viewBox="0 0 700 174" role="img" aria-label="${hourly?'Почасовой график поступлений за день':'График поступлений за выбранный период'}">${gridLines}<path d="${areaPath}" class="dashboard-chart-area"/><path d="${linePath}" class="dashboard-chart-line"/>${marks}${labels}</svg><div class="dashboard-chart-summary"><span>Максимум за час</span><strong>${Math.round(Math.max(...buckets.map(b=>b.value))).toLocaleString('ru-RU')} ₽</strong></div></div>`;
+        const caption=document.getElementById('dashboardChartCaption'); if(caption)caption.textContent=hourly?'Поступления по часам · сумма оплат за каждый час':'Поступления по дням · '+periodLabel;
     }
     const mix=document.getElementById('dashboardBookingMix');
     if(mix){
