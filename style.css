@@ -8204,3 +8204,38 @@ html.light-theme .dashboard-topline .dashboard-upcoming-row {
 #appContainer.animate-in .dashboard-kpi-card {
   animation:slideUpEntrance 0.7s cubic-bezier(0.25,1,0.5,1) 0.1s backwards;
 }
+
+
+/* Final upcoming bookings sizing: restore comfortable card height and scroll only after 3 items. */
+.dashboard-topline .dashboard-upcoming-list {
+  display:grid !important;
+  grid-template-columns:repeat(3,minmax(0,1fr)) !important;
+  grid-template-rows:repeat(2,minmax(54px,1fr)) !important;
+  grid-auto-rows:minmax(54px,1fr) !important;
+  gap:6px !important;
+  overflow-x:hidden !important;
+  overflow-y:hidden !important;
+  align-content:stretch !important;
+}
+.dashboard-topline .dashboard-upcoming-row {
+  min-height:54px !important;
+  padding:9px 9px !important;
+  gap:5px !important;
+}
+.dashboard-topline .dashboard-upcoming-time {min-height:16px !important}
+.dashboard-topline .dashboard-upcoming-info {gap:3px !important}
+.dashboard-topline .dashboard-upcoming-list:has(> .dashboard-upcoming-row:nth-child(4)) {
+  overflow-y:auto !important;
+  overscroll-behavior:contain;
+  scrollbar-width:thin;
+}
+.dashboard-topline .dashboard-upcoming-list:not(:has(> .dashboard-upcoming-row:nth-child(4))) {
+  overflow-y:hidden !important;
+}
+@media(max-width:760px) {
+  .dashboard-topline .dashboard-upcoming-list {
+    grid-template-columns:repeat(2,minmax(0,1fr)) !important;
+    grid-template-rows:repeat(2,minmax(54px,1fr)) !important;
+    grid-auto-rows:minmax(54px,1fr) !important;
+  }
+}
