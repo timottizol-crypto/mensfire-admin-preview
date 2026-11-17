@@ -7077,80 +7077,83 @@ html:not(.light-theme) table tbody tr {
 
 
 /* =========================================================
-   MENSFIRE GLASS SYSTEM V2 — all admin workspaces and cards
-   Broad surface coverage for static and dynamically rendered UI.
+   MENSFIRE GLASS SYSTEM V3
+   Style only real, already-existing card surfaces.
+   Never turn workspace/layout wrappers or every row/item into cards.
    ========================================================= */
 :root {
-  --mf-glass-surface-dark:linear-gradient(145deg,rgba(255,255,255,.085),rgba(255,255,255,.028));
-  --mf-glass-surface-light:linear-gradient(145deg,rgba(255,255,255,.91),rgba(238,243,249,.72));
-  --mf-glass-edge-dark:rgba(255,255,255,.13);
-  --mf-glass-edge-light:rgba(55,70,90,.14);
-  --mf-glass-depth-dark:0 16px 42px rgba(0,0,0,.22),inset 0 1px 0 rgba(255,255,255,.09),inset 0 -1px 0 rgba(0,0,0,.12);
-  --mf-glass-depth-light:0 14px 34px rgba(28,42,60,.085),inset 0 1px 0 rgba(255,255,255,.96);
+  --mf-glass-surface-dark:linear-gradient(145deg,rgba(255,255,255,.075),rgba(255,255,255,.025));
+  --mf-glass-surface-light:linear-gradient(145deg,rgba(255,255,255,.90),rgba(238,243,249,.70));
+  --mf-glass-edge-dark:rgba(255,255,255,.16);
+  --mf-glass-edge-light:rgba(55,70,90,.16);
+  --mf-glass-depth-dark:0 16px 42px rgba(0,0,0,.24),inset 0 1px 0 rgba(255,255,255,.10);
+  --mf-glass-depth-light:0 14px 34px rgba(28,42,60,.09),inset 0 1px 0 rgba(255,255,255,.96);
 }
+/* Dark theme: explicit card components only. */
 html:not(.light-theme) :is(
-  [class*="-card"]:not([class*="-card-"]),[class*="-panel"],[class*="-workspace"],[class*="-kpi"],
-  [class*="-summary"],[class*="-overview"],[class*="-widget"],[class*="-tile"],
-  [class*="-chart-card"],[class*="-table-wrap"],[class*="-list-card"],
+  .glass-card,.finance-panel,.finance-kpi-card,.dashboard-panel,.dashboard-kpi-card,
+  .clients-chart-card,.inventory-product-card,.profile-main-card,.team-card,.login-card,
   .booking-history-section,.booking-payment-panel,.client-followup-section,
-  .client-retail-summary,.client-retail-item,.crm-task-employee-summary-row,
-  .supplier-summary-totals>div,.clients-period-summary>div,
-  .inventory-movement-row,.work-schedule-day,.available-slots-panel,
-  .booking-client-match,.booking-client-lookup-new,.waitlist-row,
-  .waitlist-suggestion-row,.service-group,.profile-overview-card,
-  .schedule-overview-card,.team-overview-card,.service-overview-card
+  .client-retail-summary,.work-schedule-day,.available-slots-panel,.service-group,
+  .profile-overview-card,.schedule-overview-card,.team-overview-card,.service-overview-card,
+  .finance-date-navigation,.finance-period-heading,.finance-range-toolbar
 ) {
   background:var(--mf-glass-surface-dark) !important;
-  border-color:var(--mf-glass-edge-dark) !important;
+  border:1px solid var(--mf-glass-edge-dark) !important;
+  border-radius:22px !important;
   box-shadow:var(--mf-glass-depth-dark) !important;
-  -webkit-backdrop-filter:blur(24px) saturate(155%) !important;
-  backdrop-filter:blur(24px) saturate(155%) !important;
+  -webkit-backdrop-filter:blur(22px) saturate(150%) !important;
+  backdrop-filter:blur(22px) saturate(150%) !important;
+  color:var(--text-main);
 }
+/* Light theme: same surfaces, with readable contrast. */
 html.light-theme :is(
-  [class*="-card"]:not([class*="-card-"]),[class*="-panel"],[class*="-workspace"],[class*="-kpi"],
-  [class*="-summary"],[class*="-overview"],[class*="-widget"],[class*="-tile"],
-  [class*="-chart-card"],[class*="-table-wrap"],[class*="-list-card"],
+  .glass-card,.finance-panel,.finance-kpi-card,.dashboard-panel,.dashboard-kpi-card,
+  .clients-chart-card,.inventory-product-card,.profile-main-card,.team-card,.login-card,
   .booking-history-section,.booking-payment-panel,.client-followup-section,
-  .client-retail-summary,.client-retail-item,.crm-task-employee-summary-row,
-  .supplier-summary-totals>div,.clients-period-summary>div,
-  .inventory-movement-row,.work-schedule-day,.available-slots-panel,
-  .booking-client-match,.booking-client-lookup-new,.waitlist-row,
-  .waitlist-suggestion-row,.service-group,.profile-overview-card,
-  .schedule-overview-card,.team-overview-card,.service-overview-card
+  .client-retail-summary,.work-schedule-day,.available-slots-panel,.service-group,
+  .profile-overview-card,.schedule-overview-card,.team-overview-card,.service-overview-card,
+  .finance-date-navigation,.finance-period-heading,.finance-range-toolbar
 ) {
   background:var(--mf-glass-surface-light) !important;
-  border-color:var(--mf-glass-edge-light) !important;
+  border:1px solid var(--mf-glass-edge-light) !important;
+  border-radius:22px !important;
   box-shadow:var(--mf-glass-depth-light) !important;
-  -webkit-backdrop-filter:blur(24px) saturate(150%) !important;
-  backdrop-filter:blur(24px) saturate(150%) !important;
+  -webkit-backdrop-filter:blur(20px) saturate(145%) !important;
+  backdrop-filter:blur(20px) saturate(145%) !important;
+  color:var(--text-main);
 }
-/* Nested compact surfaces receive a lighter glass layer, not opaque fills. */
+/* Keep supporting copy legible without flattening gold/status accents. */
 html:not(.light-theme) :is(
-  [class*="-row"],[class*="-item"],[class*="-metric"],[class*="-stat"]
-):not(.nav-item):not(.booking-card-client):not(.booking-card-service) {
-  background-color:rgba(255,255,255,.035);
-  border-color:rgba(255,255,255,.085);
-  -webkit-backdrop-filter:blur(14px) saturate(135%);
-  backdrop-filter:blur(14px) saturate(135%);
+  .glass-card,.finance-panel,.finance-kpi-card,.dashboard-panel,.dashboard-kpi-card,
+  .clients-chart-card,.inventory-product-card,.profile-main-card,.team-card,
+  .booking-history-section,.booking-payment-panel,.client-followup-section,
+  .client-retail-summary,.work-schedule-day,.available-slots-panel,.service-group,
+  .profile-overview-card,.schedule-overview-card,.team-overview-card,.service-overview-card
+) :is(p,small,.muted,.description,.subtitle,.hint) {
+  color:rgba(245,245,245,.76);
 }
 html.light-theme :is(
-  [class*="-row"],[class*="-item"],[class*="-metric"],[class*="-stat"]
-):not(.nav-item):not(.booking-card-client):not(.booking-card-service) {
-  background-color:rgba(255,255,255,.58);
-  border-color:rgba(55,70,90,.10);
-  -webkit-backdrop-filter:blur(14px) saturate(135%);
-  backdrop-filter:blur(14px) saturate(135%);
+  .glass-card,.finance-panel,.finance-kpi-card,.dashboard-panel,.dashboard-kpi-card,
+  .clients-chart-card,.inventory-product-card,.profile-main-card,.team-card,
+  .booking-history-section,.booking-payment-panel,.client-followup-section,
+  .client-retail-summary,.work-schedule-day,.available-slots-panel,.service-group,
+  .profile-overview-card,.schedule-overview-card,.team-overview-card,.service-overview-card
+) :is(p,small,.muted,.description,.subtitle,.hint) {
+  color:rgba(18,18,18,.68);
 }
-html:not(.light-theme) :is(button,.checkout-btn,.home-cta-btn,.action-modal-btn,.nav-item,.status-badge,.badge),
-html.light-theme :is(button,.checkout-btn,.home-cta-btn,.action-modal-btn,.nav-item,.status-badge,.badge) {
-  -webkit-backdrop-filter:blur(10px) saturate(125%);
-  backdrop-filter:blur(10px) saturate(125%);
-}
+/* Compact controls stay controls; they do not become extra glass cards. */
 html:not(.light-theme) :is(input,textarea,select) {
-  background-color:rgba(255,255,255,.055) !important;
-  border-color:rgba(255,255,255,.14) !important;
+  background-color:rgba(255,255,255,.055);
+  border-color:rgba(255,255,255,.16);
 }
 html.light-theme :is(input,textarea,select) {
-  background-color:rgba(255,255,255,.76) !important;
-  border-color:rgba(55,70,90,.16) !important;
+  background-color:rgba(255,255,255,.78);
+  border-color:rgba(55,70,90,.18);
+}
+@media (prefers-reduced-motion:no-preference) {
+  :is(.glass-card,.finance-panel,.finance-kpi-card,.dashboard-panel,.dashboard-kpi-card,
+  .clients-chart-card,.inventory-product-card,.profile-main-card,.team-card) {
+    transition:background .24s ease,border-color .24s ease,box-shadow .24s ease,backdrop-filter .24s ease;
+  }
 }
