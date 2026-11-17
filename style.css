@@ -8159,3 +8159,22 @@ html.light-theme .dashboard-topline .dashboard-upcoming-row {
     max-height:176px !important;
   }
 }
+
+
+/* Compact each upcoming booking card by approximately 1.7x; keep panel size unchanged. */
+.dashboard-topline .dashboard-upcoming-list {
+  grid-template-rows:repeat(2,minmax(78px,1fr)) !important;
+  grid-auto-rows:minmax(78px,1fr) !important;
+}
+.dashboard-topline .dashboard-upcoming-row {
+  gap:4px !important;
+  padding:7px 8px !important;
+}
+.dashboard-topline .dashboard-upcoming-time {min-height:14px !important}
+.dashboard-topline .dashboard-upcoming-info {gap:2px !important}
+@media(max-width:760px) {
+  .dashboard-topline .dashboard-upcoming-list {
+    grid-template-rows:repeat(2,minmax(78px,1fr)) !important;
+    grid-auto-rows:minmax(78px,1fr) !important;
+  }
+}
