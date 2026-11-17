@@ -8144,3 +8144,18 @@ html.light-theme .dashboard-topline .dashboard-upcoming-row {
     grid-auto-rows:minmax(124px,1fr) !important;
   }
 }
+
+
+/* Restore the original upcoming panel dimensions while keeping taller booking cards. */
+.dashboard-topline .dashboard-upcoming-panel {
+  height:190px !important;
+  min-height:190px !important;
+  max-height:190px !important;
+}
+@media(max-width:760px) {
+  .dashboard-topline .dashboard-upcoming-panel {
+    height:176px !important;
+    min-height:176px !important;
+    max-height:176px !important;
+  }
+}
