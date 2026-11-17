@@ -7719,13 +7719,18 @@ html.light-theme :is(input,textarea,select) {
   align-items:stretch;
 }
 .dashboard-topline .dashboard-upcoming-panel{
+  box-sizing:border-box;
+  align-self:stretch;
   height:190px;
   min-height:190px;
   max-height:190px;
 }
 .dashboard-period-controls .finance-range-toolbar{
+  box-sizing:border-box;
+  align-self:stretch;
   height:190px;
   min-height:190px;
+  max-height:190px;
 }
 .dashboard-period-controls{
   align-self:stretch;
@@ -7738,13 +7743,16 @@ html.light-theme :is(input,textarea,select) {
 }
 @media(max-width:760px){
   .dashboard-topline .dashboard-upcoming-panel{
+    box-sizing:border-box;
     height:176px;
     min-height:176px;
     max-height:176px;
   }
   .dashboard-period-controls .finance-range-toolbar{
+    box-sizing:border-box;
     height:176px;
     min-height:176px;
+    max-height:176px;
   }
 }
 
