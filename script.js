@@ -3281,8 +3281,12 @@ function renderFinance() {
         const totalRaw=Number(sale?.total),total=Number.isFinite(totalRaw)?Math.max(0,totalRaw):0;
         const refunds=Array.isArray(sale?.refunds)?sale.refunds:[];
         const recordedRefunds=refunds.reduce((sum,refund)=>{const amount=Number(refund?.paidAmount);return sum+(Number.isFinite(amount)?Math.max(0,amount):0);},0);
+        const hasCurrentPaid=Object.prototype.hasOwnProperty.call(sale||{},'paidAmount');
         const currentPaid=Number(sale?.paidAmount);
-        const grossRaw=sale?.grossPaidAmount!=null?Number(sale.grossPaidAmount):(Number.isFinite(currentPaid)?Math.max(0,currentPaid):0)+recordedRefunds;
+        const legacyCurrentPaid=hasCurrentPaid
+            ? (Number.isFinite(currentPaid)?Math.max(0,currentPaid):0)
+            : (sale?.paymentStatus==='paid'?Math.max(0,total-recordedRefunds):0);
+        const grossRaw=sale?.grossPaidAmount!=null?Number(sale.grossPaidAmount):legacyCurrentPaid+recordedRefunds;
         const originalPaid=Number.isFinite(grossRaw)?Math.min(total,Math.max(0,grossRaw)):0;
         let refundable=originalPaid;
         const refundRows=refunds.map(refund=>{
