@@ -8178,3 +8178,29 @@ html.light-theme .dashboard-topline .dashboard-upcoming-row {
     grid-auto-rows:minmax(78px,1fr) !important;
   }
 }
+
+
+/* Upcoming list: keep two visible rows without creating overflow for short lists. */
+.dashboard-topline .dashboard-upcoming-list {
+  grid-template-rows:repeat(2,minmax(0,1fr)) !important;
+  grid-auto-rows:minmax(78px,auto) !important;
+  overflow-y:auto !important;
+  overflow-x:hidden !important;
+  scrollbar-width:thin;
+  overscroll-behavior:contain;
+}
+.dashboard-topline .dashboard-upcoming-list:empty,
+.dashboard-topline .dashboard-upcoming-list:has(> .finance-empty),
+.dashboard-topline .dashboard-upcoming-list:not(:has(> .dashboard-upcoming-row:nth-child(7))) {
+  overflow-y:hidden !important;
+}
+@media(max-width:760px) {
+  .dashboard-topline .dashboard-upcoming-list:not(:has(> .dashboard-upcoming-row:nth-child(5))) {
+    overflow-y:hidden !important;
+  }
+}
+
+/* KPI tiles join the dashboard entrance animation; other blocks keep their existing motion. */
+#appContainer.animate-in .dashboard-kpi-card {
+  animation:slideUpEntrance 0.7s cubic-bezier(0.25,1,0.5,1) 0.1s backwards;
+}
