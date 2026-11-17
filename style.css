@@ -6861,3 +6861,29 @@ html.light-theme .booking-client-match{background:#fbf8ef}
     transform:translateX(0) !important;
   }
 }
+
+
+/* Prevent legacy :hover rules from bypassing the JS expansion delay */
+@media (min-width:768px) {
+  #appContainer:has(#bottomNav:hover:not(.sidebar-expanded)) {
+    --mensfire-sidebar:64px !important;
+    --mensfire-content-left:100px !important;
+  }
+  #bottomNav.bottom-nav:hover:not(.sidebar-expanded) {
+    width:64px !important;
+    min-width:64px !important;
+    max-width:64px !important;
+    overflow:hidden !important;
+  }
+  #appContainer:has(#bottomNav:hover:not(.sidebar-expanded)) #bottomNav .nav-item {
+    justify-content:center !important;
+    gap:0 !important;
+    padding-left:0 !important;
+    padding-right:0 !important;
+  }
+  #appContainer:has(#bottomNav:hover:not(.sidebar-expanded)) #bottomNav .nav-item-label {
+    max-width:0 !important;
+    opacity:0 !important;
+    transform:translateX(-5px) !important;
+  }
+}
