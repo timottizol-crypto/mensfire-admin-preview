@@ -10124,11 +10124,15 @@ html.light-theme .toast {
         width: min(100%, 42px) !important;
     }
     #viewFinance #expensesList {
+        height: 330px;
+        min-height: 330px;
         max-height: 330px;
+        box-sizing: border-box;
         overflow-y: auto;
         overscroll-behavior: contain;
         scrollbar-width: thin;
         padding-right: 5px;
+        flex: 0 0 330px;
     }
 }
 
