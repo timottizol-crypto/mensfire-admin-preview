@@ -8246,15 +8246,17 @@ html.light-theme .dashboard-topline .dashboard-upcoming-row {
 }
 
 
-/* Dashboard entrance: reveal the page heading, period presets and date field from below on entry. */
-#viewDashboard.dashboard-entering .dashboard-heading > div {
-    animation: slideUpEntrance .72s cubic-bezier(.25,1,.5,1) .02s both;
-}
-#viewDashboard.dashboard-entering .dashboard-period-controls .finance-range-presets {
-    animation: slideUpEntrance .72s cubic-bezier(.25,1,.5,1) .16s both;
-}
-#viewDashboard.dashboard-entering .dashboard-period-controls .finance-range-fields {
-    animation: slideUpEntrance .72s cubic-bezier(.25,1,.5,1) .30s both;
+/* Dashboard entrance is intentionally limited to desktop layouts. */
+@media (min-width: 768px) {
+    #viewDashboard.dashboard-entering .dashboard-heading > div {
+        animation: slideUpEntrance .72s cubic-bezier(.25,1,.5,1) .02s both;
+    }
+    #viewDashboard.dashboard-entering .dashboard-period-controls .finance-range-presets {
+        animation: slideUpEntrance .72s cubic-bezier(.25,1,.5,1) .16s both;
+    }
+    #viewDashboard.dashboard-entering .dashboard-period-controls .finance-range-fields {
+        animation: slideUpEntrance .72s cubic-bezier(.25,1,.5,1) .30s both;
+    }
 }
 
 /* Schedule: keep the overview available inside the calendar, not above it. */
@@ -9006,26 +9008,28 @@ html.light-theme .toast {
     box-shadow: 0 12px 32px rgba(35,48,68,.14) !important;
 }
 
-/* Make first-time customer status visible beside the name in schedule cells. */
-.booking-new-client-inline {
-    display: inline-flex !important;
-    align-items: center;
-    vertical-align: middle;
-    margin-left: 5px;
-    padding: 2px 5px;
-    border: 1px solid rgba(67,176,119,.48);
-    border-radius: 5px;
-    background: rgba(67,176,119,.18);
-    color: #8ee0ae;
-    font-size: 8px;
-    font-style: normal;
-    font-weight: 900;
-    line-height: 1.2;
-    letter-spacing: .04em;
-    white-space: nowrap;
-}
-html.light-theme .booking-new-client-inline {
-    border-color: #9bcfae;
-    background: #e1f4e7;
-    color: #17623c;
+/* Inline new-client marker is used only in the desktop schedule. */
+@media (min-width: 768px) {
+    .booking-new-client-inline {
+        display: inline-flex !important;
+        align-items: center;
+        vertical-align: middle;
+        margin-left: 5px;
+        padding: 2px 5px;
+        border: 1px solid rgba(67,176,119,.48);
+        border-radius: 5px;
+        background: rgba(67,176,119,.18);
+        color: #8ee0ae;
+        font-size: 8px;
+        font-style: normal;
+        font-weight: 900;
+        line-height: 1.2;
+        letter-spacing: .04em;
+        white-space: nowrap;
+    }
+    html.light-theme .booking-new-client-inline {
+        border-color: #9bcfae;
+        background: #e1f4e7;
+        color: #17623c;
+    }
 }
