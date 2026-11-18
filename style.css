@@ -9206,21 +9206,40 @@ html.light-theme .toast {
 }
 
 
-/* Client profile — desktop form alignment and readable notes */
+/* Client profile — desktop spacing, centered tag and readable notes */
 @media (min-width: 768px) {
-  #clientDetailsModal #clientDetailsTag {
+  #clientDetailsModal > .modal-content {
+    gap: 14px !important;
+  }
+  #clientDetailsModal > .modal-content > .form-group,
+  #clientDetailsModal > .modal-content > #clientDetailsMetrics,
+  #clientDetailsModal > .modal-content > section {
+    margin-top: 0 !important;
+    margin-bottom: 0 !important;
+  }
+  #clientDetailsModal #clientDetailsTag,
+  #clientDetailsModal select#clientDetailsTag {
     text-align: center !important;
     text-align-last: center !important;
+    padding-left: 36px !important;
+    padding-right: 36px !important;
   }
-  #clientDetailsModal #clientDetailsNotes {
+  #clientDetailsModal #clientDetailsTag option {
+    text-align: center !important;
+  }
+  #clientDetailsModal textarea#clientDetailsNotes,
+  #clientDetailsModal .form-group textarea#clientDetailsNotes {
     color: #fff !important;
     -webkit-text-fill-color: #fff !important;
     caret-color: #fff !important;
     background: rgba(24,27,33,.94) !important;
     border-color: var(--border-color,rgba(255,255,255,.18)) !important;
+    color-scheme: dark;
   }
-  #clientDetailsModal #clientDetailsNotes::placeholder {
-    color: rgba(255,255,255,.48) !important;
-    -webkit-text-fill-color: rgba(255,255,255,.48) !important;
+  #clientDetailsModal textarea#clientDetailsNotes::placeholder {
+    color: rgba(255,255,255,.58) !important;
+    -webkit-text-fill-color: rgba(255,255,255,.58) !important;
+    text-align: center !important;
+    opacity: 1 !important;
   }
 }
