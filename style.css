@@ -9204,3 +9204,23 @@ html.light-theme .toast {
     border-color: var(--border-color,rgba(128,128,128,.16));
   }
 }
+
+
+/* Client profile — desktop form alignment and readable notes */
+@media (min-width: 768px) {
+  #clientDetailsModal #clientDetailsTag {
+    text-align: center !important;
+    text-align-last: center !important;
+  }
+  #clientDetailsModal #clientDetailsNotes {
+    color: #fff !important;
+    -webkit-text-fill-color: #fff !important;
+    caret-color: #fff !important;
+    background: rgba(24,27,33,.94) !important;
+    border-color: var(--border-color,rgba(255,255,255,.18)) !important;
+  }
+  #clientDetailsModal #clientDetailsNotes::placeholder {
+    color: rgba(255,255,255,.48) !important;
+    -webkit-text-fill-color: rgba(255,255,255,.48) !important;
+  }
+}
