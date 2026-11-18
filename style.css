@@ -8678,3 +8678,330 @@ html.light-theme .dashboard-topline .dashboard-upcoming-row {
         color: #9aa3b2 !important;
     }
 }
+
+
+/* =========================================================
+   MENSFIRE — COMPLETE LIGHT THEME
+   Visual-only overrides: preserve all existing layout and sizing.
+   ========================================================= */
+html.light-theme {
+    color-scheme: light;
+    --bg-dark: #f3f5f8;
+    --bg-card: #ffffff;
+    --text-main: #202938;
+    --text-muted: #687487;
+    --gold: #8b6816;
+    --gold-hover: #73530e;
+    --glass-surface: rgba(255,255,255,.78);
+    --glass-surface-strong: rgba(255,255,255,.94);
+    --glass-border: rgba(54,68,88,.13);
+    --glass-highlight: rgba(255,255,255,.88);
+    --glass-shadow: 0 12px 34px rgba(35,48,68,.075), inset 0 1px 0 rgba(255,255,255,.92);
+    --mf-glass-bg: linear-gradient(145deg,rgba(255,255,255,.94),rgba(246,248,251,.86));
+    --mf-glass-bg-soft: rgba(255,255,255,.72);
+    --mf-glass-border: rgba(54,68,88,.13);
+    --mf-glass-highlight: rgba(255,255,255,.9);
+    --mf-glass-shadow: 0 12px 34px rgba(35,48,68,.075),inset 0 1px 0 rgba(255,255,255,.92);
+}
+
+html.light-theme body {
+    color: var(--text-main) !important;
+    background:
+        radial-gradient(ellipse at 12% 0%, rgba(212,175,55,.075), transparent 34%),
+        radial-gradient(ellipse at 92% 18%, rgba(148,163,184,.10), transparent 32%),
+        linear-gradient(155deg,#f8f9fb 0%,#f0f3f7 54%,#f7f8fa 100%) !important;
+}
+
+html.light-theme #appContainer,
+html.light-theme .view {
+    color: var(--text-main);
+    background: transparent !important;
+}
+
+html.light-theme .glass-card,
+html.light-theme .login-card,
+html.light-theme .team-member-card,
+html.light-theme .finance-panel,
+html.light-theme .finance-kpi-card,
+html.light-theme .dashboard-panel,
+html.light-theme .dashboard-kpi-card,
+html.light-theme .clients-chart-card,
+html.light-theme .team-trend-panel,
+html.light-theme .schedule-main-card,
+html.light-theme .clients-workspace,
+html.light-theme .profile-main-card,
+html.light-theme .profile-backup-card,
+html.light-theme #barberRevenueCard,
+html.light-theme .supplier-panel,
+html.light-theme .supplier-summary-panel,
+html.light-theme .supplier-integrity-check,
+html.light-theme .inventory-kpi,
+html.light-theme .inventory-product-card,
+html.light-theme .inventory-catalog-panel,
+html.light-theme .inventory-history-panel,
+html.light-theme .inventory-analytics-panel,
+html.light-theme .purchase-orders-panel,
+html.light-theme .suppliers-panel,
+html.light-theme .supplier-journal-panel,
+html.light-theme .retail-check-panel,
+html.light-theme .retail-history-panel,
+html.light-theme .schedule-waitlist,
+html.light-theme .waitlist-row,
+html.light-theme .client-retail-section,
+html.light-theme .client-retail-sale,
+html.light-theme .team-overview-card,
+html.light-theme .client-overview-card,
+html.light-theme .schedule-overview-card,
+html.light-theme .service-overview-card,
+html.light-theme .profile-overview-card,
+html.light-theme .service-card,
+html.light-theme .clients-list-premium .client-card,
+html.light-theme .team-list-premium .team-member-card,
+html.light-theme .dashboard-kpi-card,
+html.light-theme .dashboard-panel,
+html.light-theme .booking-payment-panel,
+html.light-theme .booking-payment-history,
+html.light-theme .client-loyalty-card,
+html.light-theme .client-retail-item,
+html.light-theme .inventory-movement-row,
+html.light-theme .purchase-order-card,
+html.light-theme .supplier-summary-totals > div {
+    color: var(--text-main);
+    background: var(--mf-glass-bg) !important;
+    border-color: var(--mf-glass-border) !important;
+    box-shadow: var(--mf-glass-shadow) !important;
+    -webkit-backdrop-filter: blur(18px) saturate(145%);
+    backdrop-filter: blur(18px) saturate(145%);
+}
+
+html.light-theme .header-pill,
+html.light-theme .app-header,
+html.light-theme #bottomNav.bottom-nav {
+    color: var(--text-main);
+    background: rgba(255,255,255,.82) !important;
+    border-color: rgba(54,68,88,.13) !important;
+    box-shadow: 0 12px 34px rgba(35,48,68,.09), inset 0 1px 0 rgba(255,255,255,.95) !important;
+    -webkit-backdrop-filter: blur(24px) saturate(160%);
+    backdrop-filter: blur(24px) saturate(160%);
+}
+
+html.light-theme #bottomNav .nav-item,
+html.light-theme #bottomNav .nav-item-label,
+html.light-theme .header-title,
+html.light-theme .workspace-heading h2,
+html.light-theme .finance-page-heading h2,
+html.light-theme .finance-period-heading strong,
+html.light-theme .finance-panel-heading h3,
+html.light-theme .dashboard-panel h3,
+html.light-theme .booking-detail-client,
+html.light-theme .profile-main-card h2,
+html.light-theme .profile-main-card h3 {
+    color: var(--text-main);
+}
+
+html.light-theme .nav-item.active,
+html.light-theme .header-title,
+html.light-theme .workspace-eyebrow,
+html.light-theme .finance-eyebrow {
+    color: var(--gold) !important;
+}
+
+html.light-theme .modal {
+    background: rgba(35,45,60,.28) !important;
+}
+
+html.light-theme .modal-content,
+html.light-theme .modal-dialog,
+html.light-theme .modal-card {
+    color: var(--text-main) !important;
+    background: linear-gradient(145deg,rgba(255,255,255,.98),rgba(244,247,250,.97)) !important;
+    border: 1px solid rgba(54,68,88,.15) !important;
+    box-shadow: 0 28px 80px rgba(35,48,68,.2), inset 0 1px 0 rgba(255,255,255,.95) !important;
+    -webkit-backdrop-filter: blur(26px) saturate(150%);
+    backdrop-filter: blur(26px) saturate(150%);
+}
+
+html.light-theme input:not([type="checkbox"]):not([type="radio"]):not([type="range"]):not([type="hidden"]),
+html.light-theme textarea,
+html.light-theme select:not(.visually-hidden-select) {
+    color: #263244 !important;
+    background: rgba(255,255,255,.88) !important;
+    border-color: #d7dee8 !important;
+    box-shadow: inset 0 1px 2px rgba(35,48,68,.035) !important;
+}
+
+html.light-theme input::placeholder,
+html.light-theme textarea::placeholder {
+    color: #8993a2 !important;
+    opacity: 1;
+}
+
+html.light-theme input:focus,
+html.light-theme textarea:focus,
+html.light-theme select:focus {
+    border-color: rgba(168,128,35,.58) !important;
+    background: #ffffff !important;
+    box-shadow: 0 0 0 3px rgba(190,151,57,.12) !important;
+    outline: none;
+}
+
+html.light-theme .tab-btn,
+html.light-theme .client-segment-btn,
+html.light-theme .finance-range-presets,
+html.light-theme .finance-range-btn,
+html.light-theme .schedule-barber-filter button,
+html.light-theme .schedule-barber-filter-mobile button,
+html.light-theme .inventory-sync-btn,
+html.light-theme .calendar-date-arrow,
+html.light-theme .calendar-today-btn,
+html.light-theme .desktop-calendar-tabs > button {
+    color: #536174;
+    background: rgba(255,255,255,.78);
+    border-color: #d9e0e9;
+    box-shadow: 0 1px 3px rgba(35,48,68,.045);
+}
+
+html.light-theme .tab-btn.active,
+html.light-theme .client-segment-btn.active,
+html.light-theme .finance-range-btn.active,
+html.light-theme .schedule-barber-filter button.active,
+html.light-theme .schedule-barber-filter-mobile button.active,
+html.light-theme .desktop-calendar-tabs > button.active {
+    color: #70520e !important;
+    background: linear-gradient(135deg,#fff5d9,#f7e9bd) !important;
+    border-color: #dfc477 !important;
+    box-shadow: inset 0 1px 0 rgba(255,255,255,.9), 0 3px 10px rgba(120,91,24,.07) !important;
+}
+
+html.light-theme .home-cta-btn,
+html.light-theme .action-btn-primary,
+html.light-theme .checkout-btn,
+html.light-theme .login-btn {
+    color: #30240a !important;
+    background: linear-gradient(135deg,#e6c66f,#c49a3d) !important;
+    border-color: rgba(157,117,27,.34) !important;
+    box-shadow: 0 7px 20px rgba(151,115,36,.16), inset 0 1px 0 rgba(255,255,255,.48) !important;
+}
+
+html.light-theme .btn-cancel {
+    color: #586477 !important;
+    border-color: #d4dbe5 !important;
+    background: rgba(255,255,255,.65) !important;
+}
+
+html.light-theme .logout-btn {
+    color: #b33b3b !important;
+    border-color: rgba(179,59,59,.32) !important;
+    background: rgba(255,255,255,.55) !important;
+}
+
+html.light-theme .dashboard-bar-track,
+html.light-theme .clients-monthly-strip,
+html.light-theme .finance-period-metrics > div,
+html.light-theme .supplier-integrity-check,
+html.light-theme .work-schedule-day,
+html.light-theme .available-slots-panel,
+html.light-theme .booking-client-lookup-new,
+html.light-theme .booking-client-match,
+html.light-theme .client-retail-item,
+html.light-theme .inventory-movement-row,
+html.light-theme .waitlist-form,
+html.light-theme .waitlist-row,
+html.light-theme .block-mode-choice {
+    color: var(--text-main);
+    background: rgba(246,248,251,.88) !important;
+    border-color: #e0e5ec !important;
+    box-shadow: inset 0 1px 0 rgba(255,255,255,.9);
+}
+
+html.light-theme .dashboard-team-row,
+html.light-theme .dashboard-upcoming-row,
+html.light-theme .purchase-order-card,
+html.light-theme .booking-payment-history,
+html.light-theme .client-loyalty-history-title,
+html.light-theme .client-loyalty-row,
+html.light-theme .finance-operation,
+html.light-theme .finance-team-row,
+html.light-theme .finance-service-row {
+    border-color: rgba(54,68,88,.12) !important;
+}
+
+html.light-theme .dashboard-bar-col strong,
+html.light-theme .finance-total-row,
+html.light-theme .booking-payment-transaction strong,
+html.light-theme .booking-detail-row strong,
+html.light-theme .purchase-order-top h3,
+html.light-theme .purchase-order-top > strong {
+    color: #263244 !important;
+}
+
+html.light-theme .dashboard-bar-col span,
+html.light-theme .dashboard-team-row small,
+html.light-theme .dashboard-upcoming-time small,
+html.light-theme .dashboard-upcoming-info small,
+html.light-theme .finance-muted,
+html.light-theme .finance-panel-heading p,
+html.light-theme .finance-page-heading p,
+html.light-theme .finance-period-heading span,
+html.light-theme .work-schedule-hint,
+html.light-theme .booking-payment-meta,
+html.light-theme .booking-payment-transaction,
+html.light-theme .purchase-order-top small,
+html.light-theme .purchase-order-lines small {
+    color: #687487 !important;
+}
+
+html.light-theme .date-selector-item {
+    color: #465368 !important;
+    background: rgba(255,255,255,.88) !important;
+    border-color: #dce2ea !important;
+}
+
+html.light-theme .date-selector-item.selected {
+    color: #fff !important;
+    background: linear-gradient(145deg,#a98227,#806018) !important;
+    border-color: #806018 !important;
+}
+
+html.light-theme .date-selector-item.selected * {
+    color: #fff !important;
+}
+
+html.light-theme .custom-date-input,
+html.light-theme .finance-range-date {
+    color: #344052 !important;
+    background: #fff9e9 !important;
+    border-color: #e2ce91 !important;
+}
+
+html.light-theme .booking-barber-choice,
+html.light-theme .available-slot {
+    color: #344052 !important;
+    background: rgba(255,255,255,.9) !important;
+    border-color: #dce2ea !important;
+}
+
+html.light-theme .booking-barber-choice.is-selected,
+html.light-theme .available-slot.is-selected {
+    color: #70520e !important;
+    background: #fff4d4 !important;
+    border-color: #dfc477 !important;
+}
+
+html.light-theme .booking-payment-panel,
+html.light-theme .booking-payment-history {
+    background: rgba(248,249,251,.9) !important;
+    border-color: #e0e5ec !important;
+}
+
+html.light-theme .desktop-slot-hitbox:hover:after {
+    background: #fff !important;
+    color: #70520e !important;
+}
+
+html.light-theme .toast {
+    color: var(--text-main) !important;
+    background: rgba(255,255,255,.96) !important;
+    border-color: #dce2ea !important;
+    box-shadow: 0 12px 32px rgba(35,48,68,.14) !important;
+}
