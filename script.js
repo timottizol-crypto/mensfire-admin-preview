@@ -538,51 +538,86 @@ function showConfirm(title, text, yesText, callback) {
 }
 
 
+const MENSFIRE_DESKTOP_DRAWER_IDS = [
+    'actionModal',
+    'newBookingModal',
+    'blockTimeModal',
+    'blockActionModal',
+    'clientDetailsModal',
+    'barberStatsModal'
+];
+
+function syncDesktopDrawerStack() {
+    const activeDrawers = Array.from(document.querySelectorAll('.modal.drawer-modal.active'))
+        .filter(modal => MENSFIRE_DESKTOP_DRAWER_IDS.includes(modal.id));
+
+    activeDrawers.forEach(modal => modal.classList.remove('drawer-stack-single', 'drawer-stack-top', 'drawer-stack-bottom'));
+
+    if (activeDrawers.length === 1) {
+        activeDrawers[0].classList.add('drawer-stack-single');
+    } else if (activeDrawers.length >= 2) {
+        activeDrawers[0].classList.add('drawer-stack-bottom');
+        activeDrawers[activeDrawers.length - 1].classList.add('drawer-stack-top');
+    }
+
+    const hasDrawers = activeDrawers.length > 0;
+    document.body.classList.toggle('mensfire-drawer-open', hasDrawers);
+
+    const schedule = document.getElementById('viewSchedule');
+    if (schedule) schedule.classList.toggle('drawer-space', hasDrawers);
+
+    if (hasDrawers) document.body.style.overflow = '';
+}
+
 function openModal(id) {
     const modal = document.getElementById(id);
     if (!modal) return;
 
-    const drawerIds = [
-        'actionModal',
-        'newBookingModal',
-        'blockTimeModal',
-        'blockActionModal',
-        'clientDetailsModal',
-        'barberStatsModal'
-    ];
-
     const isDesktopDrawer = window.innerWidth >= 768 &&
-        drawerIds.includes(id);
+        MENSFIRE_DESKTOP_DRAWER_IDS.includes(id);
 
     if (isDesktopDrawer) {
-        modal.classList.add('drawer-modal');
-        document.body.classList.add('mensfire-drawer-open');
+        // Повторное открытие уже видимой панели поднимает её наверх.
+        let stack = Array.from(document.querySelectorAll('.modal.drawer-modal.active'))
+            .filter(item => MENSFIRE_DESKTOP_DRAWER_IDS.includes(item.id));
 
-        const schedule = document.getElementById('viewSchedule');
-        if (schedule) schedule.classList.add('drawer-space');
-    } else {
-        modal.classList.remove('drawer-modal');
+        stack.sort((a, b) =>
+            Number(a.classList.contains('drawer-stack-bottom')) -
+            Number(b.classList.contains('drawer-stack-bottom'))
+        );
+        stack = stack.filter(item => item !== modal);
+
+        // Одновременно показываем не более двух панелей: самая старая закрывается.
+        while (stack.length >= 2) {
+            const oldest = stack.shift();
+            oldest.classList.remove('active', 'drawer-modal', 'drawer-stack-single', 'drawer-stack-top', 'drawer-stack-bottom');
+        }
+
+        modal.classList.add('drawer-modal', 'active');
+        stack.push(modal);
+        syncDesktopDrawerStack();
+        return;
     }
 
+    modal.classList.remove('drawer-modal', 'drawer-stack-single', 'drawer-stack-top', 'drawer-stack-bottom');
     modal.classList.add('active');
-
-    if (!isDesktopDrawer) {
-        document.body.style.overflow = 'hidden';
-    }
+    document.body.style.overflow = 'hidden';
 }
 
 function closeModal(id) {
     const modal = document.getElementById(id);
     if (!modal) return;
 
-    modal.classList.remove('active', 'drawer-modal');
+    modal.classList.remove('active', 'drawer-modal', 'drawer-stack-single', 'drawer-stack-top', 'drawer-stack-bottom');
 
-    document.body.classList.remove('mensfire-drawer-open');
-
-    const schedule = document.getElementById('viewSchedule');
-    if (schedule) schedule.classList.remove('drawer-space');
-
-    document.body.style.overflow = '';
+    if (window.innerWidth >= 768) {
+        syncDesktopDrawerStack();
+    } else {
+        document.body.classList.remove('mensfire-drawer-open');
+        const schedule = document.getElementById('viewSchedule');
+        if (schedule) schedule.classList.remove('drawer-space');
+        document.body.style.overflow = '';
+    }
 }
 
 
@@ -2091,7 +2126,6 @@ function openActionModal(id) {
     const clientBtn = document.getElementById('bookingClientLink');
     if (clientBtn) {
         clientBtn.onclick = () => {
-            closeModal('actionModal');
             showClientDetails(booking.clientName, booking.barberId);
         };
     }
@@ -2184,7 +2218,6 @@ function openEditBooking() {
     document.querySelector('#newBookingModal .checkout-btn').textContent =
         'Сохранить изменения';
 
-    closeModal('actionModal');
     openModal('newBookingModal');
 }
 
@@ -3093,7 +3126,6 @@ function editTimeBlock() {
     document.querySelector('#blockTimeModal h2').innerText = 'Редактирование перерыва';
     document.querySelector('#blockTimeModal .checkout-btn').innerText = 'Сохранить изменения';
 
-    closeModal('blockActionModal');
     openModal('blockTimeModal');
 }
 
@@ -5929,7 +5961,6 @@ function createBookingForClient() {
     const profile = clientProfiles[selectedClientProfileKey] || {};
     const clientName = profile.clientName || document.getElementById('clientDetailsName')?.textContent || '';
     const barberId = String(profile.barberId || currentUser?.id || '');
-    closeModal('clientDetailsModal');
     openNewBookingModal(barberId);
     const input = document.getElementById('newBookingClient');
     if (input) {
