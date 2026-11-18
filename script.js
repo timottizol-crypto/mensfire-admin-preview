@@ -1557,7 +1557,7 @@ function renderDesktopSchedule() {
         const barberBookings = bookings.filter(b => b.date === dateKey && String(b.barberId) === String(barber.id) && b.status !== 'cancelled');
         const barberBlocks = timeBlocks.filter(b => b.date === dateKey && String(b.barberId) === String(barber.id));
         const dayHeading = viewMode === 'week'
-            ? date.toLocaleDateString('ru-RU', { weekday: 'short', day: 'numeric' })
+            ? date.toLocaleDateString('ru-RU', { weekday: 'short', day: 'numeric', month: 'short' })
             : barber.name;
         const subHeading = viewMode === 'week' ? barber.name : (barber.role === 'admin' ? 'Администратор' : 'Барбер');
 
@@ -3608,9 +3608,12 @@ function renderFinance() {
         const state = getBookingPaymentState(item,total);
         const methodKey = ['cash','card','transfer','online','mixed'].includes(state.method) ? state.method : 'other';
         const paymentStatusClass = state.status === 'paid' ? 'is-paid' : state.status === 'partial' ? 'is-partial' : 'is-unpaid';
+        const barber = mockStaff.find(person => String(person.id) === String(item.barberId));
+        const barberName = barber?.name || (item.barberId ? 'Мастер из старых записей' : 'Без мастера');
         return `<div class="finance-operation finance-analytics-operation">
             <div class="finance-operation-copy">
                 <strong>${escapeBookingHtml(item.clientName || 'Клиент')}</strong>
+                <span class="finance-operation-barber">${escapeBookingHtml(barberName)}</span>
                 <span>${escapeBookingHtml(item.time || '')} · <span class="finance-payment-status ${paymentStatusClass}">${state.label}</span></span>
                 <span class="finance-payment-method finance-payment-method--${methodKey}"><i></i>${escapeBookingHtml(state.methodLabel)}</span>
             </div>
