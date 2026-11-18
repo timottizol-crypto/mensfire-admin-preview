@@ -9325,3 +9325,76 @@ html.light-theme .toast {
     background: transparent;
   }
 }
+
+
+/* MENSFIRE — desktop glass styling for booking details */
+@media (min-width: 768px) {
+    html:not(.light-theme) #actionModal .booking-detail-modal {
+        background: linear-gradient(145deg, rgba(34,35,41,.88), rgba(17,18,22,.86)) !important;
+        border: 1px solid var(--glass-border, rgba(255,255,255,.1)) !important;
+        box-shadow: 0 28px 90px rgba(0,0,0,.5), inset 0 1px 0 rgba(255,255,255,.07);
+        -webkit-backdrop-filter: blur(30px) saturate(150%);
+        backdrop-filter: blur(30px) saturate(150%);
+    }
+
+    html:not(.light-theme) #actionModal .booking-detail-main,
+    html:not(.light-theme) #actionModal .booking-detail-services,
+    html:not(.light-theme) #actionModal .booking-payment-panel,
+    html:not(.light-theme) #actionModal .booking-history-section {
+        padding: 14px 15px;
+        margin: 0 0 11px;
+        border: 1px solid rgba(255,255,255,.075);
+        border-radius: 14px;
+        background: linear-gradient(145deg, rgba(255,255,255,.055), rgba(255,255,255,.018));
+        box-shadow: inset 0 1px 0 rgba(255,255,255,.035);
+    }
+
+    html:not(.light-theme) #actionModal .booking-detail-main {
+        padding-top: 15px;
+        padding-bottom: 15px;
+    }
+
+    html:not(.light-theme) #actionModal .booking-detail-row {
+        padding: 11px 3px;
+        border-bottom-color: rgba(255,255,255,.065);
+    }
+
+    html:not(.light-theme) #actionModal .booking-detail-services {
+        padding-top: 14px;
+        padding-bottom: 10px;
+    }
+
+    html:not(.light-theme) #actionModal .booking-payment-panel {
+        background: linear-gradient(145deg, rgba(255,255,255,.065), rgba(255,255,255,.025));
+    }
+
+    html:not(.light-theme) #actionModal .booking-history-section {
+        margin-top: 2px;
+        padding-top: 14px;
+    }
+
+    html.light-theme #actionModal .booking-detail-modal {
+        background: linear-gradient(145deg, rgba(255,255,255,.88), rgba(245,246,248,.82)) !important;
+        border: 1px solid rgba(35,45,60,.12) !important;
+        box-shadow: 0 24px 70px rgba(25,35,50,.16), inset 0 1px 0 rgba(255,255,255,.8);
+        -webkit-backdrop-filter: blur(28px) saturate(145%);
+        backdrop-filter: blur(28px) saturate(145%);
+    }
+
+    html.light-theme #actionModal .booking-detail-main,
+    html.light-theme #actionModal .booking-detail-services,
+    html.light-theme #actionModal .booking-payment-panel,
+    html.light-theme #actionModal .booking-history-section {
+        padding: 14px 15px;
+        margin: 0 0 11px;
+        border: 1px solid rgba(35,45,60,.09);
+        border-radius: 14px;
+        background: linear-gradient(145deg, rgba(255,255,255,.72), rgba(235,239,245,.52));
+        box-shadow: inset 0 1px 0 rgba(255,255,255,.72);
+    }
+
+    html.light-theme #actionModal .booking-detail-row {
+        padding: 11px 3px;
+        border-bottom-color: rgba(35,45,60,.09);
+    }
+}
