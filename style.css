@@ -9074,17 +9074,21 @@ html.light-theme .toast {
  #barberStatsModal .barber-stats-salary-value{font-size:18px;font-weight:800;color:var(--gold)}
  #barberStatsModal .barber-stats-extra{display:grid;gap:10px;margin:4px 0 20px}
  #barberStatsModal .barber-stats-section-title{margin:8px 0 0;color:var(--text-muted);font-size:11px;font-weight:800;letter-spacing:.09em;text-transform:uppercase}
- #barberStatsModal .barber-stats-extra-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:9px}
- #barberStatsModal .barber-stats-extra-card{min-width:0;display:flex;flex-direction:column;gap:7px;padding:13px;border:1px solid var(--border-color,rgba(128,128,128,.16));border-radius:13px;background:var(--bg-dark)}
- #barberStatsModal .barber-stats-extra-card span{color:var(--text-muted);font-size:10px}
- #barberStatsModal .barber-stats-extra-card strong{color:var(--text-main);font-size:clamp(15px,1.5vw,20px);overflow-wrap:anywhere}
- #barberStatsModal .barber-stats-top-services,#barberStatsModal .barber-stats-recent-list{display:grid;gap:7px}
+ #barberStatsModal .barber-stats-extra-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+ #barberStatsModal .barber-stats-extra-card{min-width:0;min-height:70px;display:flex;flex-direction:row;align-items:center;justify-content:space-between;gap:12px;padding:14px 16px;border:1px solid var(--border-color,rgba(128,128,128,.16));border-radius:13px;background:var(--bg-dark)}
+ #barberStatsModal .barber-stats-extra-card span{min-width:0;color:var(--text-muted);font-size:11px;line-height:1.25;white-space:nowrap}
+ #barberStatsModal .barber-stats-extra-card strong{flex:0 0 auto;color:var(--text-main);font-size:clamp(14px,1.35vw,18px);line-height:1.15;white-space:nowrap;font-variant-numeric:tabular-nums}
+ #barberStatsModal .barber-stats-top-services{display:grid;gap:7px}
+ #barberStatsModal .barber-stats-recent-list{display:grid;gap:7px;max-height:326px;overflow-y:auto;overflow-x:hidden;padding:2px 5px 2px 0;overscroll-behavior:contain;scrollbar-width:thin;scrollbar-color:var(--border-color,rgba(128,128,128,.2)) transparent}
  #barberStatsModal .barber-stats-service-row,#barberStatsModal .barber-stats-visit-row{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:11px 13px;border:1px solid var(--border-color,rgba(128,128,128,.16));border-radius:12px;background:var(--bg-dark)}
- #barberStatsModal .barber-stats-service-row span{display:flex;align-items:center;gap:9px;min-width:0;color:var(--text-main);font-size:12px}
+ #barberStatsModal .barber-stats-service-row span{display:flex;align-items:center;gap:9px;min-width:0;overflow:hidden;color:var(--text-main);font-size:12px}
+ #barberStatsModal .barber-stats-service-row span:not(i){text-overflow:ellipsis}
  #barberStatsModal .barber-stats-service-row i{display:grid;place-items:center;width:22px;height:22px;flex:0 0 22px;border-radius:50%;background:var(--bg-card);color:var(--gold);font-style:normal;font-weight:800}
- #barberStatsModal .barber-stats-service-row strong,#barberStatsModal .barber-stats-visit-row b{flex:0 0 auto;color:var(--gold);font-size:12px}
+ #barberStatsModal .barber-stats-service-row strong,#barberStatsModal .barber-stats-visit-row b{flex:0 0 auto;color:var(--gold);font-size:12px;white-space:nowrap;font-variant-numeric:tabular-nums}
+ #barberStatsModal .barber-stats-visit-row{min-height:66px}
  #barberStatsModal .barber-stats-visit-row>div{display:grid;min-width:0;gap:3px}
- #barberStatsModal .barber-stats-visit-row strong{color:var(--text-main);font-size:12px}
- #barberStatsModal .barber-stats-visit-row span,#barberStatsModal .barber-stats-visit-row small{color:var(--text-muted);font-size:10px;overflow-wrap:anywhere}
+ #barberStatsModal .barber-stats-visit-row strong{overflow:hidden;color:var(--text-main);font-size:12px;text-overflow:ellipsis;white-space:nowrap}
+ #barberStatsModal .barber-stats-visit-row span{color:var(--text-muted);font-size:10px;white-space:nowrap}
+ #barberStatsModal .barber-stats-visit-row small{overflow:hidden;color:var(--text-muted);font-size:10px;text-overflow:ellipsis;white-space:nowrap}
  #barberStatsModal .barber-stats-empty{padding:12px;color:var(--text-muted);font-size:11px;border:1px dashed var(--border-color,rgba(128,128,128,.16));border-radius:12px}
 }
