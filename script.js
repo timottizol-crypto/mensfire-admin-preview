@@ -1231,8 +1231,8 @@ function renderSchedule() {
                     <div class="home-booking-item ${itemClass}" onclick="openActionModal('${escapeBookingHtml(String(b.id))}')" style="cursor: pointer; margin-bottom: 0; padding: 12px; display: flex; justify-content: space-between; align-items: flex-start; width: 100%; box-sizing: border-box;">
                         <div class="hb-info" style="flex: 1; min-width: 0;">
                             <div class="mobile-booking-time"><strong>${escapeBookingHtml(b.time || '—')}</strong><span>${endLabel ? 'до ' + endLabel : ''} · ${bookingDuration} мин.</span></div>
-                            <div class="hb-master" style="font-size: 12px;">${currentUser.role === 'admin' ? escapeBookingHtml((mockStaff.find(s=>s.id === b.barberId)?.name || 'Мастер') + ' · ') : ''}${escapeBookingHtml(b.clientName || 'Клиент')}</div>
-                            <div class="booking-card-badges"><i class="booking-origin origin-${getBookingSourceMeta(b).className}">${getBookingSourceMeta(b).label}</i>${getBookingClientType(b) === 'new' ? `<i class="booking-client-type type-new">Новый клиент</i>` : ''}</div>
+                            <div class="hb-master" style="font-size: 12px;">${currentUser.role === 'admin' ? escapeBookingHtml((mockStaff.find(s=>s.id === b.barberId)?.name || 'Мастер') + ' · ') : ''}${escapeBookingHtml(b.clientName || 'Клиент')}${getBookingClientType(b) === 'new' ? '<i class="booking-new-client-inline">НОВЫЙ</i>' : ''}</div>
+                            <div class="booking-card-badges"><i class="booking-origin origin-${getBookingSourceMeta(b).className}">${getBookingSourceMeta(b).label}</i></div>
                             <div class="hb-services" style="font-size: 11px; white-space: normal;">${servicesText}</div>
                             <div class="mobile-booking-finance"><strong>${bookingTotal.toLocaleString('ru-RU')} ₽</strong><span>${payState.paid.toLocaleString('ru-RU')} ₽ получено</span><span>${remaining.toLocaleString('ru-RU')} ₽ остаток</span></div>
                             <span class="calendar-payment-label payment-${payState.status}">${payState.label}</span>
@@ -1628,8 +1628,8 @@ function renderDesktopSchedule() {
                             style="top:${item.top}px;height:${height}px;left:calc(${left}% + 3px);width:calc(${laneWidth}% - 6px);right:auto"
                             ondragstart="event.stopPropagation(); event.dataTransfer.setData('text/plain','${escapeBookingHtml(String(booking.id))}'); event.dataTransfer.effectAllowed='move'; this.classList.add('is-dragging')" ondragend="this.classList.remove('is-dragging'); document.querySelectorAll('.desktop-staff-track.is-drop-target').forEach(track=>track.classList.remove('is-drop-target'))"
                             onclick="event.stopPropagation(); openActionModal('${escapeBookingHtml(String(booking.id))}')">
-                            <strong class="booking-card-client">${escapeBookingHtml(booking.clientName || 'Клиент')}</strong>
-                            <span class="booking-card-badges"><i class="booking-origin origin-${getBookingSourceMeta(booking).className}">${getBookingSourceMeta(booking).label}</i>${getBookingClientType(booking) === 'new' ? `<i class="booking-client-type type-new">Новый клиент</i>` : ''}</span>
+                            <strong class="booking-card-client">${escapeBookingHtml(booking.clientName || 'Клиент')}${getBookingClientType(booking) === 'new' ? '<i class="booking-new-client-inline">НОВЫЙ</i>' : ''}</strong>
+                            <span class="booking-card-badges"><i class="booking-origin origin-${getBookingSourceMeta(booking).className}">${getBookingSourceMeta(booking).label}</i></span>
                             <span class="booking-card-service">${serviceNames || 'Услуга не указана'}</span>
                             <small class="booking-card-meta"><b>${escapeBookingHtml(booking.time || '—')}</b> · ${item.duration} мин. · ${bookingStatusLabel}</small><span class="calendar-payment-label payment-${payState.status}">${payState.label} · ${payState.paid.toLocaleString('ru-RU')} ₽</span>
                         </button>`;
@@ -1789,21 +1789,20 @@ function getBookingSourceMeta(booking) {
     return map[source] || { label: 'Другой канал', className: 'other' };
 }
 function getBookingClientType(booking) {
-    const currentTime = parseClientDateTime(booking);
+    if (typeof booking?.isNewClient === 'boolean') return booking.isNewClient ? 'new' : 'regular';
     const profile = findClientProfile(booking?.clientName || '', booking?.barberId || '').profile;
-    const phone = normalizeClientPhone(profile.phone);
+    const phone = normalizeClientPhone(booking?.clientPhone || profile.phone);
     const name = String(booking?.clientName || '').trim().toLocaleLowerCase('ru-RU');
-    const hadEarlierVisit = bookings.some(previous => {
-        if (String(previous.id) === String(booking?.id) || previous.status !== 'completed') return false;
-        const previousTime = parseClientDateTime(previous);
-        if (!previousTime || (currentTime && previousTime >= currentTime)) return false;
+    const hadEarlierBooking = bookings.some(previous => {
+        if (String(previous.id) === String(booking?.id) || previous.status === 'cancelled') return false;
         if (phone.length >= 7) {
             const previousProfile = findClientProfile(previous.clientName || '', previous.barberId || '').profile;
-            return normalizeClientPhone(previousProfile.phone) === phone;
+            const previousPhone = normalizeClientPhone(previous.clientPhone || previousProfile.phone);
+            return previousPhone === phone;
         }
         return String(previous.clientName || '').trim().toLocaleLowerCase('ru-RU') === name;
     });
-    return hadEarlierVisit ? 'regular' : 'new';
+    return hadEarlierBooking ? 'regular' : 'new';
 }
 function getBookingClientTypeMeta(booking) {
     return getBookingClientType(booking) === 'new'
@@ -2015,7 +2014,7 @@ function openActionModal(id) {
             <div class="booking-detail-date">${escapeBookingHtml(booking.date || 'Дата не указана')} · ${escapeBookingHtml(booking.time || '—')}–${escapeBookingHtml(endTime)}</div>
             <div class="booking-card-badges">
                 <i class="booking-origin origin-${getBookingSourceMeta(booking).className}">${getBookingSourceMeta(booking).label}</i>
-                ${getBookingClientType(booking) === 'new' ? `<i class="booking-client-type type-new">Новый клиент</i>` : ''}
+                
             </div>
         </div>
         <div class="booking-detail-row">
@@ -2909,10 +2908,17 @@ function saveNewBooking() {
     }
 
     const clientPhone = document.getElementById('newBookingClientPhone')?.value.trim() || '';
+    const normalizedClientPhone = normalizeClientPhone(clientPhone);
+    const normalizedClientName = clientName.trim().toLocaleLowerCase('ru-RU');
+    const hasExistingClient = normalizedClientPhone.length >= 7
+        ? Object.values(clientProfiles).some(profile => normalizeClientPhone(profile?.phone) === normalizedClientPhone) ||
+            bookings.some(item => normalizeClientPhone(item.clientPhone || findClientProfile(item.clientName || '', item.barberId || '').profile.phone) === normalizedClientPhone)
+        : bookings.some(item => String(item.clientName || '').trim().toLocaleLowerCase('ru-RU') === normalizedClientName);
     const bookingData = {
         barberId,
         clientName,
         clientPhone,
+        isNewClient: !hasExistingClient,
         time,
         date,
         services: selectedServices.map(s => ({ ...s }))
@@ -2927,7 +2933,7 @@ function saveNewBooking() {
         addBookingHistoryEntry(createdBooking, 'Запись создана', date + ' в ' + time);
         bookings.push(createdBooking);
         recurringDates.forEach((occurrenceDate, index) => {
-            const recurringBooking = {id:'repeat-' + Date.now() + '-' + index,...bookingData,date:occurrenceDate,status:'active',paidAmount:0,payments:[],paymentMethod:'',bookingSource:'admin_panel',recurringGroupId:String(createdBooking.id),history:[]};
+            const recurringBooking = {id:'repeat-' + Date.now() + '-' + index,...bookingData,isNewClient:false,date:occurrenceDate,status:'active',paidAmount:0,payments:[],paymentMethod:'',bookingSource:'admin_panel',recurringGroupId:String(createdBooking.id),history:[]};
             addBookingHistoryEntry(recurringBooking, 'Повторная запись создана', 'Еженедельно · серия из ' + repeatCount + ' записей');
             bookings.push(recurringBooking);
         });
