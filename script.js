@@ -1433,7 +1433,6 @@ function renderDesktopSchedule() {
                     <button type="button" class="calendar-today-btn" onclick="goToScheduleToday()">Сегодня</button>
                     <strong>${monthLabel}</strong>
                     <button type="button" class="calendar-date-arrow" onclick="shiftScheduleMonth(1)" aria-label="Следующий месяц">›</button>
-                    <span>${staff.length} маст.</span>
                 </div>
                 <div class="desktop-calendar-tabs">
                     <button onclick="setDesktopCalendarMode('day')">День</button>
@@ -1448,8 +1447,10 @@ function renderDesktopSchedule() {
                     <button type="button" class="desktop-calendar-action desktop-calendar-action-primary" onclick="openNewBookingModal()">＋ Новая запись</button>
                 </div>
             </div>
-            ${renderScheduleOverviewPanel()}
-            ${renderScheduleBarberFilter(availableStaff)}
+            <div class="schedule-filter-info-row">
+                ${renderScheduleBarberFilter(availableStaff)}
+                ${renderScheduleOverviewPanel()}
+            </div>
             <div class="desktop-month-grid">
                 ${weekDays.map(dayName => `<div class="desktop-month-weekday">${dayName}</div>`).join('')}
                 ${monthDays.map(date => {
@@ -1506,7 +1507,6 @@ function renderDesktopSchedule() {
                 <button type="button" class="calendar-today-btn" onclick="goToScheduleToday()">Сегодня</button>
                 <strong>${rangeLabel}</strong>
                 <button type="button" class="calendar-date-arrow" onclick="shiftScheduleDate(${viewMode === 'week' ? 7 : 1})" aria-label="Вперёд">›</button>
-                <span>${staff.length} маст.</span>
             </div>
             <div class="desktop-calendar-tabs">
                 <button class="${viewMode === 'day' ? 'active' : ''}" onclick="setDesktopCalendarMode('day')">День</button>
@@ -1520,8 +1520,10 @@ function renderDesktopSchedule() {
                     <button type="button" class="desktop-calendar-action desktop-calendar-action-primary" onclick="openNewBookingModal()">＋ Новая запись</button>
             </div>
         </div>
-        ${renderScheduleOverviewPanel()}
-        ${renderScheduleBarberFilter(availableStaff)}
+        <div class="schedule-filter-info-row">
+            ${renderScheduleBarberFilter(availableStaff)}
+            ${renderScheduleOverviewPanel()}
+        </div>
         <div class="desktop-calendar-scroll ${viewMode === 'week' ? 'is-week-view' : ''}">
             <div class="desktop-calendar-grid" style="--calendar-column-count:${Math.max(columns.length, 1)}">
                 <div class="desktop-time-column">
