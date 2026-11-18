@@ -1544,7 +1544,7 @@ function renderDesktopSchedule() {
                 </div>
     `;
 
-    columns.forEach(({ date, barber }) => {
+    columns.forEach(({ date, barber }, columnIndex) => {
         const dateKey = toDateKey(date);
         const barberBookings = bookings.filter(b => b.date === dateKey && String(b.barberId) === String(barber.id) && b.status !== 'cancelled');
         const barberBlocks = timeBlocks.filter(b => b.date === dateKey && String(b.barberId) === String(barber.id));
@@ -1554,7 +1554,7 @@ function renderDesktopSchedule() {
         const subHeading = viewMode === 'week' ? barber.name : (barber.role === 'admin' ? 'Администратор' : 'Барбер');
 
         html += `
-            <div class="desktop-staff-column">
+            <div class="desktop-staff-column ${viewMode === 'week' && staff.length > 0 && columnIndex > 0 && columnIndex % staff.length === 0 ? 'is-week-day-start' : ''}">
                 <button class="desktop-staff-heading" onclick="showBarberStats('${escapeBookingHtml(String(barber.id))}')">
                     <strong>${escapeBookingHtml(dayHeading)}</strong><span>${escapeBookingHtml(subHeading)}</span>
                 </button>
