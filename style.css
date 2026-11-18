@@ -10293,3 +10293,52 @@ html.light-theme .toast {
         box-sizing: border-box;
     }
 }
+
+
+/* Finance desktop light theme: improve selected date contrast and align period background. */
+@media (min-width: 768px) {
+    html.light-theme #viewFinance #financeDateSelector .date-selector-item.selected,
+    html.light-theme #viewFinance #financeDateSelector .date-selector-item.selected:hover {
+        color: #fff !important;
+        background: linear-gradient(145deg, #596d88, #40536d) !important;
+        border-color: #394b64 !important;
+        box-shadow: 0 3px 10px rgba(45, 61, 82, .2), inset 0 1px 0 rgba(255, 255, 255, .16) !important;
+    }
+    html.light-theme #viewFinance #financeDateSelector .date-selector-item.selected *,
+    html.light-theme #viewFinance #financeDateSelector .date-selector-item.selected .day-name,
+    html.light-theme #viewFinance #financeDateSelector .date-selector-item.selected .day-num {
+        color: #fff !important;
+    }
+    html.light-theme #viewFinance .finance-header-layout > .finance-period-controls {
+        justify-self: start !important;
+        width: max-content !important;
+        max-width: 100% !important;
+        min-width: 0 !important;
+        margin: 0 !important;
+        padding: 0 !important;
+        position: relative !important;
+        left: 0 !important;
+        transform: none !important;
+        box-sizing: border-box !important;
+    }
+    html.light-theme #viewFinance .finance-header-layout .finance-range-toolbar {
+        display: flex !important;
+        width: max-content !important;
+        max-width: 100% !important;
+        justify-content: flex-start !important;
+        align-items: center !important;
+        margin: 0 !important;
+        padding: 0 !important;
+        position: relative !important;
+        left: 0 !important;
+        transform: none !important;
+        box-sizing: border-box !important;
+    }
+    html.light-theme #viewFinance .finance-header-layout .finance-range-presets {
+        margin: 0 !important;
+        position: relative !important;
+        left: 0 !important;
+        transform: none !important;
+        box-sizing: border-box !important;
+    }
+}
