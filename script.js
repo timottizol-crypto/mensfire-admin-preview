@@ -600,6 +600,10 @@ function openModal(id) {
 
         modal.classList.add('drawer-modal', 'active');
         stack.push(modal);
+        if (stack.length === 2) {
+            stack[0].classList.add('drawer-stack-bottom');
+            stack[1].classList.add('drawer-stack-top');
+        }
         syncDesktopDrawerStack();
         return;
     }
