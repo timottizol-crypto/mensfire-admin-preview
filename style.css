@@ -10056,3 +10056,29 @@ html.light-theme .toast {
         height: 78px !important;
     }
 }
+
+/* Finance desktop: enlarge revenue bars, tighten the chart panel bottom, and swap lower panels. */
+@media (min-width: 768px) {
+    #viewFinance .finance-chart-panel {
+        padding-bottom: 10px !important;
+    }
+    #viewFinance .finance-chart-panel .finance-chart-bars {
+        min-height: 190px !important;
+        padding-top: 6px !important;
+        padding-bottom: 0 !important;
+    }
+    #viewFinance .finance-chart-panel .finance-chart-column {
+        height: 190px !important;
+        gap: 6px !important;
+    }
+    #viewFinance .finance-chart-panel .finance-chart-track {
+        height: 132px !important;
+        width: min(100%, 42px) !important;
+    }
+    #viewFinance .finance-dashboard-grid > .finance-panel:nth-child(3) {
+        grid-column: 2;
+    }
+    #viewFinance .finance-dashboard-grid > .finance-panel:nth-child(4) {
+        grid-column: 1;
+    }
+}
