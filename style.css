@@ -8323,3 +8323,33 @@ html.light-theme .dashboard-topline .dashboard-upcoming-row {
     }
 }
 
+
+
+/* Schedule: place the expanded summary on the master-filter row. */
+@media (min-width: 768px) {
+    #viewSchedule > #desktopSchedule .schedule-filter-info-row {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        width: 100%;
+        min-width: 0;
+        margin: 0 0 12px;
+    }
+
+    #viewSchedule > #desktopSchedule .schedule-filter-info-row > .schedule-barber-filter {
+        flex: 0 1 auto;
+        min-width: 0;
+        margin: 0;
+    }
+
+    #viewSchedule > #desktopSchedule .schedule-filter-info-row > .schedule-quick-info-panel {
+        flex: 1 1 0;
+        width: auto;
+        min-width: 0;
+        margin: 0;
+    }
+
+    #viewSchedule > #desktopSchedule .schedule-filter-info-row > .schedule-quick-info-panel .schedule-overview-grid {
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+    }
+}
