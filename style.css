@@ -8451,3 +8451,44 @@ html.light-theme .dashboard-topline .dashboard-upcoming-row {
         white-space: nowrap !important;
     }
 }
+
+
+/* Weekly schedule: distinguish days and use narrower, readable barber columns. */
+@media (min-width: 768px) {
+    #viewSchedule > #desktopSchedule .desktop-calendar-scroll.is-week-view .desktop-calendar-grid {
+        grid-template-columns: 65px repeat(var(--calendar-column-count), 150px) !important;
+        min-width: max-content !important;
+    }
+
+    #viewSchedule > #desktopSchedule .desktop-calendar-scroll.is-week-view .desktop-staff-column {
+        width: 150px !important;
+        min-width: 150px !important;
+        box-sizing: border-box !important;
+    }
+
+    #viewSchedule > #desktopSchedule .desktop-calendar-scroll.is-week-view .desktop-staff-column.is-week-day-start {
+        border-left: 2px solid rgba(212, 175, 55, .42) !important;
+    }
+
+    #viewSchedule > #desktopSchedule .desktop-calendar-scroll.is-week-view .desktop-staff-column.is-week-day-start > .desktop-staff-heading,
+    #viewSchedule > #desktopSchedule .desktop-calendar-scroll.is-week-view .desktop-staff-column.is-week-day-start > .desktop-staff-track {
+        border-left: 0 !important;
+    }
+
+    #viewSchedule > #desktopSchedule .desktop-calendar-scroll.is-week-view .desktop-booking-card > .booking-card-client {
+        white-space: normal !important;
+        overflow-wrap: anywhere;
+        line-height: 1.25;
+    }
+
+    #viewSchedule > #desktopSchedule .desktop-calendar-scroll.is-week-view .desktop-booking-card > .booking-card-service {
+        white-space: normal !important;
+        overflow-wrap: anywhere;
+        -webkit-line-clamp: 2;
+    }
+
+    #viewSchedule > #desktopSchedule .desktop-calendar-scroll.is-week-view .desktop-booking-card > .booking-card-meta {
+        white-space: normal !important;
+        overflow-wrap: anywhere;
+    }
+}
