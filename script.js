@@ -2918,7 +2918,9 @@ function saveNewBooking() {
         barberId,
         clientName,
         clientPhone,
-        isNewClient: !hasExistingClient,
+        isNewClient: existingBooking
+            ? (typeof existingBooking.isNewClient === 'boolean' ? existingBooking.isNewClient : getBookingClientType(existingBooking) === 'new')
+            : !hasExistingClient,
         time,
         date,
         services: selectedServices.map(s => ({ ...s }))
