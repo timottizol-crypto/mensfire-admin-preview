@@ -3629,7 +3629,7 @@ function renderFinance() {
     });
     const topServices = document.getElementById('analyticsTopServicesList');
     if (topServices) {
-        const sorted = Object.entries(serviceCounts).sort((a,b) => b[1].revenue-a[1].revenue).slice(0,10);
+        const sorted = Object.entries(serviceCounts).sort((a,b) => b[1].revenue-a[1].revenue).slice(0,5);
         const maxServiceRevenue = Math.max(1,...sorted.map(([,data]) => data.revenue));
         topServices.innerHTML = sorted.length ? sorted.map(([name,data],index) => `
             <div class="finance-service-row finance-service-row-detailed"><span class="finance-service-rank">${index+1}</span><div class="finance-service-copy"><strong>${escapeBookingHtml(name)}</strong><span>${data.count} выполнено за 30 дней</span><div class="finance-service-track"><i style="width:${data.revenue/maxServiceRevenue*100}%"></i></div></div><strong>${fmt(data.revenue)}</strong></div>`
@@ -3957,7 +3957,7 @@ function showBarberStats(id) {
     const servicesHost=document.getElementById('statsTopServices');
     if(servicesHost)servicesHost.innerHTML=top.length?top.map(([title,count],i)=>'<div class="barber-stats-service-row"><span><i>'+(i+1)+'</i>'+escapeBookingHtml(title)+'</span><strong>'+count+' раз</strong></div>').join(''):'<div class="barber-stats-empty">Пока нет завершённых услуг</div>';
     const recentHost=document.getElementById('statsRecentVisits');
-    if(recentHost){const recent=completed.slice().sort((a,b)=>(parseReportDate(b.date)?.getTime()||0)-(parseReportDate(a.date)?.getTime()||0)||String(b.time||'').localeCompare(String(a.time||''))).slice(0,5);
+    if(recentHost){const recent=completed.slice().sort((a,b)=>(parseReportDate(b.date)?.getTime()||0)-(parseReportDate(a.date)?.getTime()||0)||String(b.time||'').localeCompare(String(a.time||''))).slice(0,10);
         recentHost.innerHTML=recent.length?recent.map(item=>{const names=(item.services||[]).map(service=>service.title).filter(Boolean).join(', ')||'Услуги не указаны';return '<div class="barber-stats-visit-row"><div><strong>'+escapeBookingHtml(item.clientName||'Клиент')+'</strong><span>'+escapeBookingHtml(item.date||'')+' · '+escapeBookingHtml(item.time||'')+'</span><small>'+escapeBookingHtml(names)+'</small></div><b>'+money(getBookingCollectedAmount(item))+'</b></div>';}).join(''):'<div class="barber-stats-empty">Завершённых визитов пока нет</div>';}
     const resetBtn=document.getElementById('statsResetPinBtn');
     if(resetBtn)resetBtn.onclick=()=>{closeModal('barberStatsModal');resetStaffPin(id);};
