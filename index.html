@@ -720,7 +720,7 @@
         <div class="modal-content" style="text-align: left; max-height: 80vh; display: flex; flex-direction: column;">
             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; flex-shrink: 0;">
                 <h2 id="clientDetailsName" style="font-size: 20px; color: var(--gold); margin: 0;">Имя</h2>
-                <button class="close-btn" onclick="closeModal('clientDetailsModal')" style="color: #fff; font-size: 24px; background: none; border: none; cursor: pointer;">&times;</button>
+                <button class="close-btn" onclick="closeModal('clientDetailsModal')" class="barber-stats-close">&times;</button>
             </div>
             
             <div style="font-size: 13px; color: var(--text-muted); margin-bottom: 15px; flex-shrink: 0; display: flex; flex-wrap: wrap; gap: 10px;">
@@ -825,7 +825,7 @@
 
         <!-- Аналитика барбера -->
     <div class="modal" id="barberStatsModal">
-        <div class="modal-content" style="text-align: left; max-width: 420px; padding: 25px;">
+        <div class="modal-content barber-stats-panel" style="text-align: left; max-width: 420px; padding: 25px;">
             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
                 <h2 id="statsBarberName" style="font-size: 22px; color: var(--gold); margin: 0;">Имя</h2>
                 <button class="close-btn" onclick="closeModal('barberStatsModal')" style="color: #fff; font-size: 24px; background: none; border: none; cursor: pointer;">&times;</button>
@@ -845,8 +845,8 @@
                     <div id="statsMonthRevenue" style="font-size: 18px; font-weight: 800; color: var(--text-main);">0 ₽</div>
                     <div style="font-size: 10px; color: var(--text-muted); margin-top: 3px;">выручка</div>
                 </div>
-                <div style="background: rgba(76, 175, 80, 0.1); padding: 12px; border-radius: 12px; text-align: center; border: 1px solid rgba(76, 175, 80, 0.3);">
-                    <div id="statsMonthSalary" style="font-size: 18px; font-weight: 800; color: #4CAF50;">0 ₽</div>
+                <div class="barber-stats-salary">
+                    <div id="statsMonthSalary" class="barber-stats-salary-value">0 ₽</div>
                     <div style="font-size: 10px; color: var(--text-muted); margin-top: 3px;">зарплата (40%)</div>
                 </div>
             </div>
@@ -864,7 +864,7 @@
                 </div>
                 <div style="width: 1px; background: rgba(255,255,255,0.1);"></div>
                 <div style="text-align: center; flex: 1;">
-                    <div id="statsTodaySalary" style="font-size: 18px; font-weight: 800; color: #4CAF50;">0 ₽</div>
+                    <div id="statsTodaySalary" class="barber-stats-salary-value">0 ₽</div>
                     <div style="font-size: 10px; color: var(--text-muted);">зарплата</div>
                 </div>
             </div>
@@ -874,6 +874,20 @@
                 <div id="statsTopService" style="font-size: 14px; font-weight: 700; color: var(--text-main);">-</div>
                 <div id="statsTopServiceCount" style="font-size: 12px; color: var(--gold); font-weight: 800;">0 раз</div>
             </div>
+
+            <section class="barber-stats-extra" aria-label="Дополнительная статистика мастера">
+                <div class="barber-stats-section-title">За всё время</div>
+                <div class="barber-stats-extra-grid">
+                    <div class="barber-stats-extra-card"><span>Завершено визитов</span><strong id="statsAllVisits">0</strong></div>
+                    <div class="barber-stats-extra-card"><span>Получено всего</span><strong id="statsAllRevenue">0 ₽</strong></div>
+                    <div class="barber-stats-extra-card"><span>Средний чек</span><strong id="statsAverageCheck">0 ₽</strong></div>
+                    <div class="barber-stats-extra-card"><span>Отменено записей</span><strong id="statsCancelled">0</strong></div>
+                </div>
+                <div class="barber-stats-section-title">Популярные услуги</div>
+                <div id="statsTopServices" class="barber-stats-top-services"></div>
+                <div class="barber-stats-section-title">Последние визиты</div>
+                <div id="statsRecentVisits" class="barber-stats-recent-list"></div>
+            </section>
 
             <div style="display: flex; gap: 10px;">
                 <button class="action-modal-btn action-btn-primary" id="statsResetPinBtn" onclick="" style="margin: 0;">Сбросить PIN</button>
