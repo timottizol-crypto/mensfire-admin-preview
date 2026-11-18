@@ -5980,36 +5980,16 @@ html.light-theme .booking-client-match{background:#fbf8ef}
   #bottomNav .nav-item-label {
     display:none !important;
   }
-  #appContainer:has(#bottomNav:hover) {
-    --mensfire-sidebar:248px !important;
-    --mensfire-content-left:284px !important;
-  }
-  #bottomNav.bottom-nav:hover {
-    width:248px !important;
-    min-width:248px !important;
-    max-width:248px !important;
-    overflow-y:auto !important;
-  }
-  #appContainer:has(#bottomNav:hover) #bottomNav .nav-item {
-    justify-content:flex-start !important;
-    gap:14px !important;
-    padding-left:14px !important;
-    padding-right:14px !important;
-  }
-  #appContainer:has(#bottomNav:hover) #bottomNav .nav-item-label {
-    display:block !important;
-  }
+  
+  
+  
+  
   #appContainer .view,
   #appContainer .view.active,
   #appContainer .app-header {
     transition:width .28s ease,margin-left .28s ease,left .28s ease !important;
   }
-  #appContainer:has(#bottomNav:hover) #viewSchedule.active {
-    width:calc(100% - 284px) !important;
-    margin-left:284px !important;
-    padding-left:20px !important;
-    padding-right:20px !important;
-  }
+  
 }
 
 
@@ -6021,19 +6001,9 @@ html.light-theme .booking-client-match{background:#fbf8ef}
       max-width .38s cubic-bezier(.22,.8,.25,1) !important;
     will-change:width;
   }
-  #appContainer:has(#bottomNav:hover) {
-    --mensfire-sidebar:190px !important;
-    --mensfire-content-left:226px !important;
-  }
-  #bottomNav.bottom-nav:hover {
-    width:190px !important;
-    min-width:190px !important;
-    max-width:190px !important;
-  }
-  #appContainer:has(#bottomNav:hover) #viewSchedule.active {
-    width:calc(100% - 226px) !important;
-    margin-left:226px !important;
-  }
+  
+  
+  
   #bottomNav .nav-item-label {
     display:block !important;
     flex:0 1 auto !important;
@@ -6045,16 +6015,8 @@ html.light-theme .booking-client-match{background:#fbf8ef}
     transform:translateX(-5px) !important;
     transition:max-width .3s ease,opacity .2s ease,transform .3s ease !important;
   }
-  #appContainer:has(#bottomNav:hover) #bottomNav .nav-item-label {
-    max-width:150px !important;
-    opacity:1 !important;
-    transform:translateX(0) !important;
-  }
-  #appContainer:has(#bottomNav:hover) #bottomNav .nav-item {
-    gap:11px !important;
-    padding-left:13px !important;
-    padding-right:9px !important;
-  }
+  
+  
 }
 
 
@@ -6865,27 +6827,10 @@ html.light-theme .booking-client-match{background:#fbf8ef}
 
 /* Prevent legacy :hover rules from bypassing the JS expansion delay */
 @media (min-width:768px) {
-  #appContainer:has(#bottomNav:hover:not(.sidebar-expanded)) {
-    --mensfire-sidebar:64px !important;
-    --mensfire-content-left:100px !important;
-  }
-  #bottomNav.bottom-nav:hover:not(.sidebar-expanded) {
-    width:64px !important;
-    min-width:64px !important;
-    max-width:64px !important;
-    overflow:hidden !important;
-  }
-  #appContainer:has(#bottomNav:hover:not(.sidebar-expanded)) #bottomNav .nav-item {
-    justify-content:center !important;
-    gap:0 !important;
-    padding-left:0 !important;
-    padding-right:0 !important;
-  }
-  #appContainer:has(#bottomNav:hover:not(.sidebar-expanded)) #bottomNav .nav-item-label {
-    max-width:0 !important;
-    opacity:0 !important;
-    transform:translateX(-5px) !important;
-  }
+  
+  
+  
+  
 }
 
 
