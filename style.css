@@ -9266,6 +9266,26 @@ html.light-theme .toast {
     scrollbar-gutter: stable;
     padding-right: 7px;
   }
+  #clientDetailsModal .client-timeline-list {
+    scrollbar-width: thin;
+    scrollbar-color: var(--gold,#c69e5b) transparent;
+  }
+  #clientDetailsModal .client-timeline-list::-webkit-scrollbar {
+    width: 6px;
+  }
+  #clientDetailsModal .client-timeline-list::-webkit-scrollbar-track {
+    background: transparent;
+  }
+  #clientDetailsModal .client-timeline-list::-webkit-scrollbar-thumb {
+    background: var(--gold,#c69e5b);
+    border: 1px solid transparent;
+    border-radius: 8px;
+    background-clip: padding-box;
+  }
+  #clientDetailsModal .client-timeline-list::-webkit-scrollbar-thumb:hover {
+    background: color-mix(in srgb,var(--gold,#c69e5b) 82%,var(--text-main,#fff));
+    background-clip: padding-box;
+  }
   #clientDetailsModal .client-activity-signal[data-client-signal-target] {
     cursor: pointer;
     transition: transform .18s ease, border-color .18s ease, background .18s ease;
