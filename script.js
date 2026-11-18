@@ -547,6 +547,32 @@ const MENSFIRE_DESKTOP_DRAWER_IDS = [
     'barberStatsModal'
 ];
 
+// Режим вынесен отдельно, чтобы позже подключить переключатель в настройках профиля.
+const MENSFIRE_DRAWER_MODE_KEY = 'mensfire_admin_drawer_mode';
+function getMensfireDesktopDrawerMode() {
+    try {
+        return localStorage.getItem(MENSFIRE_DRAWER_MODE_KEY) === 'single' ? 'single' : 'stacked';
+    } catch (error) {
+        return 'stacked';
+    }
+}
+
+// Публичная точка подключения будущей настройки профиля: 'stacked' или 'single'.
+function setMensfireDesktopDrawerMode(mode) {
+    const nextMode = mode === 'single' ? 'single' : 'stacked';
+    try {
+        localStorage.setItem(MENSFIRE_DRAWER_MODE_KEY, nextMode);
+    } catch (error) {}
+    const active = Array.from(document.querySelectorAll('.modal.drawer-modal.active'))
+        .filter(modal => MENSFIRE_DESKTOP_DRAWER_IDS.includes(modal.id));
+    if (nextMode === 'single' && active.length > 1) {
+        active.slice(0, -1).forEach(modal => {
+            modal.classList.remove('active', 'drawer-modal', 'drawer-stack-single', 'drawer-stack-top', 'drawer-stack-bottom');
+        });
+    }
+    syncDesktopDrawerStack();
+}
+
 function syncDesktopDrawerStack() {
     const activeDrawers = Array.from(document.querySelectorAll('.modal.drawer-modal.active'))
         .filter(modal => MENSFIRE_DESKTOP_DRAWER_IDS.includes(modal.id))
@@ -554,14 +580,20 @@ function syncDesktopDrawerStack() {
 
     activeDrawers.forEach(modal => modal.classList.remove('drawer-stack-single', 'drawer-stack-top', 'drawer-stack-bottom'));
 
-    if (activeDrawers.length === 1) {
-        activeDrawers[0].classList.add('drawer-stack-single');
+    if (activeDrawers.length === 1 || getMensfireDesktopDrawerMode() === 'single') {
+        activeDrawers.forEach((modal, index) => {
+            if (index < activeDrawers.length - 1) {
+                modal.classList.remove('active', 'drawer-modal');
+            } else {
+                modal.classList.add('drawer-stack-single');
+            }
+        });
     } else if (activeDrawers.length >= 2) {
         activeDrawers[0].classList.add('drawer-stack-bottom');
         activeDrawers[activeDrawers.length - 1].classList.add('drawer-stack-top');
     }
 
-    const hasDrawers = activeDrawers.length > 0;
+    const hasDrawers = activeDrawers.some(modal => modal.classList.contains('active'));
     document.body.classList.toggle('mensfire-drawer-open', hasDrawers);
 
     const schedule = document.getElementById('viewSchedule');
@@ -582,25 +614,25 @@ function openModal(id) {
         MENSFIRE_DESKTOP_DRAWER_IDS.includes(id);
 
     if (isDesktopDrawer) {
-        // Повторное открытие уже видимой панели поднимает её наверх.
         let stack = Array.from(document.querySelectorAll('.modal.drawer-modal.active'))
-            .filter(item => MENSFIRE_DESKTOP_DRAWER_IDS.includes(item.id));
+            .filter(item => MENSFIRE_DESKTOP_DRAWER_IDS.includes(item.id))
+            .sort((a, b) => Number(b.classList.contains('drawer-stack-bottom')) - Number(a.classList.contains('drawer-stack-bottom')))
+            .filter(item => item !== modal);
 
-        stack.sort((a, b) =>
-            Number(b.classList.contains('drawer-stack-bottom')) -
-            Number(a.classList.contains('drawer-stack-bottom'))
-        );
-        stack = stack.filter(item => item !== modal);
-
-        // Одновременно показываем не более двух панелей: самая старая закрывается.
-        while (stack.length >= 2) {
-            const oldest = stack.shift();
-            oldest.classList.remove('active', 'drawer-modal', 'drawer-stack-single', 'drawer-stack-top', 'drawer-stack-bottom');
+        if (getMensfireDesktopDrawerMode() === 'single') {
+            stack.forEach(item => item.classList.remove('active', 'drawer-modal', 'drawer-stack-single', 'drawer-stack-top', 'drawer-stack-bottom'));
+            stack = [];
+        } else {
+            // В режиме двух панелей при открытии третьей убираем самую старую.
+            while (stack.length >= 2) {
+                const oldest = stack.shift();
+                oldest.classList.remove('active', 'drawer-modal', 'drawer-stack-single', 'drawer-stack-top', 'drawer-stack-bottom');
+            }
         }
 
         modal.classList.add('drawer-modal', 'active');
         stack.push(modal);
-        if (stack.length === 2) {
+        if (getMensfireDesktopDrawerMode() === 'stacked' && stack.length === 2) {
             stack[0].classList.add('drawer-stack-bottom');
             stack[1].classList.add('drawer-stack-top');
         }
