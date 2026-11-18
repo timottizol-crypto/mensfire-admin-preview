@@ -4173,6 +4173,7 @@ function renderClientInteractionHistory() {
     const items = Array.isArray(profile.interactions) ? profile.interactions.slice() : [];
     items.sort((a, b) => new Date(b.createdAt || 0) - new Date(a.createdAt || 0));
     const labels = { call: 'Звонок', message: 'Сообщение', meeting: 'Личная встреча', note: 'Заметка', other: 'Другое' };
+    root.classList.toggle('has-scroll', items.length > 2);
     root.innerHTML = items.length ? items.map(item => {
         const date = new Date(item.createdAt || '');
         const dateLabel = Number.isNaN(date.getTime()) ? 'Дата не указана' : date.toLocaleString('ru-RU', { day:'2-digit', month:'short', year:'numeric', hour:'2-digit', minute:'2-digit' });
@@ -4227,6 +4228,7 @@ function renderClientTasks() {
         return due && due < today;
     }).length;
     if (summary) summary.textContent = openTasks.length + ' активных' + (overdue ? ' · просрочено: ' + overdue : '');
+    root.classList.toggle('has-scroll', tasks.length > 2);
     root.innerHTML = tasks.length ? tasks.map(task => {
         const due = parseClientTaskDate(task.dueDate);
         const isOverdue = !task.done && due && due < today;
