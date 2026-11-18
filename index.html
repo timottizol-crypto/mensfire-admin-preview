@@ -561,7 +561,7 @@
     <!-- Добавление расхода -->
     <div class="modal" id="expenseModal">
         <div class="modal-content">
-            <h2 style="margin-bottom: 15px; font-size: 20px;">Новый расход</h2>
+            <h2 id="expenseModalTitle" style="margin-bottom: 15px; font-size: 20px;">Новый расход</h2>
             <div class="form-group">
                 <label>На что потратили?</label>
                 <input type="text" id="expenseTitle" placeholder="Аренда, кофе, расходники...">
@@ -570,8 +570,9 @@
                 <label>Сумма (₽)</label>
                 <input type="number" id="expenseAmount" placeholder="0">
             </div>
-            <button class="checkout-btn" onclick="addExpense()">Добавить</button>
-            <button class="btn-cancel" style="margin-top: 10px;" onclick="closeModal('expenseModal')">Отмена</button>
+            <button type="button" id="expenseSaveBtn" class="checkout-btn" onclick="addExpense()">Добавить</button>
+            <button type="button" id="expenseDeleteBtn" class="btn-cancel" style="display:none; margin-top:10px;" onclick="deleteExpense()">Удалить расход</button>
+            <button type="button" class="btn-cancel" style="margin-top:10px;" onclick="editingExpenseId=null; closeModal('expenseModal')">Отмена</button>
         </div>
     </div>
 
