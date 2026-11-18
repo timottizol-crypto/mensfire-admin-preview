@@ -9803,3 +9803,100 @@ html.light-theme .toast {
         font-size: 14px !important;
     }
 }
+
+
+/* Finance header split: date scroller stays beside the title; period controls sit below the title */
+#viewFinance .finance-header-layout {
+    display: grid;
+    grid-template-columns: minmax(230px, .38fr) minmax(0, 1fr);
+    grid-template-areas:
+        "title dates"
+        "period dates";
+    align-items: start;
+    column-gap: 18px;
+    row-gap: 5px;
+    margin: 4px 0 18px;
+}
+#viewFinance .finance-header-layout > .finance-heading-copy {
+    grid-area: title;
+    min-width: 0;
+    max-width: none;
+}
+#viewFinance .finance-header-layout > .finance-date-navigation {
+    grid-area: dates;
+    display: block;
+    width: 100%;
+    min-width: 0;
+    max-width: none;
+    margin: 0;
+}
+#viewFinance .finance-header-layout > .finance-period-controls {
+    grid-area: period;
+    min-width: 0;
+    width: 100%;
+}
+#viewFinance .finance-header-layout .finance-range-toolbar {
+    justify-content: flex-start;
+    margin: 0;
+}
+#viewFinance #financeDateSelector {
+    display: flex !important;
+    width: 100%;
+    min-width: 0;
+    min-height: 0;
+    height: auto;
+    margin: 0 !important;
+    padding: 3px 2px 5px !important;
+    overflow-x: auto !important;
+    overflow-y: hidden;
+    flex-wrap: nowrap !important;
+    justify-content: flex-start !important;
+    gap: 7px !important;
+}
+#viewFinance #financeDateSelector .date-selector-item,
+#viewFinance #financeDateSelector .date-selector-item.is-today {
+    flex: 0 0 62px !important;
+    min-width: 62px !important;
+    padding: 7px 6px !important;
+    border-radius: 11px !important;
+}
+#viewFinance #financeDateSelector .date-selector-item .day-name {
+    margin: 0 0 3px !important;
+    font-size: 8px !important;
+    letter-spacing: 0 !important;
+    line-height: 1.15 !important;
+    white-space: nowrap !important;
+}
+#viewFinance #financeDateSelector .date-selector-item .day-num {
+    font-size: 14px !important;
+}
+@media (max-width: 767px) {
+    #viewFinance .finance-header-layout {
+        grid-template-columns: minmax(0, 1fr);
+        grid-template-areas:
+            "title"
+            "period"
+            "dates";
+        row-gap: 8px;
+        margin: 4px 0 18px;
+    }
+    #viewFinance .finance-header-layout > .finance-date-navigation {
+        margin: 0;
+    }
+    #viewFinance #financeDateSelector {
+        min-height: 76px;
+        padding: 5px 2px 11px !important;
+    }
+    #viewFinance #financeDateSelector .date-selector-item {
+        flex: 0 0 54px !important;
+        min-width: 54px !important;
+        padding: 10px 8px !important;
+    }
+    #viewFinance #financeDateSelector .date-selector-item .day-name {
+        font-size: 10px !important;
+        margin-bottom: 4px !important;
+    }
+    #viewFinance #financeDateSelector .date-selector-item .day-num {
+        font-size: 16px !important;
+    }
+}
