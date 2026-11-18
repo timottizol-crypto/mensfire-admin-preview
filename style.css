@@ -8299,3 +8299,15 @@ html.light-theme .dashboard-topline .dashboard-upcoming-row {
   padding:4px 7px !important;
   margin:0 !important;
 }
+
+
+/* Dashboard entrance: reveal the page heading, period presets and date field from below on entry. */
+#viewDashboard.dashboard-entering .dashboard-heading {
+    animation: slideUpEntrance .72s cubic-bezier(.25,1,.5,1) .02s both;
+}
+#viewDashboard.dashboard-entering .dashboard-period-controls .finance-range-presets {
+    animation: slideUpEntrance .72s cubic-bezier(.25,1,.5,1) .16s both;
+}
+#viewDashboard.dashboard-entering .dashboard-period-controls .finance-range-fields {
+    animation: slideUpEntrance .72s cubic-bezier(.25,1,.5,1) .30s both;
+}
