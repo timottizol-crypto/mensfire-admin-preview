@@ -9695,3 +9695,47 @@ html.light-theme .toast {
         min-height: 0 !important;
     }
 }
+
+
+/* Finance desktop header and date-strip refinement */
+@media (min-width: 768px) {
+    #viewFinance .finance-page-heading {
+        display: flex !important;
+        align-items: stretch !important;
+        gap: 16px !important;
+    }
+    #viewFinance .finance-heading-copy {
+        flex: 0 0 190px !important;
+        max-width: 190px !important;
+        min-width: 0 !important;
+    }
+    #viewFinance .finance-date-navigation {
+        display: flex !important;
+        flex: 1 1 1144px !important;
+        flex-direction: column !important;
+        width: auto !important;
+        min-width: 0 !important;
+        max-width: none !important;
+        clear: none !important;
+        margin: 0 0 16px auto !important;
+    }
+    #viewFinance .finance-date-navigation .finance-period-heading,
+    #viewFinance .finance-date-navigation .finance-range-toolbar {
+        width: 100%;
+    }
+    #viewFinance #financeDateSelector .date-selector-item .day-name {
+        font-size: 8px !important;
+        letter-spacing: 0 !important;
+        white-space: nowrap !important;
+        line-height: 1.15 !important;
+    }
+    #viewFinance #financeDateSelector .date-selector-item.is-today {
+        flex-basis: 72px !important;
+        min-width: 72px !important;
+    }
+    html:not(.light-theme) #viewFinance #financeDateSelector .date-selector-item,
+    html:not(.light-theme) #viewFinance #financeDateSelector .date-selector-item .day-name,
+    html:not(.light-theme) #viewFinance #financeDateSelector .date-selector-item .day-num {
+        color: #f2f4f7 !important;
+    }
+}
