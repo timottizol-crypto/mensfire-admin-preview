@@ -549,7 +549,8 @@ const MENSFIRE_DESKTOP_DRAWER_IDS = [
 
 function syncDesktopDrawerStack() {
     const activeDrawers = Array.from(document.querySelectorAll('.modal.drawer-modal.active'))
-        .filter(modal => MENSFIRE_DESKTOP_DRAWER_IDS.includes(modal.id));
+        .filter(modal => MENSFIRE_DESKTOP_DRAWER_IDS.includes(modal.id))
+        .sort((a, b) => Number(b.classList.contains('drawer-stack-bottom')) - Number(a.classList.contains('drawer-stack-bottom')));
 
     activeDrawers.forEach(modal => modal.classList.remove('drawer-stack-single', 'drawer-stack-top', 'drawer-stack-bottom'));
 
@@ -566,7 +567,11 @@ function syncDesktopDrawerStack() {
     const schedule = document.getElementById('viewSchedule');
     if (schedule) schedule.classList.toggle('drawer-space', hasDrawers);
 
-    if (hasDrawers) document.body.style.overflow = '';
+    if (hasDrawers) {
+        document.body.style.overflow = '';
+    } else if (!document.querySelector('.modal.active')) {
+        document.body.style.overflow = '';
+    }
 }
 
 function openModal(id) {
@@ -582,8 +587,8 @@ function openModal(id) {
             .filter(item => MENSFIRE_DESKTOP_DRAWER_IDS.includes(item.id));
 
         stack.sort((a, b) =>
-            Number(a.classList.contains('drawer-stack-bottom')) -
-            Number(b.classList.contains('drawer-stack-bottom'))
+            Number(b.classList.contains('drawer-stack-bottom')) -
+            Number(a.classList.contains('drawer-stack-bottom'))
         );
         stack = stack.filter(item => item !== modal);
 
