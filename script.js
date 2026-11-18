@@ -3422,7 +3422,22 @@ function renderFinanceDateSelector() {
     container.innerHTML = '';
     container.classList.toggle('is-hidden', financePeriodMode !== 'day');
     const fields = document.getElementById('financeRangeFields');
-    if (fields) fields.hidden = financePeriodMode !== 'custom';
+    const navigation = container.closest('.finance-date-navigation');
+    const toolbar = document.querySelector('#viewFinance .finance-range-toolbar');
+    const presets = toolbar?.querySelector('.finance-range-presets');
+
+    // On desktop, show the selected month/custom range in the exact slot
+    // normally occupied by the horizontal day scroller. Keep mobile DOM/layout unchanged.
+    if (fields && navigation && toolbar) {
+        if (isDesktop) {
+            if (fields.parentElement !== navigation) navigation.appendChild(fields);
+        } else if (fields.parentElement !== toolbar) {
+            toolbar.insertBefore(fields, presets ? presets.nextSibling : null);
+        }
+        fields.hidden = isDesktop
+            ? financePeriodMode === 'day'
+            : financePeriodMode !== 'custom';
+    }
     document.querySelectorAll('[data-finance-period]').forEach(button => button.classList.toggle('active', button.dataset.financePeriod === financePeriodMode));
     const startButton = document.getElementById('financeRangeStartButton');
     const endButton = document.getElementById('financeRangeEndButton');
