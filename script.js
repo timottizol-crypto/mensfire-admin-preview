@@ -4228,7 +4228,7 @@ function renderClientTasks() {
         return due && due < today;
     }).length;
     if (summary) summary.textContent = openTasks.length + ' активных' + (overdue ? ' · просрочено: ' + overdue : '');
-    root.classList.toggle('has-scroll', tasks.length > 2);
+    root.classList.toggle('has-scroll', tasks.length > 3);
     root.innerHTML = tasks.length ? tasks.map(task => {
         const due = parseClientTaskDate(task.dueDate);
         const isOverdue = !task.done && due && due < today;
@@ -5548,9 +5548,27 @@ function renderClientActivitySignals(clientBookings = []) {
     const priority = { urgent:0, warning:1, info:2, positive:3, neutral:4 };
     signals.sort((a,b) => priority[a.level]-priority[b.level]);
     root.innerHTML = '<div class="client-activity-heading"><div><strong>Сигналы внимания</strong><span>Что важно не упустить по этому клиенту</span></div><span>' + signals.length + '</span></div>' +
-        (signals.length ? '<div class="client-activity-grid">' + signals.map(signal =>
-            '<article class="client-activity-signal is-' + signal.level + '"><b>' + escapeBookingHtml(signal.title) + '</b><span>' + escapeBookingHtml(signal.detail) + '</span></article>'
-        ).join('') + '</div>' : '<div class="client-activity-empty">Срочных вопросов нет — по этому клиенту всё спокойно</div>');
+        (signals.length ? '<div class="client-activity-grid">' + signals.map(signal => {
+            const target = /задач|напомнить|открытые задачи/i.test(signal.title) ? '.client-tasks-section' :
+                /задолженность/i.test(signal.title) ? '.client-timeline-section' :
+                /отмены/i.test(signal.title) ? '.client-timeline-section' :
+                /день рождения/i.test(signal.title) ? '#clientDetailsBirthday' :
+                /не посещал/i.test(signal.title) ? '#clientDetailsHistory' : '.client-timeline-section';
+            return '<article class="client-activity-signal is-' + signal.level + '" data-client-signal-target="' + target + '" role="button" tabindex="0"><b>' + escapeBookingHtml(signal.title) + '</b><span>' + escapeBookingHtml(signal.detail) + '</span></article>';
+        }).join('') + '</div>' : '<div class="client-activity-empty">Срочных вопросов нет — по этому клиенту всё спокойно</div>');
+    root.querySelectorAll('[data-client-signal-target]').forEach(card => {
+        const scrollToTarget = () => {
+            const target = document.querySelector('#clientDetailsModal ' + card.dataset.clientSignalTarget);
+            if (target) target.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        };
+        card.addEventListener('click', scrollToTarget);
+        card.addEventListener('keydown', event => {
+            if (event.key === 'Enter' || event.key === ' ') {
+                event.preventDefault();
+                scrollToTarget();
+            }
+        });
+    });
 }
 
 function showClientDetails(name, barberId) {
