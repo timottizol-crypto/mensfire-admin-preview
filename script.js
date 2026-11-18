@@ -3631,7 +3631,7 @@ function renderFinance() {
     const expensesList = document.getElementById('expensesList');
     const canEditExpensesOnDesktop = window.matchMedia('(min-width: 768px)').matches;
     if (expensesList) expensesList.innerHTML = dayExpenses.length ? dayExpenses.map(item => `
-        <div class="finance-operation${canEditExpensesOnDesktop ? ' finance-expense-operation-clickable' : ''}"${canEditExpensesOnDesktop ? ` role="button" tabindex="0" onclick="openExpenseEditModal(${JSON.stringify(String(item.id))})" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();openExpenseEditModal(${JSON.stringify(String(item.id))})}" aria-label="Изменить расход"` : ''}>
+        <div class="finance-operation${canEditExpensesOnDesktop ? ' finance-expense-operation-clickable' : ''}"${canEditExpensesOnDesktop ? ` role="button" tabindex="0" onclick='openExpenseEditModal(${JSON.stringify(String(item.id)).replace(/'/g, '&#39;')})' onkeydown='if(event.key==="Enter"||event.key===" "){event.preventDefault();openExpenseEditModal(${JSON.stringify(String(item.id)).replace(/'/g, '&#39;')})}' aria-label="Изменить расход"` : ''}>
             <div class="finance-operation-icon">↗</div>
             <div class="finance-operation-copy"><strong>${escapeBookingHtml(item.title || 'Расход')}</strong><span>${escapeBookingHtml(item.category || 'Операционные расходы')}</span></div>
             <strong class="finance-negative">−${fmt(item.amount)}</strong>
