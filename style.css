@@ -10040,3 +10040,19 @@ html.light-theme .toast {
         font-weight: 700 !important;
     }
 }
+
+
+/* Finance desktop: reduce the vertical footprint of the revenue chart. */
+@media (min-width: 768px) {
+    #viewFinance .finance-chart-panel .finance-chart-bars {
+        min-height: 132px !important;
+        padding-top: 6px !important;
+    }
+    #viewFinance .finance-chart-panel .finance-chart-column {
+        height: 132px !important;
+        gap: 6px !important;
+    }
+    #viewFinance .finance-chart-panel .finance-chart-track {
+        height: 78px !important;
+    }
+}
