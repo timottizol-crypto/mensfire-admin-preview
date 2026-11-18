@@ -9033,3 +9033,27 @@ html.light-theme .toast {
         color: #17623c;
     }
 }
+
+
+/* Barber analytics panel — desktop only */
+@media (min-width: 768px) {
+ #barberStatsModal .barber-stats-panel{width:min(680px,calc(100vw - 64px));max-width:680px!important;max-height:min(88vh,900px);overflow-y:auto;border:1px solid var(--border-color);background:var(--card-bg);color:var(--text-main);border-radius:22px;box-shadow:0 24px 80px rgba(0,0,0,.38),inset 0 1px 0 rgba(255,255,255,.07);backdrop-filter:blur(22px);-webkit-backdrop-filter:blur(22px)}
+ #barberStatsModal .barber-stats-close{color:var(--text-muted);font-size:26px;background:transparent;border:0;cursor:pointer}
+ #barberStatsModal .barber-stats-salary{padding:12px;border-radius:12px;text-align:center;background:var(--gold-soft,rgba(212,175,55,.09));border:1px solid var(--border-color)}
+ #barberStatsModal .barber-stats-salary-value{font-size:18px;font-weight:800;color:var(--gold)}
+ #barberStatsModal .barber-stats-extra{display:grid;gap:10px;margin:4px 0 20px}
+ #barberStatsModal .barber-stats-section-title{margin:8px 0 0;color:var(--text-muted);font-size:11px;font-weight:800;letter-spacing:.09em;text-transform:uppercase}
+ #barberStatsModal .barber-stats-extra-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:9px}
+ #barberStatsModal .barber-stats-extra-card{min-width:0;display:flex;flex-direction:column;gap:7px;padding:13px;border:1px solid var(--border-color);border-radius:13px;background:var(--card-bg)}
+ #barberStatsModal .barber-stats-extra-card span{color:var(--text-muted);font-size:10px}
+ #barberStatsModal .barber-stats-extra-card strong{color:var(--text-main);font-size:clamp(15px,1.5vw,20px);overflow-wrap:anywhere}
+ #barberStatsModal .barber-stats-top-services,#barberStatsModal .barber-stats-recent-list{display:grid;gap:7px}
+ #barberStatsModal .barber-stats-service-row,#barberStatsModal .barber-stats-visit-row{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:11px 13px;border:1px solid var(--border-color);border-radius:12px;background:var(--card-bg)}
+ #barberStatsModal .barber-stats-service-row span{display:flex;align-items:center;gap:9px;min-width:0;color:var(--text-main);font-size:12px}
+ #barberStatsModal .barber-stats-service-row i{display:grid;place-items:center;width:22px;height:22px;flex:0 0 22px;border-radius:50%;background:var(--gold-soft,rgba(212,175,55,.1));color:var(--gold);font-style:normal;font-weight:800}
+ #barberStatsModal .barber-stats-service-row strong,#barberStatsModal .barber-stats-visit-row b{flex:0 0 auto;color:var(--gold);font-size:12px}
+ #barberStatsModal .barber-stats-visit-row>div{display:grid;min-width:0;gap:3px}
+ #barberStatsModal .barber-stats-visit-row strong{color:var(--text-main);font-size:12px}
+ #barberStatsModal .barber-stats-visit-row span,#barberStatsModal .barber-stats-visit-row small{color:var(--text-muted);font-size:10px;overflow-wrap:anywhere}
+ #barberStatsModal .barber-stats-empty{padding:12px;color:var(--text-muted);font-size:11px;border:1px dashed var(--border-color);border-radius:12px}
+}
