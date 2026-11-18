@@ -9235,11 +9235,24 @@ html.light-theme .toast {
     background: rgba(24,27,33,.94) !important;
     border-color: var(--border-color,rgba(255,255,255,.18)) !important;
     color-scheme: dark;
+    padding-left: 16px !important;
+    padding-right: 14px !important;
+    text-align: left !important;
+    text-indent: 0 !important;
   }
   #clientDetailsModal textarea#clientDetailsNotes::placeholder {
     color: rgba(255,255,255,.58) !important;
     -webkit-text-fill-color: rgba(255,255,255,.58) !important;
-    text-align: center !important;
+    text-align: left !important;
     opacity: 1 !important;
+  }
+  #clientDetailsModal .client-interaction-history.has-scroll,
+  #clientDetailsModal .client-tasks-list.has-scroll {
+    max-height: 260px !important;
+    overflow-y: auto !important;
+    overflow-x: hidden !important;
+    overscroll-behavior: contain;
+    scrollbar-gutter: stable;
+    padding-right: 7px;
   }
 }
