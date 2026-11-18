@@ -3478,7 +3478,10 @@ function renderFinanceDateSelector() {
         requestAnimationFrame(() => {
             const selected = container.querySelector('.selected');
             if (selected) {
-                const targetLeft = selected.offsetLeft - (container.clientWidth - selected.offsetWidth) / 2;
+                const selectedRect = selected.getBoundingClientRect();
+                const containerRect = container.getBoundingClientRect();
+                const targetLeft = container.scrollLeft + selectedRect.left - containerRect.left
+                    - (container.clientWidth - selectedRect.width) / 2;
                 container.scrollTo({left: Math.max(0, targetLeft), behavior: 'auto'});
             }
         });
