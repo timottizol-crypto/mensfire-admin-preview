@@ -1948,6 +1948,7 @@ function saveBookingPayment() {
     localStorage.setItem(appStorageKey('mensfire_admin_bookings'), JSON.stringify(bookings));
     selectedPaymentBookingId = null;
     closeModal('bookingPaymentModal');
+    renderSchedule();
     openActionModal(booking.id);
     showToast('Платёж добавлен', 'success');
 }
