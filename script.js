@@ -1365,6 +1365,27 @@ function setScheduleBarberFilter(barberId) {
     renderSchedule();
 }
 
+function renderScheduleOverviewPanel() {
+    const overview = document.getElementById('scheduleOverview');
+    const isOpen = window.scheduleOverviewExpanded === true;
+    return `
+        <div id="scheduleQuickInfoPanel" class="schedule-quick-info-panel" ${isOpen ? '' : 'hidden'}>
+            <div class="schedule-overview-grid">${overview ? overview.innerHTML : ''}</div>
+        </div>`;
+}
+
+function toggleScheduleOverview() {
+    window.scheduleOverviewExpanded = ! (window.scheduleOverviewExpanded === true);
+    const panel = document.getElementById('scheduleQuickInfoPanel');
+    const button = document.querySelector('#desktopSchedule .desktop-calendar-info-toggle');
+    if (panel) panel.hidden = !window.scheduleOverviewExpanded;
+    if (button) {
+        button.classList.toggle('active', window.scheduleOverviewExpanded);
+        button.setAttribute('aria-expanded', window.scheduleOverviewExpanded ? 'true' : 'false');
+        button.title = window.scheduleOverviewExpanded ? 'Скрыть сводку' : 'Показать сводку';
+    }
+}
+
 function renderDesktopSchedule() {
     const view = document.getElementById('viewSchedule');
     if (!view) return;
@@ -1418,6 +1439,7 @@ function renderDesktopSchedule() {
                     <button onclick="setDesktopCalendarMode('day')">День</button>
                     <button onclick="setDesktopCalendarMode('week')">Неделя</button>
                     <button class="active" onclick="setDesktopCalendarMode('month')">Месяц</button>
+                    <button type="button" class="desktop-calendar-info-toggle ${window.scheduleOverviewExpanded ? 'active' : ''}" onclick="toggleScheduleOverview()" aria-label="Показать сводку" aria-expanded="${window.scheduleOverviewExpanded ? 'true' : 'false'}" title="Сводка" ><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 18h16M4 12h10M4 6h6" /></svg></button>
                     <button class="${currentScheduleTab === 'bookings' ? 'active' : ''}" onclick="switchScheduleTab('bookings')">Записи</button>
                     <button class="${currentScheduleTab === 'breaks' ? 'active' : ''}" onclick="switchScheduleTab('breaks')">Перерывы</button>
                     <span class="desktop-calendar-action-divider" aria-hidden="true"></span>
@@ -1426,6 +1448,7 @@ function renderDesktopSchedule() {
                     <button type="button" class="desktop-calendar-action desktop-calendar-action-primary" onclick="openNewBookingModal()">＋ Новая запись</button>
                 </div>
             </div>
+            ${renderScheduleOverviewPanel()}
             ${renderScheduleBarberFilter(availableStaff)}
             <div class="desktop-month-grid">
                 ${weekDays.map(dayName => `<div class="desktop-month-weekday">${dayName}</div>`).join('')}
@@ -1488,6 +1511,7 @@ function renderDesktopSchedule() {
             <div class="desktop-calendar-tabs">
                 <button class="${viewMode === 'day' ? 'active' : ''}" onclick="setDesktopCalendarMode('day')">День</button>
                 <button class="${viewMode === 'week' ? 'active' : ''}" onclick="setDesktopCalendarMode('week')">Неделя</button>
+                <button type="button" class="desktop-calendar-info-toggle ${window.scheduleOverviewExpanded ? 'active' : ''}" onclick="toggleScheduleOverview()" aria-label="Показать сводку" aria-expanded="${window.scheduleOverviewExpanded ? 'true' : 'false'}" title="Сводка"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 18h16M4 12h10M4 6h6" /></svg></button>
                 <button class="${currentScheduleTab === 'bookings' ? 'active' : ''}" onclick="switchScheduleTab('bookings')">Записи</button>
                 <button class="${currentScheduleTab === 'breaks' ? 'active' : ''}" onclick="switchScheduleTab('breaks')">Перерывы</button>
                 <span class="desktop-calendar-action-divider" aria-hidden="true"></span>
@@ -1496,6 +1520,7 @@ function renderDesktopSchedule() {
                     <button type="button" class="desktop-calendar-action desktop-calendar-action-primary" onclick="openNewBookingModal()">＋ Новая запись</button>
             </div>
         </div>
+        ${renderScheduleOverviewPanel()}
         ${renderScheduleBarberFilter(availableStaff)}
         <div class="desktop-calendar-scroll ${viewMode === 'week' ? 'is-week-view' : ''}">
             <div class="desktop-calendar-grid" style="--calendar-column-count:${Math.max(columns.length, 1)}">
