@@ -8302,7 +8302,7 @@ html.light-theme .dashboard-topline .dashboard-upcoming-row {
 
 
 /* Dashboard entrance: reveal the page heading, period presets and date field from below on entry. */
-#viewDashboard.dashboard-entering .dashboard-heading {
+#viewDashboard.dashboard-entering .dashboard-heading > div {
     animation: slideUpEntrance .72s cubic-bezier(.25,1,.5,1) .02s both;
 }
 #viewDashboard.dashboard-entering .dashboard-period-controls .finance-range-presets {
