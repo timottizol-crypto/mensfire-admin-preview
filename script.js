@@ -3927,76 +3927,42 @@ function deleteStaff(id) {
 // --- АНАЛИТИКА БАРБЕРА ---
 function showBarberStats(id) {
     if (!requireAdminAction('Статистика мастеров доступна только Али')) return;
-    const staff = mockStaff.find(s => s.id === id);
+    const staff = mockStaff.find(person => String(person.id) === String(id));
     if (!staff) return;
-
     document.getElementById('statsBarberName').innerText = staff.name;
-
-    const today = new Date();
-    const currentMonth = today.getMonth();
-    const currentYear = today.getFullYear();
+    const today = new Date(), month = today.getMonth(), year = today.getFullYear();
     const todayStr = today.toLocaleDateString('ru-RU');
-
-    // Получаем все завершенные записи этого мастера
-    const allCompleted = bookings.filter(b => b.barberId === id && b.status === 'completed');
-    
-    // За текущий месяц
-    const monthBookings = allCompleted.filter(b => {
-        const [d, m, y] = b.date.split('.');
-        return parseInt(y) === currentYear && (parseInt(m) - 1) === currentMonth;
-    });
-
-    // За сегодня
-    const todayBookings = allCompleted.filter(b => b.date === todayStr);
-
-    // Считаем суммы
-    const monthRevenue = monthBookings.reduce((sum, b) => sum + getBookingCollectedAmount(b), 0);
-    const todayRevenue = todayBookings.reduce((sum, b) => sum + getBookingCollectedAmount(b), 0);
-    
-    const monthSalary = Math.round(monthRevenue * 0.4);
-    const todaySalary = Math.round(todayRevenue * 0.4);
-
-    // Уникальные клиенты за месяц
-    const uniqueClients = new Set(monthBookings.map(b => b.clientName));
-
-    // Топ услуга за месяц
-    const serviceCounts = {};
-    monthBookings.forEach(b => {
-        (b.services || []).forEach(s => {
-            serviceCounts[s.title] = (serviceCounts[s.title] || 0) + 1;
-        });
-    });
-    let topService = '-';
-    let topCount = 0;
-    for (const [title, count] of Object.entries(serviceCounts)) {
-        if (count > topCount) { topCount = count; topService = title; }
-    }
-
-    // Заполняем данные
+    const staffBookings = bookings.filter(item => String(item.barberId) === String(id));
+    const completed = staffBookings.filter(item => item.status === 'completed');
+    const monthBookings = completed.filter(item => { const date = parseReportDate(item.date); return date && date.getFullYear() === year && date.getMonth() === month; });
+    const todayBookings = completed.filter(item => item.date === todayStr);
+    const revenue = list => list.reduce((sum,item) => sum + getBookingCollectedAmount(item),0);
+    const monthRevenue = revenue(monthBookings), todayRevenue = revenue(todayBookings), allRevenue = revenue(completed);
+    const money = value => Math.round(value).toLocaleString('ru-RU') + ' ₽';
+    const uniqueClients = new Set(monthBookings.map(item => String(item.clientPhone || item.clientName || '').trim().toLowerCase()).filter(Boolean));
+    const counts = {};
+    completed.forEach(booking => (booking.services || []).forEach(service => { const title=String(service.title || 'Услуга').trim(); if(title) counts[title]=(counts[title]||0)+1; }));
+    const top = Object.entries(counts).sort((a,b)=>b[1]-a[1]).slice(0,3);
     document.getElementById('statsMonthVisits').innerText = monthBookings.length;
     document.getElementById('statsMonthClients').innerText = uniqueClients.size;
-    document.getElementById('statsMonthRevenue').innerText = monthRevenue + ' ₽';
-    document.getElementById('statsMonthSalary').innerText = monthSalary + ' ₽';
-    
+    document.getElementById('statsMonthRevenue').innerText = money(monthRevenue);
+    document.getElementById('statsMonthSalary').innerText = money(Math.round(monthRevenue*.4));
     document.getElementById('statsTodayVisits').innerText = todayBookings.length;
-    document.getElementById('statsTodayRevenue').innerText = todayRevenue + ' ₽';
-    document.getElementById('statsTodaySalary').innerText = todaySalary + ' ₽';
-
-    document.getElementById('statsTopService').innerText = topService;
-    document.getElementById('statsTopServiceCount').innerText = topCount + ' раз';
-
-    // Настраиваем кнопку сброса PIN
-    const resetBtn = document.getElementById('statsResetPinBtn');
-    if (resetBtn) {
-        resetBtn.onclick = () => {
-            closeModal('barberStatsModal');
-            resetStaffPin(id);
-        };
-    }
-
+    document.getElementById('statsTodayRevenue').innerText = money(todayRevenue);
+    document.getElementById('statsTodaySalary').innerText = money(Math.round(todayRevenue*.4));
+    document.getElementById('statsTopService').innerText = top[0]?.[0] || '-';
+    document.getElementById('statsTopServiceCount').innerText = (top[0]?.[1] || 0) + ' раз';
+    const values={statsAllVisits:completed.length,statsAllRevenue:money(allRevenue),statsAverageCheck:money(completed.length?allRevenue/completed.length:0),statsCancelled:staffBookings.filter(item=>item.status==='cancelled').length};
+    Object.entries(values).forEach(([key,value])=>{const el=document.getElementById(key);if(el)el.innerText=value;});
+    const servicesHost=document.getElementById('statsTopServices');
+    if(servicesHost)servicesHost.innerHTML=top.length?top.map(([title,count],i)=>'<div class="barber-stats-service-row"><span><i>'+(i+1)+'</i>'+escapeBookingHtml(title)+'</span><strong>'+count+' раз</strong></div>').join(''):'<div class="barber-stats-empty">Пока нет завершённых услуг</div>';
+    const recentHost=document.getElementById('statsRecentVisits');
+    if(recentHost){const recent=completed.slice().sort((a,b)=>(parseReportDate(b.date)?.getTime()||0)-(parseReportDate(a.date)?.getTime()||0)||String(b.time||'').localeCompare(String(a.time||''))).slice(0,5);
+        recentHost.innerHTML=recent.length?recent.map(item=>{const names=(item.services||[]).map(service=>service.title).filter(Boolean).join(', ')||'Услуги не указаны';return '<div class="barber-stats-visit-row"><div><strong>'+escapeBookingHtml(item.clientName||'Клиент')+'</strong><span>'+escapeBookingHtml(item.date||'')+' · '+escapeBookingHtml(item.time||'')+'</span><small>'+escapeBookingHtml(names)+'</small></div><b>'+money(getBookingCollectedAmount(item))+'</b></div>';}).join(''):'<div class="barber-stats-empty">Завершённых визитов пока нет</div>';}
+    const resetBtn=document.getElementById('statsResetPinBtn');
+    if(resetBtn)resetBtn.onclick=()=>{closeModal('barberStatsModal');resetStaffPin(id);};
     openModal('barberStatsModal');
 }
-
 // Добавь эту переменную в начало скрипта или прямо перед функцией
 let currentClientsTab = 'all';
 let currentClientsWorkspaceMode = 'clients';
