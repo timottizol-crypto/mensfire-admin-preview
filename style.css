@@ -8492,3 +8492,43 @@ html.light-theme .dashboard-topline .dashboard-upcoming-row {
         overflow-wrap: anywhere;
     }
 }
+
+
+/* Weekly schedule: visually separate each new day from the previous one. */
+@media (min-width: 768px) {
+    #viewSchedule > #desktopSchedule .desktop-calendar-scroll.is-week-view .desktop-staff-column.is-week-day-start {
+        border-left: 2px solid var(--border-color);
+    }
+
+    #viewSchedule > #desktopSchedule .desktop-calendar-scroll.is-week-view .desktop-staff-column.is-week-day-start .desktop-staff-heading {
+        box-shadow: inset 1px 0 0 var(--border-color);
+    }
+}
+
+/* Let toolbar actions wrap instead of pushing controls out of alignment. */
+@media (min-width: 768px) and (max-width: 1250px) {
+    #viewSchedule > #desktopSchedule .desktop-calendar-toolbar {
+        flex-wrap: wrap;
+        align-items: flex-start;
+        row-gap: 8px;
+    }
+
+    #viewSchedule > #desktopSchedule .desktop-calendar-tabs {
+        flex: 1 1 100%;
+        min-width: 0;
+        flex-wrap: wrap;
+        justify-content: flex-start;
+        gap: 6px;
+    }
+
+    #viewSchedule > #desktopSchedule .desktop-calendar-tabs > button {
+        padding: 7px 10px;
+        font-size: 12px;
+        line-height: 1.2;
+        white-space: nowrap;
+    }
+
+    #viewSchedule > #desktopSchedule .desktop-calendar-tabs .desktop-calendar-action {
+        flex: 0 1 auto;
+    }
+}
