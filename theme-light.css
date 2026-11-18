@@ -678,3 +678,71 @@ html.light-theme table thead th {
 html.light-theme table tbody tr {
   border-color:rgba(35,48,66,.08);
 }
+
+
+/* Light theme readability refinements */
+html.light-theme {
+  --text-muted: #4b5565;
+  --text-secondary: #4b5565;
+}
+html.light-theme .finance-operation-barber {
+  color: #374151 !important;
+  font-size: 13px;
+  font-weight: 700;
+}
+html.light-theme .finance-operation-copy > span,
+html.light-theme .finance-muted,
+html.light-theme .finance-panel-heading p,
+html.light-theme .finance-page-heading p,
+html.light-theme .workspace-heading p,
+html.light-theme .dashboard-panel p,
+html.light-theme .desktop-calendar-date-controls > strong,
+html.light-theme .desktop-staff-heading strong,
+html.light-theme .desktop-staff-heading span {
+  color: #4b5565 !important;
+}
+html.light-theme .finance-operation-copy > span,
+html.light-theme .finance-muted {
+  font-size: 13px;
+}
+html.light-theme #barberStatsModal .barber-stats-panel {
+  color: #202938 !important;
+  background: rgba(255,255,255,.88) !important;
+  border-color: rgba(54,68,88,.16) !important;
+}
+html.light-theme #barberStatsModal .barber-stats-close,
+html.light-theme #barberStatsModal .close-btn {
+  color: #263244 !important;
+  background: rgba(255,255,255,.72) !important;
+  border: 1px solid rgba(54,68,88,.16) !important;
+  border-radius: 10px;
+  width: 38px;
+  height: 38px;
+  display: inline-grid;
+  place-items: center;
+  font-size: 27px !important;
+  line-height: 1;
+}
+html.light-theme #barberStatsModal .barber-stats-section-title,
+html.light-theme #barberStatsModal .barber-stats-extra-card span,
+html.light-theme #barberStatsModal .barber-stats-visit-row span,
+html.light-theme #barberStatsModal .barber-stats-visit-row small {
+  color: #4b5565 !important;
+}
+@media (min-width: 768px) {
+  html.light-theme #viewSchedule > #desktopSchedule .desktop-calendar-date-controls > strong {
+    color: #263244 !important;
+    font-size: 16px;
+    font-weight: 800;
+  }
+  html.light-theme #viewSchedule > #desktopSchedule .desktop-staff-heading strong {
+    color: #263244 !important;
+    font-size: 13px;
+    font-weight: 800;
+  }
+  html.light-theme #viewSchedule > #desktopSchedule .desktop-staff-heading span {
+    color: #4b5565 !important;
+    font-size: 12px;
+    font-weight: 700;
+  }
+}
