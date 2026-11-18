@@ -78,6 +78,7 @@ let editingServiceId = null;
 let editingServiceType = 'top';
 
 let currentFinanceTab = 'expenses'; // По умолчанию Расходы
+let editingExpenseId = null;
 let dashboardPeriodMode = 'day';
 let dashboardSelectedDate = new Date().toLocaleDateString('ru-RU');
 let dashboardRangeStart = dashboardSelectedDate;
@@ -3628,8 +3629,9 @@ function renderFinance() {
     if (paymentSubtitle) paymentSubtitle.textContent = financePeriodMode === 'day' ? 'Распределение поступлений за месяц' : 'Распределение поступлений за период';
 
     const expensesList = document.getElementById('expensesList');
+    const canEditExpensesOnDesktop = window.matchMedia('(min-width: 768px)').matches;
     if (expensesList) expensesList.innerHTML = dayExpenses.length ? dayExpenses.map(item => `
-        <div class="finance-operation">
+        <div class="finance-operation${canEditExpensesOnDesktop ? ' finance-expense-operation-clickable' : ''}"${canEditExpensesOnDesktop ? ` role="button" tabindex="0" onclick="openExpenseEditModal(${JSON.stringify(String(item.id))})" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();openExpenseEditModal(${JSON.stringify(String(item.id))})}" aria-label="Изменить расход"` : ''}>
             <div class="finance-operation-icon">↗</div>
             <div class="finance-operation-copy"><strong>${escapeBookingHtml(item.title || 'Расход')}</strong><span>${escapeBookingHtml(item.category || 'Операционные расходы')}</span></div>
             <strong class="finance-negative">−${fmt(item.amount)}</strong>
@@ -3773,36 +3775,69 @@ function renderFinance() {
 }
 function openExpenseModal() {
     if (!requireAdminAction('Управлять финансами может только Али')) return;
+    editingExpenseId = null;
+    document.getElementById('expenseModalTitle').textContent = 'Новый расход';
+    document.getElementById('expenseSaveBtn').textContent = 'Добавить';
+    document.getElementById('expenseDeleteBtn').style.display = 'none';
     document.getElementById('expenseTitle').value = '';
     document.getElementById('expenseAmount').value = '';
     openModal('expenseModal');
 }
 
+function openExpenseEditModal(expenseId) {
+    if (!window.matchMedia('(min-width: 768px)').matches) return;
+    if (!requireAdminAction('Управлять финансами может только Али')) return;
+    const expense = expenses.find(item => String(item.id) === String(expenseId));
+    if (!expense) return showToast('Расход не найден', 'error');
+    editingExpenseId = expense.id;
+    document.getElementById('expenseModalTitle').textContent = 'Изменить расход';
+    document.getElementById('expenseSaveBtn').textContent = 'Сохранить изменения';
+    document.getElementById('expenseDeleteBtn').style.display = 'block';
+    document.getElementById('expenseTitle').value = String(expense.title || '');
+    document.getElementById('expenseAmount').value = String(expense.amount ?? '');
+    openModal('expenseModal');
+}
+
 function addExpense() {
-    if (!requireAdminAction('Добавлять расходы может только Али')) return;
-    const titleInput = document.getElementById('expenseTitle');
-    const amountInput = document.getElementById('expenseAmount');
-    const title = String(titleInput?.value || '').trim();
-    const rawAmount = String(amountInput?.value || '').trim().replace(',', '.');
+    if (!requireAdminAction(editingExpenseId == null ? 'Добавлять расходы может только Али' : 'Управлять финансами может только Али')) return;
+    const title = String(document.getElementById('expenseTitle')?.value || '').trim();
+    const rawAmount = String(document.getElementById('expenseAmount')?.value || '').trim().replace(',', '.');
     const amount = rawAmount && /^\d+(?:\.\d{1,2})?$/.test(rawAmount) ? Number(rawAmount) : NaN;
-    const expenseDate = parseReportDate(selectedFinanceDate);
-
-    if (!title || !Number.isFinite(amount) || amount <= 0 || !expenseDate) {
-        return showToast('Укажите название, корректную сумму и дату расхода', 'error');
+    if (!title || !Number.isFinite(amount) || amount <= 0) return showToast('Укажите название и корректную сумму расхода', 'error');
+    if (editingExpenseId != null) {
+        const expense = expenses.find(item => String(item.id) === String(editingExpenseId));
+        if (!expense) return showToast('Расход не найден', 'error');
+        expense.title = title;
+        expense.amount = Math.round(amount * 100) / 100;
+        localStorage.setItem(appStorageKey('mensfire_admin_expenses'), JSON.stringify(expenses));
+        editingExpenseId = null;
+        closeModal('expenseModal');
+        showToast('Изменения расхода сохранены', 'success');
+        renderFinance();
+        return;
     }
-
-    const newExpense = {
-        id: Date.now(),
-        title: title,
-        amount: Math.round(amount * 100) / 100,
-        date: selectedFinanceDate
-    };
-
-    expenses.push(newExpense);
+    const expenseDate = parseReportDate(selectedFinanceDate);
+    if (!expenseDate) return showToast('Укажите корректную дату расхода', 'error');
+    expenses.push({ id: Date.now(), title, amount: Math.round(amount * 100) / 100, date: selectedFinanceDate });
     localStorage.setItem(appStorageKey('mensfire_admin_expenses'), JSON.stringify(expenses));
     closeModal('expenseModal');
     showToast(`Расход добавлен на ${selectedFinanceDate}`, 'success');
     renderFinance();
+}
+
+function deleteExpense() {
+    if (!requireAdminAction('Управлять финансами может только Али')) return;
+    if (editingExpenseId == null) return;
+    const expense = expenses.find(item => String(item.id) === String(editingExpenseId));
+    if (!expense) return showToast('Расход не найден', 'error');
+    showConfirm('Удалить расход?', `Расход «${expense.title || 'Расход'}» будет удалён без возможности восстановления.`, 'Удалить', () => {
+        expenses = expenses.filter(item => String(item.id) !== String(editingExpenseId));
+        localStorage.setItem(appStorageKey('mensfire_admin_expenses'), JSON.stringify(expenses));
+        editingExpenseId = null;
+        closeModal('expenseModal');
+        showToast('Расход удалён', 'success');
+        renderFinance();
+    });
 }
 
 // --- КОМАНДА (Только Админ) ---
