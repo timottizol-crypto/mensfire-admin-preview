@@ -137,10 +137,8 @@
         <!-- ЭКРАН ФИНАНСОВ (Только Админ) -->
         <div id="viewFinance" class="view finance-view">
             <div class="finance-page-heading">
-                <div><span class="finance-eyebrow">MENSFIRE BUSINESS</span><h2>Финансы</h2><p>Контроль выручки, расходов и эффективности команды</p></div>
-                <button class="action-modal-btn action-btn-primary" onclick="openExpenseModal()">＋ Расход</button>
-            </div>
-            <div class="finance-date-navigation">
+                <div class="finance-heading-copy"><span class="finance-eyebrow">MENSFIRE BUSINESS</span><h2>Финансы</h2><p>Контроль выручки, расходов и эффективности команды</p></div>
+                <div class="finance-date-navigation">
                 <div class="finance-period-heading"><div><strong>Период отчёта</strong><span id="financeSelectedDateLabel">Выберите период</span></div><span class="finance-live-label">Локальные данные</span></div>
                 <div class="finance-range-toolbar">
                     <div class="finance-range-presets" role="group" aria-label="Период отчёта">
@@ -155,6 +153,7 @@
                     </div>
                 </div>
                 <div class="date-selector finance-date-strip" id="financeDateSelector" aria-label="Быстрый выбор даты"></div>
+                </div>
             </div>
             <div class="category-tabs finance-tabs" style="margin-bottom:15px;">
                 <button class="tab-btn active" id="tabFinExpenses" onclick="switchFinanceTab('expenses')">Обзор</button>
