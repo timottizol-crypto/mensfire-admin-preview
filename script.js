@@ -3750,7 +3750,7 @@ function renderFinance() {
     });
     const topServices = document.getElementById('analyticsTopServicesList');
     if (topServices) {
-        const sorted = Object.entries(serviceCounts).sort((a,b) => b[1].revenue-a[1].revenue).slice(0,5);
+        const sorted = Object.entries(serviceCounts).sort((a,b) => b[1].revenue-a[1].revenue);
         const maxServiceRevenue = Math.max(1,...sorted.map(([,data]) => data.revenue));
         topServices.innerHTML = sorted.length ? sorted.map(([name,data],index) => `
             <div class="finance-service-row finance-service-row-detailed"><span class="finance-service-rank">${index+1}</span><div class="finance-service-copy"><strong>${escapeBookingHtml(name)}</strong><span>${data.count} выполнено за 30 дней</span><div class="finance-service-track"><i style="width:${data.revenue/maxServiceRevenue*100}%"></i></div></div><strong>${fmt(data.revenue)}</strong></div>`
