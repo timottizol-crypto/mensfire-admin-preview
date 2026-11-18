@@ -3206,14 +3206,12 @@ function deleteTimeBlock() {
 
 function switchFinanceTab(tab) {
     if (!requireAdminAction('Просматривать финансы может только Али')) return;
-    currentFinanceTab = tab;
-    document.getElementById('tabFinExpenses').classList.toggle('active', tab === 'expenses');
-    document.getElementById('tabFinRevenue').classList.toggle('active', tab === 'revenue');
-    document.getElementById('tabFinAnalytics').classList.toggle('active', tab === 'analytics');
+    currentFinanceTab = tab === 'expenses' ? 'expenses' : 'revenue';
+    document.getElementById('tabFinExpenses').classList.toggle('active', currentFinanceTab === 'expenses');
+    document.getElementById('tabFinRevenue').classList.toggle('active', currentFinanceTab === 'revenue');
 
-    document.getElementById('finTabExpenses').style.display = tab === 'expenses' ? 'block' : 'none';
-    document.getElementById('finTabRevenue').style.display = tab === 'revenue' ? 'flex' : 'none';
-    document.getElementById('finTabAnalytics').style.display = tab === 'analytics' ? 'block' : 'none';
+    document.getElementById('finTabExpenses').style.display = currentFinanceTab === 'expenses' ? 'block' : 'none';
+    document.getElementById('finTabRevenueAnalytics').style.display = currentFinanceTab === 'revenue' ? 'flex' : 'none';
 
     renderFinance();
 }
@@ -3479,7 +3477,10 @@ function renderFinanceDateSelector() {
     } else {
         requestAnimationFrame(() => {
             const selected = container.querySelector('.selected');
-            if (selected) selected.scrollIntoView({block:'nearest',inline:'center',behavior:'smooth'});
+            if (selected) {
+                const targetLeft = selected.offsetLeft - (container.clientWidth - selected.offsetWidth) / 2;
+                container.scrollTo({left: Math.max(0, targetLeft), behavior: 'auto'});
+            }
         });
     }
 }
@@ -3606,16 +3607,16 @@ function renderFinance() {
     setText('financeToday', fmt(dayRevenue));
     setText('financeWeek', fmt(weekRevenue));
     setText('financeMonth', fmt(monthRevenue));
-    const monthLabel = document.querySelector('#finTabRevenue .finance-kpi-card:nth-child(3) .finance-kpi-label');
+    const monthLabel = document.querySelector('#finTabRevenueAnalytics .finance-kpi-card:nth-child(3) .finance-kpi-label');
     if (monthLabel) monthLabel.textContent = financePeriodMode === 'day' ? 'Месяц' : 'Период';
-    const monthHint = document.querySelector('#finTabRevenue .finance-kpi-card:nth-child(3) small');
+    const monthHint = document.querySelector('#finTabRevenueAnalytics .finance-kpi-card:nth-child(3) small');
     if (monthHint) monthHint.textContent = aggregationLabel;
     setText('financeProfit', fmt(dayProfit));
     setText('profitWeek', fmt(weekRevenue - weekExpenseTotal));
     setText('profitMonth', fmt(monthProfit));
     const profitMonthLabel = document.querySelector('#finTabExpenses .finance-period-metrics > div:nth-child(3) span');
     if (profitMonthLabel) profitMonthLabel.textContent = financePeriodMode === 'day' ? 'За месяц' : 'За период';
-    const teamPeriodHint = document.querySelector('#finTabRevenue .finance-panel-heading p');
+    const teamPeriodHint = document.querySelector('#finTabRevenueAnalytics .finance-panel-heading p');
     if (teamPeriodHint) teamPeriodHint.textContent = 'Поступления и завершённые визиты · ' + aggregationLabel;
     setText('financeMonthExpenses', fmt(monthExpenseTotal));
     const expensePeriodLabel = document.querySelector('#finTabExpenses .finance-total-row span');
