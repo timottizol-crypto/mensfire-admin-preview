@@ -8532,3 +8532,149 @@ html.light-theme .dashboard-topline .dashboard-upcoming-row {
         flex: 0 1 auto;
     }
 }
+
+
+/* Light theme: desktop schedule surfaces, grid and booking cards. */
+@media (min-width: 768px) {
+    html.light-theme #viewSchedule > #desktopSchedule {
+        background: linear-gradient(145deg, #ffffff, #f4f6f9) !important;
+        border-color: #dfe3e8 !important;
+        box-shadow: 0 10px 28px rgba(30, 41, 59, .08), inset 0 1px 0 rgba(255,255,255,.9) !important;
+        color: #202733 !important;
+    }
+
+    html.light-theme #viewSchedule > #desktopSchedule .desktop-calendar-toolbar {
+        border-bottom-color: #e1e5eb !important;
+    }
+
+    html.light-theme #viewSchedule > #desktopSchedule .desktop-calendar-toolbar strong,
+    html.light-theme #viewSchedule > #desktopSchedule .desktop-calendar-date-controls strong {
+        color: #806018 !important;
+    }
+
+    html.light-theme #viewSchedule > #desktopSchedule .desktop-calendar-tabs > button,
+    html.light-theme #viewSchedule > #desktopSchedule .calendar-date-arrow,
+    html.light-theme #viewSchedule > #desktopSchedule .calendar-today-btn {
+        background: #ffffff !important;
+        border-color: #d9dee6 !important;
+        color: #344054 !important;
+        box-shadow: 0 1px 2px rgba(16,24,40,.04) !important;
+    }
+
+    html.light-theme #viewSchedule > #desktopSchedule .desktop-calendar-tabs > button.active {
+        background: #fff7df !important;
+        border-color: #d6ad4b !important;
+        color: #765719 !important;
+    }
+
+    html.light-theme #viewSchedule > #desktopSchedule .desktop-calendar-scroll {
+        background: #ffffff !important;
+        border-color: #dce1e8 !important;
+        box-shadow: inset 0 1px 3px rgba(16,24,40,.035) !important;
+    }
+
+    html.light-theme #viewSchedule > #desktopSchedule .desktop-calendar-grid {
+        background: #ffffff !important;
+    }
+
+    html.light-theme #viewSchedule > #desktopSchedule .desktop-time-column,
+    html.light-theme #viewSchedule > #desktopSchedule .desktop-staff-column {
+        background: #ffffff !important;
+        border-right-color: #e1e5eb !important;
+    }
+
+    html.light-theme #viewSchedule > #desktopSchedule .desktop-staff-heading {
+        background: #f4f6f9 !important;
+        border-bottom-color: #dfe4eb !important;
+        color: #273142 !important;
+    }
+
+    html.light-theme #viewSchedule > #desktopSchedule .desktop-staff-heading span,
+    html.light-theme #viewSchedule > #desktopSchedule .desktop-time-label {
+        color: #687386 !important;
+    }
+
+    html.light-theme #viewSchedule > #desktopSchedule .desktop-staff-track {
+        background: #ffffff !important;
+    }
+
+    html.light-theme #viewSchedule > #desktopSchedule .desktop-time-line {
+        background: #e5e9ef !important;
+        opacity: 1 !important;
+    }
+
+    html.light-theme #viewSchedule > #desktopSchedule .desktop-time-line.hour {
+        background: #cbd2dc !important;
+    }
+
+    html.light-theme #viewSchedule > #desktopSchedule .desktop-booking-card {
+        background: #fff9e9 !important;
+        border-color: #e4c978 !important;
+        color: #263142 !important;
+        box-shadow: 0 1px 3px rgba(31,41,55,.08) !important;
+    }
+
+    html.light-theme #viewSchedule > #desktopSchedule .desktop-booking-card > .booking-card-client {
+        color: #202938 !important;
+    }
+
+    html.light-theme #viewSchedule > #desktopSchedule .desktop-booking-card > .booking-card-service,
+    html.light-theme #viewSchedule > #desktopSchedule .desktop-booking-card > .booking-card-meta {
+        color: #566174 !important;
+    }
+
+    html.light-theme #viewSchedule > #desktopSchedule .desktop-booking-card.payment-border-paid {
+        border-left-color: #239765 !important;
+    }
+
+    html.light-theme #viewSchedule > #desktopSchedule .desktop-booking-card.payment-border-partial {
+        border-left-color: #c58a16 !important;
+    }
+
+    html.light-theme #viewSchedule > #desktopSchedule .desktop-booking-card.payment-border-unpaid {
+        border-left-color: #d65353 !important;
+    }
+
+    html.light-theme #viewSchedule > #desktopSchedule .desktop-break-card {
+        background: #f0f2f5 !important;
+        border-color: #aab3c0 !important;
+        color: #586273 !important;
+    }
+
+    html.light-theme #viewSchedule > #desktopSchedule .desktop-slot-hitbox:hover {
+        background: rgba(190, 145, 39, .13) !important;
+        box-shadow: inset 0 0 0 1px rgba(173, 128, 28, .35) !important;
+    }
+
+    html.light-theme #viewSchedule > #desktopSchedule .desktop-slot-hitbox:hover:after {
+        background: #ffffff !important;
+        border-color: #d4b45f !important;
+        color: #765719 !important;
+        box-shadow: 0 2px 8px rgba(16,24,40,.12) !important;
+    }
+
+    html.light-theme #viewSchedule > #desktopSchedule .desktop-calendar-scroll.is-week-view .desktop-staff-column.is-week-day-start {
+        border-left-color: #c7ced8 !important;
+    }
+
+    html.light-theme #viewSchedule > #desktopSchedule .desktop-month-grid {
+        background: #ffffff !important;
+    }
+
+    html.light-theme #viewSchedule > #desktopSchedule .desktop-month-weekday,
+    html.light-theme #viewSchedule > #desktopSchedule .desktop-month-day {
+        background: #ffffff !important;
+        border-color: #e1e5eb !important;
+        color: #344054 !important;
+    }
+
+    html.light-theme #viewSchedule > #desktopSchedule .desktop-month-weekday {
+        background: #f4f6f9 !important;
+        color: #687386 !important;
+    }
+
+    html.light-theme #viewSchedule > #desktopSchedule .desktop-month-day.outside-month {
+        background: #f8f9fb !important;
+        color: #9aa3b2 !important;
+    }
+}
