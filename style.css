@@ -8353,3 +8353,36 @@ html.light-theme .dashboard-topline .dashboard-upcoming-row {
         grid-template-columns: repeat(4, minmax(0, 1fr));
     }
 }
+
+
+/* Schedule: compact inline descriptions in the expanded summary. */
+@media (min-width: 768px) {
+    #viewSchedule > #desktopSchedule .schedule-quick-info-panel .schedule-overview-card {
+        height: 48px !important;
+        min-height: 48px !important;
+        padding: 5px 10px !important;
+        gap: 1px !important;
+    }
+
+    #viewSchedule > #desktopSchedule .schedule-quick-info-panel .schedule-overview-card > span {
+        display: block;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        font-size: 9px !important;
+        line-height: 1.1 !important;
+    }
+
+    #viewSchedule > #desktopSchedule .schedule-quick-info-panel .schedule-overview-card > span > small {
+        display: inline;
+        font-size: 8px !important;
+        line-height: inherit !important;
+        font-weight: 400;
+        opacity: .72;
+    }
+
+    #viewSchedule > #desktopSchedule .schedule-quick-info-panel .schedule-overview-card > strong {
+        font-size: 16px !important;
+        line-height: 1.1 !important;
+    }
+}
