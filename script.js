@@ -3454,7 +3454,7 @@ function renderFinanceDateSelector() {
         div.type = 'button';
         div.className = 'date-selector-item' + (selectedFinanceDate === dateStr ? ' selected' : '') + (isToday ? ' is-today' : '');
         div.setAttribute('aria-pressed',String(selectedFinanceDate === dateStr));
-        div.innerHTML = '<div class="day-name">' + (isToday ? 'Сегодня' : days[d.getDay()]) + '</div><div class="day-num">' + d.getDate() + '</div>';
+        div.innerHTML = '<div class="day-name">' + (isDesktop ? days[d.getDay()] : (isToday ? 'Сегодня' : days[d.getDay()])) + '</div><div class="day-num">' + d.getDate() + '</div>';
         div.onclick = () => { selectedFinanceDate = dateStr; financePeriodMode = 'day'; renderFinance(); };
         container.appendChild(div);
     }
