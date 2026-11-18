@@ -475,7 +475,16 @@ function switchView(viewId, navElement) {
     } else {
         document.body.classList.add('header-hidden');
     }
-    if (viewId === 'viewDashboard' && typeof renderDashboard === 'function') renderDashboard();
+    if (viewId === 'viewDashboard' && typeof renderDashboard === 'function') {
+        renderDashboard();
+        const dashboardView = document.getElementById('viewDashboard');
+        if (dashboardView) {
+            dashboardView.classList.remove('dashboard-entering');
+            void dashboardView.offsetWidth;
+            dashboardView.classList.add('dashboard-entering');
+            window.setTimeout(() => dashboardView.classList.remove('dashboard-entering'), 1100);
+        }
+    }
     if (viewId === 'viewFinance' && typeof renderFinance === 'function') renderFinance();
     if (viewId === 'viewTeam' && typeof renderTeam === 'function') renderTeam();
     if ((viewId === 'viewClients' || viewId === 'viewClientDirectory') && typeof renderClients === 'function') renderClients(currentClientsTab);
