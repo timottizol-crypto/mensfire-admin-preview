@@ -1496,8 +1496,16 @@ function renderDesktopSchedule() {
         : [selectedDate];
     const columns = dates.flatMap(date => staff.map(barber => ({ date, barber })));
     const rangeLabel = viewMode === 'week'
-        ? dates[0].toLocaleDateString('ru-RU', { day: 'numeric', month: 'short' }) +
-          ' — ' + dates[6].toLocaleDateString('ru-RU', { day: 'numeric', month: 'short', year: 'numeric' })
+        ? (() => {
+            const firstDay = dates[0].getDate();
+            const lastDay = dates[6].getDate();
+            const firstMonth = dates[0].toLocaleDateString('ru-RU', { month: 'short' });
+            const lastMonth = dates[6].toLocaleDateString('ru-RU', { month: 'short' });
+            const monthRange = firstMonth === lastMonth
+                ? `${firstDay}–${lastDay} ${lastMonth}`
+                : `${firstDay} ${firstMonth} – ${lastDay} ${lastMonth}`;
+            return `${monthRange} ${dates[6].getFullYear()}`;
+        })()
         : selectedScheduleDate;
 
     let html = `
