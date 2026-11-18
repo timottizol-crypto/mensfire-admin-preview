@@ -1167,10 +1167,10 @@ function renderSchedule() {
         },0);
         const overview = document.getElementById('scheduleOverview');
         if (overview) overview.innerHTML = `
-            <div class="schedule-overview-card"><span>Записей</span><strong>${visibleBookings.length}</strong><small>${completedCount} завершено</small></div>
-            <div class="schedule-overview-card"><span>Получено</span><strong>${Math.round(collected).toLocaleString('ru-RU')} ₽</strong><small>Фактические оплаты</small></div>
-            <div class="schedule-overview-card"><span>К оплате</span><strong>${Math.round(outstanding).toLocaleString('ru-RU')} ₽</strong><small>По записям дня</small></div>
-            <div class="schedule-overview-card"><span>Перерывов</span><strong>${visibleBlocks.length}</strong><small>Заблокированные интервалы</small></div>`;
+            <div class="schedule-overview-card"><span>Записей <small>(${completedCount} завершено)</small></span><strong>${visibleBookings.length}</strong></div>
+            <div class="schedule-overview-card"><span>Получено <small>(фактические оплаты)</small></span><strong>${Math.round(collected).toLocaleString('ru-RU')} ₽</strong></div>
+            <div class="schedule-overview-card"><span>К оплате <small>(по записям дня)</small></span><strong>${Math.round(outstanding).toLocaleString('ru-RU')} ₽</strong></div>
+            <div class="schedule-overview-card"><span>Перерывов <small>(заблокировано)</small></span><strong>${visibleBlocks.length}</strong></div>`;
 
         const greetEl = document.getElementById('scheduleGreeting');
         if (greetEl) greetEl.innerText = 'Расписание';
