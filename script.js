@@ -478,7 +478,7 @@ function switchView(viewId, navElement) {
     if (viewId === 'viewDashboard' && typeof renderDashboard === 'function') {
         renderDashboard();
         const dashboardView = document.getElementById('viewDashboard');
-        if (dashboardView && !dashboardView.dataset.dashboardEntrancePlayed) {
+        if (dashboardView && window.matchMedia('(min-width: 768px)').matches && !dashboardView.dataset.dashboardEntrancePlayed) {
             dashboardView.dataset.dashboardEntrancePlayed = 'true';
             dashboardView.classList.remove('dashboard-entering');
             void dashboardView.offsetWidth;
@@ -1231,8 +1231,8 @@ function renderSchedule() {
                     <div class="home-booking-item ${itemClass}" onclick="openActionModal('${escapeBookingHtml(String(b.id))}')" style="cursor: pointer; margin-bottom: 0; padding: 12px; display: flex; justify-content: space-between; align-items: flex-start; width: 100%; box-sizing: border-box;">
                         <div class="hb-info" style="flex: 1; min-width: 0;">
                             <div class="mobile-booking-time"><strong>${escapeBookingHtml(b.time || '—')}</strong><span>${endLabel ? 'до ' + endLabel : ''} · ${bookingDuration} мин.</span></div>
-                            <div class="hb-master" style="font-size: 12px;">${currentUser.role === 'admin' ? escapeBookingHtml((mockStaff.find(s=>s.id === b.barberId)?.name || 'Мастер') + ' · ') : ''}${escapeBookingHtml(b.clientName || 'Клиент')}${getBookingClientType(b) === 'new' ? '<i class="booking-new-client-inline">НОВЫЙ</i>' : ''}</div>
-                            <div class="booking-card-badges"><i class="booking-origin origin-${getBookingSourceMeta(b).className}">${getBookingSourceMeta(b).label}</i></div>
+                            <div class="hb-master" style="font-size: 12px;">${currentUser.role === 'admin' ? escapeBookingHtml((mockStaff.find(s=>s.id === b.barberId)?.name || 'Мастер') + ' · ') : ''}${escapeBookingHtml(b.clientName || 'Клиент')}</div>
+                            <div class="booking-card-badges"><i class="booking-origin origin-${getBookingSourceMeta(b).className}">${getBookingSourceMeta(b).label}</i><i class="booking-client-type type-${getLegacyBookingClientType(b) === 'new' ? 'new' : 'returning'}">${getLegacyBookingClientType(b) === 'new' ? 'Новый клиент' : 'Повторный клиент'}</i></div>
                             <div class="hb-services" style="font-size: 11px; white-space: normal;">${servicesText}</div>
                             <div class="mobile-booking-finance"><strong>${bookingTotal.toLocaleString('ru-RU')} ₽</strong><span>${payState.paid.toLocaleString('ru-RU')} ₽ получено</span><span>${remaining.toLocaleString('ru-RU')} ₽ остаток</span></div>
                             <span class="calendar-payment-label payment-${payState.status}">${payState.label}</span>
@@ -1787,6 +1787,23 @@ function getBookingSourceMeta(booking) {
         phone: { label: 'Телефон', className: 'phone' }
     };
     return map[source] || { label: 'Другой канал', className: 'other' };
+}
+function getLegacyBookingClientType(booking) {
+    const currentTime = parseClientDateTime(booking);
+    const profile = findClientProfile(booking?.clientName || '', booking?.barberId || '').profile;
+    const phone = normalizeClientPhone(profile.phone);
+    const name = String(booking?.clientName || '').trim().toLocaleLowerCase('ru-RU');
+    const hadEarlierVisit = bookings.some(previous => {
+        if (String(previous.id) === String(booking?.id) || previous.status !== 'completed') return false;
+        const previousTime = parseClientDateTime(previous);
+        if (!previousTime || (currentTime && previousTime >= currentTime)) return false;
+        if (phone.length >= 7) {
+            const previousProfile = findClientProfile(previous.clientName || '', previous.barberId || '').profile;
+            return normalizeClientPhone(previousProfile.phone) === phone;
+        }
+        return String(previous.clientName || '').trim().toLocaleLowerCase('ru-RU') === name;
+    });
+    return hadEarlierVisit ? 'regular' : 'new';
 }
 function getBookingClientType(booking) {
     if (typeof booking?.isNewClient === 'boolean') return booking.isNewClient ? 'new' : 'regular';
@@ -2914,13 +2931,16 @@ function saveNewBooking() {
         ? Object.values(clientProfiles).some(profile => normalizeClientPhone(profile?.phone) === normalizedClientPhone) ||
             bookings.some(item => normalizeClientPhone(item.clientPhone || findClientProfile(item.clientName || '', item.barberId || '').profile.phone) === normalizedClientPhone)
         : bookings.some(item => String(item.clientName || '').trim().toLocaleLowerCase('ru-RU') === normalizedClientName);
+    const isDesktopBooking = window.matchMedia('(min-width: 768px)').matches;
     const bookingData = {
         barberId,
         clientName,
         clientPhone,
-        isNewClient: existingBooking
-            ? (typeof existingBooking.isNewClient === 'boolean' ? existingBooking.isNewClient : getBookingClientType(existingBooking) === 'new')
-            : !hasExistingClient,
+        isNewClient: isDesktopBooking
+            ? (existingBooking
+                ? (typeof existingBooking.isNewClient === 'boolean' ? existingBooking.isNewClient : getBookingClientType(existingBooking) === 'new')
+                : !hasExistingClient)
+            : existingBooking?.isNewClient,
         time,
         date,
         services: selectedServices.map(s => ({ ...s }))
