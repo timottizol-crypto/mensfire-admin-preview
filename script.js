@@ -3629,9 +3629,8 @@ function renderFinance() {
     if (paymentSubtitle) paymentSubtitle.textContent = financePeriodMode === 'day' ? 'Распределение поступлений за месяц' : 'Распределение поступлений за период';
 
     const expensesList = document.getElementById('expensesList');
-    const canEditExpensesOnDesktop = window.matchMedia('(min-width: 768px)').matches;
     if (expensesList) expensesList.innerHTML = dayExpenses.length ? dayExpenses.map(item => `
-        <div class="finance-operation${canEditExpensesOnDesktop ? ' finance-expense-operation-clickable' : ''}"${canEditExpensesOnDesktop ? ` role="button" tabindex="0" onclick='openExpenseEditModal(${JSON.stringify(String(item.id)).replace(/'/g, '&#39;')})' onkeydown='if(event.key==="Enter"||event.key===" "){event.preventDefault();openExpenseEditModal(${JSON.stringify(String(item.id)).replace(/'/g, '&#39;')})}' aria-label="Изменить расход"` : ''}>
+        <div class="finance-operation finance-expense-operation-clickable" role="button" tabindex="0" onclick='openExpenseEditModal(${JSON.stringify(String(item.id)).replace(/'/g, '&#39;')})' onkeydown='if(event.key==="Enter"||event.key===" "){event.preventDefault();openExpenseEditModal(${JSON.stringify(String(item.id)).replace(/'/g, '&#39;')})}' aria-label="Изменить расход">
             <div class="finance-operation-icon">↗</div>
             <div class="finance-operation-copy"><strong>${escapeBookingHtml(item.title || 'Расход')}</strong><span>${escapeBookingHtml(item.category || 'Операционные расходы')}</span></div>
             <strong class="finance-negative">−${fmt(item.amount)}</strong>
@@ -3785,7 +3784,6 @@ function openExpenseModal() {
 }
 
 function openExpenseEditModal(expenseId) {
-    if (!window.matchMedia('(min-width: 768px)').matches) return;
     if (!requireAdminAction('Управлять финансами может только Али')) return;
     const expense = expenses.find(item => String(item.id) === String(expenseId));
     if (!expense) return showToast('Расход не найден', 'error');
