@@ -9530,6 +9530,37 @@ html.light-theme .toast {
     .modal.drawer-modal.drawer-stack-bottom {
         overflow: visible !important;
     }
+    /* Preserve each drawer's established desktop width while stacking. */
+    #actionModal.drawer-stack-single > .modal-content,
+    #actionModal.drawer-stack-top > .modal-content,
+    #actionModal.drawer-stack-bottom > .modal-content,
+    #blockTimeModal.drawer-stack-single > .modal-content,
+    #blockTimeModal.drawer-stack-top > .modal-content,
+    #blockTimeModal.drawer-stack-bottom > .modal-content,
+    #blockActionModal.drawer-stack-single > .modal-content,
+    #blockActionModal.drawer-stack-top > .modal-content,
+    #blockActionModal.drawer-stack-bottom > .modal-content {
+        width: min(420px, 100vw) !important;
+        max-width: 420px !important;
+    }
+
+    #newBookingModal.drawer-stack-single > .modal-content,
+    #newBookingModal.drawer-stack-top > .modal-content,
+    #newBookingModal.drawer-stack-bottom > .modal-content {
+        width: min(480px, 100vw) !important;
+        max-width: 480px !important;
+    }
+
+    #clientDetailsModal.drawer-stack-single > .modal-content,
+    #clientDetailsModal.drawer-stack-top > .modal-content,
+    #clientDetailsModal.drawer-stack-bottom > .modal-content,
+    #barberStatsModal.drawer-stack-single > .modal-content,
+    #barberStatsModal.drawer-stack-top > .modal-content,
+    #barberStatsModal.drawer-stack-bottom > .modal-content {
+        width: min(760px, 100vw) !important;
+        max-width: 760px !important;
+    }
+
 
     .modal.drawer-modal.drawer-stack-top .barber-stats-panel,
     .modal.drawer-modal.drawer-stack-bottom .barber-stats-panel {
