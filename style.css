@@ -9968,3 +9968,36 @@ html.light-theme .toast {
         margin-bottom: 15px !important;
     }
 }
+
+
+/* Finance desktop: add breathing room and a wider outer surface around tabs and dates */
+@media (min-width: 768px) {
+    #viewFinance .finance-header-layout > .finance-date-navigation {
+        box-sizing: border-box;
+        min-height: 154px;
+        padding: 14px 18px 13px;
+        border: 1px solid rgba(255, 255, 255, .075);
+        border-radius: 18px;
+        background: linear-gradient(145deg, rgba(255, 255, 255, .065), rgba(255, 255, 255, .025));
+        box-shadow: inset 0 1px 0 rgba(255, 255, 255, .045);
+        gap: 10px;
+    }
+    html.light-theme #viewFinance .finance-header-layout > .finance-date-navigation {
+        border-color: rgba(30, 35, 45, .09);
+        background: linear-gradient(145deg, rgba(255, 255, 255, .92), rgba(245, 246, 249, .78));
+        box-shadow: inset 0 1px 0 rgba(255, 255, 255, .8);
+    }
+    #viewFinance #financeViewTabs .tab-btn {
+        padding-top: 10px;
+        padding-bottom: 10px;
+    }
+    #viewFinance #financeDateSelector {
+        padding-top: 5px !important;
+        padding-bottom: 7px !important;
+    }
+    #viewFinance #financeDateSelector .date-selector-item,
+    #viewFinance #financeDateSelector .date-selector-item.is-today {
+        padding-top: 9px !important;
+        padding-bottom: 9px !important;
+    }
+}
