@@ -564,7 +564,8 @@ function setMensfireDesktopDrawerMode(mode) {
         localStorage.setItem(MENSFIRE_DRAWER_MODE_KEY, nextMode);
     } catch (error) {}
     const active = Array.from(document.querySelectorAll('.modal.drawer-modal.active'))
-        .filter(modal => MENSFIRE_DESKTOP_DRAWER_IDS.includes(modal.id));
+        .filter(modal => MENSFIRE_DESKTOP_DRAWER_IDS.includes(modal.id))
+        .sort((a, b) => Number(b.classList.contains('drawer-stack-bottom')) - Number(a.classList.contains('drawer-stack-bottom')));
     if (nextMode === 'single' && active.length > 1) {
         active.slice(0, -1).forEach(modal => {
             modal.classList.remove('active', 'drawer-modal', 'drawer-stack-single', 'drawer-stack-top', 'drawer-stack-bottom');
