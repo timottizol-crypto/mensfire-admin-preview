@@ -9005,3 +9005,27 @@ html.light-theme .toast {
     border-color: #dce2ea !important;
     box-shadow: 0 12px 32px rgba(35,48,68,.14) !important;
 }
+
+/* Make first-time customer status visible beside the name in schedule cells. */
+.booking-new-client-inline {
+    display: inline-flex !important;
+    align-items: center;
+    vertical-align: middle;
+    margin-left: 5px;
+    padding: 2px 5px;
+    border: 1px solid rgba(67,176,119,.48);
+    border-radius: 5px;
+    background: rgba(67,176,119,.18);
+    color: #8ee0ae;
+    font-size: 8px;
+    font-style: normal;
+    font-weight: 900;
+    line-height: 1.2;
+    letter-spacing: .04em;
+    white-space: nowrap;
+}
+html.light-theme .booking-new-client-inline {
+    border-color: #9bcfae;
+    background: #e1f4e7;
+    color: #17623c;
+}
