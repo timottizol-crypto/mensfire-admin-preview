@@ -4863,12 +4863,13 @@ html.light-theme #viewSchedule #desktopSchedule .desktop-booking-card > .booking
 /* Premium finance dashboard */
 .finance-view { padding-bottom: 28px; }
 .finance-page-heading,.finance-period-heading,.finance-panel-heading { display:flex; justify-content:space-between; align-items:center; gap:14px; }
-.finance-page-heading { margin: 4px 0 18px; }
+.finance-page-heading { margin: 4px 0 18px; align-items:flex-start; }
+.finance-heading-copy { flex:1 1 auto; min-width:0; }
 .finance-page-heading h2 { font-size: clamp(24px,4vw,32px); letter-spacing:-1px; margin:4px 0; }
 .finance-page-heading p,.finance-panel-heading p,.finance-period-heading span { color:var(--text-muted); font-size:11px; line-height:1.5; }
 .finance-eyebrow { color:var(--gold); font-size:9px; font-weight:800; letter-spacing:2px; }
-.finance-page-heading .action-modal-btn { width:auto; margin:0; padding:10px 14px; white-space:nowrap; }
-.finance-period-heading { margin: 4px 0 10px; }
+.finance-date-navigation { flex:0 1 520px; min-width:360px; display:flex; flex-direction:column; align-items:stretch; gap:7px; margin-left:auto; }
+.finance-period-heading { margin: 0 0 2px; }
 .finance-period-heading strong { display:block; font-size:13px; }
 .finance-period-heading span { display:block; }
 .finance-live-label { border:1px solid rgba(212,175,55,.24); color:var(--gold)!important; border-radius:20px; padding:6px 9px; font-size:9px!important; white-space:nowrap; }
@@ -4917,6 +4918,8 @@ html.light-theme #viewSchedule #desktopSchedule .desktop-booking-card > .booking
 #analyticsHeaderBlock { display:flex; justify-content:space-between; align-items:center; gap:10px; padding-bottom:12px; border-bottom:1px solid rgba(255,255,255,.07); font-size:12px; }
 #analyticsHistoryList { max-height:none!important; }
 @media(max-width:760px) {
+ .finance-page-heading { display:block; }
+ .finance-date-navigation { min-width:0; width:100%; margin:18px 0 0; }
  .finance-kpi-grid { grid-template-columns:repeat(2,minmax(0,1fr)); gap:9px; }
  .finance-kpi-card { padding:13px; }
  .finance-dashboard-grid { grid-template-columns:minmax(0,1fr); }
