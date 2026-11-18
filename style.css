@@ -9601,3 +9601,15 @@ html.light-theme .toast {
         min-height: 100dvh !important;
     }
 }
+
+
+/* Correction: keep Booking Details at its original compact drawer width. */
+@media (min-width: 768px) {
+    #actionModal.drawer-modal > .booking-detail-modal,
+    #actionModal.drawer-modal.drawer-stack-single > .booking-detail-modal,
+    #actionModal.drawer-modal.drawer-stack-top > .booking-detail-modal,
+    #actionModal.drawer-modal.drawer-stack-bottom > .booking-detail-modal {
+        width: min(420px, 100vw) !important;
+        max-width: 420px !important;
+    }
+}
