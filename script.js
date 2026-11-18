@@ -3446,7 +3446,7 @@ function renderFinanceDateSelector() {
     const days = ['Вс','Пн','Вт','Ср','Чт','Пт','Сб'];
     for (let i = -7; i < 16; i++) {
         const d = new Date(stripBase);
-        d.setDate(base.getDate() + i);
+        d.setDate(stripBase.getDate() + i);
         const dateStr = d.toLocaleDateString('ru-RU');
         const today = new Date(); today.setHours(0,0,0,0);
         const isToday = d.getTime() === today.getTime();
@@ -3459,6 +3459,7 @@ function renderFinanceDateSelector() {
         container.appendChild(div);
     }
     if (isDesktop) {
+        // Keep the user's horizontal position so the date strip remains manually scrollable.
         container.scrollLeft = previousScrollLeft;
     } else {
         requestAnimationFrame(() => {
