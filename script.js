@@ -311,7 +311,6 @@ function buildBottomNav() {
             { id: 'viewDashboard', title: 'Обзор', icon: dashboardIcon },
             { id: 'viewSchedule', title: 'Расписание', icon: calendarIcon },
             { id: 'viewFinance', title: 'Финансы', icon: financeIcon },
-            { id: 'viewTeam', title: 'Команда', icon: teamIcon },
             { id: 'viewServices', title: 'Услуги', icon: servicesIcon },
             { id: 'viewClients', title: window.innerWidth >= 768 ? 'CRM' : 'Клиенты', icon: crmIcon }
         ];
