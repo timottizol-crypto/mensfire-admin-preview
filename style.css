@@ -9248,11 +9248,24 @@ html.light-theme .toast {
   }
   #clientDetailsModal .client-interaction-history.has-scroll,
   #clientDetailsModal .client-tasks-list.has-scroll {
-    max-height: 260px !important;
+    max-height: 150px !important;
     overflow-y: auto !important;
     overflow-x: hidden !important;
     overscroll-behavior: contain;
     scrollbar-gutter: stable;
     padding-right: 7px;
+  }
+  #clientDetailsModal .client-tasks-list.has-scroll {
+    max-height: 190px !important;
+  }
+  #clientDetailsModal .client-activity-signal[data-client-signal-target] {
+    cursor: pointer;
+    transition: transform .18s ease, border-color .18s ease, background .18s ease;
+  }
+  #clientDetailsModal .client-activity-signal[data-client-signal-target]:hover,
+  #clientDetailsModal .client-activity-signal[data-client-signal-target]:focus-visible {
+    transform: translateY(-1px);
+    border-color: var(--gold) !important;
+    outline: none;
   }
 }
