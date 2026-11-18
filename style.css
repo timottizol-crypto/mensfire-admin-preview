@@ -10082,3 +10082,52 @@ html.light-theme .toast {
         grid-column: 1;
     }
 }
+
+/* Finance desktop: compact chart, stack all summary panels on the left, expenses on the right. */
+@media (min-width: 768px) {
+    #viewFinance .finance-dashboard-grid {
+        grid-template-columns: minmax(0, 1.25fr) minmax(280px, .75fr) !important;
+        grid-template-rows: repeat(3, auto);
+        align-items: stretch;
+    }
+    #viewFinance .finance-dashboard-grid > .finance-panel:nth-child(1) {
+        grid-column: 1;
+        grid-row: 1;
+    }
+    #viewFinance .finance-dashboard-grid > .finance-panel:nth-child(2) {
+        grid-column: 2;
+        grid-row: 1 / span 3;
+        min-height: 100%;
+    }
+    #viewFinance .finance-dashboard-grid > .finance-panel:nth-child(3) {
+        grid-column: 1;
+        grid-row: 2;
+    }
+    #viewFinance .finance-dashboard-grid > .finance-panel:nth-child(4) {
+        grid-column: 1;
+        grid-row: 3;
+    }
+    #viewFinance .finance-chart-panel {
+        padding-bottom: 12px !important;
+    }
+    #viewFinance .finance-chart-panel .finance-chart-bars {
+        min-height: 148px !important;
+        padding-top: 4px !important;
+        padding-bottom: 0 !important;
+    }
+    #viewFinance .finance-chart-panel .finance-chart-column {
+        height: 148px !important;
+        gap: 5px !important;
+    }
+    #viewFinance .finance-chart-panel .finance-chart-track {
+        height: 94px !important;
+        width: min(100%, 42px) !important;
+    }
+    #viewFinance #expensesList {
+        max-height: 330px;
+        overflow-y: auto;
+        overscroll-behavior: contain;
+        scrollbar-width: thin;
+        padding-right: 5px;
+    }
+}
