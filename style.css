@@ -9665,3 +9665,30 @@ html.light-theme .toast {
         background: rgba(212, 175, 55, .08);
     }
 }
+
+/* Desktop drawer stack: keep a small breathing gap at the screen midpoint.
+   Booking Details has a later full-height rule, so explicitly override it here. */
+@media (min-width: 768px) {
+    .modal.drawer-modal.drawer-stack-top > .modal-content,
+    .modal.drawer-modal.drawer-stack-bottom > .modal-content {
+        height: calc(50dvh - 4px) !important;
+        max-height: calc(50dvh - 4px) !important;
+        min-height: 0 !important;
+    }
+
+    #actionModal.drawer-modal.drawer-stack-top > .booking-detail-modal {
+        top: 0 !important;
+        bottom: auto !important;
+        height: calc(50dvh - 4px) !important;
+        max-height: calc(50dvh - 4px) !important;
+        min-height: 0 !important;
+    }
+
+    #actionModal.drawer-modal.drawer-stack-bottom > .booking-detail-modal {
+        top: auto !important;
+        bottom: 0 !important;
+        height: calc(50dvh - 4px) !important;
+        max-height: calc(50dvh - 4px) !important;
+        min-height: 0 !important;
+    }
+}
