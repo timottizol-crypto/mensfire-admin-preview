@@ -3762,9 +3762,9 @@ function renderFinance() {
         });
         const rows = Object.entries(groups).sort((a,b) => b[1]-a[1]);
         const maxExpense = Math.max(1,...rows.map(([,amount]) => amount));
-        expenseBreakdown.innerHTML = rows.length ? '<div class="finance-breakdown-heading">Структура расходов за период</div>' + rows.map(([label,amount]) => `
+        expenseBreakdown.innerHTML = rows.length ? '<div class="finance-breakdown-heading">Структура расходов за период</div><div class="finance-expense-breakdown-list">' + rows.map(([label,amount]) => `
             <div class="finance-expense-breakdown-row"><div><span>${escapeBookingHtml(label)}</span><strong>${fmt(amount)}</strong></div><div class="finance-expense-track"><i style="width:${amount/maxExpense*100}%"></i></div></div>`
-        ).join('') : '<div class="finance-empty">Добавьте расходы, чтобы увидеть структуру</div>';
+        ).join('') + '</div>' : '<div class="finance-empty">Добавьте расходы, чтобы увидеть структуру</div>';
     }
 }
 function openExpenseModal() {
