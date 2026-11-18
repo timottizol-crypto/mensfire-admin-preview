@@ -9075,7 +9075,7 @@ html.light-theme .toast {
  #barberStatsModal .barber-stats-extra{display:grid;gap:10px;margin:4px 0 20px}
  #barberStatsModal .barber-stats-section-title{margin:8px 0 0;color:var(--text-muted);font-size:11px;font-weight:800;letter-spacing:.09em;text-transform:uppercase}
  #barberStatsModal .barber-stats-extra-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
- #barberStatsModal .barber-stats-extra-card{min-width:0;min-height:70px;display:flex;flex-direction:row;align-items:center;justify-content:space-between;gap:12px;padding:14px 16px;border:1px solid var(--border-color,rgba(128,128,128,.16));border-radius:13px;background:var(--bg-dark)}
+ #barberStatsModal .barber-stats-extra-card{min-width:0;min-height:70px;display:flex;flex-direction:column;align-items:flex-start;justify-content:center;gap:8px;padding:14px 16px;border:1px solid var(--border-color,rgba(128,128,128,.16));border-radius:13px;background:var(--bg-dark)}
  #barberStatsModal .barber-stats-extra-card span{min-width:0;color:var(--text-muted);font-size:11px;line-height:1.25;white-space:nowrap}
  #barberStatsModal .barber-stats-extra-card strong{flex:0 0 auto;color:var(--text-main);font-size:clamp(14px,1.35vw,18px);line-height:1.15;white-space:nowrap;font-variant-numeric:tabular-nums}
  #barberStatsModal .barber-stats-top-services{display:grid;gap:7px}
