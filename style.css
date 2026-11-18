@@ -9603,13 +9603,65 @@ html.light-theme .toast {
 }
 
 
-/* Correction: keep Booking Details at its original compact drawer width. */
+/* Desktop: same 420px width and gold-accented inner cards for Client, Barber and Booking Details. */
 @media (min-width: 768px) {
+    #clientDetailsModal.drawer-modal > .modal-content,
+    #clientDetailsModal.drawer-modal.drawer-stack-single > .modal-content,
+    #clientDetailsModal.drawer-modal.drawer-stack-top > .modal-content,
+    #clientDetailsModal.drawer-modal.drawer-stack-bottom > .modal-content,
+    #barberStatsModal.drawer-modal > .barber-stats-panel,
+    #barberStatsModal.drawer-modal.drawer-stack-single > .barber-stats-panel,
+    #barberStatsModal.drawer-modal.drawer-stack-top > .barber-stats-panel,
+    #barberStatsModal.drawer-modal.drawer-stack-bottom > .barber-stats-panel,
     #actionModal.drawer-modal > .booking-detail-modal,
     #actionModal.drawer-modal.drawer-stack-single > .booking-detail-modal,
     #actionModal.drawer-modal.drawer-stack-top > .booking-detail-modal,
     #actionModal.drawer-modal.drawer-stack-bottom > .booking-detail-modal {
+        box-sizing: border-box !important;
         width: min(420px, 100vw) !important;
         max-width: 420px !important;
+    }
+
+    /* Booking Details: repeat the subtle gold cards used in the Client profile. */
+    #actionModal .booking-detail-main,
+    #actionModal .booking-detail-services,
+    #actionModal .booking-payment-panel,
+    #actionModal .booking-history-section,
+    #actionModal .booking-detail-row {
+        border: 1px solid rgba(212, 175, 55, .18) !important;
+        border-radius: 12px !important;
+        background: rgba(212, 175, 55, .045) !important;
+        padding: 12px !important;
+        margin: 0 0 10px !important;
+    }
+
+    #actionModal .booking-detail-main {
+        padding: 14px !important;
+    }
+
+    #actionModal .booking-detail-row {
+        align-items: center;
+        gap: 10px;
+    }
+
+    #actionModal .booking-detail-row:last-of-type {
+        margin-bottom: 10px !important;
+    }
+
+    #actionModal .booking-detail-services .booking-detail-section-label,
+    #actionModal .booking-payment-heading,
+    #actionModal .booking-history-heading {
+        color: var(--gold);
+    }
+
+    #actionModal .booking-detail-service,
+    #actionModal .booking-payment-transaction {
+        border-color: rgba(212, 175, 55, .14);
+    }
+
+    #actionModal .booking-client-link {
+        margin: 2px 0 12px;
+        border-color: rgba(212, 175, 55, .28);
+        background: rgba(212, 175, 55, .08);
     }
 }
