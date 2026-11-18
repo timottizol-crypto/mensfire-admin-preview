@@ -9574,3 +9574,30 @@ html.light-theme .toast {
         min-width: 0;
     }
 }
+
+
+/* Desktop: unify the Client, Barber and Booking Details drawers. */
+@media (min-width: 768px) {
+    #actionModal > .booking-detail-modal,
+    #clientDetailsModal > .modal-content,
+    #barberStatsModal > .barber-stats-panel {
+        box-sizing: border-box !important;
+        width: min(760px, 100vw) !important;
+        max-width: 760px !important;
+        padding: 30px 32px 36px !important;
+        border: 0 !important;
+        border-left: 1px solid var(--border-color, rgba(128,128,128,.2)) !important;
+        border-radius: 20px 0 0 20px !important;
+        background: color-mix(in srgb, var(--bg-card) 64%, transparent) !important;
+        color: var(--text-main) !important;
+        box-shadow: -18px 0 55px rgba(0,0,0,.22), inset 1px 0 0 rgba(255,255,255,.16) !important;
+        -webkit-backdrop-filter: blur(32px) saturate(165%) !important;
+        backdrop-filter: blur(32px) saturate(165%) !important;
+    }
+
+    #actionModal > .booking-detail-modal {
+        height: 100dvh !important;
+        max-height: 100dvh !important;
+        min-height: 100dvh !important;
+    }
+}
