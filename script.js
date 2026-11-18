@@ -1390,6 +1390,14 @@ function renderDesktopSchedule() {
     const view = document.getElementById('viewSchedule');
     if (!view) return;
 
+    // Перерисовка календаря не должна сбрасывать позицию прокрутки на ПК.
+    // Сохраняем именно внутренний скролл календаря; мобильную версию не затрагиваем.
+    const previousCalendarScroll = window.innerWidth >= 768
+        ? document.querySelector('#desktopSchedule .desktop-calendar-scroll')
+        : null;
+    const calendarScrollTop = previousCalendarScroll?.scrollTop || 0;
+    const calendarScrollLeft = previousCalendarScroll?.scrollLeft || 0;
+
     let calendar = document.getElementById('desktopSchedule');
     if (!calendar) {
         calendar = document.createElement('div');
@@ -1666,6 +1674,16 @@ function renderDesktopSchedule() {
 
     html += '</div></div>';
     calendar.innerHTML = html;
+
+    // Новый .desktop-calendar-scroll уже создан синхронно выше — возвращаем
+    // вертикальную и горизонтальную позиции после любой перерисовки расписания.
+    if (window.innerWidth >= 768) {
+        const nextCalendarScroll = calendar.querySelector('.desktop-calendar-scroll');
+        if (nextCalendarScroll) {
+            nextCalendarScroll.scrollTop = calendarScrollTop;
+            nextCalendarScroll.scrollLeft = calendarScrollLeft;
+        }
+    }
 }
 
 function setDesktopCalendarMode(mode) {
