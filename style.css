@@ -8256,3 +8256,70 @@ html.light-theme .dashboard-topline .dashboard-upcoming-row {
 #viewDashboard.dashboard-entering .dashboard-period-controls .finance-range-fields {
     animation: slideUpEntrance .72s cubic-bezier(.25,1,.5,1) .30s both;
 }
+
+/* Schedule: keep the overview available inside the calendar, not above it. */
+@media (min-width: 768px) {
+    #viewSchedule > .schedule-overview-grid {
+        display: none !important;
+    }
+
+    #viewSchedule > #desktopSchedule .desktop-calendar-info-toggle {
+        display: inline-flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        width: 34px !important;
+        min-width: 34px !important;
+        height: 34px !important;
+        min-height: 34px !important;
+        padding: 0 !important;
+        margin: 0 2px !important;
+        border: 1px solid rgba(212,175,55,.22) !important;
+        border-radius: 9px !important;
+        background: rgba(255,255,255,.035) !important;
+        color: var(--text-muted) !important;
+    }
+
+    #viewSchedule > #desktopSchedule .desktop-calendar-info-toggle svg {
+        width: 17px !important;
+        height: 17px !important;
+        fill: none !important;
+        stroke: currentColor !important;
+        stroke-width: 1.8 !important;
+        stroke-linecap: round !important;
+    }
+
+    #viewSchedule > #desktopSchedule .desktop-calendar-info-toggle:hover,
+    #viewSchedule > #desktopSchedule .desktop-calendar-info-toggle.active {
+        border-color: rgba(212,175,55,.55) !important;
+        background: rgba(212,175,55,.10) !important;
+        color: var(--gold) !important;
+    }
+
+    #viewSchedule > #desktopSchedule .schedule-quick-info-panel {
+        flex: 0 0 auto;
+        width: 100%;
+        margin: 0 0 12px;
+    }
+
+    #viewSchedule > #desktopSchedule .schedule-quick-info-panel[hidden] {
+        display: none !important;
+    }
+
+    #viewSchedule > #desktopSchedule .schedule-quick-info-panel .schedule-overview-grid {
+        display: grid !important;
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+        gap: 8px !important;
+        width: 100%;
+        margin: 0 !important;
+    }
+
+    #viewSchedule > #desktopSchedule .schedule-quick-info-panel .schedule-overview-card {
+        height: 66px !important;
+        min-height: 0 !important;
+        box-sizing: border-box !important;
+        padding: 8px 12px !important;
+        gap: 2px !important;
+        border-radius: 12px !important;
+    }
+}
+
