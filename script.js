@@ -1232,7 +1232,7 @@ function renderSchedule() {
                         <div class="hb-info" style="flex: 1; min-width: 0;">
                             <div class="mobile-booking-time"><strong>${escapeBookingHtml(b.time || '—')}</strong><span>${endLabel ? 'до ' + endLabel : ''} · ${bookingDuration} мин.</span></div>
                             <div class="hb-master" style="font-size: 12px;">${currentUser.role === 'admin' ? escapeBookingHtml((mockStaff.find(s=>s.id === b.barberId)?.name || 'Мастер') + ' · ') : ''}${escapeBookingHtml(b.clientName || 'Клиент')}</div>
-                            <div class="booking-card-badges"><i class="booking-origin origin-${getBookingSourceMeta(b).className}">${getBookingSourceMeta(b).label}</i><i class="booking-client-type type-${getBookingClientTypeMeta(b).className}">${getBookingClientTypeMeta(b).label}</i></div>
+                            <div class="booking-card-badges"><i class="booking-origin origin-${getBookingSourceMeta(b).className}">${getBookingSourceMeta(b).label}</i>${getBookingClientType(b) === 'new' ? `<i class="booking-client-type type-new">Новый клиент</i>` : ''}</div>
                             <div class="hb-services" style="font-size: 11px; white-space: normal;">${servicesText}</div>
                             <div class="mobile-booking-finance"><strong>${bookingTotal.toLocaleString('ru-RU')} ₽</strong><span>${payState.paid.toLocaleString('ru-RU')} ₽ получено</span><span>${remaining.toLocaleString('ru-RU')} ₽ остаток</span></div>
                             <span class="calendar-payment-label payment-${payState.status}">${payState.label}</span>
@@ -1629,7 +1629,7 @@ function renderDesktopSchedule() {
                             ondragstart="event.stopPropagation(); event.dataTransfer.setData('text/plain','${escapeBookingHtml(String(booking.id))}'); event.dataTransfer.effectAllowed='move'; this.classList.add('is-dragging')" ondragend="this.classList.remove('is-dragging'); document.querySelectorAll('.desktop-staff-track.is-drop-target').forEach(track=>track.classList.remove('is-drop-target'))"
                             onclick="event.stopPropagation(); openActionModal('${escapeBookingHtml(String(booking.id))}')">
                             <strong class="booking-card-client">${escapeBookingHtml(booking.clientName || 'Клиент')}</strong>
-                            <span class="booking-card-badges"><i class="booking-origin origin-${getBookingSourceMeta(booking).className}">${getBookingSourceMeta(booking).label}</i><i class="booking-client-type type-${getBookingClientTypeMeta(booking).className}">${getBookingClientTypeMeta(booking).label}</i></span>
+                            <span class="booking-card-badges"><i class="booking-origin origin-${getBookingSourceMeta(booking).className}">${getBookingSourceMeta(booking).label}</i>${getBookingClientType(booking) === 'new' ? `<i class="booking-client-type type-new">Новый клиент</i>` : ''}</span>
                             <span class="booking-card-service">${serviceNames || 'Услуга не указана'}</span>
                             <small class="booking-card-meta"><b>${escapeBookingHtml(booking.time || '—')}</b> · ${item.duration} мин. · ${bookingStatusLabel}</small><span class="calendar-payment-label payment-${payState.status}">${payState.label} · ${payState.paid.toLocaleString('ru-RU')} ₽</span>
                         </button>`;
@@ -2015,7 +2015,7 @@ function openActionModal(id) {
             <div class="booking-detail-date">${escapeBookingHtml(booking.date || 'Дата не указана')} · ${escapeBookingHtml(booking.time || '—')}–${escapeBookingHtml(endTime)}</div>
             <div class="booking-card-badges">
                 <i class="booking-origin origin-${getBookingSourceMeta(booking).className}">${getBookingSourceMeta(booking).label}</i>
-                <i class="booking-client-type type-${getBookingClientTypeMeta(booking).className}">${getBookingClientTypeMeta(booking).label}</i>
+                ${getBookingClientType(booking) === 'new' ? `<i class="booking-client-type type-new">Новый клиент</i>` : ''}
             </div>
         </div>
         <div class="booking-detail-row">
