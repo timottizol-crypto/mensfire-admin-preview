@@ -145,8 +145,7 @@
                 <div class="finance-date-navigation">
                     <div class="category-tabs finance-tabs" id="financeViewTabs" role="tablist" aria-label="Разделы финансов">
                         <button class="tab-btn active" id="tabFinExpenses" onclick="switchFinanceTab('expenses')">Обзор</button>
-                        <button class="tab-btn" id="tabFinRevenue" onclick="switchFinanceTab('revenue')">Выручка</button>
-                        <button class="tab-btn" id="tabFinAnalytics" onclick="switchFinanceTab('analytics')">Аналитика</button>
+                        <button class="tab-btn" id="tabFinRevenue" onclick="switchFinanceTab('revenue')">Выручка и аналитика</button>
                     </div>
                     <div class="date-selector finance-date-strip" id="financeDateSelector" aria-label="Быстрый выбор даты"></div>
                 </div>
@@ -174,17 +173,15 @@
                     <article class="glass-card finance-panel"><div class="finance-panel-heading"><div><h3>Результат за период</h3><p>Фактически получено минус расходы</p></div></div><div class="finance-period-metrics"><div><span>За день</span><strong id="financeProfit">0 ₽</strong></div><div><span>За неделю</span><strong id="profitWeek">0 ₽</strong></div><div><span>За месяц</span><strong id="profitMonth">0 ₽</strong></div></div></article>
                 </div>
             </section>
-            <section class="fin-tab-content" id="finTabRevenue" style="display:none;">
+            <section class="fin-tab-content finance-combined-content" id="finTabRevenueAnalytics" style="display:none;">
                 <div class="finance-kpi-grid finance-revenue-kpis">
                     <div class="finance-kpi-card finance-kpi-primary"><span class="finance-kpi-label">День</span><strong id="financeToday">0 ₽</strong><small>Поступления за выбранную дату</small></div>
                     <div class="finance-kpi-card"><span class="finance-kpi-label">Неделя</span><strong id="financeWeek">0 ₽</strong><small>С начала недели</small></div>
                     <div class="finance-kpi-card"><span class="finance-kpi-label">Месяц</span><strong id="financeMonth">0 ₽</strong><small>С начала месяца</small></div>
                 </div>
                 <article class="glass-card finance-panel"><div class="finance-panel-heading"><div><h3>Выручка по мастерам</h3><p>Поступления и завершённые визиты за выбранный период</p></div></div><div id="financeTeamStats"></div></article>
-            </section>
-            <section class="fin-tab-content" id="finTabAnalytics" style="display:none;">
                 <article class="glass-card finance-panel"><div class="finance-panel-heading"><div><h3>Операции за период</h3><p>Статус оплаты по каждой записи в выбранном интервале</p></div></div><div id="analyticsHeaderBlock"></div><div id="analyticsHistoryList"></div></article>
-                <article class="glass-card finance-panel" style="margin-top:16px;"><div class="finance-panel-heading"><div><h3>Популярные услуги</h3><p>Топ услуг по завершённым визитам за выбранный период</p></div></div><div id="analyticsTopServicesList"></div></article>
+                <article class="glass-card finance-panel"><div class="finance-panel-heading"><div><h3>Популярные услуги</h3><p>Топ услуг по завершённым визитам за выбранный период</p></div></div><div id="analyticsTopServicesList"></div></article>
             </section>
         </div>
 
