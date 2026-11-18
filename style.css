@@ -10374,8 +10374,7 @@ html.light-theme .toast {
 
 
 /* Finance desktop: expense rows can be opened to edit or remove an operation. */
-@media (min-width: 768px) {
-    #viewFinance .finance-expense-operation-clickable { cursor: pointer; border-radius: 10px; transition: background .16s ease, box-shadow .16s ease; }
-    #viewFinance .finance-expense-operation-clickable:hover,
-    #viewFinance .finance-expense-operation-clickable:focus-visible { background: rgba(212, 175, 55, .075); box-shadow: inset 0 0 0 1px rgba(212, 175, 55, .22); outline: none; }
-}
+#viewFinance .finance-expense-operation-clickable { cursor: pointer; border-radius: 10px; transition: background .16s ease, box-shadow .16s ease; }
+#viewFinance .finance-expense-operation-clickable:hover,
+#viewFinance .finance-expense-operation-clickable:focus-visible,
+#viewFinance .finance-expense-operation-clickable:active { background: rgba(212, 175, 55, .075); box-shadow: inset 0 0 0 1px rgba(212, 175, 55, .22); outline: none; }
