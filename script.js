@@ -2941,7 +2941,6 @@ function saveNewBooking() {
         });
     }
 
-    const normalizedClientPhone = normalizeClientPhone(clientPhone);
     if (normalizedClientPhone.length >= 7) {
         const profileKey = 'phone:' + normalizedClientPhone;
         const previousProfile = clientProfiles[profileKey] || {};
