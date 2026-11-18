@@ -9297,3 +9297,31 @@ html.light-theme .toast {
     outline: none;
   }
 }
+
+/* Desktop — theme-aware scrollbars across all scrollable UI blocks */
+@media (min-width: 768px) {
+  * {
+    scrollbar-width: thin;
+    scrollbar-color: color-mix(in srgb,var(--gold) 72%,transparent) transparent;
+  }
+  *::-webkit-scrollbar {
+    width: 7px;
+    height: 7px;
+  }
+  *::-webkit-scrollbar-track {
+    background: transparent;
+  }
+  *::-webkit-scrollbar-thumb {
+    background: color-mix(in srgb,var(--gold) 72%,transparent);
+    border: 1px solid transparent;
+    border-radius: 10px;
+    background-clip: padding-box;
+  }
+  *::-webkit-scrollbar-thumb:hover {
+    background: var(--gold-hover,var(--gold));
+    background-clip: padding-box;
+  }
+  *::-webkit-scrollbar-corner {
+    background: transparent;
+  }
+}
