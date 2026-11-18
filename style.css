@@ -10180,3 +10180,22 @@ html.light-theme .toast {
         border-radius: 8px;
     }
 }
+
+/* Finance: show revenue and analytics as one continuous section. */
+#viewFinance .finance-combined-content {
+    flex-direction: column;
+    gap: 16px;
+}
+#viewFinance .finance-combined-content > .finance-kpi-grid {
+    margin-bottom: 0;
+}
+
+/* Finance entrance: fade without horizontal movement on desktop and mobile. */
+#viewFinance.slide-from-right,
+#viewFinance.slide-from-left {
+    animation: financeViewFadeIn .2s ease both !important;
+}
+@keyframes financeViewFadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
