@@ -10131,3 +10131,26 @@ html.light-theme .toast {
         padding-right: 5px;
     }
 }
+
+
+/* Finance desktop: move the expense breakdown visually to the panel footer and round period result cards. */
+@media (min-width: 768px) {
+    #viewFinance #financeExpenseBreakdown {
+        margin-top: 14px;
+    }
+    #viewFinance .finance-period-metrics > div {
+        border: 1px solid rgba(255,255,255,.09) !important;
+        border-top: 1px solid rgba(255,255,255,.09) !important;
+        border-radius: 12px;
+        padding: 11px 12px;
+        margin: 0 0 8px;
+        background: rgba(255,255,255,.035);
+    }
+    #viewFinance .finance-period-metrics > div:last-child {
+        margin-bottom: 0;
+    }
+    html.light-theme #viewFinance .finance-period-metrics > div {
+        border-color: rgba(48,60,78,.14) !important;
+        background: rgba(246,248,251,.88) !important;
+    }
+}
