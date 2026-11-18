@@ -9900,3 +9900,71 @@ html.light-theme .toast {
         font-size: 16px !important;
     }
 }
+
+
+/* Finance desktop: tabs span the date strip; emphasize today's date independently of selection */
+@media (min-width: 768px) {
+    #viewFinance .finance-header-layout {
+        grid-template-columns: minmax(230px, .38fr) minmax(0, 1fr);
+        grid-template-areas:
+            "title dates"
+            "period dates";
+    }
+    #viewFinance .finance-date-navigation {
+        display: grid;
+        grid-template-areas:
+            "tabs"
+            "dates";
+        grid-template-columns: minmax(0, 1fr);
+        gap: 5px;
+        align-items: stretch;
+    }
+    #viewFinance #financeViewTabs {
+        grid-area: tabs;
+        display: flex;
+        width: 100%;
+        box-sizing: border-box;
+        gap: 7px;
+        margin: 0 !important;
+        padding: 3px;
+    }
+    #viewFinance #financeViewTabs .tab-btn {
+        flex: 1 1 0;
+        min-width: 0;
+        padding: 8px 10px;
+        border-radius: 10px;
+        font-size: 12px;
+        white-space: nowrap;
+    }
+    #viewFinance #financeDateSelector {
+        grid-area: dates;
+        margin-top: 0 !important;
+    }
+    #viewFinance #financeDateSelector .date-selector-item.is-today:not(.selected) {
+        border: 1px solid rgba(212, 175, 55, .9) !important;
+        background: linear-gradient(145deg, rgba(212, 175, 55, .24), rgba(212, 175, 55, .10)) !important;
+        color: var(--gold) !important;
+        box-shadow: inset 0 0 0 1px rgba(212, 175, 55, .18), 0 0 13px rgba(212, 175, 55, .14) !important;
+    }
+    #viewFinance #financeDateSelector .date-selector-item.is-today:not(.selected) .day-name {
+        color: var(--gold) !important;
+        opacity: 1 !important;
+    }
+    #viewFinance #financeDateSelector .date-selector-item.is-today:not(.selected) .day-num {
+        color: var(--text-main) !important;
+    }
+}
+@media (max-width: 767px) {
+    #viewFinance .finance-date-navigation {
+        display: grid;
+        grid-template-areas:
+            "dates"
+            "tabs";
+        gap: 0;
+    }
+    #viewFinance #financeDateSelector { grid-area: dates; }
+    #viewFinance #financeViewTabs {
+        grid-area: tabs;
+        margin-bottom: 15px !important;
+    }
+}
