@@ -788,3 +788,26 @@ html.light-theme #barberStatsModal .barber-stats-visit-row small {
     scrollbar-color: rgba(100,116,139,.45) transparent;
   }
 }
+
+
+/* Client details inner surfaces — same light palette as barber statistics */
+@media (min-width: 768px) {
+  html.light-theme #clientDetailsModal > .modal-content [style*="background: rgba(255,255,255,0.03)"],
+  html.light-theme #clientDetailsModal > .modal-content [style*="background:rgba(255,255,255,0.03)"] {
+    background: var(--bg-dark) !important;
+    border-color: rgba(54,68,88,.16) !important;
+  }
+  html.light-theme #clientDetailsModal .client-history-item,
+  html.light-theme #clientDetailsModal .client-activity-signals,
+  html.light-theme #clientDetailsModal .client-loyalty-panel,
+  html.light-theme #clientDetailsModal .client-details-insights,
+  html.light-theme #clientDetailsModal .client-lifetime-value,
+  html.light-theme #clientDetailsModal .client-retail-section,
+  html.light-theme #clientDetailsModal .client-product-recommendations-section,
+  html.light-theme #clientDetailsModal .client-interactions-section,
+  html.light-theme #clientDetailsModal .client-tasks-section,
+  html.light-theme #clientDetailsModal .client-timeline-section {
+    color: #202938;
+    border-color: rgba(54,68,88,.16);
+  }
+}
