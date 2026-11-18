@@ -747,3 +747,44 @@ html.light-theme #barberStatsModal .barber-stats-visit-row small {
   }
 }
 
+
+
+/* Client details desktop drawer — same light glass palette as barber statistics */
+@media (min-width: 768px) {
+  html.light-theme #clientDetailsModal > .modal-content {
+    color: #202938 !important;
+    background: rgba(255,255,255,.88) !important;
+    border-color: rgba(54,68,88,.16) !important;
+    box-shadow: -18px 0 55px rgba(0,0,0,.12), inset 1px 0 0 rgba(255,255,255,.92) !important;
+  }
+  html.light-theme #clientDetailsModal .client-visit-history-heading {
+    color: #263244 !important;
+    border-top-color: rgba(54,68,88,.14) !important;
+  }
+  html.light-theme #clientDetailsModal .client-history-item {
+    background: rgba(255,255,255,.72) !important;
+    border-color: rgba(54,68,88,.12) !important;
+    box-shadow: inset 0 1px 0 rgba(255,255,255,.92), 0 3px 12px rgba(35,48,66,.045);
+  }
+  html.light-theme #clientDetailsModal .client-history-date {
+    color: #263244 !important;
+  }
+  html.light-theme #clientDetailsModal .client-history-services {
+    color: #8a681e !important;
+  }
+  html.light-theme #clientDetailsModal .client-history-master,
+  html.light-theme #clientDetailsModal .client-history-payment {
+    color: #4b5565 !important;
+  }
+  html.light-theme #clientDetailsModal .client-history-icon {
+    color: #8a681e;
+  }
+  html.light-theme #clientDetailsModal .close-btn {
+    color: #263244 !important;
+    background: rgba(255,255,255,.72) !important;
+    border-color: rgba(54,68,88,.16) !important;
+  }
+  html.light-theme #clientDetailsModal #clientDetailsHistory {
+    scrollbar-color: rgba(100,116,139,.45) transparent;
+  }
+}
