@@ -10361,3 +10361,13 @@ html.light-theme .toast {
         opacity: 1 !important;
     }
 }
+
+
+/* Finance desktop dark theme: keep the Overview and Revenue & Analytics tab labels white. */
+@media (min-width: 768px) {
+    html:not(.light-theme) #viewFinance #financeViewTabs .tab-btn,
+    html:not(.light-theme) #viewFinance #financeViewTabs .tab-btn:hover,
+    html:not(.light-theme) #viewFinance #financeViewTabs .tab-btn.active {
+        color: #ffffff !important;
+    }
+}
