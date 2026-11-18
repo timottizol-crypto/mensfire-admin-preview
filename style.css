@@ -8386,3 +8386,68 @@ html.light-theme .dashboard-topline .dashboard-upcoming-row {
         line-height: 1.1 !important;
     }
 }
+
+
+/* Schedule week view: keep booking cards inside their barber/day columns. */
+@media (min-width: 768px) {
+    #viewSchedule > #desktopSchedule .desktop-calendar-scroll.is-week-view .desktop-calendar-grid {
+        grid-template-columns: 65px repeat(var(--calendar-column-count), 170px) !important;
+        min-width: max-content !important;
+    }
+
+    #viewSchedule > #desktopSchedule .desktop-calendar-scroll.is-week-view .desktop-staff-column {
+        width: auto !important;
+        min-width: 0 !important;
+        box-sizing: border-box !important;
+    }
+}
+
+/* Schedule date controls: compact layout for tablet-width screens. */
+@media (min-width: 768px) and (max-width: 1100px) {
+    #viewSchedule > #desktopSchedule .desktop-calendar-toolbar {
+        gap: 8px 10px !important;
+    }
+
+    #viewSchedule > #desktopSchedule .desktop-calendar-date-controls {
+        flex: 0 0 auto !important;
+        flex-wrap: nowrap !important;
+        gap: 4px !important;
+    }
+
+    #viewSchedule > #desktopSchedule .desktop-calendar-date-controls strong {
+        font-size: 12px !important;
+        line-height: 1.2 !important;
+        white-space: nowrap !important;
+        letter-spacing: 0 !important;
+    }
+
+    #viewSchedule > #desktopSchedule .desktop-calendar-date-controls .calendar-date-arrow,
+    #viewSchedule > #desktopSchedule .desktop-calendar-date-controls .calendar-today-btn {
+        min-width: 30px !important;
+        width: 30px !important;
+        height: 30px !important;
+        border-radius: 8px !important;
+        font-size: 11px !important;
+    }
+
+    #viewSchedule > #desktopSchedule .desktop-calendar-date-controls .calendar-today-btn {
+        width: auto !important;
+        min-width: 0 !important;
+        padding: 0 7px !important;
+        white-space: nowrap !important;
+    }
+
+    #viewSchedule > #desktopSchedule .desktop-calendar-tabs {
+        flex: 1 1 auto !important;
+        min-width: 0 !important;
+        margin-left: 0 !important;
+        justify-content: flex-end !important;
+        gap: 4px !important;
+    }
+
+    #viewSchedule > #desktopSchedule .desktop-calendar-tabs > button {
+        padding-left: 7px !important;
+        padding-right: 7px !important;
+        white-space: nowrap !important;
+    }
+}
