@@ -10154,3 +10154,25 @@ html.light-theme .toast {
         background: rgba(246,248,251,.88) !important;
     }
 }
+
+
+/* Finance desktop: keep the period expense breakdown lower and scroll after four rows. */
+@media (min-width: 768px) {
+    #viewFinance #financeExpenseBreakdown {
+        margin-top: 22px;
+    }
+    #viewFinance .finance-expense-breakdown-list {
+        max-height: 184px;
+        overflow-y: auto;
+        overscroll-behavior: contain;
+        scrollbar-width: thin;
+        padding-right: 6px;
+    }
+    #viewFinance .finance-expense-breakdown-list::-webkit-scrollbar {
+        width: 5px;
+    }
+    #viewFinance .finance-expense-breakdown-list::-webkit-scrollbar-thumb {
+        background: rgba(212,175,55,.42);
+        border-radius: 8px;
+    }
+}
