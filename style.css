@@ -9739,3 +9739,14 @@ html.light-theme .toast {
         color: #f2f4f7 !important;
     }
 }
+
+/* Finance desktop: remove the redundant period title without changing mobile layout */
+@media (min-width: 768px) {
+    #viewFinance .finance-period-heading strong {
+        display: none !important;
+    }
+    #viewFinance .finance-period-heading {
+        margin-bottom: 0 !important;
+        min-height: 0 !important;
+    }
+}
