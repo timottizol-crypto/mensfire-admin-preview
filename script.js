@@ -478,11 +478,14 @@ function switchView(viewId, navElement) {
     if (viewId === 'viewDashboard' && typeof renderDashboard === 'function') {
         renderDashboard();
         const dashboardView = document.getElementById('viewDashboard');
-        if (dashboardView) {
+        if (dashboardView && !dashboardView.dataset.dashboardEntrancePlayed) {
+            dashboardView.dataset.dashboardEntrancePlayed = 'true';
             dashboardView.classList.remove('dashboard-entering');
             void dashboardView.offsetWidth;
             dashboardView.classList.add('dashboard-entering');
             window.setTimeout(() => dashboardView.classList.remove('dashboard-entering'), 1100);
+        } else if (dashboardView) {
+            dashboardView.classList.remove('dashboard-entering');
         }
     }
     if (viewId === 'viewFinance' && typeof renderFinance === 'function') renderFinance();
