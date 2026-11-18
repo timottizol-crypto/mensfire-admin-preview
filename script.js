@@ -3417,6 +3417,8 @@ function renderDashboard() {
 function renderFinanceDateSelector() {
     const container = document.getElementById('financeDateSelector');
     if (!container) return;
+    const isDesktop = window.innerWidth >= 768;
+    const previousScrollLeft = isDesktop ? container.scrollLeft : 0;
     container.innerHTML = '';
     container.classList.toggle('is-hidden', financePeriodMode !== 'day');
     const fields = document.getElementById('financeRangeFields');
@@ -3427,21 +3429,23 @@ function renderFinanceDateSelector() {
     if (startButton) startButton.textContent = financeRangeStart;
     if (endButton) endButton.textContent = financeRangeEnd;
     const selectedParts = selectedFinanceDate.split('.').map(Number);
-    const base = selectedParts.length === 3 ? new Date(selectedParts[2],selectedParts[1]-1,selectedParts[0]) : new Date();
-    base.setHours(0,0,0,0);
+    const selectedDate = selectedParts.length === 3 ? new Date(selectedParts[2],selectedParts[1]-1,selectedParts[0]) : new Date();
+    selectedDate.setHours(0,0,0,0);
+    const today = new Date(); today.setHours(0,0,0,0);
     const label = document.getElementById('financeSelectedDateLabel');
     if (label) {
-        const today = new Date(); today.setHours(0,0,0,0);
-        const sameDay = base.getTime() === today.getTime();
+        const sameDay = selectedDate.getTime() === today.getTime();
         label.textContent = financePeriodMode === 'day'
-            ? (sameDay ? 'Сегодня · ' : '') + base.toLocaleDateString('ru-RU',{weekday:'long',day:'numeric',month:'long',year:'numeric'})
+            ? (sameDay ? 'Сегодня · ' : '') + selectedDate.toLocaleDateString('ru-RU',{weekday:'long',day:'numeric',month:'long',year:'numeric'})
             : financePeriodMode === 'month'
-                ? base.toLocaleDateString('ru-RU',{month:'long',year:'numeric'})
-                : formatReportDate(parseReportDate(financeRangeStart) || base) + ' — ' + formatReportDate(parseReportDate(financeRangeEnd) || base);
+                ? selectedDate.toLocaleDateString('ru-RU',{month:'long',year:'numeric'})
+                : formatReportDate(parseReportDate(financeRangeStart) || selectedDate) + ' — ' + formatReportDate(parseReportDate(financeRangeEnd) || selectedDate);
     }
+    // On desktop keep the date strip anchored to today: selecting a date must not shift the other dates.
+    const stripBase = isDesktop ? new Date(today) : new Date(selectedDate);
     const days = ['Вс','Пн','Вт','Ср','Чт','Пт','Сб'];
     for (let i = -7; i < 16; i++) {
-        const d = new Date(base);
+        const d = new Date(stripBase);
         d.setDate(base.getDate() + i);
         const dateStr = d.toLocaleDateString('ru-RU');
         const today = new Date(); today.setHours(0,0,0,0);
@@ -3454,10 +3458,14 @@ function renderFinanceDateSelector() {
         div.onclick = () => { selectedFinanceDate = dateStr; financePeriodMode = 'day'; renderFinance(); };
         container.appendChild(div);
     }
-    requestAnimationFrame(() => {
-        const selected = container.querySelector('.selected');
-        if (selected) selected.scrollIntoView({block:'nearest',inline:'center',behavior:'smooth'});
-    });
+    if (isDesktop) {
+        container.scrollLeft = previousScrollLeft;
+    } else {
+        requestAnimationFrame(() => {
+            const selected = container.querySelector('.selected');
+            if (selected) selected.scrollIntoView({block:'nearest',inline:'center',behavior:'smooth'});
+        });
+    }
 }
 
 function renderFinance() {
