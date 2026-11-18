@@ -717,7 +717,7 @@
 
         <!-- Детали клиента -->
     <div class="modal" id="clientDetailsModal">
-        <div class="modal-content" style="text-align: left; max-height: 80vh; display: flex; flex-direction: column;">
+        <div class="modal-content client-details-panel" style="text-align: left; max-height: 80vh; display: flex; flex-direction: column;">
             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; flex-shrink: 0;">
                 <h2 id="clientDetailsName" style="font-size: 20px; color: var(--gold); margin: 0;">Имя</h2>
                 <button class="close-btn" onclick="closeModal('clientDetailsModal')" class="barber-stats-close">&times;</button>
@@ -810,15 +810,16 @@
                 <div id="clientUnifiedTimeline" class="client-unified-timeline"></div>
             </section>
 
+            <section class="client-visit-history-section" aria-label="История визитов">
+                <div class="client-visit-history-heading">История визитов</div>
+                <div id="clientDetailsHistory" class="custom-scroll" style="overflow-y: auto; display: flex; flex-direction: column; gap: 8px; flex-grow: 1; min-height: 100px;">
+                <!-- История -->
+                </div>
+            </section>
+
             <div class="client-profile-actions">
                 <button type="button" class="action-modal-btn action-btn-primary" onclick="createBookingForClient()">＋ Новая запись</button>
                 <button type="button" class="action-modal-btn client-profile-save" onclick="saveClientProfile()">Сохранить профиль</button>
-            </div>
-            
-            <div style="font-size: 14px; font-weight: 800; color: var(--gold); margin-bottom: 10px; flex-shrink: 0; border-top: 1px solid rgba(255,255,255,0.1); padding-top: 15px;">История визитов</div>
-            
-            <div id="clientDetailsHistory" class="custom-scroll" style="overflow-y: auto; display: flex; flex-direction: column; gap: 8px; padding-right: 5px; flex-grow: 1; min-height: 100px;">
-                <!-- История -->
             </div>
         </div>
     </div>
