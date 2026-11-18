@@ -9258,6 +9258,14 @@ html.light-theme .toast {
   #clientDetailsModal .client-tasks-list.has-scroll {
     max-height: 190px !important;
   }
+  #clientDetailsModal .client-timeline-list {
+    max-height: 190px !important;
+    overflow-y: auto !important;
+    overflow-x: hidden !important;
+    overscroll-behavior: contain;
+    scrollbar-gutter: stable;
+    padding-right: 7px;
+  }
   #clientDetailsModal .client-activity-signal[data-client-signal-target] {
     cursor: pointer;
     transition: transform .18s ease, border-color .18s ease, background .18s ease;
