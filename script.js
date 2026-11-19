@@ -4575,22 +4575,29 @@ function renderClientsAnalytics(sourceBookings, clientGroups) {
     });
     let chartBuckets=[];
     if (useSelectedPeriodChart) {
-        const dayCursor=new Date(chartStart);
-        while(dayCursor<=chartEnd && chartBuckets.length<400) {
-            const key=formatReportDate(dayCursor);
-            chartBuckets.push({
-                key,
-                label:dayCursor.toLocaleDateString('ru-RU',{day:'numeric',month:'short'}).replace('.',''),
+        // Сжимаем выбранный интервал до 4–16 равномерных точек:
+        // короткий диапазон — 4 точки, длинный — до 16.
+        const chartDayCount=Math.max(1,Math.round((chartEnd-chartStart)/86400000)+1);
+        const bucketCount=Math.max(4,Math.min(16,Math.round(chartDayCount/7)));
+        chartBuckets=Array.from({length:bucketCount},(_,index)=>{
+            const fromOffset=Math.floor(index*chartDayCount/bucketCount);
+            const toOffset=Math.max(fromOffset,Math.floor((index+1)*chartDayCount/bucketCount)-1);
+            const fromDate=new Date(chartStart); fromDate.setDate(fromDate.getDate()+fromOffset);
+            const toDate=new Date(chartStart); toDate.setDate(toDate.getDate()+toOffset);
+            return {
+                key:String(index+1),
+                label:String(index+1),
+                rangeLabel=formatReportDate(fromDate)+' — '+formatReportDate(toDate),
                 revenue:0,
                 visits:0
-            });
-            dayCursor.setDate(dayCursor.getDate()+1);
-        }
-        const dayIndex=new Map(chartBuckets.map((item,index)=>[item.key,index]));
+            };
+        });
         chartBookings.forEach(booking=>{
             const date=parseReportDate(booking.date);
-            const index=date?dayIndex.get(formatReportDate(date)):undefined;
-            if(index===undefined)return;
+            if(!date)return;
+            const offset=Math.floor((date-chartStart)/86400000);
+            const index=Math.min(bucketCount-1,Math.max(0,Math.floor(offset*bucketCount/chartDayCount)));
+            if(index<0||index>=chartBuckets.length)return;
             chartBuckets[index].visits++;
             chartBuckets[index].revenue+=getBookingCollectedAmount(booking);
         });
@@ -4691,10 +4698,10 @@ function renderClientsAnalytics(sourceBookings, clientGroups) {
                     <defs><linearGradient id="clientsChartFill" x1="0" x2="0" y1="0" y2="1"><stop offset="0%" stop-color="#d4af37" stop-opacity=".30"/><stop offset="100%" stop-color="#d4af37" stop-opacity="0"/></linearGradient></defs>
                     <path d="M ${left} ${top+plotHeight/2} H ${chartWidth-right}" class="clients-chart-gridline"/><path d="M ${left} ${top+plotHeight} H ${chartWidth-right}" class="clients-chart-gridline"/>
                     <path d="${areaPath}" class="clients-chart-area"/><path d="${linePath}" class="clients-chart-line"/>
-                    ${points.map(point=>`<circle cx="${point.x}" cy="${point.y}" r="4" class="clients-chart-point"><title>${point.label}: ${Math.round(point.revenue).toLocaleString('ru-RU')} ₽</title></circle>`).join('')}
+                    ${points.map(point=>`<circle cx="${point.x}" cy="${point.y}" r="4" class="clients-chart-point"><title>${point.rangeLabel||point.label}: ${Math.round(point.revenue).toLocaleString('ru-RU')} ₽</title></circle>`).join('')}
                     ${points.map(point=>`<text x="${point.x}" y="150" text-anchor="middle" class="clients-chart-label">${point.label}</text>`).join('')}
                 </svg>
-                <div class="clients-chart-footer"><span>${totalVisits} завершённых визитов · ${periodLabel}</span><span>Демо-данные</span></div>
+                <div class="clients-chart-footer"><span>${useSelectedPeriodChart?'Интервал разбит на '+chartBuckets.length+' точек · '+periodLabel:chartBuckets.reduce((sum,item)=>sum+item.visits,0)+' завершённых визитов · последние 6 месяцев'}</span><span>Демо-данные</span></div>
             </article>
             <article class="clients-chart-card clients-loyalty-chart">
                 <div class="clients-chart-title"><div><span>Сегменты аудитории</span><strong>${totalClients} клиентов</strong></div><span class="clients-chart-icon">◎</span></div>
