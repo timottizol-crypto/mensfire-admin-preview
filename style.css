@@ -10469,3 +10469,11 @@ html.light-theme .toast {
         overflow-wrap: anywhere;
     }
 }
+
+
+/* CRM and Clients are separate desktop workspaces. */
+#viewCRM .crm-tasks-hub { display: block; }
+#viewCRM .crm-page-heading { margin-bottom: 18px; }
+@media (max-width: 767px) {
+    #viewCRM { display: none !important; }
+}
