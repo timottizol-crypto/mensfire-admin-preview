@@ -10494,3 +10494,8 @@ html.light-theme .toast {
         box-sizing: border-box;
     }
 }
+
+/* Client profile notes and custom task date picker */
+#clientDetailsNotes.client-details-notes{padding-top:24px;padding-bottom:12px;line-height:1.45}
+#clientTaskDueDate[readonly]{cursor:pointer}
+#clientTaskDueDate[readonly]:focus{border-color:var(--gold);box-shadow:0 0 0 2px rgba(212,175,55,.12)}
