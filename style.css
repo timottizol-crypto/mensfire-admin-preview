@@ -10797,13 +10797,11 @@ html.light-theme #viewClients>.clients-workspace{
 }
 
 
-/* CLIENTS VIEW — full-height glass surface with its own working scroll */
+/* CLIENTS VIEW — bounded glass surface around the complete content */
 #viewClients.active{
   display:flex!important;
-  flex:1 1 0%!important;
   flex-direction:column!important;
   position:relative!important;
-  isolation:isolate!important;
   box-sizing:border-box!important;
   width:100%!important;
   height:100dvh!important;
@@ -10813,26 +10811,29 @@ html.light-theme #viewClients>.clients-workspace{
   overflow-y:auto!important;
   -webkit-overflow-scrolling:touch!important;
   overscroll-behavior-y:contain!important;
-  padding:20px 20px 110px!important;
-  border:1px solid rgba(255,255,255,.10)!important;
-  border-radius:24px!important;
-  background:linear-gradient(155deg,rgba(255,255,255,.055),rgba(255,255,255,.018))!important;
-  box-shadow:0 18px 55px rgba(0,0,0,.18),inset 0 1px 0 rgba(255,255,255,.035)!important;
+  padding-top:12px!important;
+  padding-bottom:24px!important;
+  border:0!important;
+  border-radius:0!important;
+  background:transparent!important;
+  box-shadow:none!important;
 }
 #viewClients.active>.clients-workspace{
   display:flex!important;
   flex:0 0 auto!important;
   flex-direction:column!important;
+  box-sizing:border-box!important;
   width:100%!important;
   min-height:0!important;
   height:auto!important;
   max-height:none!important;
+  margin:0 0 14px!important;
+  padding:22px!important;
   overflow:visible!important;
-  padding:0!important;
-  border:0!important;
-  border-radius:0!important;
-  background:transparent!important;
-  box-shadow:none!important;
+  border:1px solid rgba(255,255,255,.10)!important;
+  border-radius:24px!important;
+  background:linear-gradient(155deg,rgba(255,255,255,.055),rgba(255,255,255,.018))!important;
+  box-shadow:0 18px 55px rgba(0,0,0,.18),inset 0 1px 0 rgba(255,255,255,.035)!important;
 }
 #viewClients.active #clientDirectoryMount{
   position:relative!important;
@@ -10853,7 +10854,8 @@ html.light-theme #viewClients>.clients-workspace{
   overflow:visible!important;
 }
 @media(min-width:768px){
-  #viewClients.active{padding:24px 24px 110px!important}
+  #viewClients.active{padding-top:12px!important;padding-bottom:24px!important}
+  #viewClients.active>.clients-workspace{padding:24px!important}
   #viewClients.active #clientsList{display:grid!important}
 }
 @media(max-width:767px){
@@ -10861,11 +10863,16 @@ html.light-theme #viewClients>.clients-workspace{
     height:100%!important;
     min-height:0!important;
     max-height:100dvh!important;
-    padding:14px 14px calc(100px + env(safe-area-inset-bottom,0px))!important;
+    padding-top:8px!important;
+    padding-bottom:calc(20px + env(safe-area-inset-bottom,0px))!important;
+  }
+  #viewClients.active>.clients-workspace{
+    margin-bottom:12px!important;
+    padding:14px!important;
     border-radius:18px!important;
   }
 }
-html.light-theme #viewClients.active{
+html.light-theme #viewClients.active>.clients-workspace{
   background:linear-gradient(155deg,rgba(255,255,255,.92),rgba(246,248,251,.88))!important;
   border-color:rgba(20,30,45,.09)!important;
   box-shadow:0 16px 45px rgba(20,30,45,.07)!important;
