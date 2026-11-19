@@ -10762,3 +10762,36 @@ html.light-theme #viewClients>.clients-workspace{
     padding-bottom:calc(24px + env(safe-area-inset-bottom,0px))!important;
   }
 }
+
+
+/* Final Clients layout correction: use normal document flow so the outer
+   glass panel grows with the complete client directory instead of ending
+   at the top of its independently scrollable list. */
+#viewClients>.clients-workspace{
+  display:block!important;
+  height:auto!important;
+  min-height:calc(100dvh - 36px)!important;
+  max-height:none!important;
+  overflow:visible!important;
+}
+#viewClients>.clients-workspace .client-directory-workspace{
+  display:block!important;
+  width:100%!important;
+  height:auto!important;
+  min-height:0!important;
+  max-height:none!important;
+  overflow:visible!important;
+}
+#viewClients>.clients-workspace #clientsList{
+  height:auto!important;
+  min-height:0!important;
+  max-height:none!important;
+  overflow:visible!important;
+  flex:none!important;
+}
+@media(max-width:767px){
+  #viewClients>.clients-workspace{
+    min-height:calc(100dvh - 90px)!important;
+    padding-bottom:calc(24px + env(safe-area-inset-bottom,0px))!important;
+  }
+}
