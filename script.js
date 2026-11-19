@@ -4578,9 +4578,40 @@ function renderClientsAnalytics(sourceBookings, clientGroups) {
         monthStats[index].visits++;
         monthStats[index].revenue+=getBookingCollectedAmount(booking);
     });
-    const maxRevenue=Math.max(1,...monthStats.map(item=>item.revenue));
+    // Масштаб графика подстраивается под выбранный период: часы для «Сегодня», дни для месяца/короткого периода и месяцы для длинного периода.
+    let chartBuckets=[];
+    if (clientsPeriodMode === 'today') {
+        chartBuckets=Array.from({length:6},(_,i)=>({key:String(i*4),label:String(i*4).padStart(2,'0')+':00',revenue:0,visits:0}));
+        chartBookings.forEach(booking=>{
+            const raw=String(booking.time||booking.startTime||booking.start_time||'');
+            const match=raw.match(/(?:^|T|\\s)([01]?\\d|2[0-3]):[0-5]\\d/);
+            if(!match)return;
+            const bucket=Math.min(5,Math.floor(Number(match[1])/4));
+            chartBuckets[bucket].visits++;
+            chartBuckets[bucket].revenue+=getBookingCollectedAmount(booking);
+        });
+    } else {
+        const spanDays=Math.max(1,Math.round((chartEnd-chartStart)/86400000)+1);
+        const useDays=clientsPeriodMode==='month'||(clientsPeriodMode==='custom'&&spanDays<=31);
+        if(useDays){
+            const dayCursor=new Date(chartStart); dayCursor.setHours(0,0,0,0);
+            while(dayCursor<=chartEnd&&chartBuckets.length<32){
+                const key=formatReportDate(dayCursor);
+                chartBuckets.push({key,label:dayCursor.toLocaleDateString('ru-RU',{day:'numeric',month:'short'}).replace('.',''),revenue:0,visits:0});
+                dayCursor.setDate(dayCursor.getDate()+1);
+            }
+            const dayIndex=new Map(chartBuckets.map((item,index)=>[item.key,index]));
+            chartBookings.forEach(booking=>{
+                const date=parseReportDate(booking.date),index=date?dayIndex.get(formatReportDate(date)):undefined;
+                if(index===undefined)return;
+                chartBuckets[index].visits++;
+                chartBuckets[index].revenue+=getBookingCollectedAmount(booking);
+            });
+        } else { chartBuckets=monthStats.map(item=>({...item})); }
+    }
+    const maxRevenue=Math.max(1,...chartBuckets.map(item=>item.revenue));
     const chartWidth=520,chartHeight=154,left=12,right=12,top=12,bottom=28,plotWidth=chartWidth-left-right,plotHeight=chartHeight-top-bottom;
-    const points=monthStats.map((item,index)=>({x:left+(monthStats.length===1?plotWidth/2:index*plotWidth/(monthStats.length-1)),y:top+plotHeight-(item.revenue/maxRevenue)*plotHeight,...item}));
+    const points=chartBuckets.map((item,index)=>({x:left+(chartBuckets.length===1?plotWidth/2:index*plotWidth/(chartBuckets.length-1)),y:top+plotHeight-(item.revenue/maxRevenue)*plotHeight,...item}));
     const linePath=points.map((point,index)=>(index?'L':'M')+point.x.toFixed(1)+' '+point.y.toFixed(1)).join(' ');
     const areaPath=linePath+' L '+points[points.length-1].x.toFixed(1)+' '+(top+plotHeight)+' L '+points[0].x.toFixed(1)+' '+(top+plotHeight)+' Z';
     const periodGroups=(clientGroups||[]).map(client=>{
@@ -4621,8 +4652,8 @@ function renderClientsAnalytics(sourceBookings, clientGroups) {
         </div>
         <div class="clients-analytics-grid">
             <article class="clients-chart-card clients-revenue-chart">
-                <div class="clients-chart-title"><div><span>Выручка по месяцам</span><strong>${Math.round(totalRevenue).toLocaleString('ru-RU')} ₽</strong></div><span class="clients-chart-icon">↗</span></div>
-                <svg class="clients-line-chart" viewBox="0 0 520 154" role="img" aria-label="Динамика выручки по месяцам за выбранный период">
+                <div class="clients-chart-title"><div><span>${clientsPeriodMode==='today'?'Выручка по часам':clientsPeriodMode==='month'||(clientsPeriodMode==='custom'&&Math.max(1,Math.round((rangeEnd-rangeStart)/86400000)+1)<=31)?'Выручка по дням':'Выручка по месяцам'}</span><strong>${Math.round(totalRevenue).toLocaleString('ru-RU')} ₽</strong></div><span class="clients-chart-icon">↗</span></div>
+                <svg class="clients-line-chart" viewBox="0 0 520 154" role="img" aria-label="Динамика выручки за выбранный период">
                     <defs><linearGradient id="clientsChartFill" x1="0" x2="0" y1="0" y2="1"><stop offset="0%" stop-color="#d4af37" stop-opacity=".30"/><stop offset="100%" stop-color="#d4af37" stop-opacity="0"/></linearGradient></defs>
                     <path d="M ${left} ${top+plotHeight/2} H ${chartWidth-right}" class="clients-chart-gridline"/><path d="M ${left} ${top+plotHeight} H ${chartWidth-right}" class="clients-chart-gridline"/>
                     <path d="${areaPath}" class="clients-chart-area"/><path d="${linePath}" class="clients-chart-line"/>
