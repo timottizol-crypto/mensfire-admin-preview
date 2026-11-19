@@ -10795,3 +10795,63 @@ html.light-theme #viewClients>.clients-workspace{
     padding-bottom:calc(24px + env(safe-area-inset-bottom,0px))!important;
   }
 }
+
+
+/* Clients: put the glass surface on the page view itself, not on the
+   inner workspace card. The client list is reparented at runtime and the
+   inner card's height/background was ending at the search control. */
+#viewClients.active{
+  display:block!important;
+  position:relative!important;
+  isolation:isolate!important;
+  box-sizing:border-box!important;
+  width:100%!important;
+  height:auto!important;
+  min-height:100dvh!important;
+  max-height:none!important;
+  overflow:visible!important;
+  padding:20px!important;
+  border:1px solid var(--glass-border,rgba(255,255,255,.10))!important;
+  border-radius:24px!important;
+  background:linear-gradient(155deg,rgba(255,255,255,.055),rgba(255,255,255,.018))!important;
+  box-shadow:var(--glass-shadow,0 18px 55px rgba(0,0,0,.18)),inset 0 1px 0 rgba(255,255,255,.035)!important;
+}
+#viewClients.active>.clients-workspace{
+  width:100%!important;
+  min-height:0!important;
+  height:auto!important;
+  max-height:none!important;
+  overflow:visible!important;
+  padding:0!important;
+  border:0!important;
+  border-radius:0!important;
+  background:transparent!important;
+  box-shadow:none!important;
+}
+#viewClients.active #clientDirectoryMount,
+#viewClients.active #clientsList{
+  position:relative!important;
+  display:block!important;
+  width:100%!important;
+  height:auto!important;
+  min-height:0!important;
+  max-height:none!important;
+  overflow:visible!important;
+}
+@media(min-width:768px){
+  #viewClients.active{padding:24px!important;min-height:100dvh!important}
+  #viewClients.active #clientsList{display:grid!important}
+}
+@media(max-width:767px){
+  #viewClients.active{
+    min-height:calc(100dvh - 72px)!important;
+    padding:14px!important;
+    padding-bottom:calc(24px + env(safe-area-inset-bottom,0px))!important;
+    border-radius:18px!important;
+  }
+}
+html.light-theme #viewClients.active{
+  background:linear-gradient(155deg,rgba(255,255,255,.92),rgba(246,248,251,.88))!important;
+  border-color:rgba(20,30,45,.09)!important;
+  box-shadow:0 16px 45px rgba(20,30,45,.07)!important;
+}
