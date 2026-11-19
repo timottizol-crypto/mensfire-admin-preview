@@ -6381,30 +6381,30 @@ html.light-theme .booking-client-match{background:#fbf8ef}
 
 
 
-/* Список клиентов в отдельной desktop-вкладке сохраняет прежнюю сетку прямоугольных карточек. */
+/* Каталог клиентов внутри CRM сохраняет сетку прямоугольных карточек на ПК. */
 @media (min-width: 768px) {
-    #viewClientDirectory #clientsList {
+    #viewClients #clientsList {
         display: grid;
         grid-template-columns: repeat(auto-fill, minmax(min(100%, 340px), 1fr));
         align-content: start;
         gap: 12px;
     }
-    #viewClientDirectory .client-card {
+    #viewClients .client-card {
         margin: 0;
         height: 100%;
     }
 }
 
-/* Стили карточек после переноса списка в отдельную desktop-вкладку */
-#viewClientDirectory #clientsList{min-width:0}
-#viewClientDirectory .client-card{box-sizing:border-box;width:100%;min-width:0;align-items:flex-start;gap:12px;padding:14px}
-#viewClientDirectory .client-avatar{flex:0 0 44px}
-#viewClientDirectory .client-info{flex:1 1 0%;min-width:0;overflow:hidden}
-#viewClientDirectory .client-name{display:flex;flex-wrap:wrap;align-items:center;gap:6px;min-width:0;line-height:1.35;overflow-wrap:anywhere}
-#viewClientDirectory .client-tag-badge{display:inline-flex;align-items:center;flex:0 0 auto;white-space:nowrap}
-#viewClientDirectory .client-meta{display:block;max-width:100%;line-height:1.5;overflow-wrap:anywhere;word-break:normal}
-#viewClientDirectory .client-meta+.client-meta{margin-top:3px}
-#viewClientDirectory .client-meta[style*="color: var(--gold)"]{margin-top:5px}
+/* Стили карточек каталога клиентов внутри CRM. */
+#viewClients #clientsList{min-width:0}
+#viewClients .client-card{box-sizing:border-box;width:100%;min-width:0;align-items:flex-start;gap:12px;padding:14px}
+#viewClients .client-avatar{flex:0 0 44px}
+#viewClients .client-info{flex:1 1 0%;min-width:0;overflow:hidden}
+#viewClients .client-name{display:flex;flex-wrap:wrap;align-items:center;gap:6px;min-width:0;line-height:1.35;overflow-wrap:anywhere}
+#viewClients .client-tag-badge{display:inline-flex;align-items:center;flex:0 0 auto;white-space:nowrap}
+#viewClients .client-meta{display:block;max-width:100%;line-height:1.5;overflow-wrap:anywhere;word-break:normal}
+#viewClients .client-meta+.client-meta{margin-top:3px}
+#viewClients .client-meta[style*="color: var(--gold)"]{margin-top:5px}
 
 .supplier-balance-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px;margin:14px 0 10px}@media(max-width:600px){.supplier-balance-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}\n.supplier-balance-grid>div{padding:10px;border-radius:12px;background:rgba(128,140,160,.09);min-width:0}.supplier-balance-grid small,.supplier-balance-grid b{display:block}.supplier-balance-grid small{font-size:11px;opacity:.7}.supplier-balance-grid b{font-size:14px;margin-top:4px}.supplier-payment-action{width:100%;margin:2px 0 12px}.supplier-payment-history{display:grid;gap:7px}.supplier-payment-history>div{display:flex;justify-content:space-between;gap:12px;font-size:12px}.supplier-payment-history>div span{opacity:.75}.supplier-order-finance{display:flex;flex-wrap:wrap;gap:8px 16px;padding:10px 0;font-size:12px;opacity:.85}
 
