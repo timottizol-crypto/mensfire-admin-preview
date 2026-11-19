@@ -5558,9 +5558,9 @@ html.light-theme .finance-range-date { color:#344052; background:#fff8e7; border
 .clients-title-period{position:relative;z-index:2}
 .clients-range-toolbar .finance-range-presets{flex:0 0 auto;min-width:0;gap:2px;padding:3px}
 .clients-range-toolbar .finance-range-btn{padding:6px 9px;min-height:32px;font-size:10px;white-space:nowrap}
-.clients-range-toolbar .finance-range-fields{position:absolute;left:0;top:calc(100% + 5px);z-index:30;display:flex;align-items:center;gap:7px;width:max-content;max-width:min(100%,390px);padding:7px 9px;border:1px solid var(--glass-border,rgba(255,255,255,.14));border-radius:12px;background:var(--card-bg,#202020);box-shadow:0 10px 28px rgba(0,0,0,.28)}
+.clients-range-toolbar .finance-range-fields{position:absolute;left:0;top:calc(100% + 5px);z-index:30;display:flex;align-items:center;gap:6px;width:max-content;max-width:min(100%,390px);min-height:0;padding:3px 6px;border:1px solid var(--glass-border,rgba(255,255,255,.14));border-radius:10px;background:var(--card-bg,#202020);box-shadow:0 10px 28px rgba(0,0,0,.28)}
 .clients-range-toolbar .finance-range-fields[hidden]{display:none!important}
-.clients-range-toolbar .finance-range-date{min-width:0;padding:7px 9px;font-size:10px}
+.clients-range-toolbar .finance-range-date{box-sizing:border-box;min-width:0!important;min-height:30px!important;height:30px!important;padding:4px 7px!important;font-size:10px!important;line-height:1.1!important}
 @media(max-width:520px){.clients-range-toolbar{flex-wrap:wrap}.clients-range-toolbar .finance-range-presets{width:100%;display:grid;grid-template-columns:repeat(4,minmax(0,1fr))}.clients-range-toolbar .finance-range-btn{padding:6px 4px;font-size:9px}.clients-range-toolbar .finance-range-fields{top:calc(100% + 5px);max-width:100%;width:100%}.clients-range-toolbar .finance-range-date{flex:1 1 0;width:0}}
 .clients-workspace{height:auto!important;min-height:0!important;max-height:none!important;overflow:visible!important}
 .clients-workspace #clientsSegmentContainer,.clients-workspace #clientsTabsContainer,.clients-workspace .client-directory-scope,.clients-workspace .client-directory-workspace{position:relative;z-index:1;min-width:0;max-width:100%;overflow:visible}
@@ -10528,6 +10528,4 @@ html.light-theme .toast {
 
 @media(max-width:1100px){#viewClients{min-width:0;max-width:100%;overflow-x:hidden}.clients-topbar{display:flex;flex-direction:column;width:100%;min-width:0}.clients-title-period,.clients-topbar .clients-overview-grid{width:100%;min-width:0;max-width:100%}.clients-topbar .client-overview-card{min-width:0}}
 
-.clients-range-toolbar.is-custom-open{margin-bottom:68px!important}
-.clients-range-toolbar.is-custom-open .finance-range-fields{top:calc(100% + 6px)}
-@media(max-width:520px){.clients-range-toolbar.is-custom-open{margin-bottom:72px!important}.clients-range-toolbar.is-custom-open .finance-range-fields{left:0;right:0;width:100%;max-width:100%;box-sizing:border-box}.clients-range-toolbar.is-custom-open .finance-range-date{min-width:0;flex:1 1 0}}
+
