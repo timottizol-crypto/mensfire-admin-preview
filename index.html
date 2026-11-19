@@ -203,15 +203,21 @@
             <div id="servicesCatalog"></div>
         </div>
 
+        <!-- ЭКРАН CRM: только задачи и напоминания -->
+        <div id="viewCRM" class="view crm-workspace">
+            <div class="workspace-heading crm-page-heading"><div><span class="workspace-eyebrow">MENSFIRE CRM</span><h2>CRM</h2><p>Задачи, напоминания и контроль взаимодействий с клиентами</p></div></div>
+            <section id="clientsTasksHub" class="crm-tasks-hub" aria-label="Общий центр задач CRM"></section>
+        </div>
+
         <!-- ЭКРАН КЛИЕНТОВ -->
         <div id="viewClients" class="view">
             <div class="glass-card home-bookings-card clients-workspace">
-                <div class="workspace-heading clients-heading"><div><span class="workspace-eyebrow">MENSFIRE CRM</span><h2 id="clientsPageTitle">Клиенты</h2><p>История визитов, лояльность и отношения с гостями</p></div></div>
+                <div class="workspace-heading clients-heading"><div><span class="workspace-eyebrow">MENSFIRE CLIENTS</span><h2 id="clientsPageTitle">Клиенты</h2><p>Карточки, история визитов и вся информация о гостях</p></div></div>
                 <div id="clientsPeriodControls" class="clients-period-controls"></div>
                 <div id="clientsOverview" class="clients-overview-grid"></div>
                 <section id="clientsAnalytics" class="clients-analytics" aria-label="Аналитика клиентов"></section>
                 <div id="clientsTabsContainer"></div>
-                <section id="clientsTasksHub" class="crm-tasks-hub" aria-label="Общий центр задач CRM"></section>
+                
                 <div class="client-directory-scope" id="clientDirectoryScope"></div>
                 <div id="clientDirectoryMount" class="client-directory-workspace"></div>
             <section class="glass-card clients-waitlist" id="scheduleWaitlist">
