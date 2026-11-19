@@ -10682,3 +10682,38 @@ html.light-theme #viewClients>.clients-workspace{
     margin-top:0!important;
   }
 }
+
+
+/* Keep the Overview period controls directly below the page description.
+   Do not distribute the heading and controls across the height of the
+   neighboring upcoming-bookings card. */
+#viewDashboard .dashboard-title-period{
+  display:flex!important;
+  flex-direction:column!important;
+  justify-content:flex-start!important;
+  align-content:flex-start!important;
+  align-items:stretch!important;
+  align-self:start!important;
+  height:max-content!important;
+  min-height:0!important;
+  max-height:none!important;
+  gap:10px!important;
+}
+#viewDashboard .dashboard-title-period>.dashboard-heading{
+  flex:0 0 auto!important;
+  height:auto!important;
+  min-height:0!important;
+  max-height:none!important;
+  margin:0!important;
+}
+#viewDashboard .dashboard-title-period>.dashboard-period-controls{
+  flex:0 0 auto!important;
+  align-self:flex-start!important;
+  height:auto!important;
+  min-height:0!important;
+  margin:0!important;
+  padding:0!important;
+}
+#viewDashboard .dashboard-period-controls .finance-range-toolbar{
+  margin:0!important;
+}
