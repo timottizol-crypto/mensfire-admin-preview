@@ -10877,3 +10877,95 @@ html.light-theme #viewClients.active>.clients-workspace{
   border-color:rgba(20,30,45,.09)!important;
   box-shadow:0 16px 45px rgba(20,30,45,.07)!important;
 }
+
+
+/* MensFire CRM polish: softer data-quality toggle and roomier waitlist controls */
+#viewClients .crm-data-quality-toggle{
+  min-height:58px!important;
+  padding:14px 16px!important;
+  border-radius:0!important;
+  transform:none!important;
+  transition:background-color .18s ease!important;
+}
+#viewClients .crm-data-quality-toggle:hover{
+  background:rgba(198,158,91,.055)!important;
+}
+#viewClients .crm-data-quality-toggle:active,
+#viewClients .crm-data-quality-toggle:focus:active{
+  transform:none!important;
+  filter:none!important;
+  box-shadow:none!important;
+  background:rgba(198,158,91,.075)!important;
+}
+#viewClients .waitlist-form{
+  gap:13px!important;
+  padding:17px!important;
+}
+#viewClients .waitlist-form .form-group{
+  display:flex!important;
+  flex-direction:column!important;
+  justify-content:flex-end!important;
+  gap:7px!important;
+  min-height:76px!important;
+}
+#viewClients .waitlist-form label{
+  display:block!important;
+  min-height:15px!important;
+  line-height:1.35!important;
+  font-size:11px!important;
+}
+#viewClients .waitlist-form input,
+#viewClients .waitlist-form select{
+  box-sizing:border-box!important;
+  width:100%!important;
+  min-width:0!important;
+  min-height:48px!important;
+  height:48px!important;
+  padding:0 13px!important;
+  border-radius:11px!important;
+  font-size:13px!important;
+  line-height:1.3!important;
+}
+#viewClients .waitlist-form .checkout-btn{
+  min-height:46px!important;
+  padding:11px 16px!important;
+}
+#viewClients .waitlist-row-enhanced{
+  min-height:112px!important;
+  padding:17px 18px!important;
+  gap:16px!important;
+}
+#viewClients .waitlist-person{
+  gap:6px!important;
+}
+#viewClients .waitlist-person strong{font-size:13px!important}
+#viewClients .waitlist-person span,
+#viewClients .waitlist-person small{font-size:11px!important;line-height:1.45!important}
+#viewClients .waitlist-tags{gap:7px!important;margin-top:4px!important}
+#viewClients .waitlist-tags span{padding:6px 10px!important;font-size:10px!important}
+#viewClients .waitlist-actions{gap:8px!important}
+#viewClients .waitlist-actions select{
+  min-height:40px!important;
+  height:40px!important;
+  padding:0 11px!important;
+  font-size:11px!important;
+}
+#viewClients .waitlist-row-enhanced .waitlist-actions button{
+  min-height:40px!important;
+  padding:9px 12px!important;
+  font-size:11px!important;
+}
+@media(max-width:760px){
+  #viewClients .waitlist-form{gap:12px!important;padding:13px!important}
+  #viewClients .waitlist-form .form-group{min-height:72px!important}
+  #viewClients .waitlist-form input,
+  #viewClients .waitlist-form select{min-height:50px!important;height:50px!important}
+  #viewClients .waitlist-row-enhanced{
+    min-height:0!important;
+    padding:16px!important;
+    gap:13px!important;
+  }
+  #viewClients .waitlist-actions{width:100%!important}
+  #viewClients .waitlist-actions select,
+  #viewClients .waitlist-row-enhanced .waitlist-actions button{min-height:42px!important}
+}
