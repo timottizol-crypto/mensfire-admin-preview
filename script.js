@@ -4668,7 +4668,7 @@ function renderClientsAnalytics(sourceBookings, clientGroups) {
     const periodLabel=formatReportDate(rangeStart)+' — '+formatReportDate(rangeEnd);
     const controls=document.getElementById('clientsPeriodControls');
     if (controls) controls.innerHTML = `
-        <div class="finance-range-toolbar clients-range-toolbar">
+        <div class="finance-range-toolbar clients-range-toolbar ${clientsPeriodMode==='custom'?'is-custom-open':''}">
             <div class="finance-range-presets" role="group" aria-label="Период аналитики клиентов">
                 <button type="button" class="finance-range-btn ${clientsPeriodMode==='today'?'active':''}" onclick="setClientsPeriod('today')">Сегодня</button>
                 <button type="button" class="finance-range-btn ${clientsPeriodMode==='sixMonths'?'active':''}" onclick="setClientsPeriod('sixMonths')">6 месяцев</button>
