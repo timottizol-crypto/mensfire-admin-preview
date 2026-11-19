@@ -244,7 +244,7 @@ function renderServices() {
     const summary = document.getElementById('servicesOverview');
     if (summary) summary.innerHTML = '<div class="service-overview-card"><span>Всего услуг</span><strong>' + all.length + '</strong></div><div class="service-overview-card"><span>Доступно для записи</span><strong>' + active.length + '</strong></div><div class="service-overview-card"><span>Средняя длительность</span><strong>' + Math.round(active.reduce((sum,item)=>sum+getServiceDurationMinutes(item),0)/Math.max(1,active.length)) + ' мин.</strong></div>';
     container.innerHTML = groups.map(group => '<section class="service-group"><div class="service-group-heading"><div><h3>' + group.title + '</h3><p>' + group.note + '</p></div><button class="finance-text-action" onclick="openServiceEditor(\'' + group.type + '\')">＋ Добавить</button></div><div class="service-card-grid">' +
-        (servicesData[group.type].map(service => '<article class="service-card ' + (service.active === false ? 'is-inactive' : '') + '"><div class="service-card-top"><span class="service-status">' + (service.active === false ? 'Скрыта' : 'Активна') + '</span><span class="service-duration">' + getServiceDurationMinutes(service) + ' мин.</span></div><h4>' + escapeBookingHtml(service.title) + '</h4><strong class="service-price">' + Math.round(Number(service.price)||0).toLocaleString('ru-RU') + ' ₽</strong><div class="service-card-actions"><button type="button" onclick="openServiceEditor(\'' + group.type + '\',\'' + escapeBookingHtml(service.id) + '\')">Изменить</button><button type="button" onclick="toggleServiceActive(\'' + group.type + '\',\'' + escapeBookingHtml(service.id) + '\')">' + (service.active === false ? 'Вернуть' : 'Скрыть') + '</button></div></article>').join('') || '<div class="finance-empty">Пока нет услуг в этой категории</div>') + '</div></section>').join('');
+        (servicesData[group.type].map(service => '<article class="service-card ' + (service.active === false ? 'is-inactive' : '') + '"><div class="service-card-top"><span class="service-status">' + (service.active === false ? 'Скрыта' : 'Активна') + '</span><span class="service-duration">' + getServiceDurationMinutes(service) + ' мин.</span></div><h4>' + escapeBookingHtml(service.title) + '</h4><strong class="service-price">' + Math.round(Number(service.price)||0).toLocaleString('ru-RU') + ' ₽</strong><div class="service-card-actions"><button type="button" onclick="openServiceEditor(\'' + group.type + '\',\'' + escapeBookingHtml(service.id) + '\')">Изменить</button><button type="button" onclick="toggleServiceActive(\'' + group.type + '\',\'' + escapeBookingHtml(service.id) + '\')">' + (service.active === false ? 'Вернуть' : 'Скрыть') + '</button><button type="button" class="service-delete-btn" onclick="deleteService(\'' + group.type + '\',\'' + escapeBookingHtml(service.id) + '\')">Удалить</button></div></article>').join('') || '<div class="finance-empty">Пока нет услуг в этой категории</div>') + '</div></section>').join('');
 }
 function openServiceEditor(type, id = '') {
     if (!requireAdminAction('Управлять услугами может только Али')) return;
@@ -278,6 +278,22 @@ function saveService() {
     closeModal('serviceEditorModal');
     renderServices();
     showToast(editingServiceId ? 'Услуга обновлена' : 'Услуга добавлена','success');
+}
+function deleteService(type,id) {
+    if (!requireAdminAction('Управлять услугами может только Али')) return;
+    const source = servicesData[type];
+    const index = source?.findIndex(item => String(item.id) === String(id)) ?? -1;
+    if (index < 0) return;
+    const serviceTitle = source[index].title || 'эту услугу';
+    showConfirm('Удалить услугу?', 'Услуга «' + serviceTitle + '» будет удалена из прайса и станет недоступна для новых записей. Это действие нельзя отменить.', 'Удалить', () => {
+        const currentSource = servicesData[type];
+        const currentIndex = currentSource?.findIndex(item => String(item.id) === String(id)) ?? -1;
+        if (currentIndex < 0) return;
+        currentSource.splice(currentIndex, 1);
+        persistServicesData();
+        renderServices();
+        showToast('Услуга удалена', 'success');
+    });
 }
 function toggleServiceActive(type,id) {
     if (!requireAdminAction('Управлять услугами может только Али')) return;
