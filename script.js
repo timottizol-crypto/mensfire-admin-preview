@@ -4682,10 +4682,6 @@ function renderClientsAnalytics(sourceBookings, clientGroups) {
             </div>
         </div>`;
     root.innerHTML = `
-        <div class="clients-analytics-heading">
-            <div><span class="finance-eyebrow">CLIENT INSIGHTS</span><h3>Аналитика клиентов</h3><p>Визиты, выручка и структура аудитории за период</p></div>
-            <span class="clients-analytics-period">${clientsPeriodMode==='today'?'Сегодня':clientsPeriodMode==='sixMonths'?'6 месяцев':clientsPeriodMode==='month'?'Текущий месяц':periodLabel}</span>
-        </div>
         <div class="clients-period-summary">
             <div><span>Получено за период</span><strong>${Math.round(totalRevenue).toLocaleString('ru-RU')} ₽</strong></div>
             <div><span>Завершено визитов</span><strong>${totalVisits}</strong></div>
