@@ -327,10 +327,13 @@ function buildBottomNav() {
             { id: 'viewDashboard', title: 'Обзор', icon: dashboardIcon },
             { id: 'viewSchedule', title: 'Расписание', icon: calendarIcon },
             { id: 'viewFinance', title: 'Финансы', icon: financeIcon },
-            { id: 'viewServices', title: 'Услуги', icon: servicesIcon },
-            { id: 'viewClients', title: window.innerWidth >= 768 ? 'CRM' : 'Клиенты', icon: crmIcon }
+            { id: 'viewServices', title: 'Услуги', icon: servicesIcon }
         ];
         if (window.innerWidth >= 768) {
+            navItems.push(
+                { id: 'viewCRM', title: 'CRM', icon: crmIcon },
+                { id: 'viewClients', title: 'Клиенты', icon: clientDirectoryIcon }
+            );
             navItems.push(
                 { id: 'viewInventory', title: 'Склад', icon: '<path d="M3 7 12 3l9 4-9 4-9-4zm0 5 9 4 9-4M3 17l9 4 9-4"/>' },
                 { id: 'viewSales', title: 'Продажи', icon: '<path d="M4 5h16v14H4zM8 9h8M8 13h5"/>' },
@@ -469,7 +472,8 @@ function switchView(viewId, navElement) {
         'viewFinance': 'Финансы',
         'viewTeam': 'Команда',
         'viewServices': 'Услуги',
-        'viewClients': window.innerWidth >= 768 ? 'CRM' : 'Клиенты',
+        'viewCRM': 'CRM',
+        'viewClients': 'Клиенты',
         'viewInventory': 'Склад',
         'viewSales': 'Продажи',
         'viewInventoryAnalytics': 'Аналитика склада',
@@ -504,6 +508,7 @@ function switchView(viewId, navElement) {
     }
     if (viewId === 'viewFinance' && typeof renderFinance === 'function') renderFinance();
     if (viewId === 'viewTeam' && typeof renderTeam === 'function') renderTeam();
+    if (viewId === 'viewCRM' && typeof renderClientTasksHub === 'function') renderClientTasksHub();
     if (viewId === 'viewClients' && typeof renderClients === 'function') renderClients(currentClientsTab);
     if (viewId === 'viewServices' && typeof renderServices === 'function') renderServices();
     if (viewId === 'viewSales' && typeof renderRetailSales === 'function') renderRetailSales();
@@ -5207,13 +5212,10 @@ function renderClients(tab = 'all') {
 
     title.innerText = currentUser.role === 'admin' ? 'Клиенты' : 'Мои клиенты';
 
-    // 2. Рендерим табы (только для админа)
+    // Переключатель «Клиенты / Задачи CRM» больше не нужен:
+    // задачи вынесены в отдельный экран, а здесь остаются только данные клиентов.
     if (currentUser.role === 'admin') {
         tabsContainer.innerHTML = `
-            <div class="crm-workspace-switch">
-                <button type="button" class="${currentClientsWorkspaceMode === 'clients' ? 'active' : ''}" onclick="setClientsWorkspaceMode('clients')">Клиенты</button>
-                <button type="button" class="${currentClientsWorkspaceMode === 'tasks' ? 'active' : ''}" onclick="setClientsWorkspaceMode('tasks')">Задачи CRM <span id="crmTasksTabCount">0</span></button>
-            </div>
             <div class="category-tabs crm-client-scope-tabs" style="margin-bottom: 15px;">
                 <button class="tab-btn ${currentClientsTab === 'my' ? 'active' : ''}" onclick="renderClients('my')">Мои клиенты</button>
                 <button class="tab-btn ${currentClientsTab === 'all' ? 'active' : ''}" onclick="renderClients('all')">Все клиенты</button>
@@ -5221,12 +5223,8 @@ function renderClients(tab = 'all') {
         `;
     } else {
         tabsContainer.innerHTML = '';
-        currentClientsWorkspaceMode = 'clients';
     }
     if(window.innerWidth>=768){const legacyScopeTabs=tabsContainer.querySelector('.crm-client-scope-tabs');if(legacyScopeTabs)legacyScopeTabs.remove();}
-    const clientsView = document.getElementById('viewClients');
-    if (clientsView) clientsView.classList.toggle('crm-tasks-mode', currentClientsWorkspaceMode === 'tasks' && window.innerWidth >= 768);
-    renderClientTasksHub();
 
     // 3. Фильтруем записи для подсчета
     let filteredBookings = bookings;
