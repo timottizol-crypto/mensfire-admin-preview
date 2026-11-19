@@ -10513,3 +10513,5 @@ html.light-theme .toast {
 .clients-topbar .client-overview-card small{font-size:clamp(8px,.52vw,9px);line-height:1.25;color:var(--text-muted)}
 @media(max-width:1100px){.clients-topbar{grid-template-columns:minmax(0,1fr);gap:12px}.clients-title-period{gap:8px}.clients-topbar .clients-overview-grid{grid-template-columns:repeat(3,minmax(0,1fr))}}
 @media(max-width:520px){.clients-topbar .clients-overview-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:7px}.clients-topbar .client-overview-card{min-height:62px;padding:9px}.clients-topbar .client-overview-card strong{font-size:clamp(14px,4vw,17px)}}
+
+@media(max-width:1100px){#viewClients{min-width:0;max-width:100%;overflow-x:hidden}.clients-topbar{display:flex;flex-direction:column;width:100%;min-width:0}.clients-title-period,.clients-topbar .clients-overview-grid{width:100%;min-width:0;max-width:100%}.clients-topbar .client-overview-card{min-width:0}}
