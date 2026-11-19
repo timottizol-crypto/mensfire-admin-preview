@@ -332,7 +332,6 @@ function buildBottomNav() {
         ];
         if (window.innerWidth >= 768) {
             navItems.push(
-                { id: 'viewClientDirectory', title: 'Клиенты', icon: clientDirectoryIcon },
                 { id: 'viewInventory', title: 'Склад', icon: '<path d="M3 7 12 3l9 4-9 4-9-4zm0 5 9 4 9-4M3 17l9 4 9-4"/>' },
                 { id: 'viewSales', title: 'Продажи', icon: '<path d="M4 5h16v14H4zM8 9h8M8 13h5"/>' },
                 { id: 'viewInventoryAnalytics', title: 'Аналитика', icon: '<path d="M3 3v18h18M8 16v-5m5 5V6m5 10V9"/>' },
@@ -471,7 +470,6 @@ function switchView(viewId, navElement) {
         'viewTeam': 'Команда',
         'viewServices': 'Услуги',
         'viewClients': window.innerWidth >= 768 ? 'CRM' : 'Клиенты',
-        'viewClientDirectory': 'База клиентов',
         'viewInventory': 'Склад',
         'viewSales': 'Продажи',
         'viewInventoryAnalytics': 'Аналитика склада',
@@ -506,7 +504,7 @@ function switchView(viewId, navElement) {
     }
     if (viewId === 'viewFinance' && typeof renderFinance === 'function') renderFinance();
     if (viewId === 'viewTeam' && typeof renderTeam === 'function') renderTeam();
-    if ((viewId === 'viewClients' || viewId === 'viewClientDirectory') && typeof renderClients === 'function') renderClients(currentClientsTab);
+    if (viewId === 'viewClients' && typeof renderClients === 'function') renderClients(currentClientsTab);
     if (viewId === 'viewServices' && typeof renderServices === 'function') renderServices();
     if (viewId === 'viewSales' && typeof renderRetailSales === 'function') renderRetailSales();
     if (viewId === 'viewPurchases' && typeof renderPurchaseOrders === 'function') renderPurchaseOrders();
