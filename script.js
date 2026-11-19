@@ -4587,7 +4587,7 @@ function renderClientsAnalytics(sourceBookings, clientGroups) {
             return {
                 key:String(index+1),
                 label:String(index+1),
-                rangeLabel=formatReportDate(fromDate)+' — '+formatReportDate(toDate),
+                rangeLabel:formatReportDate(fromDate)+' — '+formatReportDate(toDate),
                 revenue:0,
                 visits:0
             };
