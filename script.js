@@ -3291,9 +3291,12 @@ function setFinancePeriod(mode) {
     renderFinance();
 }
 function setClientsPeriod(mode) {
-    if (!['sixMonths','month','custom'].includes(mode)) return;
+    if (!['today','sixMonths','month','custom'].includes(mode)) return;
     clientsPeriodMode = mode;
-    if (mode === 'month') {
+    if (mode === 'today') {
+        const now = new Date();
+        clientsRangeStart = clientsRangeEnd = formatReportDate(now);
+    } else if (mode === 'month') {
         const now = new Date();
         clientsRangeStart = formatReportDate(new Date(now.getFullYear(),now.getMonth(),1));
         clientsRangeEnd = formatReportDate(new Date());
@@ -4543,8 +4546,8 @@ function renderClientsAnalytics(sourceBookings, clientGroups) {
     const root = document.getElementById('clientsAnalytics');
     if (!root) return;
     const now = new Date();
-    let rangeStart = clientsPeriodMode === 'sixMonths' ? new Date(now.getFullYear(),now.getMonth()-5,1) : clientsPeriodMode === 'month' ? new Date(now.getFullYear(),now.getMonth(),1) : parseReportDate(clientsRangeStart);
-    let rangeEnd = clientsPeriodMode === 'sixMonths' || clientsPeriodMode === 'month' ? new Date(now.getFullYear(),now.getMonth(),now.getDate()) : parseReportDate(clientsRangeEnd);
+    let rangeStart = clientsPeriodMode === 'today' ? new Date(now.getFullYear(),now.getMonth(),now.getDate()) : clientsPeriodMode === 'sixMonths' ? new Date(now.getFullYear(),now.getMonth()-5,1) : clientsPeriodMode === 'month' ? new Date(now.getFullYear(),now.getMonth(),1) : parseReportDate(clientsRangeStart);
+    let rangeEnd = clientsPeriodMode === 'today' || clientsPeriodMode === 'sixMonths' || clientsPeriodMode === 'month' ? new Date(now.getFullYear(),now.getMonth(),now.getDate()) : parseReportDate(clientsRangeEnd);
     rangeStart = rangeStart || new Date(now.getFullYear(),now.getMonth()-5,1);
     rangeEnd = rangeEnd || now;
     if (rangeEnd < rangeStart) [rangeStart,rangeEnd] = [rangeEnd,rangeStart];
@@ -4587,6 +4590,7 @@ function renderClientsAnalytics(sourceBookings, clientGroups) {
     if (controls) controls.innerHTML = `
         <div class="finance-range-toolbar clients-range-toolbar">
             <div class="finance-range-presets" role="group" aria-label="Период аналитики клиентов">
+                <button type="button" class="finance-range-btn ${clientsPeriodMode==='today'?'active':''}" onclick="setClientsPeriod('today')">Сегодня</button>
                 <button type="button" class="finance-range-btn ${clientsPeriodMode==='sixMonths'?'active':''}" onclick="setClientsPeriod('sixMonths')">6 месяцев</button>
                 <button type="button" class="finance-range-btn ${clientsPeriodMode==='month'?'active':''}" onclick="setClientsPeriod('month')">Месяц</button>
                 <button type="button" class="finance-range-btn ${clientsPeriodMode==='custom'?'active':''}" onclick="setClientsPeriod('custom')">Период</button>
@@ -4600,7 +4604,7 @@ function renderClientsAnalytics(sourceBookings, clientGroups) {
     root.innerHTML = `
         <div class="clients-analytics-heading">
             <div><span class="finance-eyebrow">CLIENT INSIGHTS</span><h3>Аналитика клиентов</h3><p>Визиты, выручка и структура аудитории за период</p></div>
-            <span class="clients-analytics-period">${clientsPeriodMode==='sixMonths'?'6 месяцев':clientsPeriodMode==='month'?'Текущий месяц':periodLabel}</span>
+            <span class="clients-analytics-period">${clientsPeriodMode==='today'?'Сегодня':clientsPeriodMode==='sixMonths'?'6 месяцев':clientsPeriodMode==='month'?'Текущий месяц':periodLabel}</span>
         </div>
         <div class="clients-period-summary">
             <div><span>Получено за период</span><strong>${Math.round(totalRevenue).toLocaleString('ru-RU')} ₽</strong></div>
@@ -5406,7 +5410,7 @@ function renderClients(tab = 'all') {
         const completedRevenueTotal=periodGroups.reduce((sum,client)=>sum+client.completedRevenue,0);
         const averageCheck=visitTotal?Math.round(completedRevenueTotal/visitTotal):0;
         const upcomingClients=periodGroups.filter(client=>client.visits.some(visit=>visit.status!=='cancelled'&&parseClientDateTime(visit)>=Date.now())).length;
-        const caption=clientsPeriodMode==='sixMonths'?'Последние 6 месяцев':clientsPeriodMode==='month'?'Текущий месяц':formatReportDate(rangeStart)+' — '+formatReportDate(rangeEnd);
+        const caption=clientsPeriodMode==='today'?'Сегодня':clientsPeriodMode==='sixMonths'?'Последние 6 месяцев':clientsPeriodMode==='month'?'Текущий месяц':formatReportDate(rangeStart)+' — '+formatReportDate(rangeEnd);
         clientsOverview.innerHTML=`
             <div class="client-overview-card"><span>Клиентов за период</span><strong>${periodGroups.length}</strong><small>${caption}</small></div>
             <div class="client-overview-card"><span>Повторных клиентов</span><strong>${loyalClients}</strong><small>От 3 завершённых визитов за период</small></div>
