@@ -19,7 +19,7 @@
         }
     </script>
 
-    <link rel="stylesheet" href="style.css?v=clients-waitlist-controls-20261119-1">
+    <link rel="stylesheet" href="style.css?v=waitlist-name-search-theme-20261119-1">
     <link rel="stylesheet" href="theme-light.css?v=client-details-desktop-20261118-2">
 </head>
 <body class="header-hidden">
@@ -236,7 +236,7 @@
                     <div class="form-group"><label for="waitlistPriority">Приоритет</label><select id="waitlistPriority"><option value="normal">Обычный</option><option value="high">Высокий</option><option value="urgent">Срочно</option></select></div>
                     <button type="button" class="checkout-btn" onclick="addWaitlistEntry()">＋ Добавить в ожидание</button>
                 </div>
-                <div class="waitlist-toolbar"><input id="waitlistSearch" type="search" placeholder="Поиск по имени, телефону или услуге" oninput="renderWaitlist()"><select id="waitlistStatusFilter" onchange="renderWaitlist()"><option value="active">Активные</option><option value="all">Все статусы</option><option value="waiting">Ожидает</option><option value="contacted">Связались</option><option value="offered">Предложено время</option><option value="closed">Закрытые</option></select><select id="waitlistPriorityFilter" onchange="renderWaitlist()"><option value="all">Любой приоритет</option><option value="urgent">Срочно</option><option value="high">Высокий</option><option value="normal">Обычный</option></select></div>
+                <div class="waitlist-toolbar"><input id="waitlistSearch" type="search" placeholder="Поиск по имени клиента" oninput="renderWaitlist()"><select id="waitlistStatusFilter" onchange="renderWaitlist()"><option value="active">Активные</option><option value="all">Все статусы</option><option value="waiting">Ожидает</option><option value="contacted">Связались</option><option value="offered">Предложено время</option><option value="closed">Закрытые</option></select><select id="waitlistPriorityFilter" onchange="renderWaitlist()"><option value="all">Любой приоритет</option><option value="urgent">Срочно</option><option value="high">Высокий</option><option value="normal">Обычный</option></select></div>
                 <div class="waitlist-list" id="waitlistList"><div class="waitlist-empty">Пока нет клиентов в листе ожидания</div></div>
             </section>
             <div id="clientsSegmentContainer"></div>
