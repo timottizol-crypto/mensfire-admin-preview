@@ -5010,6 +5010,7 @@ html.light-theme #viewSchedule #desktopSchedule .desktop-booking-card > .booking
 .service-price { display:block; color:var(--gold); font-size:22px; }
 .service-card-actions { display:flex; gap:8px; margin-top:14px; }
 .service-card-actions button { flex:1; min-height:36px; border:1px solid rgba(212,175,55,.2); border-radius:9px; background:rgba(212,175,55,.06); color:var(--text-main); font:inherit; font-size:10px; font-weight:700; cursor:pointer; }
+.service-card-actions .service-delete-btn { display:none; }
 @media(max-width:700px) { .services-overview-grid { grid-template-columns:repeat(2,minmax(0,1fr)); } }
 
 /* Profile and account workspace */
