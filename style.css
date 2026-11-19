@@ -10529,3 +10529,57 @@ html.light-theme .toast {
 @media(max-width:1100px){#viewClients{min-width:0;max-width:100%;overflow-x:hidden}.clients-topbar{display:flex;flex-direction:column;width:100%;min-width:0}.clients-title-period,.clients-topbar .clients-overview-grid{width:100%;min-width:0;max-width:100%}.clients-topbar .client-overview-card{min-width:0}}
 
 
+
+
+/* Dashboard mobile restore: keep title and period selector together, and
+   let the top grid grow so the open date row never overlaps the chart. */
+@media(max-width:760px){
+  #viewDashboard .dashboard-title-period{
+    justify-content:flex-start!important;
+    gap:10px!important;
+    height:auto!important;
+    min-height:0!important;
+  }
+  #viewDashboard .dashboard-title-period>.dashboard-heading{
+    flex:0 0 auto!important;
+    min-height:0!important;
+  }
+  #viewDashboard .dashboard-topline{
+    grid-template-rows:auto!important;
+    grid-auto-rows:auto!important;
+    align-items:start!important;
+    height:auto!important;
+    min-height:0!important;
+    overflow:visible!important;
+  }
+  #viewDashboard .dashboard-period-controls{
+    width:100%!important;
+    min-width:0!important;
+  }
+  #viewDashboard .dashboard-period-controls .finance-range-toolbar{
+    width:100%!important;
+    max-width:100%!important;
+    flex-direction:column!important;
+    flex-wrap:nowrap!important;
+    align-items:stretch!important;
+    gap:7px!important;
+  }
+  #viewDashboard .dashboard-period-controls .finance-range-presets,
+  #viewDashboard .dashboard-period-controls .finance-range-fields{
+    width:100%!important;
+    max-width:100%!important;
+  }
+  #viewDashboard .dashboard-period-controls .finance-range-fields{
+    position:static!important;
+    box-sizing:border-box!important;
+    min-height:0!important;
+    padding:0!important;
+  }
+  #viewDashboard .dashboard-period-controls .finance-range-date{
+    min-height:36px!important;
+  }
+  #viewDashboard .dashboard-overview-row{
+    position:relative!important;
+    margin-top:12px!important;
+  }
+}
