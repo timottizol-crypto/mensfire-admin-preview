@@ -5554,7 +5554,19 @@ html.light-theme .finance-range-btn.active { color:#674b0d; background:#fff0c6; 
 html.light-theme .finance-range-date { color:#344052; background:#fff8e7; border-color:#dfc77f; }
 @media(max-width:520px) { .finance-range-toolbar { align-items:stretch; flex-direction:column; } .finance-range-presets { display:grid; grid-template-columns:repeat(3,1fr); width:100%; } .finance-range-btn { padding-inline:8px; } .finance-range-fields { width:100%; } .finance-range-date { flex:1; min-width:0; } }
 
-.clients-range-toolbar { margin:10px 0 12px; }
+.clients-range-toolbar{display:flex;align-items:center;justify-content:flex-start;flex-wrap:nowrap;gap:8px;margin:10px 0 12px;min-width:0}
+.clients-title-period{position:relative;z-index:2}
+.clients-range-toolbar .finance-range-presets{flex:0 0 auto;min-width:0;gap:2px;padding:3px}
+.clients-range-toolbar .finance-range-btn{padding:6px 9px;min-height:32px;font-size:10px;white-space:nowrap}
+.clients-range-toolbar .finance-range-fields{position:absolute;left:0;top:calc(100% + 5px);z-index:30;display:flex;align-items:center;gap:7px;width:max-content;max-width:min(100%,390px);padding:7px 9px;border:1px solid var(--glass-border,rgba(255,255,255,.14));border-radius:12px;background:var(--card-bg,#202020);box-shadow:0 10px 28px rgba(0,0,0,.28)}
+.clients-range-toolbar .finance-range-fields[hidden]{display:none!important}
+.clients-range-toolbar .finance-range-date{min-width:0;padding:7px 9px;font-size:10px}
+@media(max-width:520px){.clients-range-toolbar{flex-wrap:wrap}.clients-range-toolbar .finance-range-presets{width:100%;display:grid;grid-template-columns:repeat(4,minmax(0,1fr))}.clients-range-toolbar .finance-range-btn{padding:6px 4px;font-size:9px}.clients-range-toolbar .finance-range-fields{top:calc(100% + 5px);max-width:100%;width:100%}.clients-range-toolbar .finance-range-date{flex:1 1 0;width:0}}
+.clients-workspace{height:auto!important;min-height:0!important;max-height:none!important;overflow:visible!important}
+.clients-workspace #clientsSegmentContainer,.clients-workspace #clientsTabsContainer,.clients-workspace .client-directory-scope,.clients-workspace .client-directory-workspace{position:relative;z-index:1;min-width:0;max-width:100%;overflow:visible}
+.clients-workspace #clientsSegmentContainer{margin:12px 0 18px;padding-bottom:8px}
+.clients-workspace #clientsList{min-height:0;max-height:none}
+
 .clients-period-summary { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:9px; margin:0 0 13px; }
 .clients-period-summary>div { display:flex; flex-direction:column; gap:5px; min-width:0; padding:12px 14px; border:1px solid rgba(212,175,55,.15); border-radius:15px; background:linear-gradient(145deg,rgba(212,175,55,.075),rgba(255,255,255,.025)); }
 .clients-period-summary span { color:var(--text-muted); font-size:10px; font-weight:650; }
