@@ -10969,3 +10969,24 @@ html.light-theme #viewClients.active>.clients-workspace{
   #viewClients .waitlist-actions select,
   #viewClients .waitlist-row-enhanced .waitlist-actions button{min-height:42px!important}
 }
+
+
+/* Waitlist: readable muted copy in dark theme */
+html:not(.light-theme) #scheduleWaitlist .workspace-eyebrow,
+html:not(.light-theme) #scheduleWaitlist .schedule-waitlist-heading p,
+html:not(.light-theme) #scheduleWaitlist .waitlist-form label,
+html:not(.light-theme) #scheduleWaitlist .waitlist-person span,
+html:not(.light-theme) #scheduleWaitlist .waitlist-person small,
+html:not(.light-theme) #scheduleWaitlist .waitlist-empty,
+html:not(.light-theme) #scheduleWaitlist .waitlist-toolbar select,
+html:not(.light-theme) #scheduleWaitlist .waitlist-toolbar input{
+  color:#fff!important;
+}
+html:not(.light-theme) #scheduleWaitlist .waitlist-toolbar input::placeholder{
+  color:rgba(255,255,255,.72)!important;
+  opacity:1!important;
+}
+html:not(.light-theme) #scheduleWaitlist .waitlist-toolbar select option{
+  color:#fff!important;
+  background:#202124!important;
+}
