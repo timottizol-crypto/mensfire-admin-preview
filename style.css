@@ -10717,3 +10717,48 @@ html.light-theme #viewClients>.clients-workspace{
 #viewDashboard .dashboard-period-controls .finance-range-toolbar{
   margin:0!important;
 }
+
+
+/* Extend the Clients glass surface through the complete directory list.
+   The list used to be a flex child with its own scrolling height, so the
+   parent background visually stopped before the client cards. */
+#viewClients>.clients-workspace{
+  display:flex!important;
+  flex-direction:column!important;
+  align-items:stretch!important;
+  box-sizing:border-box!important;
+  width:100%!important;
+  height:auto!important;
+  min-height:calc(100dvh - 36px)!important;
+  max-height:none!important;
+  overflow:visible!important;
+  background:linear-gradient(155deg,rgba(255,255,255,.055),rgba(255,255,255,.018))!important;
+}
+#viewClients>.clients-workspace>*{
+  flex-shrink:0;
+  min-width:0;
+}
+#viewClients>.clients-workspace #clientsList,
+#viewClients>.clients-workspace .clients-list-premium{
+  flex:0 0 auto!important;
+  height:auto!important;
+  min-height:0!important;
+  max-height:none!important;
+  overflow:visible!important;
+}
+#viewClients>.clients-workspace #clientDirectoryMount,
+#viewClients>.clients-workspace .client-directory-workspace{
+  height:auto!important;
+  min-height:0!important;
+  max-height:none!important;
+  overflow:visible!important;
+}
+html.light-theme #viewClients>.clients-workspace{
+  background:linear-gradient(155deg,rgba(255,255,255,.92),rgba(246,248,251,.88))!important;
+}
+@media(max-width:767px){
+  #viewClients>.clients-workspace{
+    min-height:calc(100dvh - 90px)!important;
+    padding-bottom:calc(24px + env(safe-area-inset-bottom,0px))!important;
+  }
+}
