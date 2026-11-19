@@ -4139,6 +4139,7 @@ function showBarberStats(id) {
 let currentClientsTab = 'all';
 let currentClientsWorkspaceMode = 'clients';
 let clientsTasksFilter = 'all';
+let crmTasksCurrentPage = 1;
 let clientsTasksSearchQuery = '';
 let clientsTasksBarberFilter = 'all';
 let clientsTaskAuditActionFilter = 'all';
@@ -4704,6 +4705,10 @@ function renderClientTasksHub() {
         }
         return true;
     });
+    const pageSize = 7;
+    const totalPages = Math.max(1, Math.ceil(visible.length / pageSize));
+    crmTasksCurrentPage = Math.min(Math.max(1, crmTasksCurrentPage), totalPages);
+    const pageRows = visible.slice((crmTasksCurrentPage - 1) * pageSize, crmTasksCurrentPage * pageSize);
     const barberOptions = (mockStaff || []).filter(staff => currentUser?.role !== 'barber' || String(staff.id) === String(currentUser.id))
         .map(staff => '<option value="' + escapeBookingHtml(String(staff.id)) + '"' + (clientsTasksBarberFilter === String(staff.id) ? ' selected' : '') + '>' + escapeBookingHtml(staff.name) + '</option>').join('');
     root.innerHTML = `
@@ -4717,7 +4722,7 @@ function renderClientTasksHub() {
             <select id="crmTasksBarberFilter" aria-label="Фильтр по мастеру"><option value="all">Все мастера</option>${barberOptions}</select>
             <span>${visible.length} из ${rows.length}</span>
         </div>
-        <div class="crm-tasks-list">${visible.length ? visible.map(row => {
+        <div class="crm-tasks-list">${visible.length ? pageRows.map(row => {
             const profileArg = escapeBookingHtml(row.profileKey);
             const taskId = escapeBookingHtml(row.task.id || '');
             const safeTitle = escapeBookingHtml(row.task.title || 'Задача без названия');
@@ -4743,6 +4748,11 @@ function renderClientTasksHub() {
                 </form>
             </article>`;
         }).join('') : '<div class="crm-tasks-empty">По выбранным условиям задач нет</div>'}</div>
+        ${visible.length > pageSize ? `<div class="crm-tasks-pagination">
+            <button type="button" onclick="changeClientsTasksPage(-1)" ${crmTasksCurrentPage===1?'disabled':''}>← Назад</button>
+            <span>Страница <b>${crmTasksCurrentPage}</b> из <b>${totalPages}</b></span>
+            <button type="button" onclick="changeClientsTasksPage(1)" ${crmTasksCurrentPage===totalPages?'disabled':''}>Вперёд →</button>
+        </div>` : ''}
         <section class="crm-task-audit">
             <div class="crm-task-audit-heading"><strong>История действий CRM</strong><span>Задачи, записи и полученные оплаты</span></div>
             ${(() => {
@@ -4975,6 +4985,12 @@ function exportClientTaskAuditCsv(events) {
 
 function setClientsTasksFilter(filter) {
     clientsTasksFilter = ['all','overdue','upcoming','done'].includes(filter) ? filter : 'all';
+    crmTasksCurrentPage = 1;
+    renderClientTasksHub();
+}
+
+function changeClientsTasksPage(direction) {
+    crmTasksCurrentPage = Math.max(1, crmTasksCurrentPage + (Number(direction) < 0 ? -1 : 1));
     renderClientTasksHub();
 }
 
