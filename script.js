@@ -4173,8 +4173,12 @@ let clientsSegmentFilter = 'all';
 let clientsDataQualityExpanded = false;
 let pendingClientMergePhone = '';
 
+function normalizeClientsSearchText(value) {
+    return String(value || '').toLocaleLowerCase('ru-RU').replace(/ё/g, 'е').trim();
+}
+
 function setClientsSearchQuery(value) {
-    clientsSearchQuery = value.trim().toLowerCase();
+    clientsSearchQuery = String(value || '').trim();
     renderClients(currentClientsTab);
 }
 
@@ -5506,10 +5510,12 @@ function renderClients(tab = 'all') {
         } else if (['inactive','cancellations','highcheck','highvalue'].includes(clientsSegmentFilter)) {
             if (!behaviorByClient.get(c)?.[clientsSegmentFilter]) return false;
         }
+        const nameQuery = normalizeClientsSearchText(clientsSearchQuery);
         const phone = normalizeClientPhone(c.profileSummary.phone);
         const phoneQuery = normalizeClientPhone(clientsSearchQuery);
         return (
-            c.names.some(name => String(name || '').toLowerCase().includes(clientsSearchQuery)) ||
+            !nameQuery ||
+            c.names.some(name => normalizeClientsSearchText(name).startsWith(nameQuery)) ||
             (phoneQuery.length > 0 && phone.includes(phoneQuery))
         );
     })
