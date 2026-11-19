@@ -4918,6 +4918,7 @@ function renderClientTasksHub() {
     const searchInput = root.querySelector('#crmTasksSearch');
     if (searchInput) searchInput.addEventListener('input', () => {
         clientsTasksSearchQuery = searchInput.value;
+        crmTasksCurrentPage = 1;
         const cursor = searchInput.selectionStart;
         renderClientTasksHub();
         const next = document.getElementById('crmTasksSearch');
@@ -4926,6 +4927,7 @@ function renderClientTasksHub() {
     const barberSelect = root.querySelector('#crmTasksBarberFilter');
     if (barberSelect) barberSelect.addEventListener('change', () => {
         clientsTasksBarberFilter = barberSelect.value;
+        crmTasksCurrentPage = 1;
         renderClientTasksHub();
     });
     root.querySelectorAll('[data-crm-open-client]').forEach(button => button.addEventListener('click', () => {
