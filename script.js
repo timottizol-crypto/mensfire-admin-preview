@@ -2532,6 +2532,7 @@ function renderCalendar() {
                 }
                 else if (target.startsWith('finance')) renderFinance();
                 else if (target.startsWith('clientsTaskAudit')) renderClientTasksHub();
+                else if (target === 'clientTaskDueDate') { /* value is already written to the date field */ }
                 else if (target.startsWith('clients')) renderClients(currentClientsTab);
                 else renderTeam();
                 return;
