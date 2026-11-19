@@ -10486,3 +10486,11 @@ html.light-theme .toast {
 .crm-tasks-pagination span{color:var(--text-muted);font-size:10px;white-space:nowrap}
 .crm-tasks-pagination span b{color:var(--text-primary);font-variant-numeric:tabular-nums}
 @media(max-width:480px){.crm-tasks-pagination{gap:8px;padding:8px}.crm-tasks-pagination button{padding:7px 9px}}
+
+/* CRM desktop: reserve space for a full page of seven reminders to prevent jumps between pages. */
+@media (min-width: 768px) {
+    #viewCRM .crm-tasks-list {
+        min-height: 455px;
+        box-sizing: border-box;
+    }
+}
