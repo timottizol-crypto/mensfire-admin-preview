@@ -4555,32 +4555,68 @@ function renderClientsAnalytics(sourceBookings, clientGroups) {
     const inRange = booking => { const date = parseReportDate(booking.date); return date && date >= rangeStart && date < rangeEndExclusive; };
     const periodBookings = (sourceBookings || []).filter(inRange);
     const completed = periodBookings.filter(booking => booking.status === 'completed');
-    // Диаграмма всегда показывает последние шесть календарных месяцев,
-    // независимо от выбранного периода отчёта. Фильтр влияет только на KPI и таблицы.
-    const chartStart = new Date(now.getFullYear(),now.getMonth()-5,1);
-    const chartEnd = new Date(now.getFullYear(),now.getMonth(),now.getDate());
+    // Обычно диаграмма показывает последние шесть календарных месяцев.
+    // Если выбранный период длиннее 15 дней (кроме пресета «6 месяцев»),
+    // показываем динамику по дням именно внутри выбранного периода.
+    const selectedSpanDays = Math.max(1,Math.round((rangeEnd-rangeStart)/86400000)+1);
+    const useSelectedPeriodChart = clientsPeriodMode !== 'today'
+        && clientsPeriodMode !== 'sixMonths'
+        && selectedSpanDays > 15;
+    const chartStart = useSelectedPeriodChart
+        ? new Date(rangeStart.getFullYear(),rangeStart.getMonth(),rangeStart.getDate())
+        : new Date(now.getFullYear(),now.getMonth()-5,1);
+    const chartEnd = useSelectedPeriodChart
+        ? new Date(rangeEnd.getFullYear(),rangeEnd.getMonth(),rangeEnd.getDate())
+        : new Date(now.getFullYear(),now.getMonth(),now.getDate());
     const chartEndExclusive = new Date(chartEnd); chartEndExclusive.setDate(chartEndExclusive.getDate()+1);
     const chartBookings = (sourceBookings || []).filter(booking => {
         const date=parseReportDate(booking.date);
         return date && date>=chartStart && date<chartEndExclusive && booking.status==='completed';
     });
-    const monthKeys = [];
-    const cursor = new Date(chartStart.getFullYear(),chartStart.getMonth(),1);
-    const lastMonth = new Date(chartEnd.getFullYear(),chartEnd.getMonth(),1);
-    while (cursor <= lastMonth && monthKeys.length < 6) {
-        monthKeys.push({key:cursor.getFullYear()+'-'+String(cursor.getMonth()+1).padStart(2,'0'),label:cursor.toLocaleDateString('ru-RU',{month:'short',year:chartStart.getFullYear()!==chartEnd.getFullYear()?'2-digit':undefined}).replace('.','')});
-        cursor.setMonth(cursor.getMonth()+1);
+    let chartBuckets=[];
+    if (useSelectedPeriodChart) {
+        const dayCursor=new Date(chartStart);
+        while(dayCursor<=chartEnd && chartBuckets.length<400) {
+            const key=formatReportDate(dayCursor);
+            chartBuckets.push({
+                key,
+                label:dayCursor.toLocaleDateString('ru-RU',{day:'numeric',month:'short'}).replace('.',''),
+                revenue:0,
+                visits:0
+            });
+            dayCursor.setDate(dayCursor.getDate()+1);
+        }
+        const dayIndex=new Map(chartBuckets.map((item,index)=>[item.key,index]));
+        chartBookings.forEach(booking=>{
+            const date=parseReportDate(booking.date);
+            const index=date?dayIndex.get(formatReportDate(date)):undefined;
+            if(index===undefined)return;
+            chartBuckets[index].visits++;
+            chartBuckets[index].revenue+=getBookingCollectedAmount(booking);
+        });
+    } else {
+        const monthKeys=[];
+        const cursor=new Date(chartStart.getFullYear(),chartStart.getMonth(),1);
+        const lastMonth=new Date(chartEnd.getFullYear(),chartEnd.getMonth(),1);
+        while(cursor<=lastMonth && monthKeys.length<6) {
+            monthKeys.push({
+                key:cursor.getFullYear()+'-'+String(cursor.getMonth()+1).padStart(2,'0'),
+                label:cursor.toLocaleDateString('ru-RU',{month:'short',year:chartStart.getFullYear()!==chartEnd.getFullYear()?'2-digit':undefined}).replace('.','')
+            });
+            cursor.setMonth(cursor.getMonth()+1);
+        }
+        chartBuckets=monthKeys.map(month=>({...month,revenue:0,visits:0}));
+        const monthIndex=new Map(chartBuckets.map((item,index)=>[item.key,index]));
+        chartBookings.forEach(booking=>{
+            const date=parseReportDate(booking.date);
+            const key=date.getFullYear()+'-'+String(date.getMonth()+1).padStart(2,'0');
+            const index=monthIndex.get(key);
+            if(index===undefined)return;
+            chartBuckets[index].visits++;
+            chartBuckets[index].revenue+=getBookingCollectedAmount(booking);
+        });
     }
-    const monthStats = monthKeys.map(month=>({...month,revenue:0,visits:0}));
-    const monthIndex = new Map(monthStats.map((item,index)=>[item.key,index]));
-    chartBookings.forEach(booking=>{
-        const date=parseReportDate(booking.date), key=date.getFullYear()+'-'+String(date.getMonth()+1).padStart(2,'0'), index=monthIndex.get(key);
-        if(index===undefined)return;
-        monthStats[index].visits++;
-        monthStats[index].revenue+=getBookingCollectedAmount(booking);
-    });
-    const chartBuckets = monthStats.map(item=>({...item}));
-    const chartRevenueTotal = chartBuckets.reduce((sum,item)=>sum+item.revenue,0);
+    const chartRevenueTotal=chartBuckets.reduce((sum,item)=>sum+item.revenue,0);
     const maxRevenue=Math.max(1,...chartBuckets.map(item=>item.revenue));
     const chartWidth=520,chartHeight=154,left=12,right=12,top=12,bottom=28,plotWidth=chartWidth-left-right,plotHeight=chartHeight-top-bottom;
     const points=chartBuckets.map((item,index)=>({x:left+(chartBuckets.length===1?plotWidth/2:index*plotWidth/(chartBuckets.length-1)),y:top+plotHeight-(item.revenue/maxRevenue)*plotHeight,...item}));
@@ -4624,8 +4660,8 @@ function renderClientsAnalytics(sourceBookings, clientGroups) {
         </div>
         <div class="clients-analytics-grid">
             <article class="clients-chart-card clients-revenue-chart">
-                <div class="clients-chart-title"><div><span>Выручка за последние 6 месяцев</span><strong>${Math.round(chartRevenueTotal).toLocaleString('ru-RU')} ₽</strong></div><span class="clients-chart-icon">↗</span></div>
-                <svg class="clients-line-chart" viewBox="0 0 520 154" role="img" aria-label="Динамика выручки за последние шесть месяцев">
+                <div class="clients-chart-title"><div><span>${useSelectedPeriodChart?'Выручка за выбранный период':'Выручка за последние 6 месяцев'}</span><strong>${Math.round(chartRevenueTotal).toLocaleString('ru-RU')} ₽</strong></div><span class="clients-chart-icon">↗</span></div>
+                <svg class="clients-line-chart" viewBox="0 0 520 154" role="img" aria-label="Динамика выручки за отображаемый период">
                     <defs><linearGradient id="clientsChartFill" x1="0" x2="0" y1="0" y2="1"><stop offset="0%" stop-color="#d4af37" stop-opacity=".30"/><stop offset="100%" stop-color="#d4af37" stop-opacity="0"/></linearGradient></defs>
                     <path d="M ${left} ${top+plotHeight/2} H ${chartWidth-right}" class="clients-chart-gridline"/><path d="M ${left} ${top+plotHeight} H ${chartWidth-right}" class="clients-chart-gridline"/>
                     <path d="${areaPath}" class="clients-chart-area"/><path d="${linePath}" class="clients-chart-line"/>
