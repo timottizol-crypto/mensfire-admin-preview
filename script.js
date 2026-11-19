@@ -4616,6 +4616,33 @@ function renderClientsAnalytics(sourceBookings, clientGroups) {
             chartBuckets[index].revenue+=getBookingCollectedAmount(booking);
         });
     }
+    // Месячная полоса аналитики — отдельная выборка за последние шесть месяцев.
+    const stripStart = new Date(now.getFullYear(),now.getMonth()-5,1);
+    const stripEnd = new Date(now.getFullYear(),now.getMonth(),now.getDate());
+    const monthStats=[];
+    const stripCursor=new Date(stripStart.getFullYear(),stripStart.getMonth(),1);
+    while(stripCursor<=stripEnd && monthStats.length<6) {
+        monthStats.push({
+            key:stripCursor.getFullYear()+'-'+String(stripCursor.getMonth()+1).padStart(2,'0'),
+            label:stripCursor.toLocaleDateString('ru-RU',{month:'short'}).replace('.',''),
+            revenue:0,
+            visits:0
+        });
+        stripCursor.setMonth(stripCursor.getMonth()+1);
+    }
+    const stripMonthIndex=new Map(monthStats.map((item,index)=>[item.key,index]));
+    (sourceBookings||[]).filter(booking=>{
+        const date=parseReportDate(booking.date);
+        return date && date>=stripStart && date<=stripEnd && booking.status==='completed';
+    }).forEach(booking=>{
+        const date=parseReportDate(booking.date);
+        const key=date.getFullYear()+'-'+String(date.getMonth()+1).padStart(2,'0');
+        const index=stripMonthIndex.get(key);
+        if(index===undefined)return;
+        monthStats[index].visits++;
+        monthStats[index].revenue+=getBookingCollectedAmount(booking);
+    });
+    const maxVisits=Math.max(0,...monthStats.map(item=>item.visits));
     const chartRevenueTotal=chartBuckets.reduce((sum,item)=>sum+item.revenue,0);
     const maxRevenue=Math.max(1,...chartBuckets.map(item=>item.revenue));
     const chartWidth=520,chartHeight=154,left=12,right=12,top=12,bottom=28,plotWidth=chartWidth-left-right,plotHeight=chartHeight-top-bottom;
@@ -4631,7 +4658,6 @@ function renderClientsAnalytics(sourceBookings, clientGroups) {
     // Сегмент клиента — характеристика всей истории, а не только выбранного отчётного периода.
     periodGroups.forEach(client=>{const tag=client.profileSummary.tag||(client.lifetimeCompletedCount<=1?'new':'regular');segmentCounts[segmentCounts[tag]===undefined?'regular':tag]++;});
     const newPercent=totalClients?Math.round(segmentCounts.new/totalClients*100):0,regularPercent=totalClients?Math.round(segmentCounts.regular/totalClients*100):0,vipStart=newPercent+regularPercent;
-    const maxVisits=Math.max(0,...monthStats.map(item=>item.visits));
     const periodLabel=formatReportDate(rangeStart)+' — '+formatReportDate(rangeEnd);
     const controls=document.getElementById('clientsPeriodControls');
     if (controls) controls.innerHTML = `
