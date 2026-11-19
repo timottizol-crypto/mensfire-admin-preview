@@ -10402,6 +10402,10 @@ html.light-theme .toast {
     }
     #viewServices .service-group {
         overflow: hidden;
+        padding: 20px 22px 18px;
+    }
+    #viewServices .service-group-heading {
+        margin: 0 2px 16px;
     }
     #viewServices .service-card-grid {
         max-height: 430px;
