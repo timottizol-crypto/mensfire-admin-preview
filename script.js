@@ -1096,7 +1096,7 @@ function renderWaitlist() {
     const rank={urgent:0,high:1,normal:2},pl={urgent:'Срочно',high:'Высокий',normal:'Обычный'},sl={waiting:'Ожидает',contacted:'Связались',offered:'Предложено время',closed:'Закрыт'};
     const rows=waitlistEntries.filter(x=>{const st=x.status||'waiting';if(sf==='active'&&st==='closed')return false;if(sf!=='active'&&sf!=='all'&&st!==sf)return false;if(pf!=='all'&&(x.priority||'normal')!==pf)return false;return !q||[x.clientName,x.phone,x.serviceTitle].join(' ').toLowerCase().includes(q)}).sort((x,y)=>(rank[x.priority||'normal']??2)-(rank[y.priority||'normal']??2)||new Date(x.createdAt||0)-new Date(y.createdAt||0));
     if(!rows.length){host.innerHTML=`<div class="waitlist-empty">${waitlistEntries.length?'По выбранным фильтрам клиентов нет':'Пока нет клиентов в листе ожидания'}</div>`;return}
-    host.innerHTML=rows.map(x=>{const staff=mockStaff.find(p=>String(p.id)===String(x.barberId)),priority=x.priority||'normal',status=x.status||'waiting',phone=String(x.phone||'').replace(/[^+\\d]/g,'');return `<article class="waitlist-row waitlist-row-enhanced"><div class="waitlist-person"><strong>${escapeBookingHtml(x.clientName)}</strong><span>${escapeBookingHtml(x.phone||'Телефон не указан')}</span><small>${escapeBookingHtml(x.date||'Любая дата')} · ${escapeBookingHtml(x.time||'Любое время')} · ${escapeBookingHtml(staff?.name||'Любой мастер')}</small><small>${escapeBookingHtml(x.serviceTitle||'Любая услуга')}</small><div class="waitlist-tags"><span class="waitlist-priority priority-${priority}">${pl[priority]||pl.normal}</span><span class="waitlist-status">${sl[status]||sl.waiting}</span></div></div><div class="waitlist-actions"><select aria-label="Приоритет" onchange="updateWaitlistEntry('${escapeBookingHtml(x.id)}','priority',this.value)"><option value="normal" ${priority==='normal'?'selected':''}>Обычный</option><option value="high" ${priority==='high'?'selected':''}>Высокий</option><option value="urgent" ${priority==='urgent'?'selected':''}>Срочно</option></select><select aria-label="Статус" onchange="updateWaitlistEntry('${escapeBookingHtml(x.id)}','status',this.value)"><option value="waiting" ${status==='waiting'?'selected':''}>Ожидает</option><option value="contacted" ${status==='contacted'?'selected':''}>Связались</option><option value="offered" ${status==='offered'?'selected':''}>Предложено время</option><option value="closed" ${status==='closed'?'selected':''}>Закрыть</option></select>${phone?`<a class="waitlist-contact-link" href="tel:${escapeBookingHtml(phone)}">Позвонить</a>`:''}<button type="button" onclick="promoteWaitlistEntry('${escapeBookingHtml(x.id)}')">Создать запись</button><button type="button" class="waitlist-remove" onclick="removeWaitlistEntry('${escapeBookingHtml(x.id)}')">Убрать</button></div></article>`}).join('');
+    host.innerHTML=rows.map(x=>{const staff=mockStaff.find(p=>String(p.id)===String(x.barberId)),priority=x.priority||'normal',status=x.status||'waiting',phone=String(x.phone||'').replace(/[^+\d]/g,'');return `<article class="waitlist-row waitlist-row-enhanced"><div class="waitlist-person"><strong>${escapeBookingHtml(x.clientName)}</strong><span>${escapeBookingHtml(x.phone||'Телефон не указан')}</span><small>${escapeBookingHtml(x.date||'Любая дата')} · ${escapeBookingHtml(x.time||'Любое время')} · ${escapeBookingHtml(staff?.name||'Любой мастер')}</small><small>${escapeBookingHtml(x.serviceTitle||'Любая услуга')}</small><div class="waitlist-tags"><span class="waitlist-priority priority-${priority}">${pl[priority]||pl.normal}</span><span class="waitlist-status">${sl[status]||sl.waiting}</span></div></div><div class="waitlist-actions"><select aria-label="Приоритет" onchange="updateWaitlistEntry('${escapeBookingHtml(x.id)}','priority',this.value)"><option value="normal" ${priority==='normal'?'selected':''}>Обычный</option><option value="high" ${priority==='high'?'selected':''}>Высокий</option><option value="urgent" ${priority==='urgent'?'selected':''}>Срочно</option></select><select aria-label="Статус" onchange="updateWaitlistEntry('${escapeBookingHtml(x.id)}','status',this.value)"><option value="waiting" ${status==='waiting'?'selected':''}>Ожидает</option><option value="contacted" ${status==='contacted'?'selected':''}>Связались</option><option value="offered" ${status==='offered'?'selected':''}>Предложено время</option><option value="closed" ${status==='closed'?'selected':''}>Закрыть</option></select>${phone?`<a class="waitlist-contact-link" href="tel:${escapeBookingHtml(phone)}">Позвонить</a>`:''}<button type="button" onclick="promoteWaitlistEntry('${escapeBookingHtml(x.id)}')">Создать запись</button><button type="button" class="waitlist-remove" onclick="removeWaitlistEntry('${escapeBookingHtml(x.id)}')">Убрать</button></div></article>`}).join('');
 }
 function updateWaitlistEntry(id,field,value){if(!requireAdminAction('Управлять листом ожидания может только администратор'))return;const x=waitlistEntries.find(e=>String(e.id)===String(id));if(!x||!['priority','status'].includes(field))return;const allowed=field==='priority'?['normal','high','urgent']:['waiting','contacted','offered','closed'];if(!allowed.includes(value))return;x[field]=value;x.updatedAt=new Date().toISOString();persistWaitlist();renderWaitlist();showToast('Карточка ожидания обновлена','success')}
 
@@ -3266,7 +3266,7 @@ function openReportDatePicker(target) {
     calendarTargetInputId = null;
     reportDatePickerTarget = target;
     const value = target === 'dashboardDay' ? dashboardSelectedDate : target === 'dashboardStart' ? dashboardRangeStart : target === 'dashboardEnd' ? dashboardRangeEnd : target === 'financeStart' ? financeRangeStart : target === 'financeEnd' ? financeRangeEnd : target === 'clientsStart' ? clientsRangeStart : target === 'clientsEnd' ? clientsRangeEnd : target === 'teamStart' ? teamRangeStart : target === 'teamEnd' ? teamRangeEnd : target === 'clientTaskDueDate' ? document.getElementById('clientTaskDueDate')?.value : target === 'clientsTaskAuditFrom' ? clientsTaskAuditFrom : clientsTaskAuditTo;
-    const date = target.startsWith('clientsTaskAudit') && /^\\d{4}-\\d{2}-\\d{2}$/.test(value)
+    const date = target.startsWith('clientsTaskAudit') && /^\d{4}-\d{2}-\d{2}$/.test(value)
         ? new Date(value + 'T00:00:00')
         : parseReportDate(value) || new Date();
     selectedBlockDate = formatReportDate(date);
@@ -4584,7 +4584,7 @@ function renderClientsAnalytics(sourceBookings, clientGroups) {
         chartBuckets=Array.from({length:6},(_,i)=>({key:String(i*4),label:String(i*4).padStart(2,'0')+':00',revenue:0,visits:0}));
         chartBookings.forEach(booking=>{
             const raw=String(booking.time||booking.startTime||booking.start_time||'');
-            const match=raw.match(/(?:^|T|\\s)([01]?\\d|2[0-3]):[0-5]\\d/);
+            const match=raw.match(/(?:^|T|\s)([01]?\d|2[0-3]):[0-5]\d/);
             if(!match)return;
             const bucket=Math.min(5,Math.floor(Number(match[1])/4));
             chartBuckets[bucket].visits++;
@@ -6117,7 +6117,7 @@ function renderClientLifetimeValue(clientBookings) {
 function renderClientMessageDraft(mode = 'return') {
     const profile = clientProfiles[selectedClientProfileKey] || {};
     const name = String(profile.clientName || document.getElementById('clientDetailsName')?.textContent || 'Клиент').trim();
-    const firstName = name.split(/\\s+/)[0] || 'Клиент';
+    const firstName = name.split(/\s+/)[0] || 'Клиент';
     const birthday = profile.birthday ? new Date(profile.birthday + 'T12:00:00') : null;
     let draft = '';
     if (mode === 'birthday') {
@@ -6748,7 +6748,7 @@ function saveSupplierPaymentAllocation(){
     catch(error){payment.allocations=previous;return showToast('Не удалось сохранить распределение. Данные не изменены','error');}
     closeModal('supplierAllocationModal');renderSuppliers();renderPurchaseOrders();showToast('Распределение платежа обновлено','success');
 }
-function normalizeSupplierName(value){return String(value||'').trim().toLocaleLowerCase('ru-RU').replace(/\\s+/g,' ');}
+function normalizeSupplierName(value){return String(value||'').trim().toLocaleLowerCase('ru-RU').replace(/\s+/g,' ');}
 function findOrCreateSupplier(name){
     const clean=String(name||'').trim();if(!clean)return null;
     let supplier=inventorySuppliers.find(item=>normalizeSupplierName(item.name)===normalizeSupplierName(clean));
