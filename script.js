@@ -5397,8 +5397,8 @@ function renderClients(tab = 'all') {
     const clientsOverview = document.getElementById('clientsOverview');
     if (clientsOverview) {
         const now = new Date();
-        let rangeStart = clientsPeriodMode === 'sixMonths' ? new Date(now.getFullYear(),now.getMonth()-5,1) : clientsPeriodMode === 'month' ? new Date(now.getFullYear(),now.getMonth(),1) : parseReportDate(clientsRangeStart);
-        let rangeEnd = clientsPeriodMode === 'sixMonths' || clientsPeriodMode === 'month' ? new Date(now.getFullYear(),now.getMonth(),now.getDate()) : parseReportDate(clientsRangeEnd);
+        let rangeStart = clientsPeriodMode === 'today' ? new Date(now.getFullYear(),now.getMonth(),now.getDate()) : clientsPeriodMode === 'sixMonths' ? new Date(now.getFullYear(),now.getMonth()-5,1) : clientsPeriodMode === 'month' ? new Date(now.getFullYear(),now.getMonth(),1) : parseReportDate(clientsRangeStart);
+        let rangeEnd = clientsPeriodMode === 'today' || clientsPeriodMode === 'sixMonths' || clientsPeriodMode === 'month' ? new Date(now.getFullYear(),now.getMonth(),now.getDate()) : parseReportDate(clientsRangeEnd);
         rangeStart = rangeStart || new Date(now.getFullYear(),now.getMonth(),1); rangeEnd = rangeEnd || now;
         if (rangeEnd < rangeStart) [rangeStart,rangeEnd] = [rangeEnd,rangeStart];
         const endExclusive = new Date(rangeEnd); endExclusive.setDate(endExclusive.getDate()+1);
