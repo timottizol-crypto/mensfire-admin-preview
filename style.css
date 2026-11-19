@@ -10477,3 +10477,12 @@ html.light-theme .toast {
 @media (max-width: 767px) {
     #viewCRM { display: none !important; }
 }
+
+
+/* CRM reminders pagination */
+.crm-tasks-pagination{display:flex;align-items:center;justify-content:center;gap:12px;margin:13px 0 4px;padding:10px;border:1px solid var(--border-color,rgba(255,255,255,.08));border-radius:11px;background:rgba(255,255,255,.025)}
+.crm-tasks-pagination button{min-height:34px;padding:7px 12px;border:1px solid rgba(212,175,55,.25);border-radius:8px;background:rgba(212,175,55,.08);color:var(--gold);font:inherit;font-size:10px;font-weight:700;cursor:pointer}
+.crm-tasks-pagination button:disabled{opacity:.35;cursor:not-allowed}
+.crm-tasks-pagination span{color:var(--text-muted);font-size:10px;white-space:nowrap}
+.crm-tasks-pagination span b{color:var(--text-primary);font-variant-numeric:tabular-nums}
+@media(max-width:480px){.crm-tasks-pagination{gap:8px;padding:8px}.crm-tasks-pagination button{padding:7px 9px}}
