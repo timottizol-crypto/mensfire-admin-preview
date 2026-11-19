@@ -10527,3 +10527,7 @@ html.light-theme .toast {
 @media(max-width:520px){.clients-topbar .clients-overview-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:7px}.clients-topbar .client-overview-card{min-height:62px;padding:9px}.clients-topbar .client-overview-card strong{font-size:clamp(14px,4vw,17px)}}
 
 @media(max-width:1100px){#viewClients{min-width:0;max-width:100%;overflow-x:hidden}.clients-topbar{display:flex;flex-direction:column;width:100%;min-width:0}.clients-title-period,.clients-topbar .clients-overview-grid{width:100%;min-width:0;max-width:100%}.clients-topbar .client-overview-card{min-width:0}}
+
+.clients-range-toolbar.is-custom-open{margin-bottom:68px!important}
+.clients-range-toolbar.is-custom-open .finance-range-fields{top:calc(100% + 6px)}
+@media(max-width:520px){.clients-range-toolbar.is-custom-open{margin-bottom:72px!important}.clients-range-toolbar.is-custom-open .finance-range-fields{left:0;right:0;width:100%;max-width:100%;box-sizing:border-box}.clients-range-toolbar.is-custom-open .finance-range-date{min-width:0;flex:1 1 0}}
