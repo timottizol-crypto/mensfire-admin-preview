@@ -2500,6 +2500,10 @@ function renderCalendar() {
                 if (target === 'clientsEnd') { clientsRangeEnd = thisDateStr; if (parseReportDate(clientsRangeEnd) < parseReportDate(clientsRangeStart)) clientsRangeStart = thisDateStr; }
                 if (target === 'teamStart') { teamRangeStart = thisDateStr; if (parseReportDate(teamRangeStart) > parseReportDate(teamRangeEnd)) teamRangeEnd = thisDateStr; }
                 if (target === 'teamEnd') { teamRangeEnd = thisDateStr; if (parseReportDate(teamRangeEnd) < parseReportDate(teamRangeStart)) teamRangeStart = thisDateStr; }
+                if (target === 'clientTaskDueDate') {
+                    const dateInput = document.getElementById('clientTaskDueDate');
+                    if (dateInput) dateInput.value = thisDateStr;
+                }
                 if (target === 'clientsTaskAuditFrom' || target === 'clientsTaskAuditTo') {
                     const [day, month, year] = thisDateStr.split('.');
                     const isoDate = `${year}-${month}-${day}`;
@@ -3260,7 +3264,7 @@ function formatReportDate(date) { return date.toLocaleDateString('ru-RU'); }
 function openReportDatePicker(target) {
     calendarTargetInputId = null;
     reportDatePickerTarget = target;
-    const value = target === 'dashboardDay' ? dashboardSelectedDate : target === 'dashboardStart' ? dashboardRangeStart : target === 'dashboardEnd' ? dashboardRangeEnd : target === 'financeStart' ? financeRangeStart : target === 'financeEnd' ? financeRangeEnd : target === 'clientsStart' ? clientsRangeStart : target === 'clientsEnd' ? clientsRangeEnd : target === 'teamStart' ? teamRangeStart : target === 'teamEnd' ? teamRangeEnd : target === 'clientsTaskAuditFrom' ? clientsTaskAuditFrom : clientsTaskAuditTo;
+    const value = target === 'dashboardDay' ? dashboardSelectedDate : target === 'dashboardStart' ? dashboardRangeStart : target === 'dashboardEnd' ? dashboardRangeEnd : target === 'financeStart' ? financeRangeStart : target === 'financeEnd' ? financeRangeEnd : target === 'clientsStart' ? clientsRangeStart : target === 'clientsEnd' ? clientsRangeEnd : target === 'teamStart' ? teamRangeStart : target === 'teamEnd' ? teamRangeEnd : target === 'clientTaskDueDate' ? document.getElementById('clientTaskDueDate')?.value : target === 'clientsTaskAuditFrom' ? clientsTaskAuditFrom : clientsTaskAuditTo;
     const date = target.startsWith('clientsTaskAudit') && /^\\d{4}-\\d{2}-\\d{2}$/.test(value)
         ? new Date(value + 'T00:00:00')
         : parseReportDate(value) || new Date();
