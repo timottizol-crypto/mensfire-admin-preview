@@ -10378,3 +10378,79 @@ html.light-theme .toast {
 #viewFinance .finance-expense-operation-clickable:hover,
 #viewFinance .finance-expense-operation-clickable:focus-visible,
 #viewFinance .finance-expense-operation-clickable:active { background: rgba(212, 175, 55, .075); box-shadow: inset 0 0 0 1px rgba(212, 175, 55, .22); outline: none; }
+
+
+/* Services desktop: readable primary action, independently scrollable catalog groups, and contained card content. */
+@media (min-width: 768px) {
+    #viewServices .workspace-heading .home-cta-btn,
+    html:not(.light-theme) #viewServices .workspace-heading .home-cta-btn {
+        color: #211a0b !important;
+    }
+    #viewServices .workspace-heading .home-cta-btn .cta-text,
+    #viewServices .workspace-heading .home-cta-btn .cta-text span,
+    html:not(.light-theme) #viewServices .workspace-heading .home-cta-btn .cta-text,
+    html:not(.light-theme) #viewServices .workspace-heading .home-cta-btn .cta-text span {
+        color: #211a0b !important;
+    }
+    #viewServices,
+    #viewServices #servicesCatalog,
+    #viewServices .service-group,
+    #viewServices .service-card-grid {
+        min-width: 0;
+        max-width: 100%;
+        box-sizing: border-box;
+    }
+    #viewServices .service-group {
+        overflow: hidden;
+    }
+    #viewServices .service-card-grid {
+        max-height: 430px;
+        overflow-y: auto;
+        overflow-x: hidden;
+        overscroll-behavior: contain;
+        scrollbar-width: thin;
+        scrollbar-color: rgba(212,175,55,.48) rgba(255,255,255,.035);
+        padding: 2px 6px 8px 2px;
+        grid-template-columns: repeat(auto-fill, minmax(min(100%, 230px), 1fr));
+    }
+    #viewServices .service-card-grid::-webkit-scrollbar { width: 6px; }
+    #viewServices .service-card-grid::-webkit-scrollbar-thumb {
+        background: rgba(212,175,55,.48);
+        border-radius: 8px;
+    }
+    #viewServices .service-card {
+        min-width: 0;
+        max-width: 100%;
+        overflow: hidden;
+        box-sizing: border-box;
+    }
+    #viewServices .service-card-top,
+    #viewServices .service-card-actions,
+    #viewServices .service-group-heading {
+        min-width: 0;
+        max-width: 100%;
+        box-sizing: border-box;
+    }
+    #viewServices .service-card-top { flex-wrap: wrap; }
+    #viewServices .service-card h4 {
+        min-width: 0;
+        max-width: 100%;
+        overflow-wrap: anywhere;
+        word-break: normal;
+        line-height: 1.4;
+    }
+    #viewServices .service-price {
+        max-width: 100%;
+        overflow-wrap: anywhere;
+    }
+    #viewServices .service-card-actions { flex-wrap: wrap; }
+    #viewServices .service-card-actions button {
+        min-width: 0;
+        overflow-wrap: anywhere;
+        white-space: normal;
+    }
+    #viewServices .service-group-heading > div {
+        min-width: 0;
+        overflow-wrap: anywhere;
+    }
+}
