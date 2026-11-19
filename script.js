@@ -4555,16 +4555,24 @@ function renderClientsAnalytics(sourceBookings, clientGroups) {
     const inRange = booking => { const date = parseReportDate(booking.date); return date && date >= rangeStart && date < rangeEndExclusive; };
     const periodBookings = (sourceBookings || []).filter(inRange);
     const completed = periodBookings.filter(booking => booking.status === 'completed');
+    // График показывает месячную динамику независимо от выбранного фильтра.
+    // При выборе «Сегодня» оставляем контекст последних шести месяцев, а KPI выше считают только текущий день.
+    const chartStart = clientsPeriodMode === 'today' ? new Date(now.getFullYear(),now.getMonth()-5,1) : rangeStart;
+    const chartEnd = clientsPeriodMode === 'today' ? new Date(now.getFullYear(),now.getMonth(),now.getDate()) : rangeEnd;
+    const chartEndExclusive = new Date(chartEnd); chartEndExclusive.setDate(chartEndExclusive.getDate()+1);
+    const chartBookings = clientsPeriodMode === 'today'
+        ? (sourceBookings || []).filter(booking => { const date=parseReportDate(booking.date); return date && date>=chartStart && date<chartEndExclusive && booking.status==='completed'; })
+        : completed;
     const monthKeys = [];
-    const cursor = new Date(rangeStart.getFullYear(),rangeStart.getMonth(),1);
-    const lastMonth = new Date(rangeEnd.getFullYear(),rangeEnd.getMonth(),1);
+    const cursor = new Date(chartStart.getFullYear(),chartStart.getMonth(),1);
+    const lastMonth = new Date(chartEnd.getFullYear(),chartEnd.getMonth(),1);
     while (cursor <= lastMonth && monthKeys.length < 18) {
-        monthKeys.push({key:cursor.getFullYear()+'-'+String(cursor.getMonth()+1).padStart(2,'0'),label:cursor.toLocaleDateString('ru-RU',{month:'short',year:rangeStart.getFullYear()!==rangeEnd.getFullYear()?'2-digit':undefined}).replace('.','')});
+        monthKeys.push({key:cursor.getFullYear()+'-'+String(cursor.getMonth()+1).padStart(2,'0'),label:cursor.toLocaleDateString('ru-RU',{month:'short',year:chartStart.getFullYear()!==chartEnd.getFullYear()?'2-digit':undefined}).replace('.','')});
         cursor.setMonth(cursor.getMonth()+1);
     }
     const monthStats = monthKeys.map(month=>({...month,revenue:0,visits:0}));
     const monthIndex = new Map(monthStats.map((item,index)=>[item.key,index]));
-    completed.forEach(booking=>{
+    chartBookings.forEach(booking=>{
         const date=parseReportDate(booking.date), key=date.getFullYear()+'-'+String(date.getMonth()+1).padStart(2,'0'), index=monthIndex.get(key);
         if(index===undefined)return;
         monthStats[index].visits++;
