@@ -2500,6 +2500,16 @@ function renderCalendar() {
                 if (target === 'clientsEnd') { clientsRangeEnd = thisDateStr; if (parseReportDate(clientsRangeEnd) < parseReportDate(clientsRangeStart)) clientsRangeStart = thisDateStr; }
                 if (target === 'teamStart') { teamRangeStart = thisDateStr; if (parseReportDate(teamRangeStart) > parseReportDate(teamRangeEnd)) teamRangeEnd = thisDateStr; }
                 if (target === 'teamEnd') { teamRangeEnd = thisDateStr; if (parseReportDate(teamRangeEnd) < parseReportDate(teamRangeStart)) teamRangeStart = thisDateStr; }
+                if (target === 'clientsTaskAuditFrom' || target === 'clientsTaskAuditTo') {
+                    const [day, month, year] = thisDateStr.split('.');
+                    const isoDate = `${year}-${month}-${day}`;
+                    if (target === 'clientsTaskAuditFrom') clientsTaskAuditFrom = isoDate;
+                    else clientsTaskAuditTo = isoDate;
+                    if (clientsTaskAuditFrom && clientsTaskAuditTo && clientsTaskAuditFrom > clientsTaskAuditTo) {
+                        if (target === 'clientsTaskAuditFrom') clientsTaskAuditTo = isoDate;
+                        else clientsTaskAuditFrom = isoDate;
+                    }
+                }
                 reportDatePickerTarget = null;
                 closeModal('calendarModal');
                 if (target.startsWith('dashboard')) {
@@ -3249,8 +3259,10 @@ function formatReportDate(date) { return date.toLocaleDateString('ru-RU'); }
 function openReportDatePicker(target) {
     calendarTargetInputId = null;
     reportDatePickerTarget = target;
-    const value = target === 'dashboardDay' ? dashboardSelectedDate : target === 'dashboardStart' ? dashboardRangeStart : target === 'dashboardEnd' ? dashboardRangeEnd : target === 'financeStart' ? financeRangeStart : target === 'financeEnd' ? financeRangeEnd : target === 'clientsStart' ? clientsRangeStart : target === 'clientsEnd' ? clientsRangeEnd : target === 'teamStart' ? teamRangeStart : teamRangeEnd;
-    const date = parseReportDate(value) || new Date();
+    const value = target === 'dashboardDay' ? dashboardSelectedDate : target === 'dashboardStart' ? dashboardRangeStart : target === 'dashboardEnd' ? dashboardRangeEnd : target === 'financeStart' ? financeRangeStart : target === 'financeEnd' ? financeRangeEnd : target === 'clientsStart' ? clientsRangeStart : target === 'clientsEnd' ? clientsRangeEnd : target === 'teamStart' ? teamRangeStart : target === 'teamEnd' ? teamRangeEnd : target === 'clientsTaskAuditFrom' ? clientsTaskAuditFrom : clientsTaskAuditTo;
+    const date = target.startsWith('clientsTaskAudit') && /^\\d{4}-\\d{2}-\\d{2}$/.test(value)
+        ? new Date(value + 'T00:00:00')
+        : parseReportDate(value) || new Date();
     selectedBlockDate = formatReportDate(date);
     pickerYear = date.getFullYear();
     pickerMonth = date.getMonth();
@@ -4885,8 +4897,8 @@ function renderClientTasksHub() {
                 return summaryMarkup+'<div class="crm-task-audit-filters">'+
                     '<select id="crmTaskAuditAction" aria-label="Тип действия">'+actionOptions.map(item=>'<option value="'+item.id+'"'+(clientsTaskAuditActionFilter===item.id?' selected':'')+'>'+item.label+'</option>').join('')+'</select>'+
                     '<select id="crmTaskAuditActor" aria-label="Сотрудник"><option value="all">Все сотрудники</option>'+actorOptions+'</select>'+
-                    '<label>С <input id="crmTaskAuditFrom" type="date" value="'+escapeBookingHtml(clientsTaskAuditFrom)+'"></label>'+
-                    '<label>По <input id="crmTaskAuditTo" type="date" value="'+escapeBookingHtml(clientsTaskAuditTo)+'"></label>'+
+                    '<label>С <button type="button" class="finance-range-date" onclick="openReportDatePicker(\'clientsTaskAuditFrom\')">'+(clientsTaskAuditFrom ? new Date(clientsTaskAuditFrom+'T00:00:00').toLocaleDateString('ru-RU') : 'Выбрать дату')+'</button></label>'+
+                    '<label>По <button type="button" class="finance-range-date" onclick="openReportDatePicker(\'clientsTaskAuditTo\')">'+(clientsTaskAuditTo ? new Date(clientsTaskAuditTo+'T00:00:00').toLocaleDateString('ru-RU') : 'Выбрать дату')+'</button></label>'+
                     '<button type="button" id="crmTaskAuditReset">Сбросить</button>'+
                     '<button type="button" id="crmTaskAuditExport" '+(filtered.length ? '' : 'disabled')+'>Экспорт CSV · '+filtered.length+'</button>'+
                     '<span class="crm-task-audit-count">'+filtered.length+' из '+history.length+'</span></div>'+
@@ -4901,10 +4913,6 @@ function renderClientTasksHub() {
     if (auditAction) auditAction.addEventListener('change', () => { clientsTaskAuditActionFilter = auditAction.value; renderClientTasksHub(); });
     const auditActor = root.querySelector('#crmTaskAuditActor');
     if (auditActor) auditActor.addEventListener('change', () => { clientsTaskAuditActorFilter = auditActor.value; renderClientTasksHub(); });
-    const auditFrom = root.querySelector('#crmTaskAuditFrom');
-    if (auditFrom) auditFrom.addEventListener('change', () => { clientsTaskAuditFrom = auditFrom.value; renderClientTasksHub(); });
-    const auditTo = root.querySelector('#crmTaskAuditTo');
-    if (auditTo) auditTo.addEventListener('change', () => { clientsTaskAuditTo = auditTo.value; renderClientTasksHub(); });
     const auditReset = root.querySelector('#crmTaskAuditReset');
     if (auditReset) auditReset.addEventListener('click', () => {
         clientsTaskAuditActionFilter = 'all';
