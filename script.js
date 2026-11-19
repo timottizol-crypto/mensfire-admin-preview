@@ -2527,6 +2527,7 @@ function renderCalendar() {
                     renderDashboard();
                 }
                 else if (target.startsWith('finance')) renderFinance();
+                else if (target.startsWith('clientsTaskAudit')) renderClientTasksHub();
                 else if (target.startsWith('clients')) renderClients(currentClientsTab);
                 else renderTeam();
                 return;
