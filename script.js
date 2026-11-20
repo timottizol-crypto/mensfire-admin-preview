@@ -354,6 +354,9 @@ function buildBottomNav() {
         ];
     }
 
+    const settingsIcon = '<path d="M12 8.2a3.8 3.8 0 1 0 0 7.6 3.8 3.8 0 0 0 0-7.6zm8.1 4.9 1.3 1-1.5 2.6-1.6-.6a7.8 7.8 0 0 1-1.4.8l-.3 1.7h-3l-.3-1.7a7.8 7.8 0 0 1-1.4-.8l-1.6.6-1.5-2.6 1.3-1a7.2 7.2 0 0 1 0-1.6l-1.3-1 1.5-2.6 1.6.6a7.8 7.8 0 0 1 1.4-.8l.3-1.7h3l.3 1.7a7.8 7.8 0 0 1 1.4.8l1.6-.6 1.5 2.6-1.3 1a7.2 7.2 0 0 1 0 1.6z"/>';
+    navItems.push({ id: 'viewSettings', title: 'Настройки', icon: settingsIcon });
+
     viewOrder = navItems.map(item => item.id);
 
     navItems.forEach((item, index) => {
@@ -479,7 +482,8 @@ function switchView(viewId, navElement) {
         'viewSales': 'Продажи',
         'viewInventoryAnalytics': 'Аналитика склада',
         'viewPurchases': 'Закупки',
-        'viewProfile': 'Профиль'
+        'viewProfile': 'Профиль',
+        'viewSettings': 'Настройки'
     };
     if (titles[viewId]) {
         const titleEl = document.getElementById('headerTitle');
@@ -742,9 +746,9 @@ function resetMensfireInterfaceSettings() {
     applyMensfireInterfaceSettings(MENSFIRE_INTERFACE_DEFAULTS);
     showToast('Оформление сброшено', 'success');
 }
-function openSettingsModal() {
+function openSettingsPage() {
     syncProfileSettingsUI();
-    openModal('settingsModal');
+    switchView('viewSettings');
 }
 
 function syncProfileSettingsUI() {
@@ -802,14 +806,16 @@ function goHomeFromHeader() {
 
 // Делегирование кликов для компактных переключателей окна настроек.
 document.addEventListener('click', event => {
-    const button = event.target.closest('[data-setting-accent], [data-setting-density], [data-setting-radius], [data-setting-motion], [data-setting-font]');
+    const button = event.target.closest('[data-setting-accent], [data-setting-density], [data-setting-radius], [data-setting-motion], [data-setting-font], [data-profile-theme], [data-drawer-mode]');
     if (!button) return;
-    const map = [
+    const settingMap = [
         ['data-setting-accent', 'accent'], ['data-setting-density', 'density'],
         ['data-setting-radius', 'radius'], ['data-setting-motion', 'motion'], ['data-setting-font', 'font']
     ];
-    const match = map.find(([attribute]) => button.hasAttribute(attribute));
-    if (match) updateMensfireInterfaceSetting(match[1], button.getAttribute(match[0]));
+    const setting = settingMap.find(([attribute]) => button.hasAttribute(attribute));
+    if (setting) { updateMensfireInterfaceSetting(setting[1], button.getAttribute(setting[0])); return; }
+    if (button.hasAttribute('data-profile-theme')) { setMensfireTheme(button.getAttribute('data-profile-theme')); return; }
+    if (button.hasAttribute('data-drawer-mode')) { setMensfireDesktopDrawerMode(button.getAttribute('data-drawer-mode')); showToast('Режим выдвижных окон изменён', 'success'); }
 });
 
 // --- АНИМАЦИЯ НИЖНЕГО МЕНЮ (СКОПИРОВАНО ИЗ КЛИЕНТА) ---
