@@ -12234,3 +12234,22 @@ html.setting-font-small .view{font-size:13px}html.setting-font-large .view{font-
 @media(max-width:1100px){#viewSettings .settings-page-grid{grid-template-columns:minmax(0,1fr)}#viewSettings .settings-side-column{grid-template-columns:repeat(2,minmax(0,1fr))}}
 @media(max-width:767px){#viewSettings.settings-page-view{padding:20px 14px 104px!important}#viewSettings .settings-page-shell{gap:17px}#viewSettings .settings-page-header{align-items:flex-start;gap:12px}#viewSettings .settings-page-heading-copy h2{font-size:25px}#viewSettings .settings-page-heading-copy p{font-size:10px}#viewSettings .settings-page-grid{gap:12px}#viewSettings .settings-side-column{grid-template-columns:minmax(0,1fr);gap:12px}#viewSettings .settings-section{padding:20px;border-radius:18px;gap:18px}#viewSettings .settings-control-group{grid-template-columns:minmax(0,1fr);gap:9px}#viewSettings .settings-choice-grid{grid-template-columns:repeat(2,minmax(0,1fr))}#viewSettings .settings-choice-row{justify-content:stretch}#viewSettings .settings-choice-row>.settings-choice{flex:1 1 105px}#viewSettings .settings-drawer-options{grid-template-columns:repeat(2,minmax(0,1fr))}#viewSettings .settings-section-bottom{align-items:flex-start}#viewSettings .settings-reset-btn{flex:0 0 auto}}
 @media(max-width:380px){#viewSettings.settings-page-view{padding-left:10px!important;padding-right:10px!important}#viewSettings .settings-page-header{gap:8px}#viewSettings .settings-section{padding:12px}#viewSettings .settings-choice{padding:10px 8px;font-size:10px}#viewSettings .settings-drawer-options{grid-template-columns:minmax(0,1fr)}}
+
+
+/* Профиль: убираем глобальную шапку с логотипом салона и переключателем темы.
+   На экране профиля есть собственный заголовок, поэтому дублирующая панель не нужна. */
+body.profile-view-active .app-header {
+    display: none !important;
+}
+
+@media (min-width: 768px) {
+    #viewProfile.active {
+        padding-top: 28px !important;
+    }
+}
+
+@media (max-width: 767px) {
+    #viewProfile.active {
+        padding-top: max(18px, env(safe-area-inset-top, 0px)) !important;
+    }
+}
