@@ -13256,3 +13256,66 @@ body.profile-view-active .app-header {
     justify-self: start !important;
   }
 }
+
+/* 2026-11-20 mobile workspace polish */
+#viewSchedule .schedule-list,#viewSchedule #scheduleList,#viewSchedule .home-scroll-area{background:transparent;box-shadow:none}
+#viewSchedule .schedule-main-card{overflow:hidden}
+#viewSchedule #scheduleList{padding:10px 0 18px}
+#viewSchedule #scheduleList>*{max-width:100%;box-sizing:border-box}
+.new-booking-modal .checkout-btn{min-height:42px;height:auto;padding:10px 18px;font-size:14px;border-radius:13px}
+.booking-detail-modal .booking-detail-main,.booking-detail-modal .booking-detail-services,.booking-detail-modal .booking-history-section{min-width:0}
+.booking-detail-modal .booking-history-section{margin-left:12px}
+.client-visit-history-heading,.client-loyalty-history-title,.booking-history-heading{min-width:0}
+.client-history-item,.booking-history-item{min-width:0;overflow-wrap:anywhere}
+.client-visit-history-heading{padding-left:12px}
+#viewServices .service-group{min-width:0;overflow:hidden}
+#viewServices .service-group-heading{align-items:center;gap:12px}
+#viewServices .service-card-grid,#viewServices .service-card{min-width:0}
+#viewServices .service-card-actions{display:flex;flex-wrap:wrap;gap:8px;justify-content:flex-end}
+#viewServices .service-card-actions button{min-width:0}
+#viewServices .service-card-actions .service-delete-btn{color:var(--danger,#d66)}
+.inventory-heading{min-width:0}
+.inventory-heading>div{min-width:0;flex:1 1 auto}
+.inventory-heading h2{max-width:100%;overflow-wrap:anywhere}
+.suppliers-panel,#suppliersTab,.suppliers-grid{min-width:0;max-width:100%}
+.suppliers-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+.supplier-card{min-width:0;max-width:100%;overflow:hidden;overflow-wrap:anywhere}
+.supplier-card-top,.supplier-contacts,.supplier-last-order{min-width:0;flex-wrap:wrap}
+.supplier-summary-table-wrap{max-width:100%;overflow-x:auto;-webkit-overflow-scrolling:touch}
+.supplier-summary-table{min-width:560px}
+.finance-period-metrics{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;min-width:0}
+.finance-period-metrics>div{min-width:0;border-radius:14px;overflow-wrap:anywhere}
+.finance-date-navigation,.finance-period-controls,.finance-range-toolbar{min-width:0}
+.finance-range-presets{flex-wrap:nowrap;min-width:0}
+.finance-range-btn{min-width:0;white-space:nowrap}
+#teamPeriodControls .finance-range-presets .finance-range-btn,#viewFinance .finance-range-presets .finance-range-btn{color:var(--text-secondary,inherit)}
+#teamPeriodControls .finance-range-presets .finance-range-btn.active,#viewFinance .finance-range-presets .finance-range-btn.active{color:var(--text-primary,#fff)}
+.modal select,.modal input,.modal textarea,.view select,.view input,.view textarea{max-width:100%}
+.modal select,.view select{min-width:0}
+.modal-content,.modal-card{max-width:min(calc(100vw - 24px),760px);box-sizing:border-box}
+.drawer-modal{max-width:min(94vw,560px)}
+.tab-btn.active,.purchase-workspace-tab.active{position:relative;z-index:1}
+.purchase-workspace-tabs{position:sticky;top:0;z-index:8}
+.purchase-workspace-tab{white-space:nowrap}
+@media(max-width:767px){
+#viewSchedule #scheduleList{padding:8px 0 16px}
+#viewSchedule .schedule-main-card{background:transparent;border:0;box-shadow:none;padding-left:0;padding-right:0}
+.finance-period-metrics{grid-template-columns:1fr}
+.finance-period-metrics>div{display:flex;align-items:center;justify-content:space-between;gap:10px}
+.finance-date-navigation,.finance-period-controls,.finance-range-toolbar{width:100%}
+.finance-range-toolbar{display:flex;flex-direction:column;align-items:stretch;gap:10px}
+.finance-range-presets{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));width:100%}
+.finance-range-presets .finance-range-btn{padding:10px 6px;min-height:40px;font-size:12px}
+.finance-range-fields{width:100%;display:grid;grid-template-columns:minmax(0,1fr) auto minmax(0,1fr);align-items:center;gap:8px}
+.finance-range-date{min-width:0;width:100%}
+#teamPeriodControls .finance-range-presets{grid-template-columns:repeat(3,minmax(0,1fr))}
+.suppliers-grid{grid-template-columns:minmax(0,1fr)}
+.supplier-card{width:100%}
+.booking-detail-modal .booking-history-section{margin-left:8px}
+.client-visit-history-heading{padding-left:8px}
+.new-booking-modal .checkout-btn{width:auto;min-width:132px;max-width:100%;margin-left:auto;display:flex;justify-content:center}
+.purchase-workspace-tabs{overflow-x:auto;max-width:100%}
+.modal-content,.modal-card{width:calc(100vw - 20px);max-width:calc(100vw - 20px)}
+.drawer-modal{width:min(94vw,560px);max-width:94vw}
+}
+@media(max-width:380px){.finance-range-presets .finance-range-btn{font-size:11px;padding-inline:3px}.finance-period-metrics>div{align-items:flex-start;flex-direction:column}}
