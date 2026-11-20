@@ -842,3 +842,39 @@ html.light-theme #viewSettings .settings-back-btn{color:#263244!important}
 html.light-theme[data-mf-accent="graphite"]{--gold:#64748B;--gold-hover:#526071}
 html.light-theme[data-mf-accent="silver"]{--gold:#667085;--gold-hover:#4B5565}
 html.light-theme[data-mf-accent="bronze"]{--gold:#A96532;--gold-hover:#8F5428}
+
+
+/* Mobile light-theme contrast for the repaired Overview and Clients controls. */
+@media (max-width: 767px) {
+  html.light-theme #viewDashboard .dashboard-main-panel,
+  html.light-theme #viewDashboard .dashboard-kpi-card,
+  html.light-theme #viewClients .clients-period-controls,
+  html.light-theme #viewClients .clients-overview-grid > *,
+  html.light-theme #viewClients .clients-analytics > * {
+    color: #182231 !important;
+    border-color: rgba(54, 68, 88, .22) !important;
+    box-shadow: 0 7px 20px rgba(35, 48, 68, .07), inset 0 1px 0 rgba(255,255,255,.96) !important;
+  }
+  html.light-theme #viewDashboard .dashboard-main-panel,
+  html.light-theme #viewClients .clients-period-controls .finance-range-presets button,
+  html.light-theme #viewClients .clients-period-controls .finance-range-date {
+    background: #fff !important;
+  }
+  html.light-theme #viewDashboard #dashboardRevenueChart,
+  html.light-theme #viewDashboard #dashboardRevenueChart svg {
+    color: #182231 !important;
+  }
+  html.light-theme #viewClients .clients-period-controls .finance-range-presets button {
+    color: #344256 !important;
+    border: 1px solid rgba(54, 68, 88, .24) !important;
+  }
+  html.light-theme #viewClients .clients-period-controls .finance-range-presets button.active {
+    color: #fff !important;
+    background: linear-gradient(145deg, #8b681d, #70500d) !important;
+    border-color: #70500d !important;
+  }
+  html.light-theme #viewClients .clients-period-controls .finance-range-date {
+    color: #182231 !important;
+    border: 1px solid rgba(54, 68, 88, .24) !important;
+  }
+}
