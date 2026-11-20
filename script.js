@@ -462,7 +462,10 @@ function switchView(viewId, navElement) {
     document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
         let targetNav = navElement;
         if (!targetNav) {
-            targetNav = document.querySelector(`.nav-item[data-view="${viewId}"]`); 
+            targetNav = document.querySelector(`.nav-item[data-view="${viewId}"]`);
+        }
+        if (!targetNav && viewId === 'viewSettings') {
+            targetNav = document.querySelector('.nav-item[data-view="viewProfile"]');
         }
 
     if (targetNav) {
