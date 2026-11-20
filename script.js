@@ -7942,6 +7942,26 @@ function renderInventoryAnalytics(){
     if(!summary||!productsRoot||!restockRoot)return;
     if(!from||!to||from>to){summary.innerHTML='<div class="inventory-empty">Проверь даты отчёта: начало периода должно быть раньше окончания</div>';productsRoot.innerHTML='';restockRoot.innerHTML='';return;}
     const inRange=value=>{if(!value)return false;const date=new Date(value);if(Number.isNaN(date.getTime()))return false;return dateKey(date)>=from&&dateKey(date)<=to;};
+    // Единый журнал закупочных партий: приёмки из заказов + обычные приходы со склада.
+    // Приёмки заказов уже продублированы в inventoryMovements, поэтому исключаем их там,
+    // чтобы одна физическая партия не попадала в аналитику дважды.
+    const purchaseOrderIds=new Set(inventoryPurchaseOrders.map(order=>String(order.id)));
+    const purchasePriceHistory=[];
+    inventoryPurchaseOrders.filter(order=>order.status!=='cancelled').forEach(order=>(order.items||[]).forEach(item=>{
+        (Array.isArray(item.receivedBatches)?item.receivedBatches:[]).forEach(batch=>{
+            const date=batch.receivedAt||order.updatedAt||order.createdAt;
+            const quantity=Number(batch.quantity),unitCost=Number(batch.unitCost);
+            if(!date||Number.isNaN(new Date(date).getTime())||!(quantity>0)||!Number.isFinite(unitCost)||unitCost<=0)return;
+            purchasePriceHistory.push({productId:String(item.productId||''),title:item.titleSnapshot||inventoryProducts.find(p=>String(p.id)===String(item.productId))?.title||'Товар',date,quantity,unitCost,supplier:String(order.supplier||'').trim()||'Поставщик не указан'});
+        });
+    }));
+    inventoryMovements.filter(move=>move.type==='receipt'&&(!move.purchaseOrderId||!purchaseOrderIds.has(String(move.purchaseOrderId)))).forEach(move=>{
+        const date=move.createdAt,quantity=Number(move.quantity),unitCost=Number(move.unitCost);
+        if(!date||Number.isNaN(new Date(date).getTime())||!(quantity>0)||!Number.isFinite(unitCost)||unitCost<=0)return;
+        const product=inventoryProducts.find(p=>String(p.id)===String(move.productId));
+        purchasePriceHistory.push({productId:String(move.productId||''),title:move.productTitle||product?.title||'Товар',date,quantity,unitCost,supplier:String(move.supplier||'').trim()||'Поставщик не указан'});
+    });
+    purchasePriceHistory.sort((a,b)=>new Date(a.date)-new Date(b.date));
     const productMap=new Map(inventoryProducts.map(product=>[product.id,{product,unitsSold:0,unitsReturned:0,revenue:0,refunds:0,cost:0,returnedCost:0,costKnownUnits:0,costUnknownUnits:0}]));
     let grossRevenue=0,refundRevenue=0,unitsSold=0,unitsReturned=0,cost=0,returnedCost=0,costKnownUnits=0,costUnknownUnits=0,returnedCostUnknownUnits=0,saleCount=0,refundCount=0;
     clientRetailSales.forEach(sale=>{
@@ -7998,66 +8018,54 @@ function renderInventoryAnalytics(){
     const priceRoot=document.getElementById('inventoryPurchasePriceChanges');
     if(priceRoot){
         const history=new Map();
-        inventoryPurchaseOrders.filter(order=>order.status!=='cancelled').forEach(order=>(order.items||[]).forEach(item=>{
-            (Array.isArray(item.receivedBatches)?item.receivedBatches:[]).forEach(batch=>{
-                const date=batch.receivedAt||order.updatedAt||order.createdAt;
-                if(!inRange(date)||!(Number(batch.quantity)>0)||!Number.isFinite(Number(batch.unitCost)))return;
-                const key=item.productId||item.titleSnapshot;
-                if(!history.has(key))history.set(key,{title:item.titleSnapshot||'Товар',batches:[]});
-                history.get(key).batches.push({date,quantity:Number(batch.quantity),unitCost:Number(batch.unitCost),supplier:order.supplier||'Поставщик не указан'});
-            });
-        }));
+        purchasePriceHistory.filter(batch=>inRange(batch.date)).forEach(batch=>{
+            const key=batch.productId||batch.title;
+            if(!history.has(key))history.set(key,{title:batch.title,batches:[]});
+            history.get(key).batches.push(batch);
+        });
         const changes=[...history.values()].map(row=>{
-            const batches=row.batches.sort((a,b)=>new Date(a.date)-new Date(b.date));
+            const batches=row.batches.slice().sort((a,b)=>new Date(a.date)-new Date(b.date));
             const first=batches[0],last=batches[batches.length-1];
             const firstCost=first.unitCost,lastCost=last.unitCost;
-            return {...row,first,last,firstCost,lastCost,delta:lastCost-firstCost,percent:firstCost>0?(lastCost-firstCost)/firstCost*100:null};
+            return {...row,batches,first,last,firstCost,lastCost,delta:lastCost-firstCost,percent:firstCost>0?(lastCost-firstCost)/firstCost*100:null};
         }).filter(row=>row.batches.length>1&&Math.abs(row.delta)>0.001).sort((a,b)=>Math.abs(b.percent??0)-Math.abs(a.percent??0));
         priceRoot.innerHTML=changes.length?'<div class="inventory-price-change-list">'+changes.slice(0,12).map(row=>{
             const up=row.delta>0,percent=row.percent===null?'—':(up?'+':'')+row.percent.toFixed(1)+'%';
-            return '<div class="inventory-price-change-row"><div><strong>'+escapeBookingHtml(row.title)+'</strong><small>'+row.batches.length+' партий · '+row.first.supplier+' → '+row.last.supplier+'</small></div><div class="inventory-price-change-values"><span>'+fmt(row.firstCost)+' → '+fmt(row.lastCost)+'</span><b class="'+(up?'is-up':'is-down')+'">'+(up?'▲ ':'▼ ')+percent+'</b></div></div>';
+            return '<div class="inventory-price-change-row"><div><strong>'+escapeBookingHtml(row.title)+'</strong><small>'+row.batches.length+' партий · '+escapeBookingHtml(row.first.supplier)+' → '+escapeBookingHtml(row.last.supplier)+'</small></div><div class="inventory-price-change-values"><span>'+fmt(row.firstCost)+' → '+fmt(row.lastCost)+'</span><b class="'+(up?'is-up':'is-down')+'">'+(up?'▲ ':'▼ ')+percent+'</b></div></div>';
         }).join('')+'</div>':'<div class="inventory-empty compact">За выбранный период пока нет товаров с несколькими приёмками для сравнения закупочной цены</div>';
     }
     const supplierCompareRoot=document.getElementById('inventorySupplierComparison');
     if(supplierCompareRoot){
         const comparisons=new Map();
-        inventoryPurchaseOrders.filter(order=>order.status!=='cancelled').forEach(order=>(order.items||[]).forEach(item=>{
-            (Array.isArray(item.receivedBatches)?item.receivedBatches:[]).forEach(batch=>{
-                const date=batch.receivedAt||order.updatedAt||order.createdAt,qty=Number(batch.quantity),unitCost=Number(batch.unitCost);
-                if(!inRange(date)||!(qty>0)||!Number.isFinite(unitCost)||unitCost<=0||!order.supplier)return;
-                const key=item.productId||item.titleSnapshot;
-                if(!comparisons.has(key))comparisons.set(key,{title:item.titleSnapshot||'Товар',suppliers:new Map()});
-                const suppliers=comparisons.get(key).suppliers;
-                if(!suppliers.has(order.supplier))suppliers.set(order.supplier,{quantity:0,total:0,batches:0});
-                const stat=suppliers.get(order.supplier);stat.quantity+=qty;stat.total+=qty*unitCost;stat.batches++;
-            });
-        }));
+        purchasePriceHistory.filter(batch=>inRange(batch.date)&&batch.supplier!=='Поставщик не указан').forEach(batch=>{
+            const key=batch.productId||batch.title;
+            if(!comparisons.has(key))comparisons.set(key,{title:batch.title,suppliers:new Map()});
+            const suppliers=comparisons.get(key).suppliers;
+            if(!suppliers.has(batch.supplier))suppliers.set(batch.supplier,{quantity:0,total:0,batches:0});
+            const stat=suppliers.get(batch.supplier);stat.quantity+=batch.quantity;stat.total+=batch.quantity*batch.unitCost;stat.batches++;
+        });
         const rows=[...comparisons.values()].map(row=>{
             const suppliers=[...row.suppliers.entries()].map(([name,stat])=>({name,quantity:stat.quantity,average:stat.total/stat.quantity,batches:stat.batches})).sort((a,b)=>a.average-b.average);
             if(suppliers.length<2)return null;
             const best=suppliers[0],highest=suppliers[suppliers.length-1],spread=highest.average-best.average;
-            return {...row,best,highest,spread,percent:highest.average>0?spread/highest.average*100:0};
+            return {...row,best,highest,spread,percent:best.average>0?spread/best.average*100:0};
         }).filter(Boolean).sort((a,b)=>b.spread-a.spread);
         supplierCompareRoot.innerHTML=rows.length?'<div class="inventory-supplier-compare-list">'+rows.slice(0,12).map(row=>{
-            const qty=Math.max(1,Number(inventoryProducts.find(p=>p.title===row.title)?.minStock)||1);
+            const qty=Math.max(1,Number(inventoryProducts.find(p=>String(p.id)===String(row.productId))?.minStock)||1);
             return '<div class="inventory-supplier-compare-row"><div class="inventory-supplier-compare-product"><strong>'+escapeBookingHtml(row.title)+'</strong><small>'+row.suppliers.length+' поставщика · '+row.best.batches+' партий у выгоднейшего</small></div><div class="inventory-supplier-compare-prices"><span><b>'+escapeBookingHtml(row.best.name)+'</b> · '+fmt(row.best.average)+'/ед.</span><span>Дороже: '+escapeBookingHtml(row.highest.name)+' · '+fmt(row.highest.average)+'/ед.</span><strong>Разница '+fmt(row.spread)+'/ед. ('+row.percent.toFixed(1)+'%)</strong><small>Потенциальная экономия на '+qty+' шт.: '+fmt(row.spread*qty)+'</small></div></div>';
         }).join('')+'</div>':'<div class="inventory-empty compact">Для сравнения пока недостаточно партий от двух разных поставщиков по одному товару</div>';
     }
     const priceAlertRoot=document.getElementById('inventoryPurchasePriceAlerts');
     if(priceAlertRoot){
         const productBatches=new Map();
-        inventoryPurchaseOrders.filter(order=>order.status!=='cancelled').forEach(order=>(order.items||[]).forEach(item=>{
-            if(!item.productId)return;
-            (Array.isArray(item.receivedBatches)?item.receivedBatches:[]).forEach(batch=>{
-                const date=batch.receivedAt||order.updatedAt||order.createdAt,quantity=Number(batch.quantity),unitCost=Number(batch.unitCost);
-                if(!(quantity>0)||!Number.isFinite(unitCost)||unitCost<=0||!date||Number.isNaN(new Date(date).getTime()))return;
-                if(!productBatches.has(item.productId))productBatches.set(item.productId,{title:item.titleSnapshot||inventoryProducts.find(p=>p.id===item.productId)?.title||'Товар',batches:[]});
-                productBatches.get(item.productId).batches.push({date,quantity,unitCost,supplier:order.supplier||'Поставщик не указан'});
-            });
-        }));
+        purchasePriceHistory.forEach(batch=>{
+            const key=batch.productId||batch.title;
+            if(!productBatches.has(key))productBatches.set(key,{title:batch.title,batches:[]});
+            productBatches.get(key).batches.push(batch);
+        });
         const alerts=[];
         productBatches.forEach(row=>{
-            const batches=row.batches.sort((a,b)=>new Date(a.date)-new Date(b.date));
+            const batches=row.batches.slice().sort((a,b)=>new Date(a.date)-new Date(b.date));
             for(let index=1;index<batches.length;index++){
                 const previous=batches[index-1],current=batches[index];
                 if(!inRange(current.date)||previous.unitCost<=0)continue;
