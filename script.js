@@ -123,6 +123,7 @@ function requireAdminAction(message = 'Это действие доступно 
 let selectedBookingId = null;
 let editingBookingId = null;
 let viewOrder = []; // Заполнится в зависимости от роли
+let mobileMoreViewIds = [];
 
 // --- ИНИЦИАЛИЗАЦИЯ ---
 window.addEventListener('DOMContentLoaded', () => {
@@ -308,80 +309,136 @@ function toggleServiceActive(type,id) {
 
 function buildBottomNav() {
     const nav = document.getElementById('bottomNav');
+    if (!nav) return;
     nav.innerHTML = '<div class="nav-bubble" id="navBubble"></div>';
 
-    let navItems = [];
-    viewOrder = [];
-
+    const dashboardIcon = '<path d="M3 13h8V3H3v10zm0 8h8v-6H3v6zm10 0h8V11h-8v10zm0-18v6h8V3h-8z"/>';
     const calendarIcon = '<path d="M19 3h-1V1h-2v2H8V1H6v2H5c-1.11 0-1.99.9-1.99 2L3 19c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm0 16H5V8h14v11zM7 10h5v5H7z"/>';
     const financeIcon = '<path d="M11.8 10.9c-2.27-.59-3-1.2-3-2.15 0-1.09 1.01-1.85 2.7-1.85 1.78 0 2.44.85 2.5 2.1h2.21c-.07-1.72-1.12-3.3-3.21-3.81V3h-3v2.16c-1.94.42-3.5 1.68-3.5 3.61 0 2.31 1.91 3.46 4.7 4.13 2.5.6 3 1.48 3 2.41 0 .69-.49 1.79-2.7 1.79-2.06 0-2.87-.92-2.98-2.1h-2.2c.12 2.19 1.76 3.42 3.68 3.83V21h3v-2.15c1.95-.37 3.5-1.5 3.5-3.55 0-2.84-2.43-3.81-4.7-4.4z"/>';
     const teamIcon = '<path d="M16 11c1.66 0 2.99-1.34 2.99-3S17.66 5 16 5c-1.66 0-3 1.34-3 3s1.34 3 3 3zm-8 0c1.66 0 2.99-1.34 2.99-3S9.66 5 8 5C6.34 5 5 6.34 5 8s1.34 3 3 3zm0 2c-2.33 0-7 1.17-7 3.5V19h14v-2.5c0-2.33-4.67-3.5-7-3.5zm8 0c-.29 0-.62.02-.97.05 1.16.84 1.97 1.97 1.97 3.45V19h6v-2.5c0-2.33-4.67-3.5-7-3.5z"/>';
     const servicesIcon = '<path d="M12 2 4 6v12l8 4 8-4V6l-8-4z"/>';
     const clientsIcon = '<path d="M4 4h16a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2zm2 4v8h5V8H6zm8 1h5V7h-5v2zm0 4h5v-2h-5v2zm0 3h4v-2h-4v2z"/>';
     const crmIcon = '<path d="M3 3h18v18H3V3zm3 12h2v3H6v-3zm5-5h2v8h-2v-8zm5-3h2v11h-2V7z"/><path d="M5 7h4v2H5z"/>';
-    const clientDirectoryIcon = '<path d="M4 3h16a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2zm5 4a3 3 0 1 0 0 6 3 3 0 0 0 0-6zm-4 10h8c-.3-2-1.7-3-4-3s-3.7 1-4 3zm10-9h4v2h-4V8zm0 4h4v2h-4v-2z"/>';
+    const inventoryIcon = '<path d="M3 7 12 3l9 4-9 4-9-4zm0 5 9 4 9-4M3 17l9 4 9-4"/>';
+    const salesIcon = '<path d="M4 5h16v14H4zM8 9h8M8 13h5"/>';
+    const analyticsIcon = '<path d="M3 3v18h18M8 16v-5m5 5V6m5 10V9"/>';
+    const purchasesIcon = '<path d="M3 7h18l-2 13H5L3 7zm4 0 2-4h6l2 4M9 11v5m6-5v5"/>';
     const profileIcon = '<path d="M12 2a10 10 0 1 0 0 20 10 10 0 0 0 0-20zm0 3a3.2 3.2 0 1 1 0 6.4A3.2 3.2 0 0 1 12 5zm0 14a7 7 0 0 1-5.6-2.8c.2-2 3.9-3.1 5.6-3.1s5.4 1.1 5.6 3.1A7 7 0 0 1 12 19z"/>';
+    const settingsIcon = '<path d="M12 8.2a3.8 3.8 0 1 0 0 7.6 3.8 3.8 0 0 0 0-7.6zm8.1 4.9 1.3 1-1.5 2.6-1.6-.6a7.8 7.8 0 0 1-1.4.8l-.3 1.7h-3l-.3-1.7a7.8 7.8 0 0 1-1.4-.8l-1.6.6-1.5-2.6 1.3-1a7.2 7.2 0 0 1 0-1.6l-1.3-1 1.5-2.6 1.6.6a7.8 7.8 0 0 1 1.4-.8l.3-1.7h3l.3 1.7a7.8 7.8 0 0 1 1.4.8l1.6-.6 1.5 2.6-1.3 1a7.2 7.2 0 0 1 0 1.6z"/>';
 
-    const dashboardIcon = '<path d="M3 13h8V3H3v10zm0 8h8v-6H3v6zm10 0h8V11h-8v10zm0-18v6h8V3h-8z"/>';
-    if (currentUser.role === 'admin') {
-        navItems = [
-            { id: 'viewDashboard', title: 'Обзор', icon: dashboardIcon },
-            { id: 'viewSchedule', title: 'Расписание', icon: calendarIcon },
-            { id: 'viewFinance', title: 'Финансы', icon: financeIcon },
-            { id: 'viewServices', title: 'Услуги', icon: servicesIcon }
-        ];
-        if (window.innerWidth >= 768) {
-            navItems.push(
-                { id: 'viewCRM', title: 'CRM', icon: crmIcon },
-                { id: 'viewClients', title: 'Клиенты', icon: clientDirectoryIcon }
-            );
-            navItems.push(
-                { id: 'viewInventory', title: 'Склад', icon: '<path d="M3 7 12 3l9 4-9 4-9-4zm0 5 9 4 9-4M3 17l9 4 9-4"/>' },
-                { id: 'viewSales', title: 'Продажи', icon: '<path d="M4 5h16v14H4zM8 9h8M8 13h5"/>' },
-                { id: 'viewInventoryAnalytics', title: 'Аналитика', icon: '<path d="M3 3v18h18M8 16v-5m5 5V6m5 10V9"/>' },
-                { id: 'viewPurchases', title: 'Закупки', icon: '<path d="M3 7h18l-2 13H5L3 7zm4 0 2-4h6l2 4M9 11v5m6-5v5"/>' },
-                { id: 'viewProfile', title: 'Профиль', icon: profileIcon }
-            );
+    const admin = currentUser.role === 'admin';
+    const desktop = window.innerWidth >= 768;
+    const allAdminItems = [
+        { id: 'viewDashboard', title: 'Обзор', icon: dashboardIcon },
+        { id: 'viewSchedule', title: 'Расписание', icon: calendarIcon },
+        { id: 'viewFinance', title: 'Финансы', icon: financeIcon },
+        { id: 'viewTeam', title: 'Команда', icon: teamIcon },
+        { id: 'viewServices', title: 'Услуги', icon: servicesIcon },
+        { id: 'viewCRM', title: 'CRM', icon: crmIcon },
+        { id: 'viewClients', title: 'Клиенты', icon: clientsIcon },
+        { id: 'viewInventory', title: 'Склад', icon: inventoryIcon },
+        { id: 'viewSales', title: 'Продажи', icon: salesIcon },
+        { id: 'viewInventoryAnalytics', title: 'Аналитика', icon: analyticsIcon },
+        { id: 'viewPurchases', title: 'Закупки', icon: purchasesIcon },
+        { id: 'viewProfile', title: 'Профиль', icon: profileIcon },
+        { id: 'viewSettings', title: 'Настройки', icon: settingsIcon }
+    ];
+
+    let navItems = [];
+    mobileMoreViewIds = [];
+    if (admin) {
+        if (desktop) {
+            // На ПК сохраняем привычную боковую навигацию и её порядок.
+            navItems = [
+                allAdminItems[0], allAdminItems[1], allAdminItems[2], allAdminItems[4],
+                allAdminItems[5], allAdminItems[6], allAdminItems[7], allAdminItems[8],
+                allAdminItems[9], allAdminItems[10], allAdminItems[11], allAdminItems[12]
+            ];
+            viewOrder = navItems.map(item => item.id);
         } else {
-            navItems.push({ id: 'viewProfile', title: 'Профиль', icon: clientsIcon });
+            // На телефоне — три основных раздела и единый компактный список остальных.
+            navItems = [allAdminItems[0], allAdminItems[1], allAdminItems[6]];
+            mobileMoreViewIds = allAdminItems.slice(2).map(item => item.id);
+            viewOrder = allAdminItems.map(item => item.id);
         }
     } else {
-        navItems = [
-            { id: 'viewDashboard', title: 'Обзор', icon: dashboardIcon },
-            { id: 'viewSchedule', title: 'Расписание', icon: calendarIcon },
-            { id: 'viewClients', title: 'Клиенты', icon: clientsIcon },
-            { id: 'viewProfile', title: 'Профиль', icon: clientsIcon }
-        ];
+        navItems = [allAdminItems[0], allAdminItems[1], allAdminItems[6], allAdminItems[11]];
+        viewOrder = navItems.map(item => item.id);
     }
 
-    const settingsIcon = '<path d="M12 8.2a3.8 3.8 0 1 0 0 7.6 3.8 3.8 0 0 0 0-7.6zm8.1 4.9 1.3 1-1.5 2.6-1.6-.6a7.8 7.8 0 0 1-1.4.8l-.3 1.7h-3l-.3-1.7a7.8 7.8 0 0 1-1.4-.8l-1.6.6-1.5-2.6 1.3-1a7.2 7.2 0 0 1 0-1.6l-1.3-1 1.5-2.6 1.6.6a7.8 7.8 0 0 1 1.4-.8l.3-1.7h3l.3 1.7a7.8 7.8 0 0 1 1.4.8l1.6-.6 1.5 2.6-1.3 1a7.2 7.2 0 0 1 0 1.6z"/>';
-    if (window.innerWidth >= 768) navItems.push({ id: 'viewSettings', title: 'Настройки', icon: settingsIcon });
-
-    viewOrder = navItems.map(item => item.id);
-    if (!viewOrder.includes('viewSettings')) viewOrder.push('viewSettings');
-
     navItems.forEach((item, index) => {
-        const div = document.createElement('div');
-        div.className = `nav-item ${index === 0 ? 'active' : ''}`;
-        div.setAttribute('data-view', item.id);
-        div.innerHTML = `<svg viewBox="0 0 24 24">${item.icon}</svg><span class="nav-item-label">${item.title}</span>`;
-        div.onclick = () => switchView(item.id, div);
-        nav.appendChild(div);
+        const button = document.createElement('button');
+        button.type = 'button';
+        button.className = 'nav-item' + (index === 0 ? ' active' : '');
+        button.setAttribute('data-view', item.id);
+        button.setAttribute('aria-label', item.title);
+        button.innerHTML = '<svg viewBox="0 0 24 24" aria-hidden="true">' + item.icon + '</svg><span class="nav-item-label">' + item.title + '</span>';
+        button.addEventListener('click', () => switchView(item.id, button));
+        nav.appendChild(button);
     });
 
-    const sidebarToggle = document.createElement('button');
-    sidebarToggle.type = 'button';
-    sidebarToggle.className = 'desktop-sidebar-toggle';
-    sidebarToggle.setAttribute('aria-label', 'Раскрыть меню');
-    sidebarToggle.title = 'Раскрыть меню';
-    sidebarToggle.innerHTML = '<svg class="desktop-sidebar-toggle-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="m9 18 6-6-6-6"/></svg>';
-    sidebarToggle.addEventListener('click', toggleDesktopNav);
-    nav.appendChild(sidebarToggle);
+    if (admin && !desktop) {
+        const moreButton = document.createElement('button');
+        moreButton.type = 'button';
+        moreButton.className = 'nav-item mobile-more-trigger';
+        moreButton.setAttribute('aria-expanded', 'false');
+        moreButton.setAttribute('aria-label', 'Ещё разделы');
+        moreButton.innerHTML = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 4h6v6H4zM14 4h6v6h-6zM4 14h6v6H4zM14 14h6v6h-6z"/></svg><span class="nav-item-label">Ещё</span>';
+        moreButton.addEventListener('click', toggleMobileMoreMenu);
+        nav.appendChild(moreButton);
+
+        const panel = document.createElement('div');
+        panel.className = 'mobile-more-menu';
+        panel.id = 'mobileMoreMenu';
+        panel.hidden = true;
+        allAdminItems.slice(2).forEach(item => {
+            const link = document.createElement('button');
+            link.type = 'button';
+            link.className = 'mobile-more-item';
+            link.setAttribute('data-view', item.id);
+            link.innerHTML = '<svg viewBox="0 0 24 24" aria-hidden="true">' + item.icon + '</svg><span>' + item.title + '</span>';
+            link.addEventListener('click', () => switchView(item.id, null));
+            panel.appendChild(link);
+        });
+        nav.appendChild(panel);
+    }
+
+    if (desktop) {
+        const sidebarToggle = document.createElement('button');
+        sidebarToggle.type = 'button';
+        sidebarToggle.className = 'desktop-sidebar-toggle';
+        sidebarToggle.setAttribute('aria-label', 'Раскрыть меню');
+        sidebarToggle.title = 'Раскрыть меню';
+        sidebarToggle.innerHTML = '<svg class="desktop-sidebar-toggle-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="m9 18 6-6-6-6"/></svg>';
+        sidebarToggle.addEventListener('click', toggleDesktopNav);
+        nav.appendChild(sidebarToggle);
+    }
 
     initDesktopNav();
     initNavBubble();
 }
 
+function toggleMobileMoreMenu() {
+    const panel = document.getElementById('mobileMoreMenu');
+    const trigger = document.querySelector('.mobile-more-trigger');
+    if (!panel || !trigger) return;
+    const opening = panel.hidden;
+    panel.hidden = !opening;
+    trigger.setAttribute('aria-expanded', opening ? 'true' : 'false');
+    const activeView = document.querySelector('.view.active')?.id;
+    trigger.classList.toggle('active', opening || mobileMoreViewIds.includes(activeView));
+}
+
+function closeMobileMoreMenu() {
+    const panel = document.getElementById('mobileMoreMenu');
+    const trigger = document.querySelector('.mobile-more-trigger');
+    if (panel) panel.hidden = true;
+    if (trigger) {
+        trigger.setAttribute('aria-expanded', 'false');
+        const activeView = document.querySelector('.view.active')?.id;
+        trigger.classList.toggle('active', mobileMoreViewIds.includes(activeView));
+    }
+}
 
 function initDesktopNav() {
     const nav = document.getElementById('bottomNav');
@@ -437,7 +494,10 @@ function updateDesktopNavToggle() {
 
 function switchView(viewId, navElement) {
     const currentView = document.querySelector('.view.active');
-    if (currentView && currentView.id === viewId) return;
+    if (currentView && currentView.id === viewId) {
+        closeMobileMoreMenu();
+        return;
+    }
 
     let animationClass = 'slide-from-right';
     if (currentView) {
@@ -467,11 +527,15 @@ function switchView(viewId, navElement) {
         if (!targetNav && viewId === 'viewSettings') {
             targetNav = document.querySelector('.nav-item[data-view="viewProfile"]');
         }
+        if (!targetNav && window.innerWidth < 768 && mobileMoreViewIds.includes(viewId)) {
+            targetNav = document.querySelector('.mobile-more-trigger');
+        }
 
     if (targetNav) {
         targetNav.classList.add('active');
         updateNavBubble(targetNav);
     }
+    closeMobileMoreMenu();
 
     const titles = {
         'viewLogin': 'Вход',
@@ -886,35 +950,44 @@ window.addEventListener('resize', () => {
     if (activeNav) updateNavBubble(activeNav, true);
 });
 
-// --- СВАЙПЫ (СКОПИРОВАНО ИЗ КЛИЕНТА) ---
+// --- НАВИГАЦИЯ СВАЙПОМ МЕЖДУ РАЗДЕЛАМИ ---
 let touchStartX = 0;
 let touchStartY = 0;
+let touchStartTarget = null;
+let touchStartViewId = null;
+
+function shouldIgnoreViewSwipe(target) {
+    if (!target || !target.closest) return true;
+    return Boolean(target.closest(
+        '.home-scroll-area, .profile-history-scroll, .date-selector, .category-tabs, ' +
+        '.purchase-workspace-tabs, .finance-range-toolbar, .clients-period-controls, ' +
+        '.schedule-barber-filter-mobile, .inventory-analytics-table-wrap, ' +
+        'input, textarea, select, button, a, [onclick], [role="button"], [contenteditable="true"], ' +
+        '#bottomNav, .modal, .drawer, .mobile-more-menu'
+    ));
+}
 
 document.addEventListener('touchstart', e => {
     if (document.querySelector('.modal.active') || document.querySelector('.drawer.active')) return;
-    
-    // ИГНОРИРУЕМ СВАЙП, ЕСЛИ ТРОГАЕМ СПИСКИ, ДАТЫ ИЛИ ТАБЫ
-    if (e.target.closest('.home-scroll-area') || 
-        e.target.closest('.profile-history-scroll') ||
-        e.target.closest('.date-selector') || 
-        e.target.closest('.category-tabs')) return; 
-        
+    touchStartTarget = e.target;
+    touchStartViewId = document.querySelector('.view.active')?.id || null;
+    if (shouldIgnoreViewSwipe(touchStartTarget)) {
+        touchStartViewId = null;
+        return;
+    }
     touchStartX = e.changedTouches[0].screenX;
     touchStartY = e.changedTouches[0].screenY;
 }, { passive: true });
 
 document.addEventListener('touchend', e => {
-    if (document.querySelector('.modal.active') || document.querySelector('.drawer.active')) return;
-    
-    // ТУТ ТОЖЕ САМОЕ
-    if (e.target.closest('.home-scroll-area') || 
-        e.target.closest('.profile-history-scroll') ||
-        e.target.closest('.date-selector') || 
-        e.target.closest('.category-tabs')) return; 
-        
+    if (!touchStartViewId || document.querySelector('.modal.active') || document.querySelector('.drawer.active')) return;
+    const activeViewId = document.querySelector('.view.active')?.id || null;
+    if (activeViewId !== touchStartViewId || shouldIgnoreViewSwipe(touchStartTarget)) return;
     const touchEndX = e.changedTouches[0].screenX;
     const touchEndY = e.changedTouches[0].screenY;
     handleSwipe(touchStartX, touchStartY, touchEndX, touchEndY);
+    touchStartViewId = null;
+    touchStartTarget = null;
 }, { passive: true });
 
 function handleSwipe(startX, startY, endX, endY) {
