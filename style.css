@@ -11656,3 +11656,105 @@ html.light-theme #viewSales .retail-check-panel select:focus{
   border-color:#a77b20!important;
   box-shadow:0 0 0 3px rgba(167,123,32,.14)!important;
 }
+
+
+/* Светлая тема: дополнительный контраст в разделах «Склад» и «Клиенты».
+   Серые нейтральные оттенки намеренно не перекрашиваются. */
+html.light-theme #viewInventory,
+html.light-theme #viewClients{
+  --text-main:#182231;
+  --gold:#805b0b;
+  --gold-hover:#684706;
+}
+html.light-theme #viewInventory .inventory-catalog-panel,
+html.light-theme #viewInventory .inventory-history-panel,
+html.light-theme #viewInventory .inventory-overview-grid> *,
+html.light-theme #viewClients>.clients-workspace,
+html.light-theme #viewClients .clients-analytics,
+html.light-theme #viewClients .clients-waitlist,
+html.light-theme #viewClients .client-directory-workspace,
+html.light-theme #viewClients .client-directory-scope{
+  border-color:rgba(54,68,88,.22)!important;
+  box-shadow:0 9px 24px rgba(35,48,68,.075),inset 0 1px 0 rgba(255,255,255,.96)!important;
+}
+html.light-theme #viewInventory .inventory-catalog-panel,
+html.light-theme #viewInventory .inventory-history-panel,
+html.light-theme #viewClients .clients-waitlist,
+html.light-theme #viewClients .client-directory-workspace{
+  background-color:rgba(255,255,255,.88);
+}
+html.light-theme #viewInventory .inventory-product-card,
+html.light-theme #viewInventory .inventory-catalog-grid> *,
+html.light-theme #viewInventory .inventory-movement-row,
+html.light-theme #viewClients .client-card,
+html.light-theme #viewClients .clients-month-stat,
+html.light-theme #viewClients .waitlist-row-enhanced,
+html.light-theme #viewClients .crm-tasks-hub,
+html.light-theme #viewClients .crm-client-scope-tabs,
+html.light-theme #viewClients .client-directory-scope> *{
+  border-color:rgba(54,68,88,.22)!important;
+  box-shadow:0 5px 16px rgba(35,48,68,.055),inset 0 1px 0 rgba(255,255,255,.92);
+}
+html.light-theme #viewInventory .inventory-movement-month{
+  border-color:rgba(54,68,88,.22)!important;
+  background:rgba(255,255,255,.86)!important;
+}
+html.light-theme #viewInventory .inventory-movement-month .inventory-movement-row{
+  border-color:rgba(54,68,88,.20)!important;
+  background:rgba(255,255,255,.96);
+}
+html.light-theme #viewInventory .inventory-toolbar input,
+html.light-theme #viewInventory .inventory-toolbar select,
+html.light-theme #viewInventory .inventory-movement-toolbar input,
+html.light-theme #viewInventory .inventory-movement-toolbar select,
+html.light-theme #viewClients input:not([type="checkbox"]),
+html.light-theme #viewClients select{
+  border-color:rgba(54,68,88,.25)!important;
+  color:#182231!important;
+}
+html.light-theme #viewInventory .inventory-toolbar input:focus,
+html.light-theme #viewInventory .inventory-toolbar select:focus,
+html.light-theme #viewInventory .inventory-movement-toolbar input:focus,
+html.light-theme #viewInventory .inventory-movement-toolbar select:focus,
+html.light-theme #viewClients input:not([type="checkbox"]):focus,
+html.light-theme #viewClients select:focus{
+  border-color:#a77b20!important;
+  box-shadow:0 0 0 3px rgba(167,123,32,.14)!important;
+}
+html.light-theme #viewInventory .inventory-product-card strong,
+html.light-theme #viewInventory .inventory-movement-row strong,
+html.light-theme #viewInventory .finance-panel-heading h3,
+html.light-theme #viewClients .client-name,
+html.light-theme #viewClients .client-card strong,
+html.light-theme #viewClients .schedule-waitlist-heading h3,
+html.light-theme #viewClients .waitlist-person strong,
+html.light-theme #viewClients .clients-heading h2{
+  color:#182231!important;
+}
+html.light-theme #viewInventory .inventory-product-card .inventory-product-price,
+html.light-theme #viewInventory .inventory-product-card .inventory-stock-value,
+html.light-theme #viewClients .client-tag-badge,
+html.light-theme #viewClients .waitlist-tags span{
+  border-color:rgba(151,105,12,.38)!important;
+}
+html.light-theme #viewInventory .inventory-product-card .inventory-product-price,
+html.light-theme #viewClients .client-tag-badge{
+  color:#805b0b!important;
+}
+html.light-theme #viewInventory .inventory-product-card .is-positive,
+html.light-theme #viewInventory .inventory-movement-row .is-positive,
+html.light-theme #viewClients .waitlist-status.status-contacted,
+html.light-theme #viewClients .waitlist-status.status-offered{
+  color:#126c43!important;
+}
+html.light-theme #viewInventory .inventory-product-card .is-negative,
+html.light-theme #viewInventory .inventory-movement-row .is-negative,
+html.light-theme #viewClients .waitlist-status.status-urgent{
+  color:#a52d38!important;
+}
+html.light-theme #viewInventory .inventory-sync-btn,
+html.light-theme #viewInventory .inventory-history-more,
+html.light-theme #viewClients .waitlist-row-enhanced button,
+html.light-theme #viewClients .clients-workspace .checkout-btn{
+  border-color:rgba(151,105,12,.42)!important;
+}
