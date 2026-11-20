@@ -887,3 +887,13 @@ html.light-theme[data-mf-accent="bronze"]{--gold:#A96532;--gold-hover:#8F5428}
 .finance-period-metrics>div{border-radius:14px}
 .supplier-card,.service-card{min-width:0}
 @media(max-width:767px){.suppliers-grid{grid-template-columns:minmax(0,1fr)}.finance-period-metrics>div{border-radius:14px}}
+
+/* Scoped active-period contrast for both themes */
+html.light-theme #viewFinance .finance-range-presets .finance-range-btn,
+html.light-theme #viewDashboard .finance-range-presets .finance-range-btn,
+html.light-theme #viewTeam .finance-range-presets .finance-range-btn{color:#59616c}
+html.light-theme #viewFinance .finance-range-presets .finance-range-btn.active,
+html.light-theme #viewDashboard .finance-range-presets .finance-range-btn.active,
+html.light-theme #viewTeam .finance-range-presets .finance-range-btn.active{color:#17191d;background:#e8c46f;border-color:#d5ad4f}
+html.light-theme #viewSchedule .schedule-main-card{background:transparent}
+html.light-theme #viewSchedule #scheduleList{background:transparent}
