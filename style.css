@@ -12588,3 +12588,70 @@ body.profile-view-active .app-header {
   #bottomNav .mobile-more-trigger.active { color:var(--gold)!important; background:rgba(212,175,55,.1)!important; }
 }
 
+/* Mobile consistency pass: compact metric rows and active control contrast. */
+@media (max-width: 767px) {
+  #viewSchedule .schedule-overview-grid > :nth-child(3):last-child,
+  #viewFinance .finance-period-metrics > :nth-child(3):last-child {
+    grid-column:1/-1!important;
+  }
+  #viewFinance .finance-range-btn.active,
+  #viewSchedule .schedule-barber-filter-mobile button.active,
+  #viewSchedule .schedule-barber-filter button.active,
+  #viewClients .clients-period-controls button.active {
+    color:#17130b!important;
+    text-shadow:none!important;
+  }
+  #viewInventory .inventory-kpi,
+  #viewInventoryAnalytics .inventory-kpi,
+  #viewPurchases .inventory-kpi,
+  #viewTeam .team-overview-grid > *,
+  #viewClients .clients-overview-grid > *,
+  #viewServices .services-overview-grid > *,
+  #viewDashboard .dashboard-kpi-grid > *,
+  #viewFinance .finance-kpi-grid > * {
+    align-self:stretch!important;
+    min-height:76px!important;
+    height:auto!important;
+    justify-content:center;
+    overflow-wrap:anywhere!important;
+  }
+  #viewInventory .inventory-kpi span,
+  #viewPurchases .inventory-kpi span,
+  #viewInventoryAnalytics .inventory-kpi span {
+    font-size:10px!important;
+    line-height:1.35!important;
+    white-space:normal!important;
+  }
+  #viewInventory .inventory-kpi strong,
+  #viewPurchases .inventory-kpi strong,
+  #viewInventoryAnalytics .inventory-kpi strong {
+    font-size:clamp(15px,4.8vw,19px)!important;
+    line-height:1.2!important;
+    overflow-wrap:anywhere!important;
+  }
+  #viewPurchases .purchase-order-status,
+  #viewPurchases .supplier-order-finance span {
+    white-space:normal!important;
+    line-height:1.4!important;
+  }
+  #viewPurchases .purchase-order-card,
+  #viewInventory .inventory-product-card,
+  #viewSales .retail-history-row,
+  #viewSales .retail-cart-row {
+    min-width:0!important;
+    overflow-wrap:anywhere!important;
+  }
+  #bottomNav .nav-item {
+    appearance:none!important;
+    -webkit-appearance:none!important;
+    border:0!important;
+    font-family:Montserrat,sans-serif!important;
+    cursor:pointer!important;
+  }
+  #bottomNav .nav-item:focus-visible,
+  #bottomNav .mobile-more-item:focus-visible {
+    outline:2px solid var(--gold)!important;
+    outline-offset:2px!important;
+  }
+}
+
