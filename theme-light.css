@@ -811,3 +811,13 @@ html.light-theme #barberStatsModal .barber-stats-visit-row small {
     border-color: rgba(54,68,88,.16);
   }
 }
+
+/* PROFILE SETTINGS — LIGHT THEME */
+html.light-theme .profile-team-card,html.light-theme .profile-settings-card{background:rgba(255,255,255,.9)!important;border:1px solid rgba(35,48,65,.12)!important;box-shadow:0 10px 30px rgba(24,36,52,.06),inset 0 1px 0 rgba(255,255,255,.95)!important}
+html.light-theme .profile-section-heading h3,html.light-theme .profile-setting-copy strong,html.light-theme .profile-setting-option{color:#202938!important}
+html.light-theme .profile-section-heading p,html.light-theme .profile-setting-copy>span,html.light-theme .profile-setting-option small,html.light-theme .profile-setting-hint{color:#586477!important}
+html.light-theme .profile-setting-divider{background:rgba(35,48,65,.12)!important}
+html.light-theme .profile-setting-option{background:rgba(35,48,65,.035)!important;border-color:rgba(35,48,65,.14)!important}
+html.light-theme .profile-setting-option:hover,html.light-theme .profile-setting-option.is-active{background:rgba(199,154,42,.13)!important;border-color:#C79A2A!important}
+html.light-theme .profile-option-icon{background:rgba(199,154,42,.14)!important}
+html.light-theme .profile-stack-icon i,html.light-theme .profile-single-icon i{background:#fff!important}
