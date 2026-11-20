@@ -355,9 +355,10 @@ function buildBottomNav() {
     }
 
     const settingsIcon = '<path d="M12 8.2a3.8 3.8 0 1 0 0 7.6 3.8 3.8 0 0 0 0-7.6zm8.1 4.9 1.3 1-1.5 2.6-1.6-.6a7.8 7.8 0 0 1-1.4.8l-.3 1.7h-3l-.3-1.7a7.8 7.8 0 0 1-1.4-.8l-1.6.6-1.5-2.6 1.3-1a7.2 7.2 0 0 1 0-1.6l-1.3-1 1.5-2.6 1.6.6a7.8 7.8 0 0 1 1.4-.8l.3-1.7h3l.3 1.7a7.8 7.8 0 0 1 1.4.8l1.6-.6 1.5 2.6-1.3 1a7.2 7.2 0 0 1 0 1.6z"/>';
-    navItems.push({ id: 'viewSettings', title: 'Настройки', icon: settingsIcon });
+    if (window.innerWidth >= 768) navItems.push({ id: 'viewSettings', title: 'Настройки', icon: settingsIcon });
 
     viewOrder = navItems.map(item => item.id);
+    if (!viewOrder.includes('viewSettings')) viewOrder.push('viewSettings');
 
     navItems.forEach((item, index) => {
         const div = document.createElement('div');
