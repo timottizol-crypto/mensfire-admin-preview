@@ -6714,7 +6714,7 @@ switchView = function(viewId, navElement) {
     if (viewId === 'viewClients') renderClients();
     if (viewId === 'viewInventory' && currentUser.role === 'admin') renderInventory();
     if (viewId === 'viewInventoryAnalytics' && currentUser.role === 'admin') renderInventoryAnalytics();
-    if (viewId === 'viewPurchases' && currentUser.role === 'admin') renderPurchaseOrders();
+    if (viewId === 'viewPurchases' && currentUser.role === 'admin') setPurchaseWorkspaceTab(activePurchaseWorkspaceTab);
 
     if (viewId === 'viewProfile') {
         renderBarberRevenue();
@@ -7491,8 +7491,10 @@ function initDesktopClientDirectory(){
     const scope=document.getElementById('clientDirectoryScope');
     if(scope)scope.innerHTML='<div class="category-tabs crm-client-scope-tabs"><button class="tab-btn '+(currentClientsTab==='my'?'active':'')+'" onclick="renderClients(\'my\')">Мои клиенты</button><button class="tab-btn '+(currentClientsTab==='all'?'active':'')+'" onclick="renderClients(\'all\')">Все клиенты</button></div>';
 }
+let activePurchaseWorkspaceTab = 'orders';
 function setPurchaseWorkspaceTab(tab){
     const selected=tab==='suppliers'?'suppliers':'orders';
+    activePurchaseWorkspaceTab=selected;
     document.querySelectorAll('.purchase-workspace-tab').forEach(button=>button.classList.toggle('active',button.dataset.purchaseTab===selected));
     const orders=document.getElementById('purchaseOrdersTab'),suppliers=document.getElementById('suppliersTab');
     if(orders)orders.hidden=selected!=='orders';if(suppliers)suppliers.hidden=selected!=='suppliers';
