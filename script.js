@@ -8016,7 +8016,7 @@ function renderInventory() {
     const category = document.getElementById('inventoryCategoryFilter')?.value || 'all';
     const filtered = inventoryProducts.filter(item => item.active !== false && (category === 'all' || item.category === category) &&
         (!query || [item.title,item.sku,item.category].some(value => value.toLowerCase().includes(query))));
-    const categories = [...new Set(inventoryProducts.map(item => item.category))].sort((a,b) => a.localeCompare(b,'ru'));
+    const categories = [...new Set(inventoryProducts.filter(item => item.active !== false).map(item => item.category))].sort((a,b) => a.localeCompare(b,'ru'));
     const filter = document.getElementById('inventoryCategoryFilter');
     if (filter) {
         const previous = filter.value || 'all';
