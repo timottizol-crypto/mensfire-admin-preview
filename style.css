@@ -12145,3 +12145,35 @@ html.light-theme #actionModal .booking-client-link{
     border-color:rgba(54,68,88,.24)!important;
   }
 }
+
+/* PROFILE — TEAM & INTERFACE SETTINGS */
+.profile-team-card,.profile-settings-card{width:100%;padding:22px;border-radius:22px;display:flex;flex-direction:column;gap:18px}
+.profile-section-heading{display:flex;align-items:flex-start;justify-content:space-between;gap:16px}
+.profile-section-kicker{display:block;margin-bottom:6px;color:var(--gold);font-size:9px;font-weight:800;letter-spacing:.16em}
+.profile-section-heading h3{margin:0;color:var(--text-main);font-size:17px;font-weight:800}
+.profile-section-heading p{margin:6px 0 0;color:var(--text-muted);font-size:11px;line-height:1.5}
+.profile-section-icon{display:grid;place-items:center;flex:0 0 38px;width:38px;height:38px;border:1px solid rgba(212,175,55,.28);border-radius:13px;background:rgba(212,175,55,.1);color:var(--gold);font-size:19px}
+.profile-team-list{display:grid;gap:10px}
+.profile-add-staff-btn{width:100%;min-height:46px;margin:0;border-radius:13px}
+.profile-settings-card{margin-top:15px}
+.profile-setting-group{display:flex;align-items:center;justify-content:space-between;gap:22px}
+.profile-setting-copy{display:flex;flex:1 1 220px;flex-direction:column;gap:5px;min-width:0}
+.profile-setting-copy strong{color:var(--text-main);font-size:13px;font-weight:800}
+.profile-setting-copy>span{color:var(--text-muted);font-size:11px;line-height:1.5}
+.profile-setting-options{display:flex;align-items:stretch;gap:8px}
+.profile-setting-option{display:flex;align-items:center;justify-content:flex-start;gap:9px;min-width:116px;min-height:48px;padding:9px 12px;border:1px solid rgba(255,255,255,.1);border-radius:13px;background:rgba(255,255,255,.035);color:var(--text-main);text-align:left;cursor:pointer;transition:background .2s ease,border-color .2s ease,transform .2s ease}
+.profile-setting-option:hover{border-color:rgba(212,175,55,.55);background:rgba(212,175,55,.08)}
+.profile-setting-option:active{transform:scale(.98)}
+.profile-setting-option.is-active{border-color:var(--gold);background:rgba(212,175,55,.13);box-shadow:inset 0 0 0 1px rgba(212,175,55,.12)}
+.profile-option-icon{display:grid;place-items:center;flex:0 0 29px;width:29px;height:29px;border-radius:9px;background:rgba(212,175,55,.12);color:var(--gold);font-size:17px}
+.profile-setting-option>span:last-child{display:flex;flex-direction:column;gap:3px;font-size:11px;font-weight:700}
+.profile-setting-option small{color:var(--text-muted);font-size:9px;font-weight:500;line-height:1.35}
+.profile-stack-icon{position:relative}
+.profile-stack-icon i,.profile-single-icon i{position:absolute;width:13px;height:15px;border:1px solid currentColor;border-radius:3px;background:var(--bg-card)}
+.profile-stack-icon i:first-child{transform:translate(-3px,-2px);opacity:.65}
+.profile-stack-icon i:last-child{transform:translate(3px,2px)}
+.profile-single-icon i{position:static}
+.profile-setting-divider{width:100%;height:1px;background:rgba(255,255,255,.09)}
+.profile-setting-hint{margin:-7px 0 0;color:var(--text-muted);font-size:10px;line-height:1.5}
+@media(max-width:767px){.profile-settings-card,.profile-team-card{padding:17px;border-radius:18px}.profile-setting-group{align-items:stretch;flex-direction:column;gap:12px}.profile-setting-options{width:100%}.profile-setting-option{flex:1 1 0;min-width:0;padding:9px}.profile-drawer-options .profile-setting-option{min-height:65px}}
+@media(min-width:768px){.profile-left-col{gap:15px}.profile-team-card{min-height:100%}}
