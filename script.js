@@ -734,8 +734,8 @@ function applyMensfireInterfaceSettings(settings, persist = true) {
 function updateMensfireInterfaceSetting(key, value) {
     const current = getMensfireInterfaceSettings();
     const next = applyMensfireInterfaceSettings({ ...current, [key]: value });
-    const labels = { accent: 'Акцентный цвет', density: 'Плотность интерфейса', radius: 'Скругление карточек', motion: 'Анимации', font: 'Размер текста' };
-    showToast((labels[key] || 'Настройка') + ' обновлено', 'success');
+    const labels = { accent: 'Акцентный цвет изменён', density: 'Плотность интерфейса изменена', radius: 'Скругление карточек изменено', motion: 'Настройка анимаций изменена', font: 'Размер текста изменён' };
+    showToast(labels[key] || 'Настройка обновлена', 'success');
     return next;
 }
 function resetMensfireInterfaceSettings() {
@@ -758,10 +758,10 @@ function syncProfileSettingsUI() {
     });
     const drawerMode = getMensfireDesktopDrawerMode();
     const settings = getMensfireInterfaceSettings();
-    const settingAttributes = { accent: 'dataSettingAccent', density: 'dataSettingDensity', radius: 'dataSettingRadius', motion: 'dataSettingMotion', font: 'dataSettingFont' };
-    Object.entries(settingAttributes).forEach(([key, attribute]) => {
-        document.querySelectorAll('[' + attribute.replace(/[A-Z]/g, letter => '-' + letter.toLowerCase()) + ']').forEach(button => {
-            const selected = button.dataset[key === 'accent' ? 'settingAccent' : key === 'density' ? 'settingDensity' : key === 'radius' ? 'settingRadius' : key === 'motion' ? 'settingMotion' : 'settingFont'] === settings[key];
+    Object.keys(settings).forEach(key => {
+        const attribute = 'data-setting-' + key;
+        document.querySelectorAll('[' + attribute + ']').forEach(button => {
+            const selected = button.getAttribute(attribute) === settings[key];
             button.classList.toggle('is-active', selected);
             button.setAttribute('aria-pressed', String(selected));
         });
