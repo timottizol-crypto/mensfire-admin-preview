@@ -11335,3 +11335,192 @@ html.light-theme .retail-receipt-top,
 html.light-theme .retail-receipt-payment{background:rgba(246,249,252,.9);border-color:rgba(45,61,82,.17)}
 html.light-theme .retail-receipt-item{border-color:rgba(45,61,82,.1)}
 @media(max-width:520px){.retail-receipt-modal-content{padding:17px!important}.retail-receipt-top{flex-direction:column;gap:10px}}
+
+
+/* MENSFIRE — PREMIUM CUSTOM CALENDAR */
+#calendarModal .mensfire-calendar-modal {
+    width: min(100% - 28px, 410px);
+    max-width: 410px;
+    padding: 25px 24px 21px;
+    border: 1px solid rgba(212, 175, 55, .22);
+    border-radius: 24px;
+    background: linear-gradient(155deg, rgba(34, 32, 27, .98), rgba(17, 18, 20, .99) 68%);
+    box-shadow: 0 26px 80px rgba(0, 0, 0, .48), inset 0 1px 0 rgba(255,255,255,.055);
+}
+#calendarModal .calendar-header {
+    display: grid;
+    grid-template-columns: 42px minmax(0, 1fr) 42px;
+    gap: 12px;
+    align-items: center;
+    margin-bottom: 22px;
+}
+#calendarModal .cal-nav-btn {
+    width: 42px;
+    height: 42px;
+    border-radius: 14px;
+    border-color: rgba(212,175,55,.18);
+    background: rgba(212,175,55,.075);
+    color: var(--gold);
+    font-size: 15px;
+    transition: background .2s ease, border-color .2s ease, transform .2s ease;
+}
+#calendarModal .cal-nav-btn:hover {
+    background: rgba(212,175,55,.16);
+    border-color: rgba(212,175,55,.48);
+}
+#calendarModal .calendar-month-year {
+    min-width: 0;
+    min-height: 42px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 7px;
+    padding: 5px 8px;
+    border: 1px solid transparent;
+    border-radius: 13px;
+    background: transparent;
+    color: var(--text-main);
+    font: inherit;
+    font-size: 17px;
+    font-weight: 750;
+    letter-spacing: -.25px;
+    cursor: pointer;
+    transition: background .2s ease, border-color .2s ease;
+}
+#calendarModal .calendar-month-year:hover,
+#calendarModal .calendar-month-year.is-year-open {
+    background: rgba(212,175,55,.08);
+    border-color: rgba(212,175,55,.2);
+}
+#calendarModal .calendar-title-year { color: var(--gold); }
+#calendarModal .calendar-title-chevron {
+    margin-left: 2px;
+    color: var(--gold);
+    font-size: 18px;
+    transition: transform .2s ease;
+}
+#calendarModal .calendar-month-year.is-year-open .calendar-title-chevron { transform: rotate(180deg); }
+#calendarModal .calendar-weekdays {
+    margin: 0 0 9px;
+    color: rgba(230,225,211,.52);
+    font-size: 10px;
+    font-weight: 750;
+    letter-spacing: .08em;
+    text-transform: uppercase;
+}
+#calendarModal .calendar-grid {
+    display: grid;
+    grid-template-columns: repeat(7, minmax(0, 1fr));
+    grid-template-rows: repeat(6, 42px);
+    gap: 5px;
+    min-height: 277px;
+}
+#calendarModal .calendar-day {
+    width: 100%;
+    min-width: 0;
+    height: 42px;
+    aspect-ratio: auto;
+    padding: 0;
+    border: 1px solid transparent;
+    border-radius: 13px;
+    background: transparent;
+    color: var(--text-main);
+    font: inherit;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    -webkit-tap-highlight-color: transparent;
+}
+#calendarModal .calendar-day:hover:not(.empty):not(.selected) {
+    background: rgba(212,175,55,.11);
+    border-color: rgba(212,175,55,.22);
+}
+#calendarModal .calendar-day.today:not(.selected) {
+    border-color: rgba(212,175,55,.58);
+    color: var(--gold);
+}
+#calendarModal .calendar-day.selected {
+    background: linear-gradient(145deg, #f0d47b, #c49a32);
+    border-color: rgba(255,235,170,.72);
+    color: #17140c;
+    font-weight: 800;
+    box-shadow: 0 5px 16px rgba(212,175,55,.22), inset 0 1px 0 rgba(255,255,255,.35);
+}
+#calendarModal .calendar-day.empty {
+    visibility: hidden;
+    cursor: default;
+}
+#calendarModal .calendar-day:focus-visible,
+#calendarModal .calendar-year-option:focus-visible,
+#calendarModal .calendar-month-year:focus-visible {
+    outline: 2px solid var(--gold);
+    outline-offset: 2px;
+}
+#calendarModal .calendar-year-picker {
+    min-height: 277px;
+}
+#calendarModal .calendar-year-picker-heading {
+    display: grid;
+    grid-template-columns: 42px minmax(0,1fr) 42px;
+    gap: 10px;
+    align-items: center;
+    margin-bottom: 14px;
+    text-align: center;
+    color: var(--gold);
+    font-size: 14px;
+}
+#calendarModal .calendar-year-picker-heading .cal-nav-btn {
+    width: 36px;
+    height: 36px;
+    justify-self: center;
+}
+#calendarModal .calendar-year-picker:not([hidden]) {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0,1fr));
+    grid-template-rows: 48px 1fr;
+}
+#calendarModal .calendar-year-picker-heading { grid-column: 1 / -1; }
+#calendarModal .calendar-year-option {
+    min-height: 48px;
+    border: 1px solid transparent;
+    border-radius: 13px;
+    background: transparent;
+    color: var(--text-main);
+    font: inherit;
+    font-size: 14px;
+    font-weight: 650;
+    cursor: pointer;
+    transition: background .18s ease, border-color .18s ease, color .18s ease;
+}
+#calendarModal .calendar-year-option:hover {
+    background: rgba(212,175,55,.1);
+    border-color: rgba(212,175,55,.22);
+}
+#calendarModal .calendar-year-option.selected {
+    color: #17140c;
+    background: linear-gradient(145deg, #f0d47b, #c49a32);
+    font-weight: 800;
+    box-shadow: 0 5px 16px rgba(212,175,55,.18);
+}
+#calendarModal .calendar-cancel-btn {
+    width: 100%;
+    min-height: 44px;
+    margin-top: 19px !important;
+    border-radius: 13px;
+}
+html.light-theme #calendarModal .mensfire-calendar-modal {
+    background: linear-gradient(155deg, #fffefa, #f5f2e9);
+    border-color: rgba(160,125,36,.22);
+    box-shadow: 0 24px 70px rgba(33,29,19,.18), inset 0 1px 0 #fff;
+}
+html.light-theme #calendarModal .calendar-weekdays { color: rgba(47,43,33,.48); }
+html.light-theme #calendarModal .calendar-day { color: #29271f; }
+html.light-theme #calendarModal .calendar-day:hover:not(.empty):not(.selected) { background: rgba(178,139,43,.1); }
+html.light-theme #calendarModal .calendar-year-option { color: #29271f; }
+@media (max-width: 420px) {
+    #calendarModal .mensfire-calendar-modal { padding: 21px 17px 17px; border-radius: 21px; }
+    #calendarModal .calendar-grid { grid-template-rows: repeat(6, 39px); gap: 4px; min-height: 254px; }
+    #calendarModal .calendar-day { height: 39px; border-radius: 11px; }
+    #calendarModal .calendar-header { margin-bottom: 18px; }
+    #calendarModal .calendar-month-year { font-size: 15px; }
+}
