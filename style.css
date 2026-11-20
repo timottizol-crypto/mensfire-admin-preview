@@ -11137,3 +11137,156 @@ html.light-theme #viewInventory .inventory-product-actions .inventory-product-de
   background:rgba(166,57,64,.20)!important;
   border-color:rgba(145,48,55,.48)!important;
 }
+
+
+/* Retail sales: balanced checkout proportions and consistent field sizing. */
+#viewSales .retail-sales-layout{
+  grid-template-columns:minmax(0,1.2fr) minmax(320px,.88fr);
+  gap:18px;
+  align-items:start;
+}
+#viewSales .retail-check-panel,
+#viewSales .retail-history-panel{
+  box-sizing:border-box;
+  min-width:0;
+  padding:22px;
+  border-radius:20px;
+}
+#viewSales .retail-check-panel .finance-panel-heading,
+#viewSales .retail-history-panel .finance-panel-heading{
+  min-height:54px;
+  margin-bottom:18px;
+  align-items:flex-start;
+}
+#viewSales .retail-check-panel .form-group{
+  display:flex;
+  flex-direction:column;
+  justify-content:flex-end;
+  gap:7px;
+  min-width:0;
+  margin:0 0 15px;
+}
+#viewSales .retail-check-panel .form-group label{
+  display:block;
+  min-height:15px;
+  margin:0;
+  line-height:1.35;
+}
+#viewSales .retail-check-panel input,
+#viewSales .retail-check-panel select{
+  box-sizing:border-box;
+  width:100%;
+  min-width:0;
+  min-height:44px;
+  height:44px;
+  padding:0 12px;
+  border-radius:10px;
+}
+#viewSales .retail-add-product{
+  grid-template-columns:minmax(0,1fr) minmax(76px,88px) minmax(104px,auto);
+  gap:11px;
+  align-items:end;
+  margin-top:2px;
+}
+#viewSales .retail-add-product .form-group{margin-bottom:0}
+#viewSales .retail-add-product .inventory-sync-btn{
+  box-sizing:border-box;
+  min-height:44px;
+  height:44px;
+  padding:0 14px;
+  border-radius:10px;
+  white-space:nowrap;
+}
+#viewSales .retail-cart-heading{
+  min-height:48px;
+  margin-top:17px;
+  padding:13px 2px 10px;
+  gap:12px;
+}
+#viewSales .retail-cart-heading strong{font-size:12px;font-weight:750}
+#viewSales .retail-cart-heading span{font-size:20px;line-height:1.2;white-space:nowrap}
+#viewSales .retail-sale-cart{
+  min-height:48px;
+  gap:8px;
+  margin:0 0 17px;
+}
+#viewSales .retail-cart-row{
+  box-sizing:border-box;
+  min-height:58px;
+  padding:11px 13px;
+  gap:12px;
+  border-radius:12px;
+}
+#viewSales .retail-cart-row>div{gap:5px}
+#viewSales .retail-cart-row strong{font-size:12px;line-height:1.4;overflow-wrap:anywhere}
+#viewSales .retail-cart-row small{font-size:10px;line-height:1.35}
+#viewSales .retail-cart-row>b{flex:0 0 auto;white-space:nowrap;font-size:12px}
+#viewSales .retail-cart-row button{
+  flex:0 0 30px;
+  width:30px;
+  height:30px;
+  border-radius:8px;
+  font-size:19px;
+}
+#viewSales .retail-payment-grid{
+  grid-template-columns:repeat(2,minmax(0,1fr));
+  gap:12px;
+  margin-top:4px;
+}
+#viewSales #retailSalePaidGroup{margin-top:0}
+#viewSales .retail-check-panel>.checkout-btn{
+  box-sizing:border-box;
+  width:100%;
+  min-height:48px;
+  margin-top:3px;
+  padding:12px 16px;
+  border-radius:12px;
+  line-height:1.35;
+  white-space:normal;
+}
+#viewSales .retail-history-panel #retailSalesHistory{gap:9px}
+#viewSales .retail-history-row{
+  box-sizing:border-box;
+  min-width:0;
+  min-height:68px;
+  padding:12px 13px;
+  gap:10px 12px;
+  border-radius:12px;
+}
+#viewSales .retail-history-row>div:first-child{gap:5px}
+#viewSales .retail-history-row strong{line-height:1.4;overflow-wrap:anywhere}
+#viewSales .retail-history-row small{line-height:1.4}
+#viewSales .retail-history-row>div:last-child{gap:5px}
+#viewSales .retail-empty{
+  min-height:88px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  padding:20px 16px;
+  border:1px dashed var(--glass-border,rgba(255,255,255,.14));
+  border-radius:12px;
+}
+@media(max-width:1100px) and (min-width:768px){
+  #viewSales .retail-sales-layout{grid-template-columns:minmax(0,1fr);gap:16px}
+  #viewSales .retail-history-panel{max-height:460px}
+}
+@media(max-width:900px) and (min-width:768px){
+  #viewSales .retail-check-panel,
+  #viewSales .retail-history-panel{padding:18px}
+}
+@media(max-width:520px){
+  #viewSales .retail-add-product{grid-template-columns:minmax(0,1fr) 78px}
+  #viewSales .retail-add-product .inventory-sync-btn{grid-column:1/-1;width:100%}
+  #viewSales .retail-payment-grid{grid-template-columns:minmax(0,1fr)}
+  #viewSales .retail-check-panel,
+  #viewSales .retail-history-panel{padding:15px}
+  #viewSales .retail-history-row{align-items:flex-start}
+}
+html.light-theme #viewSales .retail-cart-row,
+html.light-theme #viewSales .retail-history-row{
+  background:rgba(255,255,255,.72);
+  border-color:rgba(45,61,82,.18);
+}
+html.light-theme #viewSales .retail-empty{
+  border-color:rgba(45,61,82,.22);
+}
