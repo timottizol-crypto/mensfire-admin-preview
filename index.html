@@ -19,7 +19,7 @@
         }
     </script>
 
-    <link rel="stylesheet" href="style.css?v=analytics-custom-date-20261120-1">
+    <link rel="stylesheet" href="style.css?v=premium-calendar-20261120-1">
     <link rel="stylesheet" href="theme-light.css?v=client-details-desktop-20261118-2">
 </head>
 <body class="header-hidden">
@@ -921,19 +921,24 @@
 
     <!-- Модалка выбора даты (Календарь) -->
     <div class="modal" id="calendarModal">
-        <div class="modal-content" style="max-width: 380px;">
+        <div class="modal-content mensfire-calendar-modal">
             <div class="calendar-header">
-                <button type="button" class="cal-nav-btn" onclick="changeMonth(-1)">&#10094;</button>
-                <div id="calendarMonthYearDisplay" style="font-size: 16px; font-weight: 800; color: var(--gold);">Ноябрь 2026</div>
-                <button type="button" class="cal-nav-btn" onclick="changeMonth(1)">&#10095;</button>
+                <button type="button" class="cal-nav-btn" aria-label="Предыдущий месяц" onclick="changeMonth(-1)">&#10094;</button>
+                <button type="button" id="calendarMonthYearDisplay" class="calendar-month-year" aria-label="Выбрать год" aria-expanded="false" onclick="toggleCalendarYearPicker()">Ноябрь <span class="calendar-title-year">2026</span><span class="calendar-title-chevron" aria-hidden="true">⌄</span></button>
+                <button type="button" class="cal-nav-btn" aria-label="Следующий месяц" onclick="changeMonth(1)">&#10095;</button>
             </div>
             <div class="calendar-weekdays">
                 <span>Пн</span><span>Вт</span><span>Ср</span><span>Чт</span><span>Пт</span><span>Сб</span><span>Вс</span>
             </div>
-            <div class="calendar-grid" id="calendarGrid">
-                <!-- Дни генерируются через JS -->
-            </div>
-            <button class="btn-cancel" style="margin-top: 20px;" onclick="closeModal('calendarModal')">Отмена</button>
+            <div class="calendar-grid" id="calendarGrid"></div>
+            <section class="calendar-year-picker" id="calendarYearGrid" hidden>
+                <div class="calendar-year-picker-heading">
+                    <button type="button" class="cal-nav-btn" aria-label="Предыдущие 12 лет" onclick="changeCalendarYearPage(-1)">&#10094;</button>
+                    <strong id="calendarYearRange">2022 — 2033</strong>
+                    <button type="button" class="cal-nav-btn" aria-label="Следующие 12 лет" onclick="changeCalendarYearPage(1)">&#10095;</button>
+                </div>
+            </section>
+            <button class="btn-cancel calendar-cancel-btn" type="button" onclick="closeModal('calendarModal')">Отмена</button>
         </div>
     </div>
 
@@ -978,6 +983,6 @@
         </div>
     </div>
 
-    <script src="script.js?v=analytics-custom-date-20261120-1"></script>
+    <script src="script.js?v=premium-calendar-20261120-1"></script>
 </body>
 </html>
