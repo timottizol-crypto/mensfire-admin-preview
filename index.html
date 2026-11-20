@@ -347,15 +347,14 @@
                 
                 <!-- ЛЕВАЯ КОЛОНКА (Команда) - видна только на ПК -->
                 <div class="profile-left-col" id="profileLeftCol" style="display: none;">
-                    <h3 style="font-size: 16px; color: var(--gold); margin-bottom: 15px;">Команда</h3>
-                    <div id="teamListPC"></div>
-                    
-                    <!-- Кнопка добавления (под списком, как ты просил) -->
-                    <button class="home-cta-btn" onclick="openStaffModal()" style="width: 100%; margin-top: 15px;">
-                        <div class="cta-text">
-                            <span>+ Добавить мастера</span>
+                    <section class="glass-card profile-team-card">
+                        <div class="profile-section-heading">
+                            <div><span class="profile-section-kicker">MENSFIRE TEAM</span><h3>Команда</h3><p>Управление мастерами и доступом</p></div>
+                            <span class="profile-section-icon" aria-hidden="true">♙</span>
                         </div>
-                    </button>
+                        <div id="teamListPC" class="profile-team-list"></div>
+                        <button type="button" class="home-cta-btn profile-add-staff-btn" onclick="openStaffModal()"><span>＋ Добавить мастера</span></button>
+                    </section>
                 </div>
 
                 <!-- ПРАВАЯ КОЛОНКА (Личный кабинет) -->
@@ -374,7 +373,31 @@
                         </div>
                     </div>
 
-                    <!-- Личная выручка / Прибыль -->
+
+                    <section class="glass-card profile-settings-card" id="profileSettingsCard" aria-labelledby="profileSettingsTitle">
+                        <div class="profile-section-heading">
+                            <div><span class="profile-section-kicker">PERSONALIZE</span><h3 id="profileSettingsTitle">Настройки интерфейса</h3><p>Внешний вид и поведение рабочих окон</p></div>
+                            <span class="profile-section-icon" aria-hidden="true">⚙</span>
+                        </div>
+                        <div class="profile-setting-group">
+                            <div class="profile-setting-copy"><strong>Тема оформления</strong><span>Настрой внешний вид панели управления</span></div>
+                            <div class="profile-setting-options profile-theme-options" role="group" aria-label="Тема оформления">
+                                <button type="button" class="profile-setting-option" data-profile-theme="dark" aria-pressed="false" onclick="setMensfireTheme('dark')"><span class="profile-option-icon" aria-hidden="true">◐</span><span>Тёмная</span></button>
+                                <button type="button" class="profile-setting-option" data-profile-theme="light" aria-pressed="false" onclick="setMensfireTheme('light')"><span class="profile-option-icon" aria-hidden="true">☼</span><span>Светлая</span></button>
+                            </div>
+                        </div>
+                        <div class="profile-setting-divider"></div>
+                        <div class="profile-setting-group profile-drawer-setting">
+                            <div class="profile-setting-copy"><strong>Выдвижные окна</strong><span>Как открывать карточки записей, клиентов и мастеров на компьютере</span></div>
+                            <div class="profile-setting-options profile-drawer-options" role="group" aria-label="Режим выдвижных окон">
+                                <button type="button" class="profile-setting-option" data-drawer-mode="stacked" aria-pressed="false" onclick="setMensfireDesktopDrawerMode('stacked')"><span class="profile-option-icon profile-stack-icon" aria-hidden="true"><i></i><i></i></span><span><strong>Стопкой</strong><small>До двух окон одновременно</small></span></button>
+                                <button type="button" class="profile-setting-option" data-drawer-mode="single" aria-pressed="false" onclick="setMensfireDesktopDrawerMode('single')"><span class="profile-option-icon profile-single-icon" aria-hidden="true"><i></i></span><span><strong>По одному</strong><small>Новое окно заменяет предыдущее</small></span></button>
+                            </div>
+                            <p class="profile-setting-hint">Настройка применяется только на компьютере и сохраняется на этом устройстве.</p>
+                        </div>
+                    </section>
+
+                                        <!-- Личная выручка / Прибыль -->
                     <div class="glass-card" id="barberRevenueCard" style="margin-top: 15px; display: none;">
                         <h3 id="profileRevenueTitle" style="font-size: 16px; color: var(--gold); margin-bottom: 10px;">Моя выручка за сегодня</h3>
                         <div style="font-size: 24px; font-weight: 800;" id="barberRevenue">0 ₽</div>
