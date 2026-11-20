@@ -12177,3 +12177,33 @@ html.light-theme #actionModal .booking-client-link{
 .profile-setting-hint{margin:-7px 0 0;color:var(--text-muted);font-size:10px;line-height:1.5}
 @media(max-width:767px){.profile-settings-card,.profile-team-card{padding:17px;border-radius:18px}.profile-setting-group{align-items:stretch;flex-direction:column;gap:12px}.profile-setting-options{width:100%}.profile-setting-option{flex:1 1 0;min-width:0;padding:9px}.profile-drawer-options .profile-setting-option{min-height:65px}}
 @media(min-width:768px){.profile-left-col{gap:15px}.profile-team-card{min-height:100%}}
+
+
+/* MENSFIRE SETTINGS WINDOW + PERSONAL APPEARANCE */
+.profile-open-settings-btn{flex:0 0 auto;min-height:42px;padding:0 16px;border-radius:13px}
+.settings-modal-content{width:min(720px,calc(100vw - 28px));max-width:720px;max-height:min(88vh,900px);padding:0;display:flex;flex-direction:column;overflow:hidden;border-radius:24px}
+.settings-modal-heading{display:flex;align-items:flex-start;justify-content:space-between;gap:18px;padding:24px 26px 18px;border-bottom:1px solid rgba(255,255,255,.09)}
+.settings-modal-heading h2{margin:0;color:var(--text-main);font-size:23px;font-weight:800}
+.settings-modal-heading p{margin:7px 0 0;color:var(--text-muted);font-size:11px;line-height:1.5}
+.settings-modal-heading .close-btn{flex:0 0 38px;width:38px;height:38px}
+.settings-modal-scroll{min-height:0;overflow-y:auto;padding:18px 26px 22px;display:grid;gap:14px}
+.settings-section{padding:19px;border:1px solid rgba(255,255,255,.09);border-radius:17px;background:rgba(255,255,255,.025);display:grid;gap:15px}
+.settings-section-heading{display:flex;align-items:center;gap:12px}
+.settings-section-icon{display:grid;place-items:center;flex:0 0 36px;width:36px;height:36px;border:1px solid color-mix(in srgb,var(--gold) 35%,transparent);border-radius:12px;background:color-mix(in srgb,var(--gold) 12%,transparent);color:var(--gold);font-size:18px}
+.settings-section-heading h3{margin:0;color:var(--text-main);font-size:14px;font-weight:800}
+.settings-section-heading p{margin:4px 0 0;color:var(--text-muted);font-size:10px;line-height:1.45}
+.settings-control-group{display:grid;grid-template-columns:minmax(160px,.85fr) minmax(0,1.15fr);align-items:center;gap:18px}
+.settings-control-copy{display:grid;gap:5px}.settings-control-copy strong{color:var(--text-main);font-size:12px;font-weight:800}.settings-control-copy span{color:var(--text-muted);font-size:10px;line-height:1.45}
+.settings-choice-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:7px}.settings-choice-row{display:flex;justify-content:flex-end;flex-wrap:wrap;gap:7px}
+.settings-choice{min-height:39px;padding:8px 11px;border:1px solid rgba(255,255,255,.12);border-radius:11px;background:rgba(255,255,255,.035);color:var(--text-main);font-size:10px;font-weight:700;cursor:pointer;transition:background .2s ease,border-color .2s ease,transform .2s ease}
+.settings-choice:hover{border-color:color-mix(in srgb,var(--gold) 65%,transparent)}.settings-choice:active{transform:scale(.98)}.settings-choice.is-active{border-color:var(--gold);background:color-mix(in srgb,var(--gold) 15%,transparent);box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--gold) 15%,transparent)}
+.settings-accent-choice{display:flex;align-items:center;justify-content:center;gap:7px;min-width:0;padding:8px 5px}.accent-swatch{width:15px;height:15px;flex:0 0 15px;border-radius:50%;border:2px solid rgba(255,255,255,.28)}.accent-gold{background:#D4AF37}.accent-graphite{background:#9AA4B2}.accent-silver{background:#C8D0DA}.accent-bronze{background:#C58A55}
+.settings-divider{height:1px;background:rgba(255,255,255,.08)}.settings-drawer-options{justify-content:stretch}.settings-drawer-options .settings-choice{flex:1;display:flex;flex-direction:column;align-items:flex-start;gap:4px;text-align:left}.settings-drawer-options small{color:var(--text-muted);font-size:9px;font-weight:500}.settings-footnote{margin:-4px 0 0;color:var(--text-muted);font-size:10px;line-height:1.5}
+.settings-modal-footer{display:flex;justify-content:space-between;align-items:center;gap:12px;padding:15px 26px 20px;border-top:1px solid rgba(255,255,255,.09)}.settings-modal-footer button{min-height:42px;margin:0}.settings-reset-btn{width:auto;padding:0 14px}
+html[data-mf-accent="graphite"]{--gold:#9AA4B2;--gold-hover:#737D8B}html[data-mf-accent="silver"]{--gold:#C8D0DA;--gold-hover:#A9B4C2}html[data-mf-accent="bronze"]{--gold:#C58A55;--gold-hover:#A96F3D}
+html.setting-density-compact .view .glass-card,html.setting-density-compact .view .finance-panel,html.setting-density-compact .view .dashboard-panel,html.setting-density-compact .view .inventory-product-card,html.setting-density-compact .view .inventory-kpi{padding:clamp(12px,1.35vw,17px)!important}
+html.setting-radius-soft .view .glass-card,html.setting-radius-soft .view .finance-panel,html.setting-radius-soft .view .dashboard-panel,html.setting-radius-soft .view .inventory-product-card,html.setting-radius-soft .view .inventory-kpi{border-radius:13px!important}
+html.setting-radius-rounded .view .glass-card,html.setting-radius-rounded .view .finance-panel,html.setting-radius-rounded .view .dashboard-panel,html.setting-radius-rounded .view .inventory-product-card,html.setting-radius-rounded .view .inventory-kpi{border-radius:23px!important}
+html.setting-motion-off *,html.setting-motion-off *::before,html.setting-motion-off *::after{animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important;scroll-behavior:auto!important}
+html.setting-font-small .view{font-size:13px}html.setting-font-large .view{font-size:16px}
+@media(max-width:767px){.profile-open-settings-btn{min-height:40px;padding:0 12px;font-size:11px}.settings-modal-content{width:calc(100vw - 20px);max-height:90vh;border-radius:19px}.settings-modal-heading{padding:19px 17px 15px}.settings-modal-scroll{padding:13px 13px 16px;gap:10px}.settings-section{padding:14px;gap:13px}.settings-control-group{grid-template-columns:1fr;gap:9px}.settings-choice-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.settings-choice-row{justify-content:stretch}.settings-choice-row .settings-choice{flex:1 1 auto}.settings-modal-footer{padding:12px 15px 16px}.settings-modal-footer button{font-size:10px}.settings-reset-btn{padding:0 9px}}
