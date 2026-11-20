@@ -19,8 +19,8 @@
         }
     </script>
 
-    <link rel="stylesheet" href="style.css?v=profile-settings-20261120-1">
-    <link rel="stylesheet" href="theme-light.css?v=profile-settings-20261120-1">
+    <link rel="stylesheet" href="style.css?v=settings-window-20261120-1">
+    <link rel="stylesheet" href="theme-light.css?v=settings-window-20261120-1">
 </head>
 <body class="header-hidden">
     <div class="toast-container" id="toastContainer"></div>
@@ -359,7 +359,7 @@
 
                 <!-- ПРАВАЯ КОЛОНКА (Личный кабинет) -->
                 <div class="profile-right-col">
-                    <div class="workspace-heading profile-workspace-heading"><div><span class="workspace-eyebrow">MENSFIRE ACCOUNT</span><h2>Профиль</h2><p>Личные показатели и управление доступом</p></div></div>
+                    <div class="workspace-heading profile-workspace-heading"><div><span class="workspace-eyebrow">MENSFIRE ACCOUNT</span><h2>Профиль</h2><p>Личные показатели и управление доступом</p></div><button type="button" class="home-cta-btn profile-open-settings-btn" onclick="openSettingsModal()"><span>⚙ Настройки</span></button></div>
                     <div id="profileOverview" class="profile-overview-grid"></div>
                     <div class="glass-card profile-main-card" id="profileMainCard">
                         <div class="profile-header-horizontal" id="profileHeader">
@@ -372,30 +372,6 @@
                             </div>
                         </div>
                     </div>
-
-
-                    <section class="glass-card profile-settings-card" id="profileSettingsCard" aria-labelledby="profileSettingsTitle">
-                        <div class="profile-section-heading">
-                            <div><span class="profile-section-kicker">PERSONALIZE</span><h3 id="profileSettingsTitle">Настройки интерфейса</h3><p>Внешний вид и поведение рабочих окон</p></div>
-                            <span class="profile-section-icon" aria-hidden="true">⚙</span>
-                        </div>
-                        <div class="profile-setting-group">
-                            <div class="profile-setting-copy"><strong>Тема оформления</strong><span>Настрой внешний вид панели управления</span></div>
-                            <div class="profile-setting-options profile-theme-options" role="group" aria-label="Тема оформления">
-                                <button type="button" class="profile-setting-option" data-profile-theme="dark" aria-pressed="false" onclick="setMensfireTheme('dark')"><span class="profile-option-icon" aria-hidden="true">◐</span><span>Тёмная</span></button>
-                                <button type="button" class="profile-setting-option" data-profile-theme="light" aria-pressed="false" onclick="setMensfireTheme('light')"><span class="profile-option-icon" aria-hidden="true">☼</span><span>Светлая</span></button>
-                            </div>
-                        </div>
-                        <div class="profile-setting-divider"></div>
-                        <div class="profile-setting-group profile-drawer-setting">
-                            <div class="profile-setting-copy"><strong>Выдвижные окна</strong><span>Как открывать карточки записей, клиентов и мастеров на компьютере</span></div>
-                            <div class="profile-setting-options profile-drawer-options" role="group" aria-label="Режим выдвижных окон">
-                                <button type="button" class="profile-setting-option" data-drawer-mode="stacked" aria-pressed="false" onclick="setMensfireDesktopDrawerMode('stacked')"><span class="profile-option-icon profile-stack-icon" aria-hidden="true"><i></i><i></i></span><span><strong>Стопкой</strong><small>До двух окон одновременно</small></span></button>
-                                <button type="button" class="profile-setting-option" data-drawer-mode="single" aria-pressed="false" onclick="setMensfireDesktopDrawerMode('single')"><span class="profile-option-icon profile-single-icon" aria-hidden="true"><i></i></span><span><strong>По одному</strong><small>Новое окно заменяет предыдущее</small></span></button>
-                            </div>
-                            <p class="profile-setting-hint">Настройка применяется только на компьютере и сохраняется на этом устройстве.</p>
-                        </div>
-                    </section>
 
                                         <!-- Личная выручка / Прибыль -->
                     <div class="glass-card" id="barberRevenueCard" style="margin-top: 15px; display: none;">
@@ -422,6 +398,58 @@
         <div class="bottom-nav" id="bottomNav">
             <div class="nav-bubble" id="navBubble"></div>
             <!-- Вкладки будут добавлены динамически -->
+        </div>
+    </div>
+
+
+
+    <!-- Окно персональных настроек интерфейса -->
+    <div class="modal" id="settingsModal" role="dialog" aria-modal="true" aria-labelledby="settingsModalTitle">
+        <div class="modal-content settings-modal-content">
+            <div class="settings-modal-heading">
+                <div><span class="profile-section-kicker">MENSFIRE PERSONAL</span><h2 id="settingsModalTitle">Настройки</h2><p>Персонализируй внешний вид и поведение панели</p></div>
+                <button type="button" class="close-btn" aria-label="Закрыть настройки" onclick="closeModal('settingsModal')">&times;</button>
+            </div>
+            <div class="settings-modal-scroll">
+                <section class="settings-section" aria-labelledby="settingsAppearanceTitle">
+                    <div class="settings-section-heading"><span class="settings-section-icon">✦</span><div><h3 id="settingsAppearanceTitle">Внешний вид</h3><p>Настрой интерфейс под свой стиль работы</p></div></div>
+                    <div class="settings-control-group"><div class="settings-control-copy"><strong>Акцентный цвет</strong><span>Цвет кнопок, выделений и основных акцентов</span></div><div class="settings-choice-grid settings-accent-options" role="group" aria-label="Акцентный цвет">
+                        <button type="button" class="settings-choice settings-accent-choice" data-setting-accent="gold" aria-pressed="false"><i class="accent-swatch accent-gold"></i><span>Золото</span></button>
+                        <button type="button" class="settings-choice settings-accent-choice" data-setting-accent="graphite" aria-pressed="false"><i class="accent-swatch accent-graphite"></i><span>Графит</span></button>
+                        <button type="button" class="settings-choice settings-accent-choice" data-setting-accent="silver" aria-pressed="false"><i class="accent-swatch accent-silver"></i><span>Серебро</span></button>
+                        <button type="button" class="settings-choice settings-accent-choice" data-setting-accent="bronze" aria-pressed="false"><i class="accent-swatch accent-bronze"></i><span>Бронза</span></button>
+                    </div></div>
+                    <div class="settings-divider"></div>
+                    <div class="settings-control-group"><div class="settings-control-copy"><strong>Плотность интерфейса</strong><span>Количество пространства между элементами</span></div><div class="settings-choice-row" role="group" aria-label="Плотность интерфейса">
+                        <button type="button" class="settings-choice" data-setting-density="comfortable" aria-pressed="false">Свободно</button><button type="button" class="settings-choice" data-setting-density="compact" aria-pressed="false">Компактно</button>
+                    </div></div>
+                    <div class="settings-divider"></div>
+                    <div class="settings-control-group"><div class="settings-control-copy"><strong>Скругление карточек</strong><span>Форма панелей и рабочих блоков</span></div><div class="settings-choice-row" role="group" aria-label="Скругление карточек">
+                        <button type="button" class="settings-choice" data-setting-radius="soft" aria-pressed="false">Строгое</button><button type="button" class="settings-choice" data-setting-radius="rounded" aria-pressed="false">Мягкое</button>
+                    </div></div>
+                    <div class="settings-divider"></div>
+                    <div class="settings-control-group"><div class="settings-control-copy"><strong>Анимации</strong><span>Плавность переходов и появления блоков</span></div><div class="settings-choice-row" role="group" aria-label="Анимации">
+                        <button type="button" class="settings-choice" data-setting-motion="on" aria-pressed="false">Включены</button><button type="button" class="settings-choice" data-setting-motion="off" aria-pressed="false">Выключены</button>
+                    </div></div>
+                    <div class="settings-divider"></div>
+                    <div class="settings-control-group"><div class="settings-control-copy"><strong>Размер текста</strong><span>Масштаб основных надписей интерфейса</span></div><div class="settings-choice-row" role="group" aria-label="Размер текста">
+                        <button type="button" class="settings-choice" data-setting-font="small" aria-pressed="false">Маленький</button><button type="button" class="settings-choice" data-setting-font="normal" aria-pressed="false">Обычный</button><button type="button" class="settings-choice" data-setting-font="large" aria-pressed="false">Крупный</button>
+                    </div></div>
+                </section>
+                <section class="settings-section" aria-labelledby="settingsThemeTitle">
+                    <div class="settings-section-heading"><span class="settings-section-icon">◐</span><div><h3 id="settingsThemeTitle">Тема оформления</h3><p>Выбери светлую или тёмную тему панели</p></div></div>
+                    <div class="settings-choice-row settings-theme-options" role="group" aria-label="Тема оформления">
+                        <button type="button" class="settings-choice" data-profile-theme="dark" aria-pressed="false">◐ Тёмная</button><button type="button" class="settings-choice" data-profile-theme="light" aria-pressed="false">☼ Светлая</button>
+                    </div>
+                </section>
+                <section class="settings-section" aria-labelledby="settingsDrawerTitle">
+                    <div class="settings-section-heading"><span class="settings-section-icon">▣</span><div><h3 id="settingsDrawerTitle">Выдвижные окна</h3><p>Как открывать карточки записей, клиентов и мастеров на компьютере</p></div></div>
+                    <div class="settings-choice-row settings-drawer-options" role="group" aria-label="Режим выдвижных окон">
+                        <button type="button" class="settings-choice settings-choice-stacked" data-drawer-mode="stacked" aria-pressed="false"><strong>Стопкой</strong><small>До двух окон одновременно</small></button><button type="button" class="settings-choice settings-choice-stacked" data-drawer-mode="single" aria-pressed="false"><strong>По одному</strong><small>Новое окно заменяет предыдущее</small></button>
+                    </div><p class="settings-footnote">Настройки сохраняются на этом устройстве и применяются автоматически.</p>
+                </section>
+            </div>
+            <div class="settings-modal-footer"><button type="button" class="btn-cancel settings-reset-btn" onclick="resetMensfireInterfaceSettings()">Сбросить оформление</button><button type="button" class="checkout-btn" onclick="closeModal('settingsModal')">Готово</button></div>
         </div>
     </div>
 
@@ -1006,6 +1034,6 @@
         </div>
     </div>
 
-    <script src="script.js?v=profile-settings-20261120-1"></script>
+    <script src="script.js?v=settings-window-20261120-1"></script>
 </body>
 </html>
