@@ -12269,3 +12269,21 @@ body.profile-view-active .app-header {
     background: linear-gradient(135deg, #34363b 0%, #202226 100%) !important;
     border-color: rgba(212, 175, 55, .68) !important;
 }
+
+/* Закупки: контрастная кнопка создания заказа, как в профиле. */
+#viewPurchases .inventory-heading > .home-cta-btn{
+  background:linear-gradient(135deg,#25272b 0%,#151619 100%)!important;
+  border:1px solid rgba(212,175,55,.42)!important;
+  color:#f2d27a!important;
+  box-shadow:0 7px 18px rgba(0,0,0,.2),inset 0 1px 0 rgba(255,255,255,.06)!important;
+}
+#viewPurchases .inventory-heading > .home-cta-btn .cta-text,
+#viewPurchases .inventory-heading > .home-cta-btn .cta-text span,
+#viewPurchases .inventory-heading > .home-cta-btn span{
+  color:#f2d27a!important;
+}
+#viewPurchases .inventory-heading > .home-cta-btn:hover{
+  background:linear-gradient(135deg,#34363b 0%,#202226 100%)!important;
+  border-color:rgba(212,175,55,.68)!important;
+}
+
