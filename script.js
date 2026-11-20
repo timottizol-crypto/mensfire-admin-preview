@@ -2501,6 +2501,14 @@ function renderCalendar() {
                 if (target === 'clientsEnd') { clientsRangeEnd = thisDateStr; if (parseReportDate(clientsRangeEnd) < parseReportDate(clientsRangeStart)) clientsRangeStart = thisDateStr; }
                 if (target === 'teamStart') { teamRangeStart = thisDateStr; if (parseReportDate(teamRangeStart) > parseReportDate(teamRangeEnd)) teamRangeEnd = thisDateStr; }
                 if (target === 'teamEnd') { teamRangeEnd = thisDateStr; if (parseReportDate(teamRangeEnd) < parseReportDate(teamRangeStart)) teamRangeStart = thisDateStr; }
+                if (target === 'inventoryAnalyticsFrom' || target === 'inventoryAnalyticsTo') {
+                    const parts = thisDateStr.split('.');
+                    const isoDate = parts[2] + '-' + parts[1] + '-' + parts[0];
+                    const dateInput = document.getElementById(target);
+                    if (dateInput) dateInput.value = isoDate;
+                    const otherInput = document.getElementById(target === 'inventoryAnalyticsFrom' ? 'inventoryAnalyticsTo' : 'inventoryAnalyticsFrom');
+                    if (otherInput && otherInput.value && ((target === 'inventoryAnalyticsFrom' && isoDate > otherInput.value) || (target === 'inventoryAnalyticsTo' && isoDate < otherInput.value))) otherInput.value = isoDate;
+                }
                 if (target === 'clientTaskDueDate') {
                     const dateInput = document.getElementById('clientTaskDueDate');
                     if (dateInput) dateInput.value = thisDateStr;
@@ -2533,6 +2541,7 @@ function renderCalendar() {
                 }
                 else if (target.startsWith('finance')) renderFinance();
                 else if (target.startsWith('clientsTaskAudit')) renderClientTasksHub();
+                else if (target.startsWith('inventoryAnalytics')) renderInventoryAnalytics();
                 else if (target === 'clientTaskDueDate') { /* value is already written to the date field */ }
                 else if (target.startsWith('clients')) renderClients(currentClientsTab);
                 else renderTeam();
@@ -3266,8 +3275,8 @@ function formatReportDate(date) { return date.toLocaleDateString('ru-RU'); }
 function openReportDatePicker(target) {
     calendarTargetInputId = null;
     reportDatePickerTarget = target;
-    const value = target === 'dashboardDay' ? dashboardSelectedDate : target === 'dashboardStart' ? dashboardRangeStart : target === 'dashboardEnd' ? dashboardRangeEnd : target === 'financeStart' ? financeRangeStart : target === 'financeEnd' ? financeRangeEnd : target === 'clientsStart' ? clientsRangeStart : target === 'clientsEnd' ? clientsRangeEnd : target === 'teamStart' ? teamRangeStart : target === 'teamEnd' ? teamRangeEnd : target === 'clientTaskDueDate' ? document.getElementById('clientTaskDueDate')?.value : target === 'clientsTaskAuditFrom' ? clientsTaskAuditFrom : clientsTaskAuditTo;
-    const date = target.startsWith('clientsTaskAudit') && /^\d{4}-\d{2}-\d{2}$/.test(value)
+    const value = target === 'dashboardDay' ? dashboardSelectedDate : target === 'dashboardStart' ? dashboardRangeStart : target === 'dashboardEnd' ? dashboardRangeEnd : target === 'financeStart' ? financeRangeStart : target === 'financeEnd' ? financeRangeEnd : target === 'clientsStart' ? clientsRangeStart : target === 'clientsEnd' ? clientsRangeEnd : target === 'teamStart' ? teamRangeStart : target === 'teamEnd' ? teamRangeEnd : target === 'inventoryAnalyticsFrom' ? document.getElementById('inventoryAnalyticsFrom')?.value : target === 'inventoryAnalyticsTo' ? document.getElementById('inventoryAnalyticsTo')?.value : target === 'clientTaskDueDate' ? document.getElementById('clientTaskDueDate')?.value : target === 'clientsTaskAuditFrom' ? clientsTaskAuditFrom : clientsTaskAuditTo;
+    const date = (target.startsWith('clientsTaskAudit') || target.startsWith('inventoryAnalytics')) && /^\d{4}-\d{2}-\d{2}$/.test(value)
         ? new Date(value + 'T00:00:00')
         : parseReportDate(value) || new Date();
     selectedBlockDate = formatReportDate(date);
@@ -7885,7 +7894,9 @@ function renderInventoryAnalytics(){
     const dateKey=date=>[date.getFullYear(),String(date.getMonth()+1).padStart(2,'0'),String(date.getDate()).padStart(2,'0')].join('-');
     if(!fromNode.value){const start=new Date(today);start.setDate(start.getDate()-29);fromNode.value=dateKey(start);}
     if(!toNode.value)toNode.value=dateKey(today);
-    const from=fromNode.value,to=toNode.value;
+    const fromDate=/^\d{4}-\d{2}-\d{2}$/.test(fromNode.value)?new Date(fromNode.value+'T00:00:00'):parseReportDate(fromNode.value);
+    const toDate=/^\d{4}-\d{2}-\d{2}$/.test(toNode.value)?new Date(toNode.value+'T00:00:00'):parseReportDate(toNode.value);
+    const from=fromDate?dateKey(fromDate):'',to=toDate?dateKey(toDate):'';
     const summary=document.getElementById('inventoryAnalyticsOverview');
     const productsRoot=document.getElementById('inventoryAnalyticsProducts');
     const restockRoot=document.getElementById('inventoryAnalyticsRestock');
