@@ -12669,3 +12669,201 @@ body.profile-view-active .app-header {
     text-shadow:none!important;
   }
 }
+
+
+/* 2026-11-20 mobile overlap repair: Overview chart and Clients period controls.
+   Keep each section in normal document flow; no absolute positioning or fixed heights. */
+@media (max-width: 767px) {
+  #viewDashboard .dashboard-topline {
+    display: grid !important;
+    grid-template-columns: minmax(0, 1fr) !important;
+    grid-template-rows: auto !important;
+    grid-auto-rows: auto !important;
+    align-items: start !important;
+    align-content: start !important;
+    gap: 14px !important;
+    height: auto !important;
+    min-height: 0 !important;
+    overflow: visible !important;
+  }
+  #viewDashboard .dashboard-title-period,
+  #viewDashboard .dashboard-upcoming-panel {
+    position: relative !important;
+    inset: auto !important;
+    width: 100% !important;
+    min-width: 0 !important;
+    height: auto !important;
+    min-height: 0 !important;
+    max-height: none !important;
+    margin: 0 !important;
+  }
+  #viewDashboard .dashboard-overview-row {
+    display: grid !important;
+    grid-template-columns: minmax(0, 1fr) !important;
+    grid-template-rows: auto auto !important;
+    grid-auto-flow: row !important;
+    align-items: start !important;
+    align-content: start !important;
+    gap: 14px !important;
+    width: 100% !important;
+    min-width: 0 !important;
+    height: auto !important;
+    min-height: 0 !important;
+    margin: 14px 0 !important;
+    overflow: visible !important;
+  }
+  #viewDashboard .dashboard-main-panel,
+  #viewDashboard .dashboard-kpi-grid {
+    position: relative !important;
+    inset: auto !important;
+    grid-column: 1 !important;
+    grid-row: auto !important;
+    width: 100% !important;
+    min-width: 0 !important;
+    height: auto !important;
+    min-height: 0 !important;
+    max-height: none !important;
+    margin: 0 !important;
+  }
+  #viewDashboard .dashboard-main-panel {
+    padding: 15px !important;
+    overflow: hidden !important;
+  }
+  #viewDashboard #dashboardRevenueChart {
+    display: block !important;
+    position: relative !important;
+    width: 100% !important;
+    min-width: 0 !important;
+    height: auto !important;
+    min-height: 190px !important;
+    max-height: none !important;
+    margin: 12px 0 0 !important;
+    overflow: hidden !important;
+  }
+  #viewDashboard #dashboardRevenueChart svg {
+    display: block !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    height: auto !important;
+    min-height: 175px !important;
+    overflow: visible !important;
+  }
+  #viewDashboard .dashboard-kpi-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+    grid-template-rows: auto !important;
+    gap: 9px !important;
+    align-content: start !important;
+  }
+  #viewDashboard .dashboard-kpi-grid > * {
+    min-width: 0 !important;
+    min-height: 76px !important;
+    height: auto !important;
+  }
+
+  #viewClients .clients-topbar {
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: stretch !important;
+    gap: 14px !important;
+    width: 100% !important;
+    min-width: 0 !important;
+    height: auto !important;
+    min-height: 0 !important;
+    margin: 0 0 14px !important;
+    overflow: visible !important;
+  }
+  #viewClients .clients-title-period {
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: stretch !important;
+    justify-content: flex-start !important;
+    gap: 12px !important;
+    position: relative !important;
+    inset: auto !important;
+    width: 100% !important;
+    min-width: 0 !important;
+    height: auto !important;
+    min-height: 0 !important;
+    max-height: none !important;
+    margin: 0 !important;
+  }
+  #viewClients .clients-period-controls {
+    display: block !important;
+    position: relative !important;
+    inset: auto !important;
+    flex: 0 0 auto !important;
+    width: 100% !important;
+    min-width: 0 !important;
+    height: auto !important;
+    min-height: 0 !important;
+    max-height: none !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    overflow: visible !important;
+  }
+  #viewClients .clients-period-controls .finance-range-toolbar {
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: stretch !important;
+    gap: 8px !important;
+    position: relative !important;
+    inset: auto !important;
+    width: 100% !important;
+    min-width: 0 !important;
+    height: auto !important;
+    min-height: 0 !important;
+    margin: 0 !important;
+  }
+  #viewClients .clients-period-controls .finance-range-presets {
+    display: grid !important;
+    grid-template-columns: repeat(4, minmax(0, 1fr)) !important;
+    gap: 5px !important;
+    width: 100% !important;
+    min-width: 0 !important;
+  }
+  #viewClients .clients-period-controls .finance-range-presets button {
+    min-width: 0 !important;
+    min-height: 38px !important;
+    padding: 8px 3px !important;
+    font-size: clamp(9px, 2.8vw, 11px) !important;
+    line-height: 1.2 !important;
+    white-space: normal !important;
+    overflow-wrap: anywhere !important;
+  }
+  #viewClients .clients-period-controls .finance-range-fields {
+    display: flex !important;
+    position: relative !important;
+    inset: auto !important;
+    flex-wrap: nowrap !important;
+    align-items: center !important;
+    gap: 7px !important;
+    width: 100% !important;
+    min-width: 0 !important;
+    height: auto !important;
+    min-height: 0 !important;
+    margin: 0 !important;
+    padding: 0 !important;
+  }
+  #viewClients .clients-period-controls .finance-range-fields[hidden] {
+    display: none !important;
+  }
+  #viewClients .clients-period-controls .finance-range-fields .finance-range-date {
+    flex: 1 1 0 !important;
+    width: 0 !important;
+    min-width: 0 !important;
+    min-height: 38px !important;
+    padding: 8px 5px !important;
+    font-size: 10px !important;
+  }
+  #viewClients .clients-overview-grid,
+  #viewClients .clients-analytics,
+  #viewClients #clientsTabsContainer {
+    position: relative !important;
+    inset: auto !important;
+    width: 100% !important;
+    min-width: 0 !important;
+    height: auto !important;
+    min-height: 0 !important;
+    margin-top: 12px !important;
+  }
+}
