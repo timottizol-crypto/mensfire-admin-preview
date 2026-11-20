@@ -11028,3 +11028,68 @@ html.light-theme #viewClients .clients-month-stat>div{
   border:1px solid rgba(55,70,90,.16)!important;
   box-sizing:border-box!important;
 }
+
+
+/* Inventory refinements: readable primary action, rounded movement rows,
+   and compact month accordions for the stock journal. */
+#viewInventory .inventory-heading>.home-cta-btn .cta-text,
+#viewInventory .inventory-heading>.home-cta-btn .cta-text span,
+#viewInventory .inventory-heading>.home-cta-btn span{
+  color:#171717!important;
+}
+#viewInventory .inventory-product-actions .inventory-product-delete{
+  color:#d85b5b!important;
+  border-color:rgba(216,91,91,.32)!important;
+}
+#viewInventory .inventory-movement-month{
+  margin:9px 0;
+  border:1px solid var(--glass-border,rgba(255,255,255,.12));
+  border-radius:15px;
+  overflow:hidden;
+  background:rgba(255,255,255,.025);
+}
+#viewInventory .inventory-movement-month>summary{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:12px;
+  min-height:48px;
+  padding:11px 15px;
+  cursor:pointer;
+  list-style:none;
+  color:var(--text-main);
+  font-weight:750;
+}
+#viewInventory .inventory-movement-month>summary::-webkit-details-marker{display:none}
+#viewInventory .inventory-movement-month>summary:after{
+  content:'＋';
+  color:var(--gold,#d4af37);
+  font-size:17px;
+  margin-left:8px;
+}
+#viewInventory .inventory-movement-month[open]>summary:after{content:'−'}
+#viewInventory .inventory-movement-month>summary small{
+  margin-left:auto;
+  color:var(--text-muted);
+  font-size:11px;
+  font-weight:600;
+}
+#viewInventory .inventory-movement-month-list{
+  display:grid;
+  gap:8px;
+  padding:0 10px 10px;
+}
+#viewInventory .inventory-movement-month .inventory-movement-row{
+  margin:0!important;
+  border:1px solid var(--glass-border,rgba(255,255,255,.10))!important;
+  border-radius:12px!important;
+  overflow:hidden;
+}
+html.light-theme #viewInventory .inventory-movement-month{
+  background:rgba(247,249,252,.75);
+  border-color:rgba(45,58,76,.15);
+}
+html.light-theme #viewInventory .inventory-movement-month .inventory-movement-row{
+  border-radius:12px!important;
+  border-color:#dfe4eb!important;
+}
