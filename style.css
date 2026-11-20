@@ -11524,3 +11524,5 @@ html.light-theme #calendarModal .calendar-year-option { color: #29271f; }
     #calendarModal .calendar-header { margin-bottom: 18px; }
     #calendarModal .calendar-month-year { font-size: 15px; }
 }
+
+#calendarModal [hidden] { display: none !important; }
