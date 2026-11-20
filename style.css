@@ -6228,7 +6228,7 @@ html.light-theme .booking-client-match{background:#fbf8ef}
 #viewClients.crm-tasks-mode #clientsList{display:none!important}
 #viewClients.crm-tasks-mode .crm-tasks-hub{display:block}
 .crm-tasks-heading{display:flex;align-items:flex-start;justify-content:space-between;gap:16px;margin-bottom:17px}
-.crm-tasks-heading h3{margin:3px 0 4px;color:var(--text-primary);font-size:21px}
+.crm-tasks-heading h3{margin:3px 0 4px;color:var(--text-primary);font-size:18px}
 .crm-tasks-heading p{margin:0;color:var(--text-muted);font-size:11px}
 .crm-tasks-summary{display:flex;gap:8px;flex-wrap:wrap}
 .crm-tasks-summary span{padding:7px 10px;border:1px solid rgba(255,255,255,.07);border-radius:9px;color:var(--text-muted);font-size:10px;white-space:nowrap}
@@ -12199,7 +12199,7 @@ html.setting-font-small .view{font-size:13px}html.setting-font-large .view{font-
 #viewSettings .settings-side-column{display:grid;gap:22px;min-width:0}
 #viewSettings .settings-section{box-sizing:border-box;min-width:0;padding:clamp(22px,2.4vw,30px);border:1px solid rgba(255,255,255,.09);border-radius:22px;background:linear-gradient(145deg,rgba(255,255,255,.045),rgba(255,255,255,.018));display:flex;flex-direction:column;gap:22px}
 #viewSettings .settings-section-heading{display:flex;align-items:center;gap:12px;min-width:0}
-#viewSettings .settings-section-icon{display:grid;place-items:center;flex:0 0 38px;width:38px;height:38px;border:1px solid color-mix(in srgb,var(--gold) 35%,transparent);border-radius:12px;background:color-mix(in srgb,var(--gold) 12%,transparent);color:var(--gold);font-size:18px}
+#viewSettings .settings-section-icon{display:grid;place-items:center;flex:0 0 46px;width:46px;height:46px;border:1px solid color-mix(in srgb,var(--gold) 35%,transparent);border-radius:14px;background:color-mix(in srgb,var(--gold) 12%,transparent);color:var(--gold);font-size:21px}
 #viewSettings .settings-section-heading>div{min-width:0}
 #viewSettings .settings-section-heading h3{margin:0;color:var(--text-main);font-size:16px;font-weight:800;overflow-wrap:anywhere}
 #viewSettings .settings-section-heading p{margin:5px 0 0;color:var(--text-muted);font-size:11px;line-height:1.6;overflow-wrap:anywhere}
