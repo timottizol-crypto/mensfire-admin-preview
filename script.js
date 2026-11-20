@@ -497,6 +497,7 @@ function switchView(viewId, navElement) {
         titleEl.classList.add('animate-title');
     }
 
+    document.body.classList.toggle('profile-view-active', viewId === 'viewProfile');
     if (viewId === 'viewLogin' || viewId === 'viewProfile') {
         document.body.classList.remove('header-hidden');
     } else {
