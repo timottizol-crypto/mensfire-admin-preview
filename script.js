@@ -656,7 +656,7 @@ function getMensfireDesktopDrawerMode() {
     try {
         return localStorage.getItem(MENSFIRE_DRAWER_MODE_KEY) === 'stacked' ? 'stacked' : 'single';
     } catch (error) {
-        return 'stacked';
+        return 'single';
     }
 }
 
