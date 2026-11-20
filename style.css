@@ -13319,3 +13319,22 @@ body.profile-view-active .app-header {
 .drawer-modal{width:min(94vw,560px);max-width:94vw}
 }
 @media(max-width:380px){.finance-range-presets .finance-range-btn{font-size:11px;padding-inline:3px}.finance-period-metrics>div{align-items:flex-start;flex-direction:column}}
+
+/* Focused card and profile-history refinements */
+#viewInventory .inventory-catalog-panel .finance-panel-heading{align-items:flex-start;flex-wrap:wrap;min-width:0}
+#viewInventory .inventory-catalog-panel .finance-panel-heading>div{min-width:0;flex:1 1 220px}
+#viewInventory .inventory-catalog-panel .finance-panel-heading h3,
+#viewInventory .inventory-catalog-panel .finance-panel-heading p{max-width:100%;overflow-wrap:anywhere}
+#viewInventory .inventory-catalog-panel .inventory-sync-btn{flex:0 1 auto;max-width:100%;white-space:normal}
+#clientDetailsModal .client-history-item{width:100%;max-width:100%;display:flex;align-items:flex-start;gap:12px}
+#clientDetailsModal .client-history-content{flex:1 1 auto;min-width:0}
+#clientDetailsModal .client-history-date,#clientDetailsModal .client-history-services{overflow-wrap:anywhere}
+#clientDetailsModal .client-history-icon{flex:0 0 34px}
+#clientDetailsModal .close-btn{width:36px;height:36px;min-width:36px;border-radius:12px;display:grid;place-items:center;font-size:23px;line-height:1}
+#clientDetailsModal .client-visit-history-heading{display:flex;align-items:center;justify-content:space-between;gap:12px}
+@media(max-width:767px){
+#viewInventory .inventory-catalog-panel .finance-panel-heading{gap:10px}
+#viewInventory .inventory-catalog-panel .inventory-sync-btn{width:100%}
+#clientDetailsModal .client-history-item{gap:9px;padding:12px}
+#clientDetailsModal .client-history-content{width:100%}
+}
