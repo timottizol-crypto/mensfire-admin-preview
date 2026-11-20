@@ -12287,3 +12287,304 @@ body.profile-view-active .app-header {
   border-color:rgba(212,175,55,.68)!important;
 }
 
+/* MENSFIRE — COMPLETE MOBILE WORKSPACE ADAPTATION */
+@media (max-width: 767px) {
+  html, body { width:100%; max-width:100%; overflow-x:hidden!important; }
+  body { min-height:100%; height:auto; }
+  #appContainer { min-height:100dvh; height:100dvh; overflow:hidden; }
+  #appContainer .view,
+  #appContainer .view.active {
+    box-sizing:border-box!important;
+    width:100%!important;
+    max-width:100%!important;
+    min-width:0!important;
+    height:100%!important;
+    min-height:0!important;
+    max-height:100%!important;
+    padding:18px 13px calc(104px + env(safe-area-inset-bottom,0px))!important;
+    overflow-x:hidden!important;
+    overflow-y:auto!important;
+    overscroll-behavior-y:contain;
+    -webkit-overflow-scrolling:touch;
+    gap:0;
+  }
+  #appContainer .view > *,
+  #appContainer .view .glass-card,
+  #appContainer .view section,
+  #appContainer .view article { min-width:0; max-width:100%; box-sizing:border-box; }
+  #appContainer .view h1,
+  #appContainer .view h2,
+  #appContainer .view h3,
+  #appContainer .view h4,
+  #appContainer .view p,
+  #appContainer .view strong,
+  #appContainer .view small,
+  #appContainer .view label,
+  #appContainer .view button { overflow-wrap:anywhere; }
+  #appContainer .view p { line-height:1.5; }
+  #appContainer .view .workspace-heading,
+  #appContainer .view .inventory-heading,
+  #appContainer .view .crm-page-heading {
+    display:flex!important;
+    flex-direction:column!important;
+    align-items:stretch!important;
+    gap:12px!important;
+    margin:0 0 15px!important;
+    min-width:0!important;
+  }
+  #appContainer .view .workspace-heading h2,
+  #appContainer .view .inventory-heading h2 { font-size:clamp(21px,6vw,27px)!important; line-height:1.15!important; }
+  #appContainer .view .workspace-heading p,
+  #appContainer .view .inventory-heading p { font-size:11px!important; line-height:1.5!important; }
+  #appContainer .view .home-cta-btn {
+    flex:0 0 auto!important;
+    width:100%!important;
+    min-width:0!important;
+    min-height:46px!important;
+    height:auto!important;
+    max-height:none!important;
+    margin:0!important;
+    padding:11px 13px!important;
+    border-radius:13px!important;
+    white-space:normal!important;
+  }
+  #appContainer .view:not(#viewProfile):not(#viewPurchases) .home-cta-btn,
+  #appContainer .view:not(#viewProfile):not(#viewPurchases) .home-cta-btn .cta-text,
+  #appContainer .view:not(#viewProfile):not(#viewPurchases) .home-cta-btn .cta-text span,
+  #appContainer .view:not(#viewProfile):not(#viewPurchases) .home-cta-btn > span {
+    color:#17130b!important;
+    text-shadow:none!important;
+    opacity:1!important;
+  }
+  #appContainer .view .home-cta-btn .cta-text { width:100%; min-width:0; gap:2px; }
+  #appContainer .view .home-cta-btn .cta-text span { font-size:12px!important; line-height:1.3!important; letter-spacing:.35px!important; }
+  #appContainer .view .home-cta-btn .cta-text small { font-size:9px!important; line-height:1.35!important; }
+  #viewProfile .profile-add-staff-btn,
+  #viewProfile .profile-add-staff-btn span { color:#f2d27a!important; }
+  #viewPurchases .inventory-heading > .home-cta-btn,
+  #viewPurchases .inventory-heading > .home-cta-btn span { color:#f2d27a!important; }
+  #appContainer .view .checkout-btn,
+  #appContainer .view .tab-btn.active,
+  #appContainer .view .purchase-workspace-tab.active {
+    color:#17130b!important;
+    font-weight:800!important;
+    white-space:normal!important;
+    line-height:1.35!important;
+  }
+  #appContainer .view button,
+  #appContainer .view .inventory-sync-btn,
+  #appContainer .view .finance-text-action {
+    min-height:38px;
+    max-width:100%;
+    white-space:normal!important;
+    line-height:1.35!important;
+  }
+  #appContainer .view input,
+  #appContainer .view select,
+  #appContainer .view textarea { min-width:0!important; max-width:100%!important; font-size:16px!important; }
+  #appContainer .view .glass-card,
+  #appContainer .view .finance-panel,
+  #appContainer .view .dashboard-panel,
+  #appContainer .view .inventory-catalog-panel,
+  #appContainer .view .inventory-history-panel,
+  #appContainer .view .purchase-orders-panel,
+  #appContainer .view .retail-check-panel,
+  #appContainer .view .retail-history-panel {
+    padding:14px!important;
+    border-radius:16px!important;
+    margin-left:0!important;
+    margin-right:0!important;
+  }
+
+  /* Main dashboard: content-first cards, no stretched empty grid cells. */
+  #viewDashboard .dashboard-topline,
+  #viewDashboard .dashboard-overview-row,
+  #viewDashboard .dashboard-content-grid {
+    display:grid!important;
+    grid-template-columns:minmax(0,1fr)!important;
+    grid-template-rows:auto!important;
+    gap:12px!important;
+    align-items:start!important;
+    margin:0 0 12px!important;
+  }
+  #viewDashboard .dashboard-title-period,
+  #viewDashboard .dashboard-main-panel,
+  #viewDashboard .dashboard-upcoming-panel { min-width:0!important; width:100%!important; }
+  #viewDashboard .dashboard-kpi-grid {
+    display:grid!important;
+    grid-template-columns:repeat(2,minmax(0,1fr))!important;
+    grid-template-rows:auto!important;
+    gap:8px!important;
+    align-content:start!important;
+    min-width:0!important;
+    margin:0!important;
+  }
+  #viewDashboard .dashboard-kpi-grid > * { min-width:0!important; min-height:0!important; height:auto!important; }
+  #viewDashboard .dashboard-content-grid > .dashboard-panel {
+    grid-column:auto!important; grid-row:auto!important;
+    height:auto!important; min-height:0!important; max-height:none!important;
+  }
+  #viewDashboard .dashboard-main-panel { min-height:210px; }
+
+  /* Finance and analytics become one readable vertical flow. */
+  #viewFinance .finance-header-layout {
+    display:flex!important; flex-direction:column!important; gap:10px!important;
+    margin:0 0 14px!important; min-width:0!important;
+  }
+  #viewFinance .finance-heading-copy,
+  #viewFinance .finance-date-navigation,
+  #viewFinance .finance-period-controls { width:100%!important; max-width:none!important; min-width:0!important; }
+  #viewFinance .finance-dashboard-grid,
+  #viewFinance .finance-overview-row,
+  #viewFinance .finance-combined-content,
+  #viewFinance .finance-team-revenue-panel,
+  #viewFinance .finance-operations-panel {
+    display:grid!important; grid-template-columns:minmax(0,1fr)!important;
+    grid-template-rows:auto!important; gap:11px!important; min-width:0!important;
+  }
+  #viewFinance .finance-dashboard-grid > *,
+  #viewFinance .finance-overview-row > *,
+  #viewFinance .finance-kpi-grid > * {
+    grid-column:auto!important; grid-row:auto!important; min-width:0!important;
+    min-height:0!important; height:auto!important;
+  }
+  #viewFinance .finance-kpi-grid,
+  #viewFinance .finance-period-metrics {
+    display:grid!important; grid-template-columns:repeat(2,minmax(0,1fr))!important;
+    gap:8px!important; align-items:stretch!important;
+  }
+  #viewFinance .finance-range-presets { display:flex!important; width:100%!important; gap:5px!important; }
+  #viewFinance .finance-range-presets button { flex:1 1 0!important; min-width:0!important; padding:9px 5px!important; font-size:10px!important; }
+  #viewFinance .finance-range-fields { width:100%!important; gap:6px!important; }
+  #viewFinance .finance-range-fields .finance-range-date { flex:1 1 0!important; min-width:0!important; width:auto!important; padding:10px 6px!important; font-size:11px!important; }
+  #viewFinance #financeDateSelector { min-height:0!important; margin:0!important; padding:4px 2px 8px!important; }
+
+  /* Team, services, clients and CRM. */
+  #viewTeam .team-overview-grid,
+  #viewClients .clients-overview-grid,
+  #viewClients .team-overview-grid,
+  #viewServices .services-overview-grid {
+    display:grid!important; grid-template-columns:repeat(2,minmax(0,1fr))!important;
+    gap:8px!important; align-items:stretch!important;
+  }
+  #viewTeam .team-overview-grid > :nth-child(3):last-child,
+  #viewClients .clients-overview-grid > :nth-child(3):last-child,
+  #viewServices .services-overview-grid > :nth-child(3):last-child { grid-column:1/-1!important; }
+  #viewTeam .team-list-premium,
+  #viewServices .service-card-grid,
+  #viewClients #clientsList { display:grid!important; grid-template-columns:minmax(0,1fr)!important; gap:9px!important; }
+  #viewTeam .team-list-premium .team-member-card,
+  #viewServices .service-card { min-width:0!important; }
+  #viewServices .service-card-grid { max-height:none!important; overflow:visible!important; padding:0!important; }
+  #viewClients.active { height:100%!important; min-height:0!important; overflow-y:auto!important; padding-bottom:calc(110px + env(safe-area-inset-bottom,0px))!important; }
+  #viewClients.active > .clients-workspace { height:auto!important; max-height:none!important; overflow:visible!important; }
+  #viewClients .clients-topbar { min-width:0!important; }
+  #viewClients .clients-search-wrap { margin:10px 0!important; }
+  #viewCRM.active { display:flex!important; }
+  #viewCRM.active .crm-tasks-hub { display:block!important; width:100%!important; min-width:0!important; padding:12px!important; }
+  #viewCRM .crm-task-row { grid-template-columns:minmax(0,1fr)!important; gap:8px!important; }
+  #viewCRM .crm-tasks-toolbar { display:grid!important; grid-template-columns:minmax(0,1fr)!important; gap:8px!important; }
+  #viewCRM .crm-task-actions { display:flex!important; flex-wrap:wrap!important; gap:7px!important; }
+
+  /* Stock, analytics, purchases and retail are available on mobile too. */
+  #viewInventory.active,
+  #viewInventoryAnalytics.active,
+  #viewPurchases.active,
+  #viewSales.active { display:flex!important; }
+  #viewInventory.active .inventory-overview-grid,
+  #viewInventoryAnalytics.active .inventory-overview-grid,
+  #viewPurchases.active .inventory-overview-grid {
+    display:grid!important; grid-template-columns:repeat(2,minmax(0,1fr))!important;
+    grid-template-rows:auto!important; gap:8px!important; align-items:stretch!important;
+  }
+  #viewInventory .inventory-catalog-grid,
+  #viewInventoryAnalytics .inventory-catalog-grid,
+  #viewPurchases .suppliers-grid { grid-template-columns:minmax(0,1fr)!important; gap:9px!important; }
+  #viewInventory .inventory-toolbar,
+  #viewInventory .inventory-movement-toolbar { display:grid!important; grid-template-columns:minmax(0,1fr)!important; gap:8px!important; }
+  #viewInventory .inventory-heading,
+  #viewPurchases .inventory-heading { align-items:stretch!important; }
+  #viewInventoryAnalytics .inventory-analytics-date-fields { display:grid!important; grid-template-columns:minmax(0,1fr)!important; gap:9px!important; }
+  #viewInventoryAnalytics .inventory-analytics-date-fields label,
+  #viewInventoryAnalytics .inventory-analytics-date-fields input { width:100%!important; min-width:0!important; }
+  #viewInventoryAnalytics .inventory-analytics-table-wrap { max-width:100%!important; overflow-x:auto!important; -webkit-overflow-scrolling:touch; }
+  #viewPurchases .purchase-workspace-tabs { display:flex!important; width:100%!important; max-width:100%!important; }
+  #viewPurchases .purchase-workspace-tab { flex:1 1 0!important; min-width:0!important; padding:10px 8px!important; }
+  #viewPurchases .purchase-subview:not([hidden]) { display:block!important; min-width:0!important; }
+  #viewPurchases .purchase-order-top { flex-direction:column!important; gap:6px!important; }
+  #viewPurchases .purchase-order-top > strong { white-space:normal!important; }
+  #viewPurchases .purchase-order-lines > div { align-items:flex-start!important; flex-direction:column!important; }
+  #viewPurchases .purchase-order-lines > div small { white-space:normal!important; }
+  #viewPurchases .purchase-order-actions { display:grid!important; grid-template-columns:minmax(0,1fr)!important; }
+  #viewPurchases .purchase-order-add-grid { grid-template-columns:repeat(2,minmax(0,1fr))!important; }
+  #viewPurchases .purchase-order-add-grid .form-group:first-child { grid-column:1/-1!important; }
+  #viewPurchases .purchase-order-add-grid .inventory-sync-btn { width:100%!important; margin:0!important; }
+  #viewPurchases .supplier-journal-filters { display:grid!important; grid-template-columns:minmax(0,1fr)!important; gap:8px!important; }
+  #viewPurchases .supplier-journal-filters > * { min-width:0!important; width:100%!important; }
+  #viewSales .retail-sales-layout { display:grid!important; grid-template-columns:minmax(0,1fr)!important; gap:11px!important; }
+  #viewSales .retail-add-product { grid-template-columns:minmax(0,1fr) 78px!important; gap:8px!important; }
+  #viewSales .retail-add-product .inventory-sync-btn { grid-column:1/-1!important; width:100%!important; }
+  #viewSales .retail-payment-grid { grid-template-columns:minmax(0,1fr)!important; }
+  #viewSales .retail-history-panel { max-height:none!important; overflow:visible!important; }
+
+  /* Schedule: let the page scroll naturally instead of clipping at a fixed card height. */
+  #viewSchedule.active { height:100%!important; min-height:0!important; overflow-y:auto!important; padding-bottom:calc(110px + env(safe-area-inset-bottom,0px))!important; }
+  #viewSchedule > .schedule-top-actions { display:flex!important; flex-direction:column!important; align-items:stretch!important; gap:8px!important; width:100%!important; }
+  #viewSchedule .schedule-management-actions { display:grid!important; grid-template-columns:minmax(0,1fr)!important; gap:8px!important; width:100%!important; }
+  #viewSchedule .schedule-top-actions .home-cta-btn { width:100%!important; min-height:44px!important; }
+  #viewSchedule #scheduleList { height:auto!important; max-height:none!important; overflow:visible!important; }
+  #viewSchedule .schedule-main-card { height:auto!important; max-height:none!important; overflow:visible!important; }
+  #viewSchedule .schedule-overview-grid { display:grid!important; grid-template-columns:repeat(2,minmax(0,1fr))!important; gap:8px!important; }
+
+  /* Modals fit the usable viewport and remain internally scrollable. */
+  .modal { padding:12px!important; align-items:center!important; overflow-y:auto!important; }
+  .modal .modal-content {
+    width:100%!important; max-width:560px!important; max-height:calc(100dvh - 24px - env(safe-area-inset-top,0px) - env(safe-area-inset-bottom,0px))!important;
+    overflow-y:auto!important; overscroll-behavior:contain; padding:19px 15px!important;
+    border-radius:18px!important; box-sizing:border-box!important;
+  }
+  .purchase-order-add-grid .form-group,
+  .purchase-receive-row,
+  .supplier-form-grid { min-width:0!important; }
+  .purchase-receive-row { grid-template-columns:repeat(2,minmax(0,1fr))!important; }
+  .purchase-receive-row > div { grid-column:1/-1!important; }
+  .purchase-receive-row label { min-width:0!important; }
+  #bottomNav .mobile-more-trigger { flex:1 1 0!important; }
+}
+
+/* Mobile "More" menu — a compact launcher, not an additional workspace. */
+@media (max-width: 767px) {
+  #bottomNav.bottom-nav { overflow:visible!important; }
+  #bottomNav .mobile-more-menu {
+    position:absolute!important;
+    left:0!important; right:0!important; bottom:calc(100% + 10px)!important;
+    display:grid!important; grid-template-columns:repeat(2,minmax(0,1fr))!important;
+    gap:7px!important; max-height:min(62dvh,520px)!important; overflow-y:auto!important;
+    padding:12px!important; border:1px solid rgba(212,175,55,.24)!important;
+    border-radius:18px!important; background:rgba(20,20,22,.97)!important;
+    box-shadow:0 16px 42px rgba(0,0,0,.34)!important;
+    backdrop-filter:blur(22px) saturate(150%)!important;
+    -webkit-backdrop-filter:blur(22px) saturate(150%)!important;
+    z-index:950!important;
+  }
+  #bottomNav .mobile-more-menu[hidden] { display:none!important; }
+  html.light-theme #bottomNav .mobile-more-menu {
+    background:rgba(255,255,255,.98)!important;
+    border-color:rgba(54,68,88,.18)!important;
+    box-shadow:0 16px 42px rgba(35,48,68,.18)!important;
+  }
+  #bottomNav .mobile-more-item {
+    display:flex!important; align-items:center!important; justify-content:flex-start!important;
+    gap:9px!important; min-width:0!important; min-height:44px!important; padding:9px 10px!important;
+    border:1px solid rgba(255,255,255,.09)!important; border-radius:11px!important;
+    background:rgba(255,255,255,.045)!important; color:var(--text-main)!important;
+    font:700 10px/1.3 Montserrat,sans-serif!important; text-align:left!important;
+  }
+  #bottomNav .mobile-more-item svg { flex:0 0 18px!important; width:18px!important; height:18px!important; fill:var(--gold)!important; }
+  html.light-theme #bottomNav .mobile-more-item {
+    border-color:rgba(54,68,88,.14)!important; background:rgba(242,245,249,.9)!important; color:#182231!important;
+  }
+  #bottomNav .mobile-more-item:active { transform:scale(.98); }
+  #bottomNav .mobile-more-trigger.active { color:var(--gold)!important; background:rgba(212,175,55,.1)!important; }
+}
+
