@@ -8233,12 +8233,20 @@ function deleteInventoryProduct(id){
     if(!requireAdminAction('Управлять складом может только Али'))return;
     const item=inventoryProducts.find(product=>String(product.id)===String(id));
     if(!item)return;
-    if(!window.confirm('Убрать товар «'+item.title+'» из каталога? История операций и данные чеков сохранятся.'))return;
-    item.active=false;
-    item.updatedAt=new Date().toISOString();
-    persistInventory();
-    renderInventory();
-    showToast('Товар удалён из каталога, история сохранена','success');
+    showConfirm(
+        'Удалить товар из каталога?',
+        'Товар «'+item.title+'» будет скрыт из активного каталога. История складских операций и данные чеков сохранятся. Это действие можно будет отменить только повторным добавлением товара.',
+        'Да, удалить товар',
+        () => {
+            const currentItem=inventoryProducts.find(product=>String(product.id)===String(id));
+            if(!currentItem)return;
+            currentItem.active=false;
+            currentItem.updatedAt=new Date().toISOString();
+            persistInventory();
+            renderInventory();
+            showToast('Товар удалён из каталога, история сохранена','success');
+        }
+    );
 }
 function openInventoryMovementModal(id, type) {
     if (!requireAdminAction('Управлять складом может только Али')) return;
