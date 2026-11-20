@@ -654,7 +654,7 @@ let MENSFIRE_DESKTOP_DRAWER_SEQUENCE = 0;
 
 function getMensfireDesktopDrawerMode() {
     try {
-        return localStorage.getItem(MENSFIRE_DRAWER_MODE_KEY) === 'single' ? 'single' : 'stacked';
+        return localStorage.getItem(MENSFIRE_DRAWER_MODE_KEY) === 'stacked' ? 'stacked' : 'single';
     } catch (error) {
         return 'stacked';
     }
@@ -3539,9 +3539,12 @@ function setClientsPeriod(mode) {
     renderClients(currentClientsTab);
 }
 function setTeamPeriod(mode) {
-    if (!['month','custom'].includes(mode)) return;
+    if (!['day','month','custom'].includes(mode)) return;
     teamPeriodMode = mode;
-    if (mode === 'month') {
+    if (mode === 'day') {
+        const now = new Date();
+        teamRangeStart = teamRangeEnd = formatReportDate(now);
+    } else if (mode === 'month') {
         const now = new Date();
         teamRangeStart = formatReportDate(new Date(now.getFullYear(),now.getMonth(),1));
         teamRangeEnd = formatReportDate(now);
@@ -4126,6 +4129,7 @@ function renderTeam() {
     if (controls) controls.innerHTML = `
         <div class="finance-range-toolbar clients-range-toolbar">
             <div class="finance-range-presets" role="group" aria-label="Период статистики команды">
+                <button type="button" class="finance-range-btn ${teamPeriodMode==='day'?'active':''}" onclick="setTeamPeriod('day')">День</button>
                 <button type="button" class="finance-range-btn ${teamPeriodMode==='month'?'active':''}" onclick="setTeamPeriod('month')">Месяц</button>
                 <button type="button" class="finance-range-btn ${teamPeriodMode==='custom'?'active':''}" onclick="setTeamPeriod('custom')">Период</button>
             </div>
