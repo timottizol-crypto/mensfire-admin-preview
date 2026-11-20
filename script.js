@@ -8039,7 +8039,7 @@ function renderInventoryAnalytics(){
         const comparisons=new Map();
         purchasePriceHistory.filter(batch=>inRange(batch.date)&&batch.supplier!=='Поставщик не указан').forEach(batch=>{
             const key=batch.productId||batch.title;
-            if(!comparisons.has(key))comparisons.set(key,{title:batch.title,suppliers:new Map()});
+            if(!comparisons.has(key))comparisons.set(key,{productId:batch.productId,title:batch.title,suppliers:new Map()});
             const suppliers=comparisons.get(key).suppliers;
             if(!suppliers.has(batch.supplier))suppliers.set(batch.supplier,{quantity:0,total:0,batches:0});
             const stat=suppliers.get(batch.supplier);stat.quantity+=batch.quantity;stat.total+=batch.quantity*batch.unitCost;stat.batches++;
