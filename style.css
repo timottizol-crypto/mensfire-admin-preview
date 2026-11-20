@@ -13257,12 +13257,13 @@ body.profile-view-active .app-header {
   }
 }
 
-/* 2026-11-20 mobile workspace polish */
+
+/* Responsive polish, scoped to the owning workspace to avoid cross-tab collisions */
 #viewSchedule .schedule-list,#viewSchedule #scheduleList,#viewSchedule .home-scroll-area{background:transparent;box-shadow:none}
 #viewSchedule .schedule-main-card{overflow:hidden}
 #viewSchedule #scheduleList{padding:10px 0 18px}
 #viewSchedule #scheduleList>*{max-width:100%;box-sizing:border-box}
-.new-booking-modal .checkout-btn{min-height:42px;height:auto;padding:10px 18px;font-size:14px;border-radius:13px}
+#newBookingModal .checkout-btn{min-height:42px;height:auto;padding:10px 18px;font-size:14px;border-radius:13px}
 .booking-detail-modal .booking-detail-main,.booking-detail-modal .booking-detail-services,.booking-detail-modal .booking-history-section{min-width:0}
 .booking-detail-modal .booking-history-section{margin-left:12px}
 .client-visit-history-heading,.client-loyalty-history-title,.booking-history-heading{min-width:0}
@@ -13283,49 +13284,17 @@ body.profile-view-active .app-header {
 .supplier-card-top,.supplier-contacts,.supplier-last-order{min-width:0;flex-wrap:wrap}
 .supplier-summary-table-wrap{max-width:100%;overflow-x:auto;-webkit-overflow-scrolling:touch}
 .supplier-summary-table{min-width:560px}
-.finance-period-metrics{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;min-width:0}
-.finance-period-metrics>div{min-width:0;border-radius:14px;overflow-wrap:anywhere}
-.finance-date-navigation,.finance-period-controls,.finance-range-toolbar{min-width:0}
-.finance-range-presets{flex-wrap:nowrap;min-width:0}
-.finance-range-btn{min-width:0;white-space:nowrap}
-#teamPeriodControls .finance-range-presets .finance-range-btn,#viewFinance .finance-range-presets .finance-range-btn{color:var(--text-secondary,inherit)}
-#teamPeriodControls .finance-range-presets .finance-range-btn.active,#viewFinance .finance-range-presets .finance-range-btn.active{color:var(--text-primary,#fff)}
+#viewFinance .finance-date-navigation,#viewFinance .finance-period-controls,#viewFinance .finance-range-toolbar,
+#viewDashboard .finance-range-toolbar,#viewTeam .finance-range-toolbar,#viewClients .finance-range-toolbar{min-width:0}
+#viewFinance .finance-range-presets,#viewDashboard .finance-range-presets,#viewTeam .finance-range-presets,#viewClients .finance-range-presets{min-width:0;flex-wrap:nowrap}
+#viewFinance .finance-range-btn,#viewDashboard .finance-range-btn,#viewTeam .finance-range-btn,#viewClients .finance-range-btn{min-width:0;white-space:nowrap}
+#viewFinance .finance-period-metrics>div{min-width:0;border-radius:14px;overflow-wrap:anywhere}
 .modal select,.modal input,.modal textarea,.view select,.view input,.view textarea{max-width:100%}
 .modal select,.view select{min-width:0}
 .modal-content,.modal-card{max-width:min(calc(100vw - 24px),760px);box-sizing:border-box}
 .drawer-modal{max-width:min(94vw,560px)}
-.tab-btn.active,.purchase-workspace-tab.active{position:relative;z-index:1}
 .purchase-workspace-tabs{position:sticky;top:0;z-index:8}
 .purchase-workspace-tab{white-space:nowrap}
-@media(max-width:767px){
-#viewSchedule #scheduleList{padding:8px 0 16px}
-#viewSchedule .schedule-main-card{background:transparent;border:0;box-shadow:none;padding-left:0;padding-right:0}
-.finance-period-metrics{grid-template-columns:1fr}
-.finance-period-metrics>div{display:flex;align-items:center;justify-content:space-between;gap:10px}
-.finance-date-navigation,.finance-period-controls,.finance-range-toolbar{width:100%}
-.finance-range-toolbar{display:flex;flex-direction:column;align-items:stretch;gap:10px}
-.finance-range-presets{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));width:100%}
-.finance-range-presets .finance-range-btn{padding:10px 6px;min-height:40px;font-size:12px}
-.finance-range-fields{width:100%;display:grid;grid-template-columns:minmax(0,1fr) auto minmax(0,1fr);align-items:center;gap:8px}
-.finance-range-date{min-width:0;width:100%}
-#teamPeriodControls .finance-range-presets{grid-template-columns:repeat(3,minmax(0,1fr))}
-.suppliers-grid{grid-template-columns:minmax(0,1fr)}
-.supplier-card{width:100%}
-.booking-detail-modal .booking-history-section{margin-left:8px}
-.client-visit-history-heading{padding-left:8px}
-.new-booking-modal .checkout-btn{width:auto;min-width:132px;max-width:100%;margin-left:auto;display:flex;justify-content:center}
-.purchase-workspace-tabs{overflow-x:auto;max-width:100%}
-.modal-content,.modal-card{width:calc(100vw - 20px);max-width:calc(100vw - 20px)}
-.drawer-modal{width:min(94vw,560px);max-width:94vw}
-}
-@media(max-width:380px){.finance-range-presets .finance-range-btn{font-size:11px;padding-inline:3px}.finance-period-metrics>div{align-items:flex-start;flex-direction:column}}
-
-/* Focused card and profile-history refinements */
-#viewInventory .inventory-catalog-panel .finance-panel-heading{align-items:flex-start;flex-wrap:wrap;min-width:0}
-#viewInventory .inventory-catalog-panel .finance-panel-heading>div{min-width:0;flex:1 1 220px}
-#viewInventory .inventory-catalog-panel .finance-panel-heading h3,
-#viewInventory .inventory-catalog-panel .finance-panel-heading p{max-width:100%;overflow-wrap:anywhere}
-#viewInventory .inventory-catalog-panel .inventory-sync-btn{flex:0 1 auto;max-width:100%;white-space:normal}
 #clientDetailsModal .client-history-item{width:100%;max-width:100%;display:flex;align-items:flex-start;gap:12px}
 #clientDetailsModal .client-history-content{flex:1 1 auto;min-width:0}
 #clientDetailsModal .client-history-date,#clientDetailsModal .client-history-services{overflow-wrap:anywhere}
@@ -13333,8 +13302,26 @@ body.profile-view-active .app-header {
 #clientDetailsModal .close-btn{width:36px;height:36px;min-width:36px;border-radius:12px;display:grid;place-items:center;font-size:23px;line-height:1}
 #clientDetailsModal .client-visit-history-heading{display:flex;align-items:center;justify-content:space-between;gap:12px}
 @media(max-width:767px){
+#viewSchedule #scheduleList{padding:8px 0 16px}
+#viewSchedule .schedule-main-card{background:transparent;border:0;box-shadow:none;padding-left:0;padding-right:0}
+#viewFinance .finance-range-toolbar,#viewDashboard .finance-range-toolbar,#viewTeam .finance-range-toolbar,#viewClients .finance-range-toolbar{width:100%;display:flex;flex-direction:column;align-items:stretch;gap:10px}
+#viewFinance .finance-range-presets,#viewDashboard .finance-range-presets,#viewTeam .finance-range-presets,#viewClients .finance-range-presets{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));width:100%}
+#viewFinance .finance-range-presets .finance-range-btn,#viewDashboard .finance-range-presets .finance-range-btn,#viewTeam .finance-range-presets .finance-range-btn,#viewClients .finance-range-presets .finance-range-btn{padding:10px 6px;min-height:40px;font-size:12px}
+#viewFinance .finance-range-fields,#viewDashboard .finance-range-fields,#viewTeam .finance-range-fields,#viewClients .finance-range-fields{width:100%;display:grid;grid-template-columns:minmax(0,1fr) auto minmax(0,1fr);align-items:center;gap:8px}
+#viewFinance .finance-range-date,#viewDashboard .finance-range-date,#viewTeam .finance-range-date,#viewClients .finance-range-date{min-width:0;width:100%}
+.suppliers-grid{grid-template-columns:minmax(0,1fr)}
+.supplier-card{width:100%}
+.booking-detail-modal .booking-history-section{margin-left:8px}
+.client-visit-history-heading{padding-left:8px}
+#newBookingModal .checkout-btn{width:auto;min-width:132px;max-width:100%;margin-left:auto;display:flex;justify-content:center}
+.purchase-workspace-tabs{overflow-x:auto;max-width:100%}
+.modal-content,.modal-card{width:calc(100vw - 20px);max-width:calc(100vw - 20px)}
+.drawer-modal{width:min(94vw,560px);max-width:94vw}
 #viewInventory .inventory-catalog-panel .finance-panel-heading{gap:10px}
 #viewInventory .inventory-catalog-panel .inventory-sync-btn{width:100%}
 #clientDetailsModal .client-history-item{gap:9px;padding:12px}
 #clientDetailsModal .client-history-content{width:100%}
+}
+@media(max-width:380px){
+#viewFinance .finance-range-presets .finance-range-btn,#viewDashboard .finance-range-presets .finance-range-btn,#viewTeam .finance-range-presets .finance-range-btn,#viewClients .finance-range-presets .finance-range-btn{font-size:11px;padding-inline:3px}
 }
