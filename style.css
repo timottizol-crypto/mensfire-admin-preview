@@ -11290,3 +11290,48 @@ html.light-theme #viewSales .retail-history-row{
 html.light-theme #viewSales .retail-empty{
   border-color:rgba(45,61,82,.22);
 }
+
+/* Retail receipt details and clearly visible payment states. */
+#viewSales .retail-history-row{cursor:pointer;transition:border-color .18s ease,background .18s ease,transform .18s ease}
+#viewSales .retail-history-row:hover{border-color:rgba(198,160,90,.48);background:rgba(198,160,90,.055);transform:translateY(-1px)}
+#viewSales .retail-history-row:focus-visible{outline:2px solid var(--gold);outline-offset:2px}
+#viewSales .retail-history-amount{display:flex;flex-direction:column;align-items:flex-end;gap:6px;flex:0 0 auto}
+#viewSales .retail-history-amount>b{font-size:13px;white-space:nowrap}
+#viewSales .retail-payment-status{display:inline-flex;align-items:center;justify-content:center;width:max-content;max-width:100%;padding:5px 9px;border:1px solid transparent;border-radius:20px;font-size:9px;font-weight:800;line-height:1.2;white-space:nowrap}
+#viewSales .retail-payment-status.status-paid{color:#27865b;background:rgba(45,170,110,.13);border-color:rgba(45,170,110,.24)}
+#viewSales .retail-payment-status.status-partial{color:#b77a18;background:rgba(220,164,58,.14);border-color:rgba(220,164,58,.28)}
+#viewSales .retail-payment-status.status-unpaid{color:#c45b60;background:rgba(205,78,85,.12);border-color:rgba(205,78,85,.25)}
+#viewSales .retail-payment-status.status-refunded{color:var(--text-muted);background:rgba(130,140,150,.12);border-color:rgba(130,140,150,.22)}
+.retail-receipt-modal-content{width:min(560px,calc(100vw - 30px))!important;max-width:560px!important;max-height:88vh;overflow:auto;text-align:left!important;padding:24px!important}
+.retail-receipt-modal-content .booking-detail-heading{align-items:center;margin-bottom:18px}
+.retail-receipt-modal-content .booking-detail-heading h2{font-size:19px;color:var(--text-main)}
+.retail-receipt-top{display:flex;align-items:flex-start;justify-content:space-between;gap:14px;padding:16px;border:1px solid var(--glass-border,rgba(255,255,255,.12));border-radius:14px;background:var(--glass-bg,rgba(255,255,255,.035))}
+.retail-receipt-top>div{display:flex;flex-direction:column;gap:5px;min-width:0}
+.retail-receipt-top>div>span,.retail-receipt-payment>span,.retail-receipt-note>span{font-size:9px;letter-spacing:.08em;color:var(--text-muted);font-weight:800}
+.retail-receipt-top strong{font-size:15px;color:var(--text-main);overflow-wrap:anywhere}
+.retail-receipt-top small{font-size:10px;color:var(--text-muted)}
+.retail-receipt-number{padding:14px 2px 10px;color:var(--text-muted);font-size:10px;font-weight:800;letter-spacing:.09em}
+.retail-receipt-items{display:flex;flex-direction:column;gap:0;border-top:1px dashed var(--glass-border,rgba(255,255,255,.18));border-bottom:1px dashed var(--glass-border,rgba(255,255,255,.18))}
+.retail-receipt-item{display:flex;justify-content:space-between;align-items:center;gap:14px;padding:12px 3px;border-bottom:1px solid var(--glass-border,rgba(255,255,255,.07))}
+.retail-receipt-item:last-child{border-bottom:0}
+.retail-receipt-item>div{display:flex;flex-direction:column;gap:4px;min-width:0}
+.retail-receipt-item strong{font-size:12px;color:var(--text-main);overflow-wrap:anywhere}
+.retail-receipt-item small{font-size:10px;color:var(--text-muted)}
+.retail-receipt-item>b{font-size:12px;color:var(--text-main);white-space:nowrap}
+.retail-receipt-totals{display:flex;flex-direction:column;gap:9px;padding:15px 3px}
+.retail-receipt-totals>div{display:flex;justify-content:space-between;align-items:center;gap:12px;font-size:11px;color:var(--text-muted)}
+.retail-receipt-totals b{color:var(--text-main);font-size:11px}
+.retail-receipt-totals .retail-receipt-grand{padding-top:11px;border-top:1px solid var(--glass-border,rgba(255,255,255,.14));font-size:13px;color:var(--text-main)}
+.retail-receipt-grand strong{font-size:19px;color:var(--gold);white-space:nowrap}
+.retail-receipt-payment{display:flex;justify-content:space-between;gap:12px;padding:12px 14px;border-radius:11px;background:var(--glass-bg,rgba(255,255,255,.04));font-size:10px;color:var(--text-muted)}
+.retail-receipt-payment strong{color:var(--text-main)}
+.retail-receipt-note,.retail-receipt-refunds{margin-top:12px;padding:12px 14px;border:1px solid var(--glass-border,rgba(255,255,255,.1));border-radius:11px}
+.retail-receipt-note p{margin:6px 0 0;font-size:11px;color:var(--text-main);line-height:1.5;overflow-wrap:anywhere}
+.retail-receipt-refunds>strong{font-size:11px;color:var(--text-main)}
+.retail-receipt-refunds>div{display:flex;justify-content:space-between;gap:12px;margin-top:9px;font-size:10px;color:var(--text-muted)}
+.retail-receipt-refunds>div b{color:#c45b60}
+.retail-receipt-modal-content>.btn-cancel{width:100%;margin-top:16px}
+html.light-theme .retail-receipt-top,
+html.light-theme .retail-receipt-payment{background:rgba(246,249,252,.9);border-color:rgba(45,61,82,.17)}
+html.light-theme .retail-receipt-item{border-color:rgba(45,61,82,.1)}
+@media(max-width:520px){.retail-receipt-modal-content{padding:17px!important}.retail-receipt-top{flex-direction:column;gap:10px}}
