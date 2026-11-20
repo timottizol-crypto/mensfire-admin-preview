@@ -7631,9 +7631,12 @@ function renderRetailSales() {
         const fmt=v=>Math.round(Number(v)||0).toLocaleString('ru-RU')+' ₽';
         const sales=clientRetailSales.slice().sort((a,b)=>new Date(b.soldAt)-new Date(a.soldAt)).slice(0,12);
         recent.innerHTML=sales.length?sales.map(sale=>{
-            const net=Math.max(0,Number(sale.netTotal ?? sale.total)||0);
+            const net=getRetailSaleNetTotal(sale);
             const refunded=(Array.isArray(sale.refunds)?sale.refunds:[]).reduce((sum,item)=>sum+(Number(item.value)||0),0);
-            return '<article class="retail-history-row"><div><strong>'+escapeBookingHtml(sale.clientNameSnapshot||'Клиент')+'</strong><small>'+new Date(sale.soldAt).toLocaleString('ru-RU')+' · '+sale.items.length+' поз.'+(refunded?' · Возврат '+fmt(refunded):'')+'</small></div><div><b>'+fmt(net)+'</b><small>'+({paid:'Оплачено',partial:'Частично',unpaid:'Долг',refunded:'Полный возврат'}[sale.paymentStatus]||'')+'</small></div>'+(sale.paymentStatus!=='refunded'&&net>0?'<button type="button" class="retail-refund-btn" onclick="openRetailRefundModal(\''+escapeBookingHtml(sale.id)+'\')">Возврат</button>':'')+'</article>';
+            const status=sale.paymentStatus==='refunded'?'refunded':sale.paymentStatus==='partial'?'partial':sale.paymentStatus==='unpaid'?'unpaid':'paid';
+            const statusLabel={paid:'Оплачено',partial:'Частично оплачено',unpaid:'Не оплачено',refunded:'Полный возврат'}[status];
+            const saleId=escapeBookingHtml(sale.id);
+            return '<article class="retail-history-row" role="button" tabindex="0" aria-label="Открыть чек клиента '+escapeBookingHtml(sale.clientNameSnapshot||'Клиент')+'" onclick="openRetailSaleReceipt(\''+saleId+'\')" onkeydown="if(event.key===\'Enter\'||event.key===\' \'){event.preventDefault();openRetailSaleReceipt(\''+saleId+'\')}"><div><strong>'+escapeBookingHtml(sale.clientNameSnapshot||'Клиент')+'</strong><small>'+new Date(sale.soldAt).toLocaleString('ru-RU')+' · '+(sale.items||[]).length+' поз.'+(refunded?' · Возврат '+fmt(refunded):'')+'</small></div><div class="retail-history-amount"><b>'+fmt(net)+'</b><span class="retail-payment-status status-'+status+'">'+statusLabel+'</span></div>'+(status!=='refunded'&&net>0?'<button type="button" class="retail-refund-btn" onclick="event.stopPropagation();openRetailRefundModal(\''+saleId+'\')">Возврат</button>':'')+'</article>';
         }).join(''):'<div class="retail-empty">Пока нет товарных чеков</div>';
     }
 }
@@ -7685,6 +7688,32 @@ function updateRetailPaymentFields(){
         const total=retailSaleCart.reduce((sum,row)=>sum+row.quantity*row.unitPrice,0);
         paid.value=status==='paid'?String(total):'0';
     }
+}
+
+function openRetailSaleReceipt(saleId){
+    const sale=clientRetailSales.find(item=>String(item.id)===String(saleId));
+    if(!sale)return showToast('Чек не найден','error');
+    const root=document.getElementById('retailReceiptContent');
+    const title=document.getElementById('retailReceiptTitle');
+    if(!root||!title)return;
+    const fmt=value=>Math.round(Number(value)||0).toLocaleString('ru-RU')+' ₽';
+    const status=sale.paymentStatus==='refunded'?'refunded':sale.paymentStatus==='partial'?'partial':sale.paymentStatus==='unpaid'?'unpaid':'paid';
+    const statusLabel={paid:'Оплачено',partial:'Частично оплачено',unpaid:'Не оплачено',refunded:'Полный возврат'}[status];
+    const total=Math.max(0,Number(sale.total)||0);
+    const net=getRetailSaleNetTotal(sale);
+    const paid=Math.max(0,Number(sale.paidAmount??(status==='paid'?net:0))||0);
+    const refunded=(Array.isArray(sale.refunds)?sale.refunds:[]).reduce((sum,item)=>sum+(Number(item.value)||0),0);
+    const paymentMethod={card:'Карта',cash:'Наличные',transfer:'Перевод',mixed:'Смешанная',other:'Не указан'}[sale.paymentMethod]||'Не указан';
+    const soldAt=sale.soldAt?new Date(sale.soldAt).toLocaleString('ru-RU'):'Дата не указана';
+    title.textContent='Товарный чек';
+    root.innerHTML='<div class="retail-receipt-top"><div><span>КЛИЕНТ</span><strong>'+escapeBookingHtml(sale.clientNameSnapshot||'Клиент')+'</strong><small>'+soldAt+'</small></div><span class="retail-payment-status status-'+status+'">'+statusLabel+'</span></div>'+
+        '<div class="retail-receipt-number">ЧЕК № '+escapeBookingHtml(String(sale.id).replace(/^sale_/,'').slice(-12).toUpperCase())+'</div>'+
+        '<div class="retail-receipt-items">'+(sale.items||[]).map(item=>{const qty=Math.max(0,Number(item.quantity)||0),price=Math.max(0,Number(item.unitPrice)||0),returned=Math.max(0,Number(item.refundedQuantity)||0);return '<div class="retail-receipt-item"><div><strong>'+escapeBookingHtml(item.titleSnapshot||'Товар')+'</strong><small>'+qty+' шт. × '+fmt(price)+(returned?' · возвращено '+returned+' шт.':'')+'</small></div><b>'+fmt(Math.max(0,qty-returned)*price)+'</b></div>';}).join('')+'</div>'+
+        '<div class="retail-receipt-totals"><div><span>Сумма товаров</span><b>'+fmt(total)+'</b></div>'+(refunded?'<div><span>Возвраты</span><b>− '+fmt(refunded)+'</b></div>':'')+'<div class="retail-receipt-grand"><span>Итого</span><strong>'+fmt(net)+'</strong></div><div><span>Получено</span><b>'+fmt(paid)+'</b></div><div><span>Остаток к оплате</span><b>'+fmt(Math.max(0,net-paid))+'</b></div></div>'+
+        '<div class="retail-receipt-payment"><span>Способ оплаты</span><strong>'+paymentMethod+'</strong></div>'+
+        (sale.notes?'<div class="retail-receipt-note"><span>Комментарий</span><p>'+escapeBookingHtml(sale.notes)+'</p></div>':'')+
+        (Array.isArray(sale.refunds)&&sale.refunds.length?'<div class="retail-receipt-refunds"><strong>История возвратов</strong>'+sale.refunds.map(refund=>'<div><span>'+ (refund.createdAt?new Date(refund.createdAt).toLocaleString('ru-RU'):'Возврат')+'</span><b>− '+fmt(refund.value)+'</b></div>').join('')+'</div>':'');
+    openModal('retailReceiptModal');
 }
 
 let activeRetailRefundSaleId = null;
