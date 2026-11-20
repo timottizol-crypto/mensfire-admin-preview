@@ -11526,3 +11526,21 @@ html.light-theme #calendarModal .calendar-year-option { color: #29271f; }
 }
 
 #calendarModal [hidden] { display: none !important; }
+
+
+/* Прокрутка истории розничных чеков: включается только при количестве больше восьми */
+.retail-history-panel #retailSalesHistory.is-scrollable{
+    max-height:520px;
+    overflow-y:auto;
+    overflow-x:hidden;
+    padding-right:6px;
+    overscroll-behavior:contain;
+    scrollbar-width:thin;
+    scrollbar-color:rgba(198,160,90,.55) transparent;
+}
+.retail-history-panel #retailSalesHistory.is-scrollable::-webkit-scrollbar{width:6px}
+.retail-history-panel #retailSalesHistory.is-scrollable::-webkit-scrollbar-track{background:transparent}
+.retail-history-panel #retailSalesHistory.is-scrollable::-webkit-scrollbar-thumb{background:rgba(198,160,90,.45);border-radius:10px}
+@media(max-width:1100px) and (min-width:768px){
+    .retail-history-panel{max-height:none;overflow:visible}
+}
