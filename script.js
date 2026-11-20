@@ -710,7 +710,7 @@ function closeModal(id) {
 }
 
 const MENSFIRE_INTERFACE_SETTINGS_KEY = 'mensfire_admin_interface_settings';
-const MENSFIRE_INTERFACE_DEFAULTS = { accent: 'gold', density: 'comfortable', radius: 'rounded', motion: 'on', font: 'normal' };
+const MENSFIRE_INTERFACE_DEFAULTS = { accent: 'gold', density: 'comfortable', radius: 'rounded', motion: 'on' };
 function getMensfireInterfaceSettings() {
     try {
         const saved = JSON.parse(localStorage.getItem(MENSFIRE_INTERFACE_SETTINGS_KEY) || 'null');
@@ -720,11 +720,10 @@ function getMensfireInterfaceSettings() {
 function applyMensfireInterfaceSettings(settings, persist = true) {
     const root = document.documentElement;
     const valid = {
-        accent: ['gold', 'graphite', 'silver', 'bronze'],
+        accent: ['gold', 'silver', 'bronze'],
         density: ['comfortable', 'compact'],
         radius: ['soft', 'rounded'],
-        motion: ['on', 'off'],
-        font: ['small', 'normal', 'large']
+        motion: ['on', 'off']
     };
     const next = { ...MENSFIRE_INTERFACE_DEFAULTS };
     Object.keys(valid).forEach(key => { if (valid[key].includes(settings?.[key])) next[key] = settings[key]; });
@@ -733,8 +732,7 @@ function applyMensfireInterfaceSettings(settings, persist = true) {
     root.classList.toggle('setting-radius-soft', next.radius === 'soft');
     root.classList.toggle('setting-radius-rounded', next.radius === 'rounded');
     root.classList.toggle('setting-motion-off', next.motion === 'off');
-    root.classList.toggle('setting-font-small', next.font === 'small');
-    root.classList.toggle('setting-font-large', next.font === 'large');
+    root.classList.remove('setting-font-small', 'setting-font-large');
     if (persist) { try { localStorage.setItem(MENSFIRE_INTERFACE_SETTINGS_KEY, JSON.stringify(next)); } catch (error) {} }
     syncProfileSettingsUI();
     return next;
@@ -742,7 +740,7 @@ function applyMensfireInterfaceSettings(settings, persist = true) {
 function updateMensfireInterfaceSetting(key, value) {
     const current = getMensfireInterfaceSettings();
     const next = applyMensfireInterfaceSettings({ ...current, [key]: value });
-    const labels = { accent: 'Акцентный цвет изменён', density: 'Плотность интерфейса изменена', radius: 'Скругление карточек изменено', motion: 'Настройка анимаций изменена', font: 'Размер текста изменён' };
+    const labels = { accent: 'Акцентный цвет изменён', density: 'Плотность интерфейса изменена', radius: 'Скругление карточек изменено', motion: 'Настройка анимаций изменена' };
     showToast(labels[key] || 'Настройка обновлена', 'success');
     return next;
 }
@@ -810,11 +808,11 @@ function goHomeFromHeader() {
 
 // Делегирование кликов для компактных переключателей окна настроек.
 document.addEventListener('click', event => {
-    const button = event.target.closest('[data-setting-accent], [data-setting-density], [data-setting-radius], [data-setting-motion], [data-setting-font], [data-profile-theme], [data-drawer-mode]');
+    const button = event.target.closest('[data-setting-accent], [data-setting-density], [data-setting-radius], [data-setting-motion], [data-profile-theme], [data-drawer-mode]');
     if (!button) return;
     const settingMap = [
         ['data-setting-accent', 'accent'], ['data-setting-density', 'density'],
-        ['data-setting-radius', 'radius'], ['data-setting-motion', 'motion'], ['data-setting-font', 'font']
+        ['data-setting-radius', 'radius'], ['data-setting-motion', 'motion']
     ];
     const setting = settingMap.find(([attribute]) => button.hasAttribute(attribute));
     if (setting) { updateMensfireInterfaceSetting(setting[1], button.getAttribute(setting[0])); return; }
