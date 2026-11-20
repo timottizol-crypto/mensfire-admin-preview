@@ -441,6 +441,13 @@ function closeMobileMoreMenu() {
     }
 }
 
+document.addEventListener('click', event => {
+    if (!event.target.closest('#bottomNav')) closeMobileMoreMenu();
+});
+document.addEventListener('keydown', event => {
+    if (event.key === 'Escape') closeMobileMoreMenu();
+});
+
 function initDesktopNav() {
     const nav = document.getElementById('bottomNav');
     const app = document.getElementById('appContainer');
