@@ -8010,7 +8010,7 @@ function renderInventoryAnalytics(){
         '<div class="inventory-kpi"><span>Товаров на складе</span><strong>'+totalUnits.toLocaleString('ru-RU')+'</strong><small>'+inventoryProducts.filter(item=>item.active).length+' активных позиций</small></div>'+
         '<div class="inventory-kpi '+(low.length?'is-warning':'')+'"><span>Нужно пополнить</span><strong>'+low.length+'</strong><small>Позиции на минимуме или ниже</small></div>';
     const rows=Array.from(productMap.values()).filter(row=>row.unitsSold||row.unitsReturned).sort((a,b)=>(b.revenue-b.refunds)-(a.revenue-a.refunds));
-    productsRoot.innerHTML=rows.length?'<div class="inventory-analytics-table-wrap"><table class="inventory-analytics-table"><thead><tr><th>Товар</th><th>Продано</th><th>Возврат</th><th>Выручка</th><th>Прибыль*</th></tr></thead><tbody>'+rows.map(row=>{
+    productsRoot.innerHTML=rows.length?'<div class="inventory-analytics-table-wrap'+(rows.length>6?' inventory-analytics-scroll inventory-analytics-scroll-products':'')+'"><table class="inventory-analytics-table"><thead><tr><th>Товар</th><th>Продано</th><th>Возврат</th><th>Выручка</th><th>Прибыль*</th></tr></thead><tbody>'+rows.map(row=>{
         const net=row.revenue-row.refunds,netUnits=row.unitsSold-row.unitsReturned;
         const known=row.costUnknownUnits===0;
         return '<tr><td><strong>'+escapeBookingHtml(row.product.title)+'</strong><small>'+escapeBookingHtml(row.product.category)+'</small></td><td>'+row.unitsSold+'</td><td>'+row.unitsReturned+'</td><td>'+fmt(net)+'</td><td>'+ (known?fmt(net-(row.cost-row.returnedCost)):'Нет полной себестоимости')+'</td></tr>';
@@ -8029,7 +8029,7 @@ function renderInventoryAnalytics(){
             const firstCost=first.unitCost,lastCost=last.unitCost;
             return {...row,batches,first,last,firstCost,lastCost,delta:lastCost-firstCost,percent:firstCost>0?(lastCost-firstCost)/firstCost*100:null};
         }).filter(row=>row.batches.length>1&&Math.abs(row.delta)>0.001).sort((a,b)=>Math.abs(b.percent??0)-Math.abs(a.percent??0));
-        priceRoot.innerHTML=changes.length?'<div class="inventory-price-change-list">'+changes.slice(0,12).map(row=>{
+        priceRoot.innerHTML=changes.length?'<div class="inventory-price-change-list'+(changes.length>6?' inventory-analytics-scroll inventory-analytics-scroll-prices':'')+'">'+changes.map(row=>{
             const up=row.delta>0,percent=row.percent===null?'—':(up?'+':'')+row.percent.toFixed(1)+'%';
             return '<div class="inventory-price-change-row"><div><strong>'+escapeBookingHtml(row.title)+'</strong><small>'+row.batches.length+' партий · '+escapeBookingHtml(row.first.supplier)+' → '+escapeBookingHtml(row.last.supplier)+'</small></div><div class="inventory-price-change-values"><span>'+fmt(row.firstCost)+' → '+fmt(row.lastCost)+'</span><b class="'+(up?'is-up':'is-down')+'">'+(up?'▲ ':'▼ ')+percent+'</b></div></div>';
         }).join('')+'</div>':'<div class="inventory-empty compact">За выбранный период пока нет товаров с несколькими приёмками для сравнения закупочной цены</div>';
@@ -8050,7 +8050,7 @@ function renderInventoryAnalytics(){
             const best=suppliers[0],highest=suppliers[suppliers.length-1],spread=highest.average-best.average;
             return {...row,best,highest,spread,percent:best.average>0?spread/best.average*100:0};
         }).filter(Boolean).sort((a,b)=>b.spread-a.spread);
-        supplierCompareRoot.innerHTML=rows.length?'<div class="inventory-supplier-compare-list">'+rows.slice(0,12).map(row=>{
+        supplierCompareRoot.innerHTML=rows.length?'<div class="inventory-supplier-compare-list'+(rows.length>6?' inventory-analytics-scroll inventory-analytics-scroll-suppliers':'')+'">'+rows.map(row=>{
             const qty=Math.max(1,Number(inventoryProducts.find(p=>String(p.id)===String(row.productId))?.minStock)||1);
             return '<div class="inventory-supplier-compare-row"><div class="inventory-supplier-compare-product"><strong>'+escapeBookingHtml(row.title)+'</strong><small>'+row.suppliers.length+' поставщика · '+row.best.batches+' партий у выгоднейшего</small></div><div class="inventory-supplier-compare-prices"><span><b>'+escapeBookingHtml(row.best.name)+'</b> · '+fmt(row.best.average)+'/ед.</span><span>Дороже: '+escapeBookingHtml(row.highest.name)+' · '+fmt(row.highest.average)+'/ед.</span><strong>Разница '+fmt(row.spread)+'/ед. ('+row.percent.toFixed(1)+'%)</strong><small>Потенциальная экономия на '+qty+' шт.: '+fmt(row.spread*qty)+'</small></div></div>';
         }).join('')+'</div>':'<div class="inventory-empty compact">Для сравнения пока недостаточно партий от двух разных поставщиков по одному товару</div>';
@@ -8074,12 +8074,12 @@ function renderInventoryAnalytics(){
             }
         });
         alerts.sort((a,b)=>b.increase-a.increase);
-        priceAlertRoot.innerHTML=alerts.length?'<div class="inventory-price-alert-list">'+alerts.slice(0,12).map(alert=>{
+        priceAlertRoot.innerHTML=alerts.length?'<div class="inventory-price-alert-list'+(alerts.length>6?' inventory-analytics-scroll inventory-analytics-scroll-alerts':'')+'">'+alerts.map(alert=>{
             return '<div class="inventory-price-alert-row"><div><strong>'+escapeBookingHtml(alert.title)+'</strong><small>'+escapeBookingHtml(alert.previous.supplier)+' → '+escapeBookingHtml(alert.current.supplier)+' · '+new Date(alert.current.date).toLocaleDateString('ru-RU')+'</small></div><div><b>+'+alert.increase.toFixed(1)+'%</b><span>'+fmt(alert.previous.unitCost)+' → '+fmt(alert.current.unitCost)+'/ед.</span><small>Новая партия: '+alert.current.quantity+' шт.</small></div></div>';
         }).join('')+'</div>':'<div class="inventory-empty compact">В выбранном периоде не обнаружено повышений закупочной цены на 10% и более относительно предыдущей принятой партии</div>';
     }
     const restock=low.slice().sort((a,b)=>(a.stock-a.minStock)-(b.stock-b.minStock));
-    restockRoot.innerHTML=restock.length?restock.map(item=>'<div class="inventory-movement-row"><div><strong>'+escapeBookingHtml(item.title)+'</strong><small>Остаток: '+item.stock+' '+escapeBookingHtml(item.unit)+' · минимум: '+item.minStock+' · рекомендуется добавить '+Math.max(0,item.minStock-item.stock)+'</small></div><span class="is-negative">'+(item.stock<=0?'Нет': 'Мало')+'</span></div>').join(''):'<div class="inventory-empty compact">Все активные товары выше минимального остатка</div>';
+    restockRoot.innerHTML=restock.length?'<div class="inventory-restock-list">'+restock.map(item=>'<div class="inventory-movement-row inventory-restock-row"><div><strong>'+escapeBookingHtml(item.title)+'</strong><small>Остаток: '+item.stock+' '+escapeBookingHtml(item.unit)+' · минимум: '+item.minStock+' · рекомендуется добавить '+Math.max(0,item.minStock-item.stock)+'</small></div><span class="is-negative">'+(item.stock<=0?'Нет': 'Мало')+'</span></div>').join('')+'</div>':'<div class="inventory-empty compact">Все активные товары выше минимального остатка</div>';
     const note=document.getElementById('inventoryAnalyticsNote');
     if(note)note.textContent='* Себестоимость рассчитывается по цене закупки, сохранённой в момент продажи. Для старых чеков без снимка используется текущая закупочная цена товара. Для '+costUnknownUnits+' проданных единиц себестоимость неизвестна; ещё для '+returnedCostUnknownUnits+' возвращённых единиц себестоимость восстановить не удалось. Прибыль может быть неполной.';
 }
