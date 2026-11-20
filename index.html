@@ -19,7 +19,7 @@
         }
     </script>
 
-    <link rel="stylesheet" href="style.css?v=retail-checkout-polish-20261120-1">
+    <link rel="stylesheet" href="style.css?v=retail-receipt-details-20261120-1">
     <link rel="stylesheet" href="theme-light.css?v=client-details-desktop-20261118-2">
 </head>
 <body class="header-hidden">
@@ -318,6 +318,14 @@
                     <button type="button" class="checkout-btn" onclick="saveRetailSale()">Сохранить чек и списать со склада</button>
                 </section>
                 <section class="glass-card retail-history-panel"><div class="finance-panel-heading"><div><h3>Последние чеки</h3><p>История розничных продаж MensFire</p></div></div><div id="retailSalesHistory"></div></section>
+            </div>
+        </div>
+
+        <div class="modal" id="retailReceiptModal">
+            <div class="modal-content retail-receipt-modal-content">
+                <div class="booking-detail-heading"><h2 id="retailReceiptTitle">Товарный чек</h2><button class="close-btn" type="button" onclick="closeModal('retailReceiptModal')">&times;</button></div>
+                <div id="retailReceiptContent"></div>
+                <button type="button" class="btn-cancel" onclick="closeModal('retailReceiptModal')">Закрыть</button>
             </div>
         </div>
 
