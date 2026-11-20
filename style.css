@@ -11106,3 +11106,34 @@ html.light-theme #viewInventory .inventory-movement-month .inventory-movement-ro
   border-radius:12px!important;
   border-color:#dfe4eb!important;
 }
+
+
+/* Light theme contrast refinement: slightly clearer surfaces and card edges. */
+html.light-theme{
+  --mf-glass-surface-light:linear-gradient(145deg,rgba(255,255,255,.97),rgba(234,240,247,.84));
+  --mf-glass-edge-light:rgba(45,61,82,.23);
+  --mf-glass-depth-light:0 14px 34px rgba(28,42,60,.12),inset 0 1px 0 rgba(255,255,255,.98);
+}
+html.light-theme :is(
+  .glass-card,.finance-panel,.finance-kpi-card,.dashboard-panel,.dashboard-kpi-card,
+  .clients-chart-card,.inventory-product-card,.profile-main-card,.team-card,.login-card,
+  .booking-history-section,.booking-payment-panel,.client-followup-section,
+  .client-retail-summary,.work-schedule-day,.available-slots-panel,.service-group,
+  .profile-overview-card,.schedule-overview-card,.team-overview-card,.service-overview-card,
+  .finance-date-navigation
+){
+  border-color:rgba(45,61,82,.23)!important;
+}
+html.light-theme #viewInventory .inventory-product-actions .inventory-product-delete,
+html.light-theme #viewInventory .inventory-product-actions .inventory-product-delete:hover,
+html.light-theme #viewInventory .inventory-product-actions .inventory-product-delete:focus-visible{
+  color:#171717!important;
+  -webkit-text-fill-color:#171717!important;
+  background:rgba(166,57,64,.13)!important;
+  border-color:rgba(145,48,55,.34)!important;
+}
+html.light-theme #viewInventory .inventory-product-actions .inventory-product-delete:hover,
+html.light-theme #viewInventory .inventory-product-actions .inventory-product-delete:focus-visible{
+  background:rgba(166,57,64,.20)!important;
+  border-color:rgba(145,48,55,.48)!important;
+}
