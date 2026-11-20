@@ -12207,3 +12207,54 @@ html.setting-radius-rounded .view .glass-card,html.setting-radius-rounded .view 
 html.setting-motion-off *,html.setting-motion-off *::before,html.setting-motion-off *::after{animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important;scroll-behavior:auto!important}
 html.setting-font-small .view{font-size:13px}html.setting-font-large .view{font-size:16px}
 @media(max-width:767px){.profile-open-settings-btn{min-height:40px;padding:0 12px;font-size:11px}.settings-modal-content{width:calc(100vw - 20px);max-height:90vh;border-radius:19px}.settings-modal-heading{padding:19px 17px 15px}.settings-modal-scroll{padding:13px 13px 16px;gap:10px}.settings-section{padding:14px;gap:13px}.settings-control-group{grid-template-columns:1fr;gap:9px}.settings-choice-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.settings-choice-row{justify-content:stretch}.settings-choice-row .settings-choice{flex:1 1 auto}.settings-modal-footer{padding:12px 15px 16px}.settings-modal-footer button{font-size:10px}.settings-reset-btn{padding:0 9px}}
+
+
+/* MENSFIRE — dedicated settings workspace */
+#viewSettings.settings-page-view{box-sizing:border-box;min-width:0;min-height:0;overflow-x:hidden;overflow-y:auto;padding-top:clamp(22px,3vw,38px)!important;padding-bottom:clamp(28px,4vw,48px)!important}
+#viewSettings .settings-page-shell{width:100%;max-width:1120px;min-width:0;margin:0 auto;display:flex;flex-direction:column;gap:22px}
+#viewSettings .settings-page-header{display:flex;align-items:center;justify-content:space-between;gap:20px;min-width:0;padding:0 2px}
+#viewSettings .settings-page-heading-copy{min-width:0}
+#viewSettings .settings-page-heading-copy h2{margin:5px 0 0;color:var(--text-main);font-size:clamp(25px,3vw,34px);font-weight:800;letter-spacing:-.7px;overflow-wrap:anywhere}
+#viewSettings .settings-page-heading-copy p{margin:7px 0 0;color:var(--text-muted);font-size:12px;line-height:1.55;overflow-wrap:anywhere}
+#viewSettings .settings-back-btn{display:inline-flex;align-items:center;justify-content:center;gap:9px;flex:0 0 auto;min-height:42px;padding:0 15px;border:1px solid color-mix(in srgb,var(--gold) 38%,transparent);border-radius:12px;background:color-mix(in srgb,var(--gold) 9%,transparent);color:var(--text-main);font:700 11px Montserrat,sans-serif;cursor:pointer;transition:background .2s ease,border-color .2s ease}
+#viewSettings .settings-back-btn:hover{background:color-mix(in srgb,var(--gold) 17%,transparent);border-color:var(--gold)}
+#viewSettings .settings-back-btn span:first-child{font-size:17px;line-height:1}
+#viewSettings .settings-page-grid{display:grid;grid-template-columns:minmax(0,1.25fr) minmax(280px,.75fr);align-items:start;gap:16px;min-width:0}
+#viewSettings .settings-side-column{display:grid;gap:16px;min-width:0}
+#viewSettings .settings-section{box-sizing:border-box;min-width:0;padding:clamp(16px,2vw,22px);border:1px solid rgba(255,255,255,.09);border-radius:19px;background:linear-gradient(145deg,rgba(255,255,255,.045),rgba(255,255,255,.018));display:flex;flex-direction:column;gap:17px}
+#viewSettings .settings-section-heading{display:flex;align-items:center;gap:12px;min-width:0}
+#viewSettings .settings-section-icon{display:grid;place-items:center;flex:0 0 38px;width:38px;height:38px;border:1px solid color-mix(in srgb,var(--gold) 35%,transparent);border-radius:12px;background:color-mix(in srgb,var(--gold) 12%,transparent);color:var(--gold);font-size:18px}
+#viewSettings .settings-section-heading>div{min-width:0}
+#viewSettings .settings-section-heading h3{margin:0;color:var(--text-main);font-size:14px;font-weight:800;overflow-wrap:anywhere}
+#viewSettings .settings-section-heading p{margin:5px 0 0;color:var(--text-muted);font-size:10px;line-height:1.55;overflow-wrap:anywhere}
+#viewSettings .settings-control-group{display:grid;grid-template-columns:minmax(0,.9fr) minmax(0,1.1fr);align-items:center;gap:16px;min-width:0}
+#viewSettings .settings-control-copy{display:grid;gap:5px;min-width:0}
+#viewSettings .settings-control-copy strong{color:var(--text-main);font-size:12px;font-weight:800;overflow-wrap:anywhere}
+#viewSettings .settings-control-copy span{color:var(--text-muted);font-size:10px;line-height:1.5;overflow-wrap:anywhere}
+#viewSettings .settings-choice-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:7px;min-width:0}
+#viewSettings .settings-choice-row{display:flex;justify-content:flex-end;align-items:stretch;flex-wrap:wrap;gap:7px;min-width:0}
+#viewSettings .settings-choice{box-sizing:border-box;display:flex;align-items:center;justify-content:center;gap:7px;min-width:0;min-height:40px;max-width:100%;padding:8px 10px;border:1px solid rgba(255,255,255,.13);border-radius:11px;background:rgba(255,255,255,.035);color:var(--text-main);font:700 10px/1.35 Montserrat,sans-serif;text-align:center;white-space:normal;overflow-wrap:anywhere;cursor:pointer;transition:background .2s ease,border-color .2s ease,transform .2s ease}
+#viewSettings .settings-choice:hover{border-color:color-mix(in srgb,var(--gold) 65%,transparent)}
+#viewSettings .settings-choice:active{transform:scale(.985)}
+#viewSettings .settings-choice.is-active{border-color:var(--gold);background:color-mix(in srgb,var(--gold) 15%,transparent);box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--gold) 15%,transparent)}
+#viewSettings .settings-choice-row>.settings-choice{flex:1 1 95px}
+#viewSettings .settings-accent-choice{padding:8px 5px}
+#viewSettings .accent-swatch{width:15px;height:15px;flex:0 0 15px;border-radius:50%;border:2px solid rgba(255,255,255,.25)}
+#viewSettings .accent-gold{background:#D4AF37}#viewSettings .accent-graphite{background:#9AA4B2}#viewSettings .accent-silver{background:#C8D0DA}#viewSettings .accent-bronze{background:#C58A55}
+#viewSettings .settings-divider{height:1px;width:100%;background:rgba(255,255,255,.09)}
+#viewSettings .settings-drawer-options{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));justify-content:stretch}
+#viewSettings .settings-drawer-options .settings-choice{display:flex;flex-direction:column;align-items:flex-start;justify-content:center;gap:5px;min-height:64px;text-align:left}
+#viewSettings .settings-drawer-options strong{font-size:11px}#viewSettings .settings-drawer-options small{color:var(--text-muted);font-size:9px;font-weight:500;line-height:1.4;overflow-wrap:anywhere}
+#viewSettings .settings-section-bottom{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;margin-top:2px;padding-top:14px;border-top:1px solid rgba(255,255,255,.09)}
+#viewSettings .settings-footnote{margin:0;color:var(--text-muted);font-size:10px;line-height:1.5;overflow-wrap:anywhere}
+#viewSettings .settings-reset-btn{min-height:37px;max-width:100%;padding:8px 12px;border:1px solid rgba(255,255,255,.15);border-radius:10px;background:transparent;color:var(--text-muted);font:700 10px Montserrat,sans-serif;cursor:pointer}
+#viewSettings .settings-reset-btn:hover{border-color:var(--gold);color:var(--text-main)}
+html[data-mf-accent="graphite"]{--gold:#9AA4B2;--gold-hover:#737D8B}html[data-mf-accent="silver"]{--gold:#C8D0DA;--gold-hover:#A9B4C2}html[data-mf-accent="bronze"]{--gold:#C58A55;--gold-hover:#A96F3D}
+html.setting-density-compact .view .glass-card,html.setting-density-compact .view .finance-panel,html.setting-density-compact .view .dashboard-panel,html.setting-density-compact .view .inventory-product-card,html.setting-density-compact .view .inventory-kpi{padding:clamp(12px,1.35vw,17px)!important}
+html.setting-radius-soft .view .glass-card,html.setting-radius-soft .view .finance-panel,html.setting-radius-soft .view .dashboard-panel,html.setting-radius-soft .view .inventory-product-card,html.setting-radius-soft .view .inventory-kpi{border-radius:13px!important}
+html.setting-radius-rounded .view .glass-card,html.setting-radius-rounded .view .finance-panel,html.setting-radius-rounded .view .dashboard-panel,html.setting-radius-rounded .view .inventory-product-card,html.setting-radius-rounded .view .inventory-kpi{border-radius:23px!important}
+html.setting-motion-off *,html.setting-motion-off *::before,html.setting-motion-off *::after{animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important;scroll-behavior:auto!important}
+html.setting-font-small .view{font-size:13px}html.setting-font-large .view{font-size:16px}
+@media(max-width:1100px){#viewSettings .settings-page-grid{grid-template-columns:minmax(0,1fr)}#viewSettings .settings-side-column{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:767px){#viewSettings.settings-page-view{padding:20px 14px 104px!important}#viewSettings .settings-page-shell{gap:17px}#viewSettings .settings-page-header{align-items:flex-start;gap:12px}#viewSettings .settings-page-heading-copy h2{font-size:25px}#viewSettings .settings-page-heading-copy p{font-size:10px}#viewSettings .settings-back-btn{min-height:38px;padding:0 10px;font-size:10px}#viewSettings .settings-page-grid{gap:12px}#viewSettings .settings-side-column{grid-template-columns:minmax(0,1fr);gap:12px}#viewSettings .settings-section{padding:15px;border-radius:16px;gap:14px}#viewSettings .settings-control-group{grid-template-columns:minmax(0,1fr);gap:9px}#viewSettings .settings-choice-grid{grid-template-columns:repeat(2,minmax(0,1fr))}#viewSettings .settings-choice-row{justify-content:stretch}#viewSettings .settings-choice-row>.settings-choice{flex:1 1 105px}#viewSettings .settings-drawer-options{grid-template-columns:repeat(2,minmax(0,1fr))}#viewSettings .settings-section-bottom{align-items:flex-start}#viewSettings .settings-reset-btn{flex:0 0 auto}}
+@media(max-width:380px){#viewSettings.settings-page-view{padding-left:10px!important;padding-right:10px!important}#viewSettings .settings-page-header{gap:8px}#viewSettings .settings-back-btn{gap:5px;padding:0 8px}#viewSettings .settings-section{padding:12px}#viewSettings .settings-choice{padding:8px 6px;font-size:9px}#viewSettings .settings-drawer-options{grid-template-columns:minmax(0,1fr)}}
