@@ -821,3 +821,17 @@ html.light-theme .profile-setting-option{background:rgba(35,48,65,.035)!importan
 html.light-theme .profile-setting-option:hover,html.light-theme .profile-setting-option.is-active{background:rgba(199,154,42,.13)!important;border-color:#C79A2A!important}
 html.light-theme .profile-option-icon{background:rgba(199,154,42,.14)!important}
 html.light-theme .profile-stack-icon i,html.light-theme .profile-single-icon i{background:#fff!important}
+
+
+/* Settings window — light theme */
+html.light-theme .settings-modal-content{background:rgba(250,251,253,.98)!important;border:1px solid rgba(35,48,65,.15)!important;box-shadow:0 28px 90px rgba(25,35,50,.2)!important}
+html.light-theme .settings-modal-heading,html.light-theme .settings-modal-footer{border-color:rgba(35,48,65,.12)!important}
+html.light-theme .settings-modal-heading h2,html.light-theme .settings-section-heading h3,html.light-theme .settings-control-copy strong{color:#202938!important}
+html.light-theme .settings-modal-heading p,html.light-theme .settings-section-heading p,html.light-theme .settings-control-copy span,html.light-theme .settings-footnote,html.light-theme .settings-drawer-options small{color:#586477!important}
+html.light-theme .settings-section{background:rgba(255,255,255,.78)!important;border-color:rgba(35,48,65,.12)!important}
+html.light-theme .settings-choice{background:rgba(35,48,65,.035)!important;border-color:rgba(35,48,65,.14)!important;color:#263244!important}
+html.light-theme .settings-choice.is-active{background:color-mix(in srgb,var(--gold) 15%,white)!important;border-color:var(--gold)!important}
+html.light-theme .settings-divider{background:rgba(35,48,65,.12)!important}
+html.light-theme[data-mf-accent="graphite"]{--gold:#64748B;--gold-hover:#526071}
+html.light-theme[data-mf-accent="silver"]{--gold:#667085;--gold-hover:#4B5565}
+html.light-theme[data-mf-accent="bronze"]{--gold:#A96532;--gold-hover:#8F5428}
