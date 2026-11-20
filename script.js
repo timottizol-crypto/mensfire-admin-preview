@@ -85,7 +85,8 @@ let dashboardRangeStart = dashboardSelectedDate;
 let dashboardRangeEnd = dashboardSelectedDate;
 let selectedBlockDate = "";
 let pickerYear = new Date().getFullYear();
-let pickerMonth = new Date().getMonth(); // 0-11
+let pickerMonth = new Date().getMonth();
+let calendarYearPickerOpen = false; // 0-11
 let editingBlockId = null;
 let confirmCallback = null;
 let staffToResetPin = null;
@@ -2461,108 +2462,144 @@ function openCustomDatePicker() {
 
 function renderCalendar() {
     const grid = document.getElementById('calendarGrid');
+    const yearGrid = document.getElementById('calendarYearGrid');
+    const weekdays = document.querySelector('#calendarModal .calendar-weekdays');
+    const monthTitle = document.getElementById('calendarMonthYearDisplay');
+    if (!grid || !monthTitle) return;
     const monthNames = ["Январь", "Февраль", "Март", "Апрель", "Май", "Июнь", "Июль", "Август", "Сентябрь", "Октябрь", "Ноябрь", "Декабрь"];
-    document.getElementById('calendarMonthYearDisplay').innerText = `${monthNames[pickerMonth]} ${pickerYear}`;
+    monthTitle.innerHTML = monthNames[pickerMonth] + '<span class="calendar-title-year">' + pickerYear + '</span><span class="calendar-title-chevron" aria-hidden="true">⌄</span>';
+    monthTitle.setAttribute('aria-expanded', calendarYearPickerOpen ? 'true' : 'false');
+    monthTitle.classList.toggle('is-year-open', calendarYearPickerOpen);
+    grid.hidden = calendarYearPickerOpen;
+    if (weekdays) weekdays.hidden = calendarYearPickerOpen;
+    if (yearGrid) yearGrid.hidden = !calendarYearPickerOpen;
 
-    grid.innerHTML = '';
-    
-    const firstDay = new Date(pickerYear, pickerMonth, 1);
-    let startDayOfWeek = firstDay.getDay(); // 0=Вс, 1=Пн
-    if (startDayOfWeek === 0) startDayOfWeek = 7; // Сдвигаем Вс на 7 место
-    
-    const daysInMonth = new Date(pickerYear, pickerMonth + 1, 0).getDate();
-
-    // Пустые ячейки до 1-го числа
-    for (let i = 1; i < startDayOfWeek; i++) {
-        const empty = document.createElement('div');
-        empty.className = 'calendar-day empty';
-        grid.appendChild(empty);
+    if (calendarYearPickerOpen) {
+        const startYear = Math.floor(pickerYear / 12) * 12;
+        const endYear = startYear + 11;
+        const rangeLabel = document.getElementById('calendarYearRange');
+        if (rangeLabel) rangeLabel.textContent = startYear + ' — ' + endYear;
+        yearGrid.innerHTML = '';
+        for (let year = startYear; year <= endYear; year++) {
+            const button = document.createElement('button');
+            button.type = 'button';
+            button.className = 'calendar-year-option' + (year === pickerYear ? ' selected' : '');
+            button.textContent = year;
+            button.setAttribute('aria-label', 'Выбрать ' + year + ' год');
+            button.onclick = () => {
+                pickerYear = year;
+                calendarYearPickerOpen = false;
+                renderCalendar();
+            };
+            yearGrid.appendChild(button);
+        }
+        return;
     }
 
-    // Дни месяца
-    for (let i = 1; i <= daysInMonth; i++) {
-        const dayDiv = document.createElement('div');
-        dayDiv.className = 'calendar-day';
-        dayDiv.innerText = i;
-        
-        const thisDateStr = `${String(i).padStart(2, '0')}.${String(pickerMonth + 1).padStart(2, '0')}.${pickerYear}`;
-        
-        if (thisDateStr === selectedBlockDate) {
-            dayDiv.classList.add('selected');
-        }
-
-        dayDiv.onclick = () => {
-            selectedBlockDate = thisDateStr;
-            if (reportDatePickerTarget) {
-                const target = reportDatePickerTarget;
-                if (target === 'financeStart') { financeRangeStart = thisDateStr; if (parseReportDate(financeRangeStart) > parseReportDate(financeRangeEnd)) financeRangeEnd = thisDateStr; }
-                if (target === 'financeEnd') { financeRangeEnd = thisDateStr; if (parseReportDate(financeRangeEnd) < parseReportDate(financeRangeStart)) financeRangeStart = thisDateStr; }
-                if (target === 'clientsStart') { clientsRangeStart = thisDateStr; if (parseReportDate(clientsRangeStart) > parseReportDate(clientsRangeEnd)) clientsRangeEnd = thisDateStr; }
-                if (target === 'clientsEnd') { clientsRangeEnd = thisDateStr; if (parseReportDate(clientsRangeEnd) < parseReportDate(clientsRangeStart)) clientsRangeStart = thisDateStr; }
-                if (target === 'teamStart') { teamRangeStart = thisDateStr; if (parseReportDate(teamRangeStart) > parseReportDate(teamRangeEnd)) teamRangeEnd = thisDateStr; }
-                if (target === 'teamEnd') { teamRangeEnd = thisDateStr; if (parseReportDate(teamRangeEnd) < parseReportDate(teamRangeStart)) teamRangeStart = thisDateStr; }
-                if (target === 'inventoryAnalyticsFrom' || target === 'inventoryAnalyticsTo') {
-                    const parts = thisDateStr.split('.');
-                    const isoDate = parts[2] + '-' + parts[1] + '-' + parts[0];
-                    const dateInput = document.getElementById(target);
-                    if (dateInput) dateInput.value = isoDate;
-                    const otherInput = document.getElementById(target === 'inventoryAnalyticsFrom' ? 'inventoryAnalyticsTo' : 'inventoryAnalyticsFrom');
-                    if (otherInput && otherInput.value && ((target === 'inventoryAnalyticsFrom' && isoDate > otherInput.value) || (target === 'inventoryAnalyticsTo' && isoDate < otherInput.value))) otherInput.value = isoDate;
-                }
-                if (target === 'clientTaskDueDate') {
-                    const dateInput = document.getElementById('clientTaskDueDate');
-                    if (dateInput) dateInput.value = thisDateStr;
-                }
-                if (target === 'clientsTaskAuditFrom' || target === 'clientsTaskAuditTo') {
-                    const [day, month, year] = thisDateStr.split('.');
-                    const isoDate = `${year}-${month}-${day}`;
-                    if (target === 'clientsTaskAuditFrom') clientsTaskAuditFrom = isoDate;
-                    else clientsTaskAuditTo = isoDate;
-                    if (clientsTaskAuditFrom && clientsTaskAuditTo && clientsTaskAuditFrom > clientsTaskAuditTo) {
-                        if (target === 'clientsTaskAuditFrom') clientsTaskAuditTo = isoDate;
-                        else clientsTaskAuditFrom = isoDate;
+    grid.innerHTML = '';
+    const firstDay = new Date(pickerYear, pickerMonth, 1);
+    let startDayOfWeek = firstDay.getDay();
+    if (startDayOfWeek === 0) startDayOfWeek = 7;
+    const daysInMonth = new Date(pickerYear, pickerMonth + 1, 0).getDate();
+    const cellCount = 42;
+    for (let cell = 0; cell < cellCount; cell++) {
+        const day = cell - startDayOfWeek + 2;
+        const dayDiv = document.createElement('button');
+        dayDiv.type = 'button';
+        if (day < 1 || day > daysInMonth) {
+            dayDiv.className = 'calendar-day empty';
+            dayDiv.disabled = true;
+        } else {
+            dayDiv.className = 'calendar-day';
+            dayDiv.textContent = day;
+            const thisDateStr = String(day).padStart(2, '0') + '.' + String(pickerMonth + 1).padStart(2, '0') + '.' + pickerYear;
+            if (thisDateStr === selectedBlockDate) dayDiv.classList.add('selected');
+            const today = new Date();
+            if (day === today.getDate() && pickerMonth === today.getMonth() && pickerYear === today.getFullYear()) dayDiv.classList.add('today');
+            dayDiv.setAttribute('aria-label', day + ' ' + monthNames[pickerMonth] + ' ' + pickerYear);
+            dayDiv.onclick = () => {
+                selectedBlockDate = thisDateStr;
+                if (reportDatePickerTarget) {
+                    const target = reportDatePickerTarget;
+                    if (target === 'financeStart') { financeRangeStart = thisDateStr; if (parseReportDate(financeRangeStart) > parseReportDate(financeRangeEnd)) financeRangeEnd = thisDateStr; }
+                    if (target === 'financeEnd') { financeRangeEnd = thisDateStr; if (parseReportDate(financeRangeEnd) < parseReportDate(financeRangeStart)) financeRangeStart = thisDateStr; }
+                    if (target === 'clientsStart') { clientsRangeStart = thisDateStr; if (parseReportDate(clientsRangeStart) > parseReportDate(clientsRangeEnd)) clientsRangeEnd = thisDateStr; }
+                    if (target === 'clientsEnd') { clientsRangeEnd = thisDateStr; if (parseReportDate(clientsRangeEnd) < parseReportDate(clientsRangeStart)) clientsRangeStart = thisDateStr; }
+                    if (target === 'teamStart') { teamRangeStart = thisDateStr; if (parseReportDate(teamRangeStart) > parseReportDate(teamRangeEnd)) teamRangeEnd = thisDateStr; }
+                    if (target === 'teamEnd') { teamRangeEnd = thisDateStr; if (parseReportDate(teamRangeEnd) < parseReportDate(teamRangeStart)) teamRangeStart = thisDateStr; }
+                    if (target === 'inventoryAnalyticsFrom' || target === 'inventoryAnalyticsTo') {
+                        const parts = thisDateStr.split('.');
+                        const isoDate = parts[2] + '-' + parts[1] + '-' + parts[0];
+                        const dateInput = document.getElementById(target);
+                        if (dateInput) dateInput.value = isoDate;
+                        const otherInput = document.getElementById(target === 'inventoryAnalyticsFrom' ? 'inventoryAnalyticsTo' : 'inventoryAnalyticsFrom');
+                        if (otherInput && otherInput.value && ((target === 'inventoryAnalyticsFrom' && isoDate > otherInput.value) || (target === 'inventoryAnalyticsTo' && isoDate < otherInput.value))) otherInput.value = isoDate;
                     }
+                    if (target === 'clientTaskDueDate') {
+                        const dateInput = document.getElementById('clientTaskDueDate');
+                        if (dateInput) dateInput.value = thisDateStr;
+                    }
+                    if (target === 'clientsTaskAuditFrom' || target === 'clientsTaskAuditTo') {
+                        const parts = thisDateStr.split('.');
+                        const isoDate = parts[2] + '-' + parts[1] + '-' + parts[0];
+                        if (target === 'clientsTaskAuditFrom') clientsTaskAuditFrom = isoDate;
+                        else clientsTaskAuditTo = isoDate;
+                        if (clientsTaskAuditFrom && clientsTaskAuditTo && clientsTaskAuditFrom > clientsTaskAuditTo) {
+                            if (target === 'clientsTaskAuditFrom') clientsTaskAuditTo = isoDate;
+                            else clientsTaskAuditFrom = isoDate;
+                        }
+                    }
+                    reportDatePickerTarget = null;
+                    closeModal('calendarModal');
+                    if (target.startsWith('dashboard')) {
+                        if (target === 'dashboardDay') {
+                            dashboardSelectedDate = thisDateStr;
+                            dashboardRangeStart = dashboardRangeEnd = thisDateStr;
+                            dashboardPeriodMode = 'day';
+                        } else if (target === 'dashboardStart') {
+                            dashboardRangeStart = thisDateStr;
+                            if (parseReportDate(dashboardRangeEnd) < parseReportDate(dashboardRangeStart)) dashboardRangeEnd = thisDateStr;
+                        } else {
+                            dashboardRangeEnd = thisDateStr;
+                            if (parseReportDate(dashboardRangeEnd) < parseReportDate(dashboardRangeStart)) dashboardRangeStart = thisDateStr;
+                        }
+                        renderDashboard();
+                    } else if (target.startsWith('finance')) renderFinance();
+                    else if (target.startsWith('clientsTaskAudit')) renderClientTasksHub();
+                    else if (target.startsWith('inventoryAnalytics')) renderInventoryAnalytics();
+                    else if (target === 'clientTaskDueDate') { /* value is already written to the date field */ }
+                    else if (target.startsWith('clients')) renderClients(currentClientsTab);
+                    else renderTeam();
+                    return;
                 }
-                reportDatePickerTarget = null;
+                if (calendarTargetInputId === 'newBookingDate' || calendarTargetInputId === 'waitlistDate') {
+                    const targetInput = document.getElementById(calendarTargetInputId);
+                    if (targetInput) targetInput.value = thisDateStr;
+                    calendarTargetInputId = null;
+                    if (targetInput?.id === 'newBookingDate') renderAvailableBookingSlots();
+                } else {
+                    const display = document.getElementById('customDateDisplay');
+                    if (display) display.innerText = selectedBlockDate;
+                }
                 closeModal('calendarModal');
-                if (target.startsWith('dashboard')) {
-                    if (target === 'dashboardDay') {
-                        dashboardSelectedDate = thisDateStr;
-                        dashboardRangeStart = dashboardRangeEnd = thisDateStr;
-                        dashboardPeriodMode = 'day';
-                    } else if (target === 'dashboardStart') {
-                        dashboardRangeStart = thisDateStr;
-                        if (parseReportDate(dashboardRangeEnd) < parseReportDate(dashboardRangeStart)) dashboardRangeEnd = thisDateStr;
-                    } else {
-                        dashboardRangeEnd = thisDateStr;
-                        if (parseReportDate(dashboardRangeEnd) < parseReportDate(dashboardRangeStart)) dashboardRangeStart = thisDateStr;
-                    }
-                    renderDashboard();
-                }
-                else if (target.startsWith('finance')) renderFinance();
-                else if (target.startsWith('clientsTaskAudit')) renderClientTasksHub();
-                else if (target.startsWith('inventoryAnalytics')) renderInventoryAnalytics();
-                else if (target === 'clientTaskDueDate') { /* value is already written to the date field */ }
-                else if (target.startsWith('clients')) renderClients(currentClientsTab);
-                else renderTeam();
-                return;
-            }
-            if (calendarTargetInputId === 'newBookingDate' || calendarTargetInputId === 'waitlistDate') {
-                const target = document.getElementById(calendarTargetInputId);
-                if (target) target.value = thisDateStr;
-                calendarTargetInputId = null;
-                if (target?.id === 'newBookingDate') renderAvailableBookingSlots();
-            } else {
-                const display = document.getElementById('customDateDisplay');
-                if (display) display.innerText = selectedBlockDate;
-            }
-            closeModal('calendarModal');
-        };
+            };
+        }
         grid.appendChild(dayDiv);
     }
 }
 
+function toggleCalendarYearPicker() {
+    calendarYearPickerOpen = !calendarYearPickerOpen;
+    renderCalendar();
+}
+
+function changeCalendarYearPage(delta) {
+    pickerYear += delta * 12;
+    renderCalendar();
+}
+
 function changeMonth(delta) {
+    calendarYearPickerOpen = false;
     pickerMonth += delta;
     if (pickerMonth < 0) {
         pickerMonth = 11;
@@ -3273,6 +3310,7 @@ function parseReportDate(value) {
 }
 function formatReportDate(date) { return date.toLocaleDateString('ru-RU'); }
 function openReportDatePicker(target) {
+    calendarYearPickerOpen = false;
     calendarTargetInputId = null;
     reportDatePickerTarget = target;
     const value = target === 'dashboardDay' ? dashboardSelectedDate : target === 'dashboardStart' ? dashboardRangeStart : target === 'dashboardEnd' ? dashboardRangeEnd : target === 'financeStart' ? financeRangeStart : target === 'financeEnd' ? financeRangeEnd : target === 'clientsStart' ? clientsRangeStart : target === 'clientsEnd' ? clientsRangeEnd : target === 'teamStart' ? teamRangeStart : target === 'teamEnd' ? teamRangeEnd : target === 'inventoryAnalyticsFrom' ? document.getElementById('inventoryAnalyticsFrom')?.value : target === 'inventoryAnalyticsTo' ? document.getElementById('inventoryAnalyticsTo')?.value : target === 'clientTaskDueDate' ? document.getElementById('clientTaskDueDate')?.value : target === 'clientsTaskAuditFrom' ? clientsTaskAuditFrom : clientsTaskAuditTo;
