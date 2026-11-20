@@ -701,6 +701,52 @@ function closeModal(id) {
     }
 }
 
+const MENSFIRE_INTERFACE_SETTINGS_KEY = 'mensfire_admin_interface_settings';
+const MENSFIRE_INTERFACE_DEFAULTS = { accent: 'gold', density: 'comfortable', radius: 'rounded', motion: 'on', font: 'normal' };
+function getMensfireInterfaceSettings() {
+    try {
+        const saved = JSON.parse(localStorage.getItem(MENSFIRE_INTERFACE_SETTINGS_KEY) || 'null');
+        return { ...MENSFIRE_INTERFACE_DEFAULTS, ...(saved && typeof saved === 'object' ? saved : {}) };
+    } catch (error) { return { ...MENSFIRE_INTERFACE_DEFAULTS }; }
+}
+function applyMensfireInterfaceSettings(settings, persist = true) {
+    const root = document.documentElement;
+    const valid = {
+        accent: ['gold', 'graphite', 'silver', 'bronze'],
+        density: ['comfortable', 'compact'],
+        radius: ['soft', 'rounded'],
+        motion: ['on', 'off'],
+        font: ['small', 'normal', 'large']
+    };
+    const next = { ...MENSFIRE_INTERFACE_DEFAULTS };
+    Object.keys(valid).forEach(key => { if (valid[key].includes(settings?.[key])) next[key] = settings[key]; });
+    root.dataset.mfAccent = next.accent;
+    root.classList.toggle('setting-density-compact', next.density === 'compact');
+    root.classList.toggle('setting-radius-soft', next.radius === 'soft');
+    root.classList.toggle('setting-radius-rounded', next.radius === 'rounded');
+    root.classList.toggle('setting-motion-off', next.motion === 'off');
+    root.classList.toggle('setting-font-small', next.font === 'small');
+    root.classList.toggle('setting-font-large', next.font === 'large');
+    if (persist) { try { localStorage.setItem(MENSFIRE_INTERFACE_SETTINGS_KEY, JSON.stringify(next)); } catch (error) {} }
+    syncProfileSettingsUI();
+    return next;
+}
+function updateMensfireInterfaceSetting(key, value) {
+    const current = getMensfireInterfaceSettings();
+    const next = applyMensfireInterfaceSettings({ ...current, [key]: value });
+    const labels = { accent: 'Акцентный цвет', density: 'Плотность интерфейса', radius: 'Скругление карточек', motion: 'Анимации', font: 'Размер текста' };
+    showToast((labels[key] || 'Настройка') + ' обновлено', 'success');
+    return next;
+}
+function resetMensfireInterfaceSettings() {
+    applyMensfireInterfaceSettings(MENSFIRE_INTERFACE_DEFAULTS);
+    showToast('Оформление сброшено', 'success');
+}
+function openSettingsModal() {
+    syncProfileSettingsUI();
+    openModal('settingsModal');
+}
+
 function syncProfileSettingsUI() {
     const isLight = document.documentElement.classList.contains('light-theme');
     const themeIcon = document.getElementById('themeIcon');
@@ -711,6 +757,15 @@ function syncProfileSettingsUI() {
         button.setAttribute('aria-pressed', String(selected));
     });
     const drawerMode = getMensfireDesktopDrawerMode();
+    const settings = getMensfireInterfaceSettings();
+    const settingAttributes = { accent: 'dataSettingAccent', density: 'dataSettingDensity', radius: 'dataSettingRadius', motion: 'dataSettingMotion', font: 'dataSettingFont' };
+    Object.entries(settingAttributes).forEach(([key, attribute]) => {
+        document.querySelectorAll('[' + attribute.replace(/[A-Z]/g, letter => '-' + letter.toLowerCase()) + ']').forEach(button => {
+            const selected = button.dataset[key === 'accent' ? 'settingAccent' : key === 'density' ? 'settingDensity' : key === 'radius' ? 'settingRadius' : key === 'motion' ? 'settingMotion' : 'settingFont'] === settings[key];
+            button.classList.toggle('is-active', selected);
+            button.setAttribute('aria-pressed', String(selected));
+        });
+    });
     document.querySelectorAll('[data-drawer-mode]').forEach(button => {
         const selected = button.dataset.drawerMode === drawerMode;
         button.classList.toggle('is-active', selected);
@@ -735,6 +790,7 @@ function initTheme() {
     let saved = 'dark';
     try { saved = localStorage.getItem('mensfire_admin_theme') || 'dark'; } catch (error) {}
     document.documentElement.classList.toggle('light-theme', saved === 'light');
+    applyMensfireInterfaceSettings(getMensfireInterfaceSettings(), false);
     syncProfileSettingsUI();
 }
 
@@ -743,6 +799,18 @@ function goHomeFromHeader() {
     const firstNav = document.querySelector('.nav-item');
     if (firstNav) firstNav.click();
 }
+
+// Делегирование кликов для компактных переключателей окна настроек.
+document.addEventListener('click', event => {
+    const button = event.target.closest('[data-setting-accent], [data-setting-density], [data-setting-radius], [data-setting-motion], [data-setting-font]');
+    if (!button) return;
+    const map = [
+        ['data-setting-accent', 'accent'], ['data-setting-density', 'density'],
+        ['data-setting-radius', 'radius'], ['data-setting-motion', 'motion'], ['data-setting-font', 'font']
+    ];
+    const match = map.find(([attribute]) => button.hasAttribute(attribute));
+    if (match) updateMensfireInterfaceSetting(match[1], button.getAttribute(match[0]));
+});
 
 // --- АНИМАЦИЯ НИЖНЕГО МЕНЮ (СКОПИРОВАНО ИЗ КЛИЕНТА) ---
 function updateNavBubble(el, isInit = false) {
