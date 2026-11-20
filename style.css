@@ -11544,3 +11544,16 @@ html.light-theme #calendarModal .calendar-year-option { color: #29271f; }
 @media(max-width:1100px) and (min-width:768px){
     .retail-history-panel{max-height:none;overflow:visible}
 }
+
+/* Компактные списки аналитики: при большом количестве записей прокручиваются внутри блока. */
+.inventory-analytics-panel .inventory-analytics-scroll{overflow-y:auto;overscroll-behavior:contain;scrollbar-width:thin;scrollbar-color:rgba(190,160,105,.42) transparent;padding-right:5px}
+.inventory-analytics-panel .inventory-analytics-scroll::-webkit-scrollbar{width:5px}
+.inventory-analytics-panel .inventory-analytics-scroll::-webkit-scrollbar-thumb{background:rgba(190,160,105,.42);border-radius:99px}
+.inventory-analytics-scroll-prices{max-height:354px}
+.inventory-analytics-scroll-alerts{max-height:390px}
+.inventory-analytics-scroll-suppliers{max-height:510px}
+.inventory-analytics-scroll-products{max-height:390px}
+.inventory-analytics-scroll-products .inventory-analytics-table thead th{position:sticky;top:0;z-index:2;background:var(--glass-bg,rgba(24,26,30,.98))}
+.inventory-restock-list{display:flex;flex-direction:column;gap:8px}
+.inventory-analytics-panel .inventory-restock-row{margin:0!important;padding:12px 14px;border:1px solid var(--glass-border,rgba(255,255,255,.10))!important;border-radius:12px!important;overflow:hidden}
+html.light-theme .inventory-analytics-panel .inventory-restock-row{border-color:rgba(45,58,76,.16)!important}
