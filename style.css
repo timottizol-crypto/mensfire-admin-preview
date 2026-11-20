@@ -11758,3 +11758,171 @@ html.light-theme #viewClients .waitlist-row-enhanced button,
 html.light-theme #viewClients .clients-workspace .checkout-btn{
   border-color:rgba(151,105,12,.42)!important;
 }
+
+
+/* Светлая тема: дополнительный контраст в разделах CRM, «Услуги» и «Финансы».
+   Правила ограничены этими окнами; нейтральные серые оттенки не перекрашиваются. */
+html.light-theme #viewCRM,
+html.light-theme #viewServices,
+html.light-theme #viewFinance{
+  --text-main:#182231;
+  --gold:#805b0b;
+  --gold-hover:#684706;
+}
+
+/* CRM — центр задач и напоминаний */
+html.light-theme #viewCRM .crm-tasks-hub{
+  border:1px solid rgba(54,68,88,.22)!important;
+  background:rgba(255,255,255,.88);
+  box-shadow:0 9px 24px rgba(35,48,68,.075),inset 0 1px 0 rgba(255,255,255,.96);
+}
+html.light-theme #viewCRM .crm-tasks-filters,
+html.light-theme #viewCRM .crm-tasks-toolbar,
+html.light-theme #viewCRM .crm-task-row{
+  border-color:rgba(54,68,88,.20)!important;
+}
+html.light-theme #viewCRM .crm-task-row{
+  background:rgba(255,255,255,.94)!important;
+  box-shadow:0 4px 14px rgba(35,48,68,.05);
+}
+html.light-theme #viewCRM .crm-tasks-heading h3,
+html.light-theme #viewCRM .crm-task-client b,
+html.light-theme #viewCRM .crm-task-description strong{
+  color:#182231!important;
+}
+html.light-theme #viewCRM .crm-tasks-filters button.active{
+  color:#fff!important;
+  background:linear-gradient(145deg,#8b681d,#70500d)!important;
+  border-color:#70500d!important;
+}
+html.light-theme #viewCRM .crm-tasks-summary .is-overdue,
+html.light-theme #viewCRM .crm-task-row.is-overdue .crm-task-description strong{
+  color:#a52d38!important;
+}
+html.light-theme #viewCRM .crm-tasks-toolbar input,
+html.light-theme #viewCRM .crm-tasks-toolbar select{
+  border-color:rgba(54,68,88,.25)!important;
+  color:#182231!important;
+}
+html.light-theme #viewCRM .crm-tasks-toolbar input:focus,
+html.light-theme #viewCRM .crm-tasks-toolbar select:focus{
+  border-color:#a77b20!important;
+  box-shadow:0 0 0 3px rgba(167,123,32,.14)!important;
+}
+html.light-theme #viewCRM .crm-task-actions button{
+  border-color:rgba(151,105,12,.38)!important;
+}
+
+/* Услуги — карточки прайса и сводные показатели */
+html.light-theme #viewServices .service-overview-card,
+html.light-theme #viewServices .service-group{
+  border:1px solid rgba(54,68,88,.22)!important;
+  background:rgba(255,255,255,.88)!important;
+  box-shadow:0 9px 24px rgba(35,48,68,.065),inset 0 1px 0 rgba(255,255,255,.96);
+}
+html.light-theme #viewServices .service-card{
+  border:1px solid rgba(54,68,88,.22)!important;
+  background:rgba(255,255,255,.96)!important;
+  box-shadow:0 5px 16px rgba(35,48,68,.055),inset 0 1px 0 #fff;
+}
+html.light-theme #viewServices .service-card h4,
+html.light-theme #viewServices .service-overview-card strong,
+html.light-theme #viewServices .service-group-heading h3{
+  color:#182231!important;
+}
+html.light-theme #viewServices .service-price{
+  color:#805b0b!important;
+}
+html.light-theme #viewServices .service-status{
+  border:1px solid rgba(22,132,77,.35)!important;
+  color:#126c43!important;
+  background:rgba(34,166,99,.12)!important;
+}
+html.light-theme #viewServices .service-card.is-inactive .service-status{
+  color:#805b0b!important;
+  border-color:rgba(151,105,12,.35)!important;
+  background:rgba(205,153,37,.12)!important;
+}
+html.light-theme #viewServices .service-card-actions button{
+  color:#684706!important;
+  border:1px solid rgba(151,105,12,.36)!important;
+  background:rgba(205,153,37,.09)!important;
+}
+html.light-theme #viewServices .service-card-actions .service-delete-btn{
+  color:#a52d38!important;
+  border-color:rgba(177,49,60,.34)!important;
+  background:rgba(207,65,77,.08)!important;
+}
+
+/* Финансы — фильтры, KPI, панели, графики и операции */
+html.light-theme #viewFinance .finance-panel,
+html.light-theme #viewFinance .finance-kpi-card,
+html.light-theme #viewFinance .finance-header-layout > .finance-date-navigation,
+html.light-theme #viewFinance .finance-range-presets,
+html.light-theme #viewFinance .finance-range-fields{
+  border-color:rgba(54,68,88,.22)!important;
+  box-shadow:0 8px 22px rgba(35,48,68,.065),inset 0 1px 0 rgba(255,255,255,.94)!important;
+}
+html.light-theme #viewFinance .finance-panel{
+  background:rgba(255,255,255,.9)!important;
+}
+html.light-theme #viewFinance .finance-kpi-card{
+  background:linear-gradient(155deg,#fff,#f7f9fc)!important;
+}
+html.light-theme #viewFinance .finance-panel-heading h3,
+html.light-theme #viewFinance .finance-kpi-card strong,
+html.light-theme #viewFinance .finance-total-row strong,
+html.light-theme #viewFinance .finance-period-metrics strong,
+html.light-theme #viewFinance .finance-method-row strong{
+  color:#182231!important;
+}
+html.light-theme #viewFinance .finance-kpi-primary{
+  border-color:rgba(151,105,12,.38)!important;
+}
+html.light-theme #viewFinance .finance-kpi-primary strong,
+html.light-theme #viewFinance .finance-positive{
+  color:#126c43!important;
+}
+html.light-theme #viewFinance .finance-negative{
+  color:#a52d38!important;
+}
+html.light-theme #viewFinance .finance-operation{
+  border:1px solid rgba(54,68,88,.18)!important;
+  background:rgba(255,255,255,.94)!important;
+}
+html.light-theme #viewFinance .finance-operation strong,
+html.light-theme #viewFinance .finance-operation-copy strong{
+  color:#182231!important;
+}
+html.light-theme #viewFinance .finance-method-track,
+html.light-theme #viewFinance .finance-chart-track{
+  border:1px solid rgba(54,68,88,.20)!important;
+  background:#f1f4f8!important;
+}
+html.light-theme #viewFinance .finance-range-btn,
+html.light-theme #viewFinance .finance-range-date{
+  border-color:rgba(54,68,88,.22)!important;
+}
+html.light-theme #viewFinance .finance-range-btn.active{
+  color:#fff!important;
+  background:linear-gradient(145deg,#8b681d,#70500d)!important;
+  border-color:#70500d!important;
+}
+html.light-theme #viewFinance .finance-range-date{
+  color:#182231!important;
+  background:rgba(255,255,255,.92)!important;
+}
+html.light-theme #viewFinance input,
+html.light-theme #viewFinance select{
+  border-color:rgba(54,68,88,.25)!important;
+  color:#182231!important;
+}
+html.light-theme #viewFinance input:focus,
+html.light-theme #viewFinance select:focus{
+  border-color:#a77b20!important;
+  box-shadow:0 0 0 3px rgba(167,123,32,.14)!important;
+}
+html.light-theme #viewFinance .finance-text-action{
+  color:#805b0b!important;
+  border-color:rgba(151,105,12,.36)!important;
+}
