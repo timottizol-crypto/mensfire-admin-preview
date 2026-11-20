@@ -11926,3 +11926,222 @@ html.light-theme #viewFinance .finance-text-action{
   color:#805b0b!important;
   border-color:rgba(151,105,12,.36)!important;
 }
+
+
+/* Светлая тема: контраст для «Обзор», «Расписание» и выдвижных деталей.
+   Изменения не затрагивают тёмную тему и остальные разделы. */
+html.light-theme #viewDashboard,
+html.light-theme #viewSchedule{
+  --text-main:#182231;
+  --gold:#805b0b;
+  --gold-hover:#684706;
+}
+
+/* Обзор бизнеса */
+html.light-theme #viewDashboard .dashboard-panel,
+html.light-theme #viewDashboard .dashboard-kpi-card,
+html.light-theme #viewDashboard .dashboard-upcoming-item,
+html.light-theme #viewDashboard .dashboard-content-grid > *,
+html.light-theme #viewDashboard .dashboard-overview-row > *{
+  border-color:rgba(54,68,88,.22)!important;
+  box-shadow:0 8px 22px rgba(35,48,68,.065),inset 0 1px 0 rgba(255,255,255,.94)!important;
+}
+html.light-theme #viewDashboard .dashboard-panel{
+  background:rgba(255,255,255,.9)!important;
+}
+html.light-theme #viewDashboard .dashboard-kpi-card{
+  background:linear-gradient(155deg,#fff,#f7f9fc)!important;
+}
+html.light-theme #viewDashboard h2,
+html.light-theme #viewDashboard h3,
+html.light-theme #viewDashboard .finance-panel-heading h3,
+html.light-theme #viewDashboard .dashboard-kpi-card strong,
+html.light-theme #viewDashboard .dashboard-upcoming-item strong{
+  color:#182231!important;
+}
+html.light-theme #viewDashboard .dashboard-period-controls button,
+html.light-theme #viewDashboard .dashboard-period-controls select,
+html.light-theme #viewDashboard .dashboard-period-controls input{
+  border-color:rgba(54,68,88,.24)!important;
+}
+html.light-theme #viewDashboard .dashboard-period-controls button.active,
+html.light-theme #viewDashboard .dashboard-period-controls .active{
+  color:#fff!important;
+  background:linear-gradient(145deg,#8b681d,#70500d)!important;
+  border-color:#70500d!important;
+}
+html.light-theme #viewDashboard .dashboard-panel .finance-text-action{
+  color:#805b0b!important;
+  border-color:rgba(151,105,12,.38)!important;
+}
+
+/* Расписание */
+html.light-theme #viewSchedule .schedule-overview-grid > *,
+html.light-theme #viewSchedule .schedule-main-card,
+html.light-theme #viewSchedule .schedule-toolbar,
+html.light-theme #viewSchedule .schedule-list-item,
+html.light-theme #viewSchedule .booking-card,
+html.light-theme #viewSchedule .desktop-booking-card,
+html.light-theme #viewSchedule .schedule-date-selector,
+html.light-theme #viewSchedule .date-selector{
+  border-color:rgba(54,68,88,.22)!important;
+}
+html.light-theme #viewSchedule .schedule-overview-grid > *,
+html.light-theme #viewSchedule .schedule-main-card{
+  background:rgba(255,255,255,.9)!important;
+  box-shadow:0 8px 22px rgba(35,48,68,.065),inset 0 1px 0 rgba(255,255,255,.94)!important;
+}
+html.light-theme #viewSchedule .schedule-toolbar strong,
+html.light-theme #viewSchedule .schedule-toolbar h3,
+html.light-theme #viewSchedule .schedule-overview-grid strong,
+html.light-theme #viewSchedule .schedule-overview-grid h3,
+html.light-theme #viewSchedule .booking-card strong,
+html.light-theme #viewSchedule .desktop-booking-card strong{
+  color:#182231!important;
+}
+html.light-theme #viewSchedule .schedule-tabs .tab-btn,
+html.light-theme #viewSchedule .schedule-barber-filter-mobile button,
+html.light-theme #viewSchedule .date-selector button,
+html.light-theme #viewSchedule .schedule-date-selector button{
+  border-color:rgba(54,68,88,.22)!important;
+}
+html.light-theme #viewSchedule .schedule-tabs .tab-btn.active,
+html.light-theme #viewSchedule .schedule-barber-filter-mobile button.active,
+html.light-theme #viewSchedule .date-selector button.active,
+html.light-theme #viewSchedule .schedule-date-selector button.active{
+  color:#fff!important;
+  background:linear-gradient(145deg,#8b681d,#70500d)!important;
+  border-color:#70500d!important;
+}
+html.light-theme #viewSchedule .schedule-management-actions button,
+html.light-theme #viewSchedule .schedule-new-booking-btn{
+  border-color:rgba(151,105,12,.4)!important;
+}
+html.light-theme #viewSchedule .schedule-main-card .date-selector,
+html.light-theme #viewSchedule .schedule-main-card .schedule-toolbar{
+  border-color:rgba(54,68,88,.2)!important;
+}
+
+/* Выдвижные панели: карточка клиента, статистика барбера и детали заказа/записи */
+html.light-theme #clientDetailsModal .modal-content,
+html.light-theme #barberStatsModal .modal-content,
+html.light-theme #actionModal .modal-content,
+html.light-theme #bookingCancelModal .modal-content{
+  color:#182231!important;
+  background:rgba(255,255,255,.98)!important;
+  border:1px solid rgba(54,68,88,.22)!important;
+  box-shadow:0 22px 60px rgba(22,32,48,.2),inset 0 1px 0 #fff!important;
+}
+html.light-theme #clientDetailsModal .modal-content h2,
+html.light-theme #barberStatsModal .modal-content h2,
+html.light-theme #actionModal .booking-detail-heading h2,
+html.light-theme #bookingCancelModal .booking-detail-heading h2{
+  color:#805b0b!important;
+}
+html.light-theme #clientDetailsModal .modal-content label,
+html.light-theme #barberStatsModal .modal-content label,
+html.light-theme #actionModal .booking-detail-row span,
+html.light-theme #bookingCancelModal .modal-content label{
+  color:#596579!important;
+}
+html.light-theme #clientDetailsModal .modal-content input,
+html.light-theme #clientDetailsModal .modal-content select,
+html.light-theme #clientDetailsModal .modal-content textarea,
+html.light-theme #barberStatsModal .modal-content input,
+html.light-theme #actionModal .modal-content input,
+html.light-theme #actionModal .modal-content select,
+html.light-theme #bookingCancelModal .modal-content input,
+html.light-theme #bookingCancelModal .modal-content select,
+html.light-theme #bookingCancelModal .modal-content textarea{
+  color:#182231!important;
+  background:#fff!important;
+  border:1px solid rgba(54,68,88,.25)!important;
+}
+html.light-theme #clientDetailsModal .modal-content input:focus,
+html.light-theme #clientDetailsModal .modal-content select:focus,
+html.light-theme #clientDetailsModal .modal-content textarea:focus,
+html.light-theme #barberStatsModal .modal-content input:focus,
+html.light-theme #actionModal .modal-content input:focus,
+html.light-theme #actionModal .modal-content select:focus,
+html.light-theme #bookingCancelModal .modal-content input:focus,
+html.light-theme #bookingCancelModal .modal-content select:focus,
+html.light-theme #bookingCancelModal .modal-content textarea:focus{
+  border-color:#a77b20!important;
+  box-shadow:0 0 0 3px rgba(167,123,32,.14)!important;
+}
+html.light-theme #clientDetailsModal .client-activity-signals,
+html.light-theme #clientDetailsModal .client-loyalty-panel,
+html.light-theme #clientDetailsModal .client-details-insights,
+html.light-theme #clientDetailsModal .client-lifetime-value,
+html.light-theme #clientDetailsModal .client-retail-section,
+html.light-theme #clientDetailsModal .client-interactions-section,
+html.light-theme #clientDetailsModal .client-tasks-section,
+html.light-theme #clientDetailsModal .client-timeline-section,
+html.light-theme #clientDetailsModal .client-details-notes,
+html.light-theme #barberStatsModal .barber-stats-section,
+html.light-theme #barberStatsModal .barber-stats-extra-card,
+html.light-theme #actionModal .booking-detail-main,
+html.light-theme #actionModal .booking-detail-row{
+  border-color:rgba(54,68,88,.2)!important;
+}
+html.light-theme #clientDetailsModal .client-activity-signals,
+html.light-theme #clientDetailsModal .client-loyalty-panel,
+html.light-theme #clientDetailsModal .client-details-insights,
+html.light-theme #clientDetailsModal .client-lifetime-value,
+html.light-theme #clientDetailsModal .client-retail-section,
+html.light-theme #clientDetailsModal .client-interactions-section,
+html.light-theme #clientDetailsModal .client-tasks-section,
+html.light-theme #clientDetailsModal .client-timeline-section,
+html.light-theme #clientDetailsModal .client-details-notes,
+html.light-theme #barberStatsModal .barber-stats-extra-card,
+html.light-theme #actionModal .booking-detail-main{
+  background:rgba(246,248,251,.92)!important;
+  border:1px solid rgba(54,68,88,.2)!important;
+  border-radius:14px;
+}
+html.light-theme #clientDetailsModal .modal-content strong,
+html.light-theme #clientDetailsModal .modal-content b,
+html.light-theme #barberStatsModal .modal-content strong,
+html.light-theme #barberStatsModal .modal-content b,
+html.light-theme #actionModal .booking-detail-client,
+html.light-theme #actionModal .booking-detail-row strong{
+  color:#182231!important;
+}
+html.light-theme #clientDetailsModal .modal-content .close-btn,
+html.light-theme #barberStatsModal .modal-content .close-btn,
+html.light-theme #actionModal .modal-content .close-btn{
+  color:#596579!important;
+  border:1px solid rgba(54,68,88,.18)!important;
+  border-radius:10px;
+  background:rgba(241,244,248,.9)!important;
+}
+html.light-theme #actionModal .booking-detail-status{
+  color:#805b0b!important;
+  background:rgba(205,153,37,.14)!important;
+  border:1px solid rgba(151,105,12,.32)!important;
+}
+html.light-theme #actionModal .booking-detail-status.completed{
+  color:#126c43!important;
+  background:rgba(34,166,99,.12)!important;
+  border-color:rgba(22,132,77,.32)!important;
+}
+html.light-theme #actionModal .booking-detail-status.cancelled{
+  color:#a52d38!important;
+  background:rgba(207,65,77,.1)!important;
+  border-color:rgba(177,49,60,.3)!important;
+}
+html.light-theme #clientDetailsModal .client-profile-actions button,
+html.light-theme #clientDetailsModal .client-interaction-composer button,
+html.light-theme #clientDetailsModal .client-task-composer button,
+html.light-theme #actionModal .action-modal-btn,
+html.light-theme #actionModal .booking-client-link{
+  border-color:rgba(151,105,12,.38)!important;
+}
+@media(max-width:600px){
+  html.light-theme #clientDetailsModal .modal-content,
+  html.light-theme #barberStatsModal .modal-content,
+  html.light-theme #actionModal .modal-content{
+    background:rgba(255,255,255,.99)!important;
+    border-color:rgba(54,68,88,.24)!important;
+  }
+}
