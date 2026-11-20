@@ -11038,19 +11038,20 @@ html.light-theme #viewClients .clients-month-stat>div{
   color:#171717!important;
 }
 #viewInventory .inventory-product-actions .inventory-product-delete{
-  color:#fff!important;
-  background:linear-gradient(135deg,#d94343,#a91f2b)!important;
-  border:1px solid rgba(255,105,105,.72)!important;
-  box-shadow:0 3px 12px rgba(190,35,48,.22),inset 0 1px 0 rgba(255,255,255,.16)!important;
-  font-weight:750!important;
+  color:rgba(255,255,255,.82)!important;
+  background:rgba(145,48,55,.16)!important;
+  border:1px solid rgba(190,92,98,.30)!important;
+  box-shadow:none!important;
+  font-weight:650!important;
+  transition:background .18s ease,border-color .18s ease,color .18s ease!important;
 }
 #viewInventory .inventory-product-actions .inventory-product-delete:hover,
 #viewInventory .inventory-product-actions .inventory-product-delete:focus-visible{
   color:#fff!important;
-  background:linear-gradient(135deg,#ed5555,#bd2633)!important;
-  border-color:rgba(255,130,130,.95)!important;
-  box-shadow:0 4px 16px rgba(190,35,48,.34)!important;
-  outline:2px solid rgba(239,83,83,.24);
+  background:rgba(160,55,63,.28)!important;
+  border-color:rgba(205,105,111,.48)!important;
+  box-shadow:0 2px 8px rgba(120,35,42,.12)!important;
+  outline:2px solid rgba(190,92,98,.14);
   outline-offset:2px;
 }
 #viewInventory .inventory-movement-month{
