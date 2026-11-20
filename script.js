@@ -616,6 +616,7 @@ function setMensfireDesktopDrawerMode(mode) {
         active.slice(0, -1).forEach(removeMensfireDesktopDrawer);
     }
     syncDesktopDrawerStack();
+    syncProfileSettingsUI();
 }
 
 function syncDesktopDrawerStack() {
@@ -700,21 +701,41 @@ function closeModal(id) {
     }
 }
 
+function syncProfileSettingsUI() {
+    const isLight = document.documentElement.classList.contains('light-theme');
+    const themeIcon = document.getElementById('themeIcon');
+    if (themeIcon) themeIcon.innerText = isLight ? '🌙' : '☀️';
+    document.querySelectorAll('[data-profile-theme]').forEach(button => {
+        const selected = button.dataset.profileTheme === (isLight ? 'light' : 'dark');
+        button.classList.toggle('is-active', selected);
+        button.setAttribute('aria-pressed', String(selected));
+    });
+    const drawerMode = getMensfireDesktopDrawerMode();
+    document.querySelectorAll('[data-drawer-mode]').forEach(button => {
+        const selected = button.dataset.drawerMode === drawerMode;
+        button.classList.toggle('is-active', selected);
+        button.setAttribute('aria-pressed', String(selected));
+    });
+}
+
+function setMensfireTheme(theme, notify = true) {
+    const isLight = theme === 'light';
+    document.documentElement.classList.toggle('light-theme', isLight);
+    try { localStorage.setItem('mensfire_admin_theme', isLight ? 'light' : 'dark'); } catch (error) {}
+    syncProfileSettingsUI();
+    if (notify) showToast(isLight ? 'Светлая тема' : 'Тёмная тема', 'info');
+}
+
 function toggleTheme() {
-    const html = document.documentElement;
-    html.classList.toggle('light-theme');
-    const isLight = html.classList.contains('light-theme');
-    localStorage.setItem('mensfire_admin_theme', isLight ? 'light' : 'dark');
-    document.getElementById('themeIcon').innerText = isLight ? '🌙' : '☀️';
-    showToast(isLight ? 'Светлая тема' : 'Тёмная тема', 'info');
+    const isLight = document.documentElement.classList.contains('light-theme');
+    setMensfireTheme(isLight ? 'dark' : 'light');
 }
 
 function initTheme() {
-    const saved = localStorage.getItem('mensfire_admin_theme');
-    if (saved === 'light') {
-        document.documentElement.classList.add('light-theme');
-        document.getElementById('themeIcon').innerText = '🌙';
-    }
+    let saved = 'dark';
+    try { saved = localStorage.getItem('mensfire_admin_theme') || 'dark'; } catch (error) {}
+    document.documentElement.classList.toggle('light-theme', saved === 'light');
+    syncProfileSettingsUI();
 }
 
 function goHomeFromHeader() {
