@@ -358,7 +358,8 @@ function buildBottomNav() {
         } else {
             // На телефоне — три основных раздела и единый компактный список остальных.
             navItems = [allAdminItems[0], allAdminItems[1], allAdminItems[6]];
-            mobileMoreViewIds = allAdminItems.slice(2).map(item => item.id);
+            const mobileMoreItems = allAdminItems.filter(item => !['viewDashboard', 'viewSchedule', 'viewClients'].includes(item.id));
+            mobileMoreViewIds = mobileMoreItems.map(item => item.id);
             viewOrder = allAdminItems.map(item => item.id);
         }
     } else {
@@ -391,7 +392,7 @@ function buildBottomNav() {
         panel.className = 'mobile-more-menu';
         panel.id = 'mobileMoreMenu';
         panel.hidden = true;
-        allAdminItems.slice(2).forEach(item => {
+        allAdminItems.filter(item => !['viewDashboard', 'viewSchedule', 'viewClients'].includes(item.id)).forEach(item => {
             const link = document.createElement('button');
             link.type = 'button';
             link.className = 'mobile-more-item';
@@ -524,7 +525,7 @@ function switchView(viewId, navElement) {
         if (!targetNav) {
             targetNav = document.querySelector(`.nav-item[data-view="${viewId}"]`);
         }
-        if (!targetNav && viewId === 'viewSettings') {
+        if (!targetNav && viewId === 'viewSettings' && window.innerWidth >= 768) {
             targetNav = document.querySelector('.nav-item[data-view="viewProfile"]');
         }
         if (!targetNav && window.innerWidth < 768 && mobileMoreViewIds.includes(viewId)) {
