@@ -12655,3 +12655,17 @@ body.profile-view-active .app-header {
   }
 }
 
+
+
+/* Selected date chips retain readable dark labels on gold surfaces. */
+@media (max-width: 767px) {
+  #appContainer .view .date-selector-item.selected,
+  #appContainer .view .date-selector-item.selected .day-name,
+  #appContainer .view .date-selector-item.selected .day-num,
+  #appContainer .view .finance-range-btn.active,
+  #appContainer .view .tab-btn.active,
+  #appContainer .view .purchase-workspace-tab.active {
+    color:#17130b!important;
+    text-shadow:none!important;
+  }
+}
