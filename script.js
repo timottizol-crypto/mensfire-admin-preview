@@ -7677,6 +7677,7 @@ function renderRetailSales() {
     if(recent){
         const fmt=v=>Math.round(Number(v)||0).toLocaleString('ru-RU')+' ₽';
         const sales=clientRetailSales.slice().sort((a,b)=>new Date(b.soldAt)-new Date(a.soldAt)).slice(0,12);
+        recent.classList.toggle('is-scrollable',sales.length>8);
         recent.innerHTML=sales.length?sales.map(sale=>{
             const net=getRetailSaleNetTotal(sale);
             const refunded=(Array.isArray(sale.refunds)?sale.refunds:[]).reduce((sum,item)=>sum+(Number(item.value)||0),0);
