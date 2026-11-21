@@ -14167,3 +14167,84 @@ html:not(.light-theme) #viewPurchases .inventory-heading > .home-cta-btn:hover {
     max-height: none !important;
   }
 }
+
+
+/* Desktop Overview lower cards: equal bottom edge, scroll long team lists. */
+@media (min-width: 1051px) {
+  #viewDashboard .dashboard-content-grid {
+    display: grid !important;
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+    align-items: stretch !important;
+    grid-auto-rows: 260px !important;
+    gap: 14px !important;
+  }
+
+  #viewDashboard .dashboard-content-grid > .dashboard-panel {
+    box-sizing: border-box !important;
+    display: flex !important;
+    flex-direction: column !important;
+    align-self: stretch !important;
+    height: 260px !important;
+    min-height: 260px !important;
+    max-height: 260px !important;
+    overflow: hidden !important;
+  }
+
+  #viewDashboard .dashboard-content-grid > .dashboard-panel > .finance-panel-heading {
+    flex: 0 0 auto !important;
+  }
+
+  #viewDashboard #dashboardBookingMix,
+  #viewDashboard #dashboardTeamSnapshot {
+    box-sizing: border-box !important;
+    flex: 1 1 auto !important;
+    min-height: 0 !important;
+    max-height: 174px !important;
+  }
+
+  #viewDashboard #dashboardBookingMix {
+    overflow: hidden !important;
+  }
+
+  #viewDashboard #dashboardTeamSnapshot {
+    overflow-x: hidden !important;
+    overflow-y: auto !important;
+    overscroll-behavior: contain !important;
+    scrollbar-width: thin !important;
+    padding-right: 5px !important;
+  }
+
+  #viewDashboard #dashboardTeamSnapshot .dashboard-team-row {
+    min-height: 54px !important;
+    height: 54px !important;
+    box-sizing: border-box !important;
+  }
+
+  #viewDashboard .dashboard-mix-list {
+    display: flex !important;
+    flex-direction: column !important;
+    justify-content: space-between !important;
+    height: 100% !important;
+    min-height: 0 !important;
+    gap: 4px !important;
+  }
+
+  #viewDashboard .dashboard-mix-total {
+    display: flex !important;
+    align-items: center !important;
+    justify-content: space-between !important;
+    gap: 10px !important;
+    min-height: 34px !important;
+    margin-top: 2px !important;
+    padding-top: 8px !important;
+    border-top: 1px solid var(--border-color, rgba(255,255,255,.12)) !important;
+    color: var(--text-muted) !important;
+    font-size: 11px !important;
+  }
+
+  #viewDashboard .dashboard-mix-total strong {
+    color: var(--text-primary, inherit) !important;
+    font-size: 16px !important;
+    font-weight: 800 !important;
+  }
+}
