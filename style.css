@@ -13811,3 +13811,37 @@ html:not(.light-theme) .schedule-barber-filter-mobile button.active {
   border-color: color-mix(in srgb, var(--gold, #d4af37) 65%, transparent) !important;
   background: color-mix(in srgb, var(--gold, #d4af37) 17%, transparent) !important;
 }
+
+
+/* Explicit theme treatment for Add barber and New order actions.
+   These selectors override legacy gold-only profile and purchases button rules. */
+html:not(.light-theme) #viewTeam .workspace-heading > .home-cta-btn,
+html:not(.light-theme) #viewProfile .profile-add-staff-btn,
+html:not(.light-theme) #viewPurchases .inventory-heading > .home-cta-btn {
+  color: #17191d !important;
+  -webkit-text-fill-color: #17191d !important;
+  background: linear-gradient(145deg, var(--gold, #d4af37), var(--gold-hover, #a98229)) !important;
+  border: 1px solid color-mix(in srgb, var(--gold, #d4af37) 72%, white) !important;
+  box-shadow: 0 7px 22px color-mix(in srgb, var(--gold, #d4af37) 20%, transparent), inset 0 1px 0 rgba(255,255,255,.25) !important;
+}
+html:not(.light-theme) #viewTeam .workspace-heading > .home-cta-btn *,
+html:not(.light-theme) #viewProfile .profile-add-staff-btn *,
+html:not(.light-theme) #viewPurchases .inventory-heading > .home-cta-btn * {
+  color: #17191d !important;
+  -webkit-text-fill-color: #17191d !important;
+}
+html:not(.light-theme) #viewTeam .workspace-heading > .home-cta-btn:hover,
+html:not(.light-theme) #viewProfile .profile-add-staff-btn:hover,
+html:not(.light-theme) #viewPurchases .inventory-heading > .home-cta-btn:hover {
+  background: linear-gradient(145deg, var(--gold-hover, #a98229), var(--gold, #d4af37)) !important;
+  border-color: var(--gold, #d4af37) !important;
+}
+
+@media (max-width: 767px) {
+  #viewTeam .workspace-heading > .home-cta-btn,
+  #viewProfile .profile-add-staff-btn,
+  #viewPurchases .inventory-heading > .home-cta-btn {
+    min-width: 0 !important;
+    max-width: 100% !important;
+  }
+}
