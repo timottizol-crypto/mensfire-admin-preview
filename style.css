@@ -13611,3 +13611,39 @@ body.profile-view-active .app-header {
     margin-block: 0 !important;
   }
 }
+
+
+/* 2026-11-21 mobile overview: 2px gaps on block-flow dashboard sections */
+@media (max-width: 767px) {
+  /* The dashboard root is block-flow, so use margins between its direct sections. */
+  #viewDashboard > .dashboard-topline,
+  #viewDashboard > .dashboard-overview-row,
+  #viewDashboard > .dashboard-content-grid {
+    margin-top: 0 !important;
+    margin-bottom: 2px !important;
+  }
+
+  /* Inner groups are flex columns; gap controls spacing between their cards. */
+  #viewDashboard .dashboard-topline,
+  #viewDashboard .dashboard-title-period,
+  #viewDashboard .dashboard-overview-row,
+  #viewDashboard .dashboard-content-grid,
+  #viewDashboard .dashboard-kpi-grid {
+    row-gap: 2px !important;
+    column-gap: 2px !important;
+    gap: 2px !important;
+  }
+
+  #viewDashboard .dashboard-overview-row,
+  #viewDashboard .dashboard-content-grid {
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: stretch !important;
+  }
+
+  #viewDashboard .dashboard-topline > *,
+  #viewDashboard .dashboard-overview-row > *,
+  #viewDashboard .dashboard-content-grid > * {
+    margin-block: 0 !important;
+  }
+}
