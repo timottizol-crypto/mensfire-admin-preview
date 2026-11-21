@@ -13538,18 +13538,38 @@ body.profile-view-active .app-header {
 }
 
 
-/* 2026-11-21 mobile overview: uniform 2px vertical spacing between panels */
+/* 2026-11-21 mobile overview: scrollable page and consistent 2px block spacing */
 @media (max-width: 767px) {
+  /* Let the full overview continue vertically and scroll naturally on phones. */
+  #viewDashboard {
+    height: auto !important;
+    min-height: 0 !important;
+    max-height: none !important;
+    overflow: visible !important;
+  }
+
+  /* Keep exactly 2px between every main dashboard section. */
   #viewDashboard .dashboard-topline,
   #viewDashboard .dashboard-title-period,
   #viewDashboard .dashboard-overview-row,
   #viewDashboard .dashboard-content-grid {
     row-gap: 2px !important;
+    column-gap: 2px !important;
     gap: 2px !important;
   }
+
   #viewDashboard .dashboard-topline,
   #viewDashboard .dashboard-overview-row,
   #viewDashboard .dashboard-content-grid {
+    margin-top: 0 !important;
     margin-bottom: 2px !important;
+  }
+
+  /* Apply the same spacing to repeated cards inside dashboard sections. */
+  #viewDashboard .dashboard-kpi-grid,
+  #viewDashboard .dashboard-upcoming-list {
+    row-gap: 2px !important;
+    column-gap: 2px !important;
+    gap: 2px !important;
   }
 }
