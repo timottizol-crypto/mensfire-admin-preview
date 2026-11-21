@@ -14335,15 +14335,6 @@ html:not(.light-theme) #viewPurchases .inventory-heading > .home-cta-btn:hover {
 }
 
 
-/* Dashboard: animate the Upcoming bookings card on every dashboard entry,
-   in sequence with the heading and date controls. */
-@media (min-width: 768px) {
-  #viewDashboard.dashboard-entering .dashboard-topline > .dashboard-upcoming-panel {
-    animation: slideUpEntrance .72s cubic-bezier(.25,1,.5,1) .38s both !important;
-    will-change: transform, opacity;
-  }
-}
-
 /* Services: enlarge the top-level Add Service button by another 1.5x on desktop.
    Keep the mobile button sizing and wrapping rules untouched. */
 @media (min-width: 768px) {
@@ -14357,7 +14348,7 @@ html:not(.light-theme) #viewPurchases .inventory-heading > .home-cta-btn:hover {
 
 /* Desktop Overview: move the entire Upcoming bookings panel upward on entry.
    Use a dedicated keyframe so unrelated card animations cannot reduce it to a fade. */
-@media (min-width: 768px) and (prefers-reduced-motion: no-preference) {
+@media (min-width: 768px) {
   #viewDashboard.dashboard-entering .dashboard-topline > .dashboard-upcoming-panel {
     animation: dashboardUpcomingSlideIn .82s cubic-bezier(.25, 1, .5, 1) .38s both !important;
     transform-origin: center bottom !important;
