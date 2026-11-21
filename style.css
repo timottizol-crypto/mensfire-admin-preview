@@ -14210,6 +14210,8 @@ html:not(.light-theme) #viewPurchases .inventory-heading > .home-cta-btn:hover {
   }
 
   #viewDashboard #dashboardTeamSnapshot {
+    height: 162px !important;
+    max-height: 162px !important;
     overflow-x: hidden !important;
     overflow-y: auto !important;
     overscroll-behavior: contain !important;
