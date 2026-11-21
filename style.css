@@ -14169,6 +14169,9 @@ html:not(.light-theme) #viewPurchases .inventory-heading > .home-cta-btn:hover {
 }
 
 
+/* The extra summary row is desktop-only; keep the phone layout unchanged. */
+#viewDashboard .dashboard-mix-total { display: none !important; }
+
 /* Desktop Overview lower cards: equal bottom edge, scroll long team lists. */
 @media (min-width: 1051px) {
   #viewDashboard .dashboard-content-grid {
