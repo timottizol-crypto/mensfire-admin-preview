@@ -13336,11 +13336,14 @@ body.profile-view-active .app-header {
  min-height:0!important;margin:0 0 16px!important;overflow:visible!important
 }
 #viewDashboard .dashboard-title-period,#viewDashboard .dashboard-upcoming-panel{
- position:relative!important;inset:auto!important;float:none!important;transform:none!important;
+ position:relative!important;inset:auto!important;float:none!important;
  grid-column:auto!important;grid-row:auto!important;align-self:start!important;
  width:100%!important;min-width:0!important;height:auto!important;min-height:0!important;
  max-height:none!important;margin:0!important
 }
+/* The title column stays untransformed; the upcoming card must remain transformable
+   so its desktop entrance keyframes can move the whole card. */
+#viewDashboard .dashboard-title-period{transform:none!important}
 #viewDashboard .dashboard-title-period{display:flex!important;flex-direction:column!important;align-items:stretch!important;gap:12px!important}
 #viewDashboard .dashboard-heading{position:relative!important;inset:auto!important;width:100%!important;min-width:0!important;height:auto!important;margin:0!important}
 #viewDashboard .dashboard-demo-tag{position:static!important;align-self:flex-start!important}
