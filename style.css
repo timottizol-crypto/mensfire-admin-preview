@@ -13958,3 +13958,106 @@ html:not(.light-theme) #viewPurchases .inventory-heading > .home-cta-btn:hover {
 #viewFinance table th {
   border-color: color-mix(in srgb, var(--gold, #d4af37) 15%, var(--border-color, transparent)) !important;
 }
+
+
+/* Desktop-only overview layout correction.
+   Intentionally isolated from all phone/tablet rules (min-width: 1051px). */
+@media (min-width: 1051px) {
+  /* Keep the title and its date/period controls in one aligned left column.
+     The upcoming-bookings panel receives 1.5x the width of that column. */
+  #viewDashboard .dashboard-topline {
+    display: grid !important;
+    grid-template-columns: minmax(0, .8fr) minmax(0, 1.2fr) !important;
+    align-items: stretch !important;
+    gap: 16px !important;
+  }
+  #viewDashboard .dashboard-title-period {
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: stretch !important;
+    justify-content: flex-start !important;
+    gap: 14px !important;
+    width: 100% !important;
+    min-width: 0 !important;
+    height: auto !important;
+  }
+  #viewDashboard .dashboard-title-period > .dashboard-heading {
+    flex: 0 0 auto !important;
+    width: 100% !important;
+    margin: 0 !important;
+  }
+  #viewDashboard .dashboard-title-period .dashboard-period-controls {
+    flex: 0 0 auto !important;
+    align-self: stretch !important;
+    width: 100% !important;
+    margin: 0 !important;
+  }
+  #viewDashboard .dashboard-period-controls .finance-range-toolbar {
+    width: 100% !important;
+    align-items: stretch !important;
+  }
+  #viewDashboard .dashboard-topline > .dashboard-upcoming-panel {
+    align-self: stretch !important;
+    width: 100% !important;
+    min-width: 0 !important;
+    height: auto !important;
+    min-height: 190px !important;
+    max-height: none !important;
+  }
+
+  /* Give the revenue chart more vertical room; let KPI cards fill its height. */
+  #viewDashboard .dashboard-overview-row {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1.12fr) !important;
+    align-items: stretch !important;
+  }
+  #viewDashboard .dashboard-overview-row > .dashboard-main-panel {
+    align-self: stretch !important;
+    min-height: 365px !important;
+    height: 100% !important;
+  }
+  #viewDashboard #dashboardRevenueChart,
+  #viewDashboard #dashboardRevenueChart .dashboard-line-chart {
+    min-height: 0 !important;
+    height: auto !important;
+  }
+  #viewDashboard #dashboardRevenueChart svg,
+  #viewDashboard #dashboardRevenueChart .dashboard-line-chart svg {
+    display: block !important;
+    width: 100% !important;
+    height: 255px !important;
+    min-height: 255px !important;
+    max-height: 255px !important;
+    aspect-ratio: auto !important;
+  }
+  #viewDashboard .dashboard-overview-row > .dashboard-kpi-grid {
+    align-self: stretch !important;
+    height: 100% !important;
+    grid-template-rows: repeat(3, minmax(0, 1fr)) !important;
+    grid-auto-rows: unset !important;
+  }
+  #viewDashboard .dashboard-kpi-grid > .dashboard-kpi-card {
+    min-height: 0 !important;
+    height: 100% !important;
+  }
+
+  /* Both lower panels share one grid row and therefore one bottom edge. */
+  #viewDashboard .dashboard-content-grid {
+    align-items: stretch !important;
+    grid-auto-rows: 1fr !important;
+  }
+  #viewDashboard .dashboard-content-grid > .dashboard-panel {
+    align-self: stretch !important;
+    display: flex !important;
+    flex-direction: column !important;
+    height: 100% !important;
+    min-height: 300px !important;
+    max-height: none !important;
+  }
+  #viewDashboard #dashboardBookingMix,
+  #viewDashboard #dashboardTeamSnapshot {
+    flex: 1 1 auto !important;
+    min-height: 0 !important;
+    height: auto !important;
+    max-height: none !important;
+  }
+}
