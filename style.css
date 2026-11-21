@@ -13536,3 +13536,20 @@ body.profile-view-active .app-header {
     font-size: 10px !important;
   }
 }
+
+
+/* 2026-11-21 mobile overview: uniform 2px vertical spacing between panels */
+@media (max-width: 767px) {
+  #viewDashboard .dashboard-topline,
+  #viewDashboard .dashboard-title-period,
+  #viewDashboard .dashboard-overview-row,
+  #viewDashboard .dashboard-content-grid {
+    row-gap: 2px !important;
+    gap: 2px !important;
+  }
+  #viewDashboard .dashboard-topline,
+  #viewDashboard .dashboard-overview-row,
+  #viewDashboard .dashboard-content-grid {
+    margin-bottom: 2px !important;
+  }
+}
