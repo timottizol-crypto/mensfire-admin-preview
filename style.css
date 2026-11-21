@@ -13573,3 +13573,41 @@ body.profile-view-active .app-header {
     gap: 2px !important;
   }
 }
+
+
+/* 2026-11-21 mobile overview: enforce 2px spacing between actual sibling blocks */
+@media (max-width: 767px) {
+  #viewDashboard .dashboard-topline {
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 2px !important;
+    margin: 0 0 2px !important;
+  }
+
+  #viewDashboard .dashboard-title-period,
+  #viewDashboard .dashboard-overview-row,
+  #viewDashboard .dashboard-content-grid,
+  #viewDashboard .dashboard-kpi-grid {
+    gap: 2px !important;
+  }
+
+  #viewDashboard .dashboard-overview-row {
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: stretch !important;
+    margin: 0 0 2px !important;
+  }
+
+  #viewDashboard .dashboard-content-grid {
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: stretch !important;
+    margin: 0 !important;
+  }
+
+  #viewDashboard .dashboard-topline > *,
+  #viewDashboard .dashboard-overview-row > *,
+  #viewDashboard .dashboard-content-grid > * {
+    margin-block: 0 !important;
+  }
+}
