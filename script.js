@@ -8756,6 +8756,23 @@ function saveInventoryMovement() {
         wrapper.button = button;
         select._mfCustomSelect = wrapper;
         select.addEventListener('change', () => syncButton(select));
+        // Keep the visible trigger in sync with existing code that assigns .value directly.
+        const valueDescriptor = Object.getOwnPropertyDescriptor(HTMLSelectElement.prototype, 'value');
+        const indexDescriptor = Object.getOwnPropertyDescriptor(HTMLSelectElement.prototype, 'selectedIndex');
+        if (valueDescriptor?.get && valueDescriptor?.set) {
+            Object.defineProperty(select, 'value', {
+                configurable: true,
+                get() { return valueDescriptor.get.call(this); },
+                set(value) { valueDescriptor.set.call(this, value); syncButton(this); }
+            });
+        }
+        if (indexDescriptor?.get && indexDescriptor?.set) {
+            Object.defineProperty(select, 'selectedIndex', {
+                configurable: true,
+                get() { return indexDescriptor.get.call(this); },
+                set(value) { indexDescriptor.set.call(this, value); syncButton(this); }
+            });
+        }
         syncButton(select);
     }
 
@@ -8784,9 +8801,15 @@ function saveInventoryMovement() {
     scan(document);
     const observer = new MutationObserver(records => {
         records.forEach(record => {
-            if (record.type === 'childList') record.addedNodes.forEach(node => {
-                if (node.nodeType === 1) scan(node);
-            });
+            if (record.type === 'childList') {
+                record.addedNodes.forEach(node => {
+                    if (node.nodeType === 1) scan(node);
+                });
+                const changedSelect = record.target instanceof HTMLSelectElement
+                    ? record.target
+                    : record.target.closest?.('select');
+                if (changedSelect) syncButton(changedSelect);
+            }
         });
         if (active && active.select.isConnected) {
             syncButton(active.select);
