@@ -13454,3 +13454,85 @@ body.profile-view-active .app-header {
     padding: 5px 7px !important;
   }
 }
+
+/* 2026-11-21 mobile overview: compact period and taller revenue chart */
+@media (max-width: 767px) {
+  /* Keep the period picker compact without changing its behavior. */
+  #viewDashboard .dashboard-period-controls .finance-range-toolbar {
+    gap: 6px !important;
+    padding: 8px !important;
+  }
+  #viewDashboard .dashboard-period-controls .finance-range-presets {
+    gap: 6px !important;
+  }
+  #viewDashboard .dashboard-period-controls .finance-range-btn {
+    min-height: 32px !important;
+    height: 32px !important;
+    padding: 5px 9px !important;
+    line-height: 1.1 !important;
+    font-size: 11px !important;
+  }
+  #viewDashboard .dashboard-period-controls .finance-range-fields {
+    min-height: 32px !important;
+    gap: 6px !important;
+  }
+  #viewDashboard .dashboard-period-controls .finance-range-date {
+    min-height: 30px !important;
+    height: 30px !important;
+    padding: 4px 9px !important;
+    line-height: 1.1 !important;
+    font-size: 11px !important;
+  }
+
+  /* Give the chart enough vertical room and keep the next panels below it. */
+  #viewDashboard .dashboard-overview-row {
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: stretch !important;
+    gap: 12px !important;
+  }
+  #viewDashboard .dashboard-overview-row > .dashboard-main-panel {
+    min-height: 300px !important;
+    padding: 15px !important;
+  }
+  #viewDashboard #dashboardRevenueChart,
+  #viewDashboard #dashboardRevenueChart .dashboard-line-chart {
+    width: 100% !important;
+    min-height: 245px !important;
+    height: auto !important;
+    overflow: visible !important;
+  }
+  #viewDashboard #dashboardRevenueChart svg,
+  #viewDashboard #dashboardRevenueChart .dashboard-line-chart svg {
+    display: block !important;
+    width: 100% !important;
+    height: 205px !important;
+    min-height: 205px !important;
+    max-height: none !important;
+    aspect-ratio: auto !important;
+    overflow: visible !important;
+  }
+  #viewDashboard #dashboardRevenueChart .dashboard-chart-summary {
+    margin-top: 8px !important;
+  }
+  #viewDashboard .dashboard-overview-row > .dashboard-kpi-grid {
+    order: 1 !important;
+    width: 100% !important;
+  }
+  #viewDashboard .dashboard-content-grid {
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: stretch !important;
+    margin-top: 0 !important;
+    gap: 12px !important;
+  }
+  #viewDashboard .dashboard-content-grid > .dashboard-panel {
+    width: 100% !important;
+  }
+}
+@media (max-width: 390px) {
+  #viewDashboard .dashboard-period-controls .finance-range-btn {
+    padding-inline: 6px !important;
+    font-size: 10px !important;
+  }
+}
