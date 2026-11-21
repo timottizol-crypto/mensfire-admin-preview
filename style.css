@@ -14253,3 +14253,46 @@ html:not(.light-theme) #viewPurchases .inventory-heading > .home-cta-btn:hover {
     font-weight: 800 !important;
   }
 }
+
+
+/* Period and date selection block: keep it visually distinct below the Overview heading. */
+#viewDashboard .dashboard-title-period .dashboard-period-controls {
+  margin-top: 10px !important;
+}
+
+/* Finance view tabs: selected tab follows the active gold/silver/bronze accent. */
+#viewFinance #financeViewTabs .tab-btn.active,
+#viewFinance #financeViewTabs .tab-btn.active:hover {
+  color: #17191d !important;
+  -webkit-text-fill-color: #17191d !important;
+  background: linear-gradient(145deg, var(--gold, #d4af37), var(--gold-hover, #a98229)) !important;
+  border-color: color-mix(in srgb, var(--gold, #d4af37) 78%, white) !important;
+  box-shadow: 0 4px 14px color-mix(in srgb, var(--gold, #d4af37) 24%, transparent), inset 0 1px 0 rgba(255,255,255,.25) !important;
+  font-weight: 800 !important;
+}
+#viewFinance #financeViewTabs .tab-btn.active *,
+#viewFinance #financeViewTabs .tab-btn.active:hover * {
+  color: #17191d !important;
+  -webkit-text-fill-color: #17191d !important;
+}
+
+/* Services: compact the New Service action and align it to the right on desktop. */
+@media (min-width: 768px) {
+  #viewServices .workspace-heading {
+    align-items: center !important;
+  }
+  #viewServices .workspace-heading > .home-cta-btn {
+    flex: 0 0 50% !important;
+    width: 50% !important;
+    max-width: 230px !important;
+    min-width: 0 !important;
+    min-height: 44px !important;
+    margin: 0 0 0 auto !important;
+    padding: 9px 12px !important;
+    border-radius: 14px !important;
+  }
+  #viewServices .workspace-heading > .home-cta-btn .cta-text span {
+    font-size: 13px !important;
+    letter-spacing: .5px !important;
+  }
+}
