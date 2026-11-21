@@ -14503,3 +14503,27 @@ html body .drawer-modal table tbody tr:focus-within > td {
   color: #fff !important;
   -webkit-text-fill-color: #fff !important;
 }
+
+
+/* 2026-11-21 mobile navigation scroll isolation.
+   The app shell must not compete with the active view as a second scroll container. */
+@media (max-width: 767px) {
+  #appContainer {
+    height: 100dvh !important;
+    min-height: 100dvh !important;
+    max-height: 100dvh !important;
+    overflow: hidden !important;
+    overscroll-behavior: none !important;
+  }
+
+  #appContainer .view,
+  #appContainer .view.active {
+    flex: 1 1 auto !important;
+    min-height: 0 !important;
+    max-height: 100% !important;
+    overflow-x: hidden !important;
+    overflow-y: auto !important;
+    overscroll-behavior-y: contain !important;
+    -webkit-overflow-scrolling: touch !important;
+  }
+}
