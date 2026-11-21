@@ -14296,3 +14296,37 @@ html:not(.light-theme) #viewPurchases .inventory-heading > .home-cta-btn:hover {
     letter-spacing: .5px !important;
   }
 }
+
+
+/* Responsive spacing for the Overview period/date selector.
+   It stays in normal flow and can grow vertically rather than overlap nearby content. */
+#viewDashboard .dashboard-title-period {
+  min-width: 0 !important;
+}
+#viewDashboard .dashboard-title-period .dashboard-period-controls {
+  position: relative !important;
+  inset: auto !important;
+  flex: 0 0 auto !important;
+  width: 100% !important;
+  max-width: 100% !important;
+  box-sizing: border-box !important;
+  margin-top: clamp(14px, 1.6vw, 22px) !important;
+}
+
+/* New Service button: 1.5x wider, with a wrapping heading to prevent collisions. */
+#viewServices .workspace-heading {
+  flex-wrap: wrap !important;
+}
+#viewServices .workspace-heading > .home-cta-btn {
+  flex: 0 1 345px !important;
+  width: 345px !important;
+  max-width: 100% !important;
+  min-width: 0 !important;
+  min-height: 52px !important;
+  margin: 0 0 0 auto !important;
+  padding: 12px 16px !important;
+  box-sizing: border-box !important;
+}
+#viewServices .workspace-heading > .home-cta-btn .cta-text span {
+  font-size: 14px !important;
+}
