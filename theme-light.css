@@ -897,3 +897,43 @@ html.light-theme #viewDashboard .finance-range-presets .finance-range-btn.active
 html.light-theme #viewTeam .finance-range-presets .finance-range-btn.active{color:#17191d;background:#e8c46f;border-color:#d5ad4f}
 html.light-theme #viewSchedule .schedule-main-card{background:transparent}
 html.light-theme #viewSchedule #scheduleList{background:transparent}
+
+
+/* Primary action buttons use the chosen accent in light mode too. */
+html.light-theme .home-cta-btn,
+html.light-theme .action-btn-primary,
+html.light-theme .checkout-btn,
+html.light-theme .login-btn,
+html.light-theme .schedule-new-booking-btn {
+  background: linear-gradient(145deg, var(--gold, #c79a2a), var(--gold-hover, #a98229)) !important;
+  border: 1px solid color-mix(in srgb, var(--gold, #c79a2a) 78%, #263244) !important;
+  box-shadow: 0 5px 16px color-mix(in srgb, var(--gold, #c79a2a) 18%, transparent) !important;
+  font-weight: 800 !important;
+}
+html.light-theme .home-cta-btn,
+html.light-theme .action-btn-primary,
+html.light-theme .checkout-btn,
+html.light-theme .login-btn,
+html.light-theme .schedule-new-booking-btn {
+  color: #17191d !important;
+  -webkit-text-fill-color: #17191d !important;
+}
+/* Darker silver/graphite and bronze accents need white text for contrast. */
+html.light-theme[data-mf-accent="silver"] .home-cta-btn,
+html.light-theme[data-mf-accent="silver"] .action-btn-primary,
+html.light-theme[data-mf-accent="silver"] .checkout-btn,
+html.light-theme[data-mf-accent="silver"] .login-btn,
+html.light-theme[data-mf-accent="silver"] .schedule-new-booking-btn,
+html.light-theme[data-mf-accent="graphite"] .home-cta-btn,
+html.light-theme[data-mf-accent="graphite"] .action-btn-primary,
+html.light-theme[data-mf-accent="graphite"] .checkout-btn,
+html.light-theme[data-mf-accent="graphite"] .login-btn,
+html.light-theme[data-mf-accent="graphite"] .schedule-new-booking-btn,
+html.light-theme[data-mf-accent="bronze"] .home-cta-btn,
+html.light-theme[data-mf-accent="bronze"] .action-btn-primary,
+html.light-theme[data-mf-accent="bronze"] .checkout-btn,
+html.light-theme[data-mf-accent="bronze"] .login-btn,
+html.light-theme[data-mf-accent="bronze"] .schedule-new-booking-btn {
+  color: #fff !important;
+  -webkit-text-fill-color: #fff !important;
+}
