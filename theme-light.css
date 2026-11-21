@@ -974,3 +974,76 @@ html.light-theme[data-mf-accent="bronze"] #viewPurchases .inventory-heading > .h
   color: #fff !important;
   -webkit-text-fill-color: #fff !important;
 }
+
+
+/* Accent-aware selection controls in light mode. Keep selected labels black for contrast. */
+html.light-theme #viewFinance .finance-range-presets .finance-range-btn.active,
+html.light-theme #viewFinance .finance-range-presets .finance-range-btn[aria-pressed="true"],
+html.light-theme #viewFinance #financeDateSelector .date-selector-item.selected,
+html.light-theme #viewFinance #financeDateSelector .date-selector-item.selected:hover,
+html.light-theme #viewSchedule > #desktopSchedule .desktop-calendar-tabs > button.active,
+html.light-theme #viewSchedule > #desktopSchedule .calendar-today-btn,
+html.light-theme #viewSchedule .schedule-tabs .tab-btn.active,
+html.light-theme #viewSchedule .schedule-barber-filter button.active,
+html.light-theme #viewSchedule .schedule-barber-filter-mobile button.active,
+html.light-theme #viewSchedule #scheduleDateSelector .date-selector-item.selected {
+  color: #17191d !important;
+  -webkit-text-fill-color: #17191d !important;
+  background: var(--gold, #d4af37) !important;
+  border-color: var(--gold, #d4af37) !important;
+  box-shadow: 0 3px 12px color-mix(in srgb, var(--gold, #d4af37) 22%, transparent) !important;
+  font-weight: 800 !important;
+}
+html.light-theme #viewFinance .finance-range-presets .finance-range-btn.active *,
+html.light-theme #viewFinance #financeDateSelector .date-selector-item.selected *,
+html.light-theme #viewSchedule > #desktopSchedule .desktop-calendar-tabs > button.active *,
+html.light-theme #viewSchedule .schedule-tabs .tab-btn.active *,
+html.light-theme #viewSchedule .schedule-barber-filter button.active *,
+html.light-theme #viewSchedule .schedule-barber-filter-mobile button.active *,
+html.light-theme #viewSchedule #scheduleDateSelector .date-selector-item.selected * {
+  color: #17191d !important;
+  -webkit-text-fill-color: #17191d !important;
+}
+html.light-theme #viewFinance .finance-range-date {
+  color: #17191d !important;
+  -webkit-text-fill-color: #17191d !important;
+  background: color-mix(in srgb, var(--gold, #d4af37) 13%, white) !important;
+  border-color: color-mix(in srgb, var(--gold, #d4af37) 58%, #667085) !important;
+}
+html.light-theme #viewFinance #financeDateSelector .date-selector-item.is-today:not(.selected) {
+  border-color: color-mix(in srgb, var(--gold, #d4af37) 78%, transparent) !important;
+  background: color-mix(in srgb, var(--gold, #d4af37) 17%, white) !important;
+}
+html.light-theme #calendarModal .cal-nav-btn,
+html.light-theme #calendarModal .calendar-year-picker-heading .cal-nav-btn {
+  color: #17191d !important;
+  background: var(--gold, #d4af37) !important;
+  border-color: var(--gold, #d4af37) !important;
+}
+html.light-theme #viewFinance table thead th,
+html.light-theme #viewFinance .finance-table thead th,
+html.light-theme #viewFinance .finance-operations-table thead th {
+  background: color-mix(in srgb, var(--gold, #d4af37) 18%, white) !important;
+  border-color: color-mix(in srgb, var(--gold, #d4af37) 35%, #d8dee8) !important;
+}
+html.light-theme #viewFinance table tbody tr:hover,
+html.light-theme #viewFinance .finance-table tbody tr:hover,
+html.light-theme #viewFinance .finance-operations-table tbody tr:hover {
+  background: color-mix(in srgb, var(--gold, #d4af37) 12%, white) !important;
+}
+html.light-theme #viewFinance table tbody tr.is-selected,
+html.light-theme #viewFinance .finance-table tbody tr.is-selected,
+html.light-theme #viewFinance .finance-operations-table tbody tr.is-selected {
+  background: color-mix(in srgb, var(--gold, #d4af37) 19%, white) !important;
+}
+html.light-theme #viewFinance table td,
+html.light-theme #viewFinance table th {
+  border-color: color-mix(in srgb, var(--gold, #d4af37) 19%, #d8dee8) !important;
+}
+html.light-theme * {
+  scrollbar-color: color-mix(in srgb, var(--gold, #d4af37) 62%, transparent) transparent;
+}
+html.light-theme *::-webkit-scrollbar-thumb {
+  background: color-mix(in srgb, var(--gold, #d4af37) 62%, transparent) !important;
+  border-color: color-mix(in srgb, var(--gold, #d4af37) 42%, transparent) !important;
+}
