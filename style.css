@@ -14791,3 +14791,29 @@ html body .drawer-modal table tbody tr:focus-within > td {
     .mf-select-trigger { min-height: 40px; padding: 9px 34px 9px 11px; font-size: 12px; }
     .mf-select-menu { max-height: min(280px, calc(100dvh - 16px)); }
 }
+
+
+/* CLIENTS PAGE — waitlist above client scopes with uniform section spacing. */
+#viewClients .clients-workspace {
+    gap: 14px;
+}
+#viewClients .clients-topbar,
+#viewClients .clients-waitlist,
+#viewClients .client-directory-scope,
+#viewClients .client-directory-workspace,
+#viewClients #clientsSegmentContainer {
+    margin-top: 0 !important;
+    margin-bottom: 0 !important;
+}
+#viewClients .clients-waitlist {
+    width: 100%;
+    box-sizing: border-box;
+}
+#viewClients .clients-workspace #clientsSegmentContainer {
+    padding-bottom: 0;
+}
+@media (max-width: 767px) {
+    #viewClients .clients-workspace {
+        gap: 14px;
+    }
+}
