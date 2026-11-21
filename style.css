@@ -14824,3 +14824,62 @@ html body .drawer-modal table tbody tr:focus-within > td {
         margin-top: -64px !important;
     }
 }
+
+/* CLIENT DETAILS — cleaner close control and predictable inner history scrolling. */
+#clientDetailsModal .close-btn {
+    background: transparent !important;
+    border-color: transparent !important;
+    box-shadow: none !important;
+    color: var(--gold, #c69e5b) !important;
+}
+#clientDetailsModal .close-btn:hover,
+#clientDetailsModal .close-btn:focus-visible {
+    background: rgba(198, 158, 91, .10) !important;
+    border-color: rgba(198, 158, 91, .28) !important;
+    outline: none;
+}
+#clientDetailsModal #clientDetailsHistory {
+    flex: 0 0 250px !important;
+    height: 250px !important;
+    min-height: 250px !important;
+    max-height: 250px !important;
+    overflow-y: auto !important;
+    overflow-x: hidden !important;
+    overscroll-behavior: contain;
+    scrollbar-width: thin;
+    scrollbar-color: var(--gold, #c69e5b) transparent;
+}
+#clientDetailsModal .client-timeline-list {
+    max-height: 280px !important;
+    overflow-y: auto !important;
+    overflow-x: hidden !important;
+    overscroll-behavior: contain;
+    scrollbar-width: thin;
+    scrollbar-color: var(--gold, #c69e5b) transparent;
+    scrollbar-gutter: stable;
+    padding-right: 7px;
+}
+#clientDetailsModal .client-timeline-list::-webkit-scrollbar,
+#clientDetailsModal #clientDetailsHistory::-webkit-scrollbar {
+    width: 6px;
+}
+#clientDetailsModal .client-timeline-list::-webkit-scrollbar-track,
+#clientDetailsModal #clientDetailsHistory::-webkit-scrollbar-track {
+    background: transparent;
+}
+#clientDetailsModal .client-timeline-list::-webkit-scrollbar-thumb,
+#clientDetailsModal #clientDetailsHistory::-webkit-scrollbar-thumb {
+    background: color-mix(in srgb, var(--gold, #c69e5b) 72%, transparent);
+    border-radius: 8px;
+}
+@media (max-width: 767px) {
+    #clientDetailsModal #clientDetailsHistory {
+        flex-basis: 250px !important;
+        height: 250px !important;
+        min-height: 250px !important;
+        max-height: 250px !important;
+    }
+    #clientDetailsModal .client-timeline-list {
+        max-height: 280px !important;
+    }
+}
