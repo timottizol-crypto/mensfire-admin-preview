@@ -1047,3 +1047,19 @@ html.light-theme *::-webkit-scrollbar-thumb {
   background: color-mix(in srgb, var(--gold, #d4af37) 62%, transparent) !important;
   border-color: color-mix(in srgb, var(--gold, #d4af37) 42%, transparent) !important;
 }
+
+
+/* Finance selected tab uses the current accent in light mode too. */
+html.light-theme #viewFinance #financeViewTabs .tab-btn.active,
+html.light-theme #viewFinance #financeViewTabs .tab-btn.active:hover {
+  color: #17191d !important;
+  -webkit-text-fill-color: #17191d !important;
+  background: linear-gradient(145deg, var(--gold, #d4af37), var(--gold-hover, #a98229)) !important;
+  border-color: color-mix(in srgb, var(--gold, #d4af37) 78%, white) !important;
+  box-shadow: 0 4px 14px color-mix(in srgb, var(--gold, #d4af37) 20%, transparent) !important;
+}
+html.light-theme #viewFinance #financeViewTabs .tab-btn.active *,
+html.light-theme #viewFinance #financeViewTabs .tab-btn.active:hover * {
+  color: #17191d !important;
+  -webkit-text-fill-color: #17191d !important;
+}
