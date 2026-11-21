@@ -14330,3 +14330,23 @@ html:not(.light-theme) #viewPurchases .inventory-heading > .home-cta-btn:hover {
 #viewServices .workspace-heading > .home-cta-btn .cta-text span {
   font-size: 14px !important;
 }
+
+
+/* Dashboard: animate the Upcoming bookings card on every dashboard entry,
+   in sequence with the heading and date controls. */
+@media (min-width: 768px) {
+  #viewDashboard.dashboard-entering .dashboard-topline > .dashboard-upcoming-panel {
+    animation: slideUpEntrance .72s cubic-bezier(.25,1,.5,1) .38s both !important;
+    will-change: transform, opacity;
+  }
+}
+
+/* Services: enlarge the top-level Add Service button by another 1.5x on desktop.
+   Keep the mobile button sizing and wrapping rules untouched. */
+@media (min-width: 768px) {
+  #viewServices .workspace-heading > .home-cta-btn {
+    flex: 0 1 518px !important;
+    width: 518px !important;
+    max-width: 100% !important;
+  }
+}
