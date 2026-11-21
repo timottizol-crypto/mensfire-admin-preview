@@ -14063,3 +14063,107 @@ html:not(.light-theme) #viewPurchases .inventory-heading > .home-cta-btn:hover {
     max-height: none !important;
   }
 }
+
+
+/* Final desktop Overview layout: fixed 3x2 upcoming bookings grid.
+   More than six appointments scroll inside the card; card height stays constant.
+   All rules are desktop-only so the phone layout remains unchanged. */
+@media (min-width: 1051px) {
+  #viewDashboard .dashboard-topline {
+    display: grid !important;
+    grid-template-columns: minmax(0, .8fr) minmax(0, 1.2fr) !important;
+    align-items: start !important;
+    align-content: start !important;
+    height: auto !important;
+    min-height: 0 !important;
+    gap: 16px !important;
+    margin-bottom: 16px !important;
+  }
+
+  #viewDashboard .dashboard-title-period {
+    align-self: start !important;
+    height: auto !important;
+    min-height: 0 !important;
+  }
+
+  #viewDashboard .dashboard-topline > .dashboard-upcoming-panel {
+    box-sizing: border-box !important;
+    align-self: start !important;
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 10px !important;
+    width: 100% !important;
+    height: 218px !important;
+    min-height: 218px !important;
+    max-height: 218px !important;
+    overflow: hidden !important;
+  }
+
+  #viewDashboard .dashboard-topline .dashboard-upcoming-heading {
+    flex: 0 0 auto !important;
+    min-height: 22px !important;
+  }
+
+  #viewDashboard .dashboard-topline .dashboard-upcoming-list {
+    box-sizing: border-box !important;
+    display: grid !important;
+    grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+    grid-template-rows: repeat(2, 76px) !important;
+    grid-auto-rows: 76px !important;
+    grid-auto-flow: row !important;
+    align-content: start !important;
+    align-items: stretch !important;
+    gap: 8px !important;
+    flex: 0 0 160px !important;
+    width: 100% !important;
+    height: 160px !important;
+    min-height: 160px !important;
+    max-height: 160px !important;
+    padding: 0 4px 2px 0 !important;
+    overflow-x: hidden !important;
+    overflow-y: auto !important;
+    overscroll-behavior: contain !important;
+  }
+
+  #viewDashboard .dashboard-topline .dashboard-upcoming-row {
+    box-sizing: border-box !important;
+    width: 100% !important;
+    min-width: 0 !important;
+    min-height: 76px !important;
+    height: 76px !important;
+    max-height: 76px !important;
+    overflow: hidden !important;
+  }
+
+  /* Keep the chart/KPI row and the two lower panels in normal vertical flow. */
+  #viewDashboard .dashboard-overview-row {
+    position: relative !important;
+    display: grid !important;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1.12fr) !important;
+    align-items: start !important;
+    height: auto !important;
+    min-height: 0 !important;
+    margin: 0 0 14px !important;
+    overflow: visible !important;
+  }
+
+  #viewDashboard .dashboard-content-grid {
+    position: relative !important;
+    display: grid !important;
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+    grid-auto-rows: auto !important;
+    align-items: start !important;
+    height: auto !important;
+    min-height: 0 !important;
+    margin: 0 !important;
+    gap: 14px !important;
+  }
+
+  #viewDashboard .dashboard-content-grid > .dashboard-panel {
+    position: relative !important;
+    align-self: start !important;
+    height: auto !important;
+    min-height: 0 !important;
+    max-height: none !important;
+  }
+}
