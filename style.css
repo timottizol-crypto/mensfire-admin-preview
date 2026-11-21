@@ -13376,3 +13376,81 @@ body.profile-view-active .app-header {
  #viewDashboard .dashboard-content-grid{gap:12px!important}
 }
 @media(max-width:360px){#viewDashboard .dashboard-kpi-grid{grid-template-columns:minmax(0,1fr)!important}}
+
+/* 2026-11-21 mobile overview: demo label top-right and strict vertical flow */
+@media (max-width: 767px) {
+  #viewDashboard .dashboard-topline {
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: stretch !important;
+    gap: 12px !important;
+  }
+  #viewDashboard .dashboard-title-period {
+    order: 0 !important;
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: stretch !important;
+    gap: 12px !important;
+  }
+  #viewDashboard .dashboard-title-period > .dashboard-heading {
+    position: relative !important;
+    display: block !important;
+    width: 100% !important;
+    min-height: 0 !important;
+    padding: 0 92px 0 0 !important;
+  }
+  #viewDashboard .dashboard-title-period > .dashboard-heading > div {
+    min-width: 0 !important;
+    max-width: 100% !important;
+  }
+  #viewDashboard .dashboard-title-period .dashboard-demo-tag {
+    position: absolute !important;
+    top: 0 !important;
+    right: 0 !important;
+    left: auto !important;
+    align-self: auto !important;
+    margin: 0 !important;
+    white-space: nowrap !important;
+  }
+  #viewDashboard .dashboard-period-controls {
+    order: 1 !important;
+    width: 100% !important;
+  }
+  #viewDashboard .dashboard-topline > .dashboard-upcoming-panel {
+    order: 2 !important;
+    width: 100% !important;
+  }
+  #viewDashboard .dashboard-overview-row {
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: stretch !important;
+    gap: 12px !important;
+    margin-top: 0 !important;
+  }
+  #viewDashboard .dashboard-overview-row > .dashboard-main-panel {
+    order: 0 !important;
+    width: 100% !important;
+  }
+  #viewDashboard .dashboard-overview-row > .dashboard-kpi-grid {
+    order: 1 !important;
+    width: 100% !important;
+  }
+  #viewDashboard .dashboard-content-grid {
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: stretch !important;
+    gap: 12px !important;
+  }
+  #viewDashboard .dashboard-content-grid > .dashboard-panel {
+    width: 100% !important;
+  }
+}
+@media (max-width: 390px) {
+  #viewDashboard .dashboard-title-period > .dashboard-heading {
+    padding-right: 84px !important;
+  }
+  #viewDashboard .dashboard-title-period .dashboard-demo-tag {
+    font-size: 7px !important;
+    padding: 5px 7px !important;
+  }
+}
