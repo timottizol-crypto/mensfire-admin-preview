@@ -8824,19 +8824,30 @@ function saveInventoryMovement() {
 
     scan(document);
     const observer = new MutationObserver(records => {
+        let activeOptionsChanged = false;
+
         records.forEach(record => {
-            if (record.type === 'childList') {
-                record.addedNodes.forEach(node => {
-                    if (node.nodeType === 1) scan(node);
-                });
-                const changedSelect = record.target instanceof HTMLSelectElement
-                    ? record.target
-                    : record.target.closest?.('select');
-                if (changedSelect) syncButton(changedSelect);
+            if (record.type !== 'childList') return;
+
+            record.addedNodes.forEach(node => {
+                if (node.nodeType === 1) scan(node);
+            });
+
+            // React only to mutations inside a native select. Changes made by
+            // renderOptions() or syncButton() happen outside the select and
+            // must not trigger another render cycle.
+            const target = record.target;
+            const changedSelect = target instanceof HTMLSelectElement
+                ? target
+                : (target.closest?.('select') || target.parentElement?.closest?.('select'));
+
+            if (changedSelect) {
+                syncButton(changedSelect);
+                if (active?.select === changedSelect) activeOptionsChanged = true;
             }
         });
-        if (active && active.select.isConnected) {
-            syncButton(active.select);
+
+        if (active && active.select.isConnected && activeOptionsChanged) {
             renderOptions(active.select, menu?.querySelector('.mf-select-search')?.value || '');
             positionMenu();
         }
