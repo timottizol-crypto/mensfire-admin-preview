@@ -1154,3 +1154,22 @@ html.light-theme .crm-tasks-pagination button:not(:disabled):hover {
   background: color-mix(in srgb, var(--gold, #c79a2a) 25%, white) !important;
   border-color: var(--gold, #c79a2a) !important;
 }
+
+
+/* Schedule only: selected date/period controls use white labels on the accent.
+   This intentionally excludes booking rows/cards and every other section. */
+html.light-theme #viewSchedule > #desktopSchedule .desktop-calendar-tabs > button.active,
+html.light-theme #viewSchedule > #desktopSchedule .desktop-calendar-tabs > button.active *,
+html.light-theme #viewSchedule > #desktopSchedule .calendar-today-btn,
+html.light-theme #viewSchedule > #desktopSchedule .desktop-month-day.selected,
+html.light-theme #viewSchedule .schedule-tabs .tab-btn.active,
+html.light-theme #viewSchedule .schedule-tabs .tab-btn.active *,
+html.light-theme #viewSchedule .schedule-barber-filter button.active,
+html.light-theme #viewSchedule .schedule-barber-filter button.active *,
+html.light-theme #viewSchedule .schedule-barber-filter-mobile button.active,
+html.light-theme #viewSchedule .schedule-barber-filter-mobile button.active *,
+html.light-theme #viewSchedule #scheduleDateSelector .date-selector-item.selected,
+html.light-theme #viewSchedule #scheduleDateSelector .date-selector-item.selected * {
+  color: #fff !important;
+  -webkit-text-fill-color: #fff !important;
+}
