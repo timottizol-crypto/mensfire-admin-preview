@@ -14365,3 +14365,122 @@ html:not(.light-theme) #viewPurchases .inventory-heading > .home-cta-btn:hover {
     transform: translate3d(0, 0, 0);
   }
 }
+
+
+/* Theme-linked interaction and scrolling surfaces — all desktop/mobile views and dialogs. */
+html * {
+  scrollbar-color: color-mix(in srgb, var(--gold, #d4af37) 62%, transparent) transparent;
+}
+html *::-webkit-scrollbar-thumb {
+  background: color-mix(in srgb, var(--gold, #d4af37) 62%, transparent);
+  border-color: color-mix(in srgb, var(--gold, #d4af37) 42%, transparent);
+}
+html *::-webkit-scrollbar-thumb:hover {
+  background: color-mix(in srgb, var(--gold, #d4af37) 86%, transparent);
+}
+html *::-webkit-scrollbar-corner {
+  background: transparent;
+}
+
+/* Table rows and data lists respond to the selected Silver / Gold / Bronze accent. */
+html body .view table tbody tr:hover > td,
+html body .modal table tbody tr:hover > td,
+html body .drawer-modal table tbody tr:hover > td {
+  background: color-mix(in srgb, var(--gold, #d4af37) 13%, transparent) !important;
+}
+html body .view table tbody tr:focus-within > td,
+html body .modal table tbody tr:focus-within > td,
+html body .drawer-modal table tbody tr:focus-within > td {
+  background: color-mix(in srgb, var(--gold, #d4af37) 17%, transparent) !important;
+}
+
+/* Schedule calendar: accent the whole grid, booking cards, date controls and hover states. */
+#viewSchedule > #desktopSchedule .desktop-calendar-scroll {
+  border-color: color-mix(in srgb, var(--gold, #d4af37) 34%, transparent) !important;
+  scrollbar-color: color-mix(in srgb, var(--gold, #d4af37) 68%, transparent) transparent !important;
+}
+#viewSchedule > #desktopSchedule .desktop-calendar-grid {
+  background: color-mix(in srgb, var(--gold, #d4af37) 2.5%, transparent) !important;
+}
+#viewSchedule > #desktopSchedule .desktop-staff-heading {
+  border-bottom-color: color-mix(in srgb, var(--gold, #d4af37) 25%, transparent) !important;
+  background: color-mix(in srgb, var(--gold, #d4af37) 9%, #171717) !important;
+}
+#viewSchedule > #desktopSchedule .desktop-time-line.hour {
+  background: color-mix(in srgb, var(--gold, #d4af37) 28%, transparent) !important;
+}
+#viewSchedule > #desktopSchedule .desktop-booking-card {
+  border-top-color: color-mix(in srgb, var(--gold, #d4af37) 74%, transparent) !important;
+  border-right-color: color-mix(in srgb, var(--gold, #d4af37) 58%, transparent) !important;
+  border-bottom-color: color-mix(in srgb, var(--gold, #d4af37) 58%, transparent) !important;
+  background: linear-gradient(115deg,
+    color-mix(in srgb, var(--gold, #d4af37) 30%, transparent),
+    color-mix(in srgb, var(--gold, #d4af37) 13%, transparent)) !important;
+  box-shadow: 0 3px 12px color-mix(in srgb, var(--gold, #d4af37) 12%, transparent) !important;
+}
+#viewSchedule > #desktopSchedule .desktop-booking-card strong,
+#viewSchedule > #desktopSchedule .desktop-booking-card .booking-card-client,
+#viewSchedule > #desktopSchedule .desktop-booking-card .booking-card-service {
+  color: color-mix(in srgb, var(--gold, #d4af37) 48%, #fff) !important;
+}
+#viewSchedule > #desktopSchedule .desktop-booking-card:hover {
+  background: linear-gradient(115deg,
+    color-mix(in srgb, var(--gold, #d4af37) 43%, transparent),
+    color-mix(in srgb, var(--gold, #d4af37) 22%, transparent)) !important;
+  box-shadow: 0 5px 16px color-mix(in srgb, var(--gold, #d4af37) 22%, transparent) !important;
+}
+#viewSchedule > #desktopSchedule .desktop-calendar-tabs > button.active,
+#viewSchedule > #desktopSchedule .calendar-date-arrow:hover,
+#viewSchedule > #desktopSchedule .calendar-today-btn,
+#viewSchedule > #desktopSchedule .desktop-month-day.selected,
+#viewSchedule > #desktopSchedule .desktop-month-day:hover,
+#viewSchedule .schedule-tabs .tab-btn.active,
+#viewSchedule .schedule-barber-filter button.active,
+#viewSchedule .schedule-barber-filter-mobile button.active,
+#viewSchedule #scheduleDateSelector .date-selector-item.selected {
+  border-color: color-mix(in srgb, var(--gold, #d4af37) 78%, transparent) !important;
+  background: color-mix(in srgb, var(--gold, #d4af37) 19%, transparent) !important;
+  color: var(--gold, #d4af37) !important;
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--gold, #d4af37) 12%, transparent) !important;
+}
+#viewSchedule > #desktopSchedule .desktop-calendar-tabs > button.active *,
+#viewSchedule .schedule-tabs .tab-btn.active *,
+#viewSchedule .schedule-barber-filter button.active *,
+#viewSchedule .schedule-barber-filter-mobile button.active *,
+#viewSchedule #scheduleDateSelector .date-selector-item.selected * {
+  color: inherit !important;
+}
+#viewSchedule > #desktopSchedule .calendar-date-arrow:hover,
+#viewSchedule > #desktopSchedule .desktop-month-day:hover {
+  background: color-mix(in srgb, var(--gold, #d4af37) 14%, transparent) !important;
+}
+#viewSchedule #desktopSchedule .desktop-slot-hitbox:hover {
+  background: color-mix(in srgb, var(--gold, #d4af37) 20%, transparent) !important;
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--gold, #d4af37) 58%, transparent) !important;
+}
+#viewSchedule #desktopSchedule .desktop-staff-track:hover {
+  background-color: color-mix(in srgb, var(--gold, #d4af37) 7%, transparent) !important;
+}
+
+/* Schedule list cards and pagination controls use the same active accent. */
+#viewSchedule #scheduleList .home-booking-item {
+  border-color: color-mix(in srgb, var(--gold, #d4af37) 24%, transparent) !important;
+}
+#viewSchedule #scheduleList .home-booking-item:hover,
+#viewSchedule #scheduleList .home-booking-item:focus-within {
+  border-color: color-mix(in srgb, var(--gold, #d4af37) 68%, transparent) !important;
+  background: color-mix(in srgb, var(--gold, #d4af37) 11%, transparent) !important;
+}
+.crm-tasks-pagination {
+  border-color: color-mix(in srgb, var(--gold, #d4af37) 28%, transparent) !important;
+  background: color-mix(in srgb, var(--gold, #d4af37) 5%, transparent) !important;
+}
+.crm-tasks-pagination button {
+  border-color: color-mix(in srgb, var(--gold, #d4af37) 52%, transparent) !important;
+  background: color-mix(in srgb, var(--gold, #d4af37) 13%, transparent) !important;
+  color: var(--gold, #d4af37) !important;
+}
+.crm-tasks-pagination button:not(:disabled):hover {
+  background: color-mix(in srgb, var(--gold, #d4af37) 25%, transparent) !important;
+  border-color: var(--gold, #d4af37) !important;
+}
