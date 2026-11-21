@@ -8731,6 +8731,7 @@ function saveInventoryMovement() {
     }
 
     function enhance(select) {
+        if (window.innerWidth >= 768) return;
         if (!(select instanceof HTMLSelectElement) || select.matches(SELECTOR) === false || select._mfCustomSelect) return;
         if (!select.options.length && !select.id && !select.getAttribute('aria-label')) return;
         const wrapper = document.createElement('span');
@@ -8738,6 +8739,7 @@ function saveInventoryMovement() {
         wrapper.dataset.mfCustomSelect = 'true';
         select.parentNode.insertBefore(wrapper, select);
         wrapper.appendChild(select);
+        select.dataset.mfOriginalTabindex = select.hasAttribute('tabindex') ? select.getAttribute('tabindex') : '__none__';
         select.classList.add('mf-native-select-hidden');
         select.tabIndex = -1;
         const button = document.createElement('button');
@@ -8776,8 +8778,23 @@ function saveInventoryMovement() {
         syncButton(select);
     }
 
+    function restore(select) {
+        const wrapper = select?._mfCustomSelect;
+        if (!wrapper) return;
+        if (active?.select === select) closeMenu();
+        select.classList.remove('mf-native-select-hidden');
+        if (select.dataset.mfOriginalTabindex === '__none__') select.removeAttribute('tabindex');
+        else if (select.dataset.mfOriginalTabindex !== undefined) select.setAttribute('tabindex', select.dataset.mfOriginalTabindex);
+        delete select.dataset.mfOriginalTabindex;
+        delete select.value;
+        delete select.selectedIndex;
+        wrapper.parentNode.insertBefore(select, wrapper);
+        wrapper.remove();
+        delete select._mfCustomSelect;
+    }
+
     function scan(root) {
-        if (!root) return;
+        if (!root || window.innerWidth >= 768) return;
         if (root.matches && root.matches('select')) enhance(root);
         if (root.querySelectorAll) root.querySelectorAll('select').forEach(enhance);
     }
@@ -8795,7 +8812,14 @@ function saveInventoryMovement() {
             button.focus({ preventScroll: true });
         }
     });
-    window.addEventListener('resize', positionMenu);
+    window.addEventListener('resize', () => {
+        if (window.innerWidth < 768) scan(document);
+        else {
+            closeMenu();
+            document.querySelectorAll('select._mfCustomSelect, select.mf-native-select-hidden').forEach(restore);
+        }
+        positionMenu();
+    });
     window.addEventListener('scroll', positionMenu, true);
 
     scan(document);
