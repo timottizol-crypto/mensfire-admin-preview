@@ -13648,3 +13648,106 @@ body.profile-view-active .app-header {
     grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
   }
 }
+
+
+/* 2026-11-21 mobile overview: horizontal period controls and compact chart */
+@media (max-width: 767px) {
+  /* Keep the period presets in one horizontal row. */
+  #viewDashboard .dashboard-period-controls .finance-range-toolbar {
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: stretch !important;
+    gap: 8px !important;
+    width: 100% !important;
+    min-width: 0 !important;
+  }
+  #viewDashboard .dashboard-period-controls .finance-range-presets {
+    display: grid !important;
+    grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+    align-items: stretch !important;
+    gap: 6px !important;
+    width: 100% !important;
+    min-width: 0 !important;
+  }
+  #viewDashboard .dashboard-period-controls .finance-range-btn {
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    width: 100% !important;
+    min-width: 0 !important;
+    min-height: 34px !important;
+    height: 34px !important;
+    padding: 5px 4px !important;
+    font-size: 11px !important;
+    line-height: 1.15 !important;
+    white-space: nowrap !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+  }
+  /* Date buttons must sit side by side and keep readable text. */
+  #viewDashboard .dashboard-period-controls .finance-range-fields {
+    display: flex !important;
+    flex-direction: row !important;
+    flex-wrap: nowrap !important;
+    align-items: center !important;
+    justify-content: stretch !important;
+    gap: 6px !important;
+    width: 100% !important;
+    min-width: 0 !important;
+    height: 36px !important;
+    min-height: 36px !important;
+    max-height: 36px !important;
+    overflow: hidden !important;
+  }
+  #viewDashboard .dashboard-period-controls .finance-range-fields > span {
+    flex: 0 0 auto !important;
+    width: auto !important;
+    white-space: nowrap !important;
+  }
+  #viewDashboard .dashboard-period-controls .finance-range-date {
+    display: flex !important;
+    flex: 1 1 0 !important;
+    width: auto !important;
+    min-width: 0 !important;
+    max-width: 100% !important;
+    min-height: 34px !important;
+    height: 34px !important;
+    padding: 5px 8px !important;
+    align-items: center !important;
+    justify-content: center !important;
+    font-size: 11px !important;
+    line-height: 1.15 !important;
+    white-space: nowrap !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+    overflow-wrap: normal !important;
+    word-break: keep-all !important;
+  }
+  /* The chart was forced to 205px plus a 300px card minimum.
+     Let the card fit its contents and reduce the plot to ~2/3 height. */
+  #viewDashboard .dashboard-overview-row > .dashboard-main-panel {
+    height: auto !important;
+    min-height: 0 !important;
+    max-height: none !important;
+    padding: 14px !important;
+  }
+  #viewDashboard #dashboardRevenueChart,
+  #viewDashboard #dashboardRevenueChart .dashboard-line-chart {
+    height: auto !important;
+    min-height: 0 !important;
+    max-height: none !important;
+    margin-top: 6px !important;
+  }
+  #viewDashboard #dashboardRevenueChart svg {
+    display: block !important;
+    width: 100% !important;
+    height: 138px !important;
+    min-height: 138px !important;
+    max-height: 138px !important;
+    aspect-ratio: auto !important;
+  }
+  #viewDashboard #dashboardRevenueChart .dashboard-chart-summary {
+    margin-top: 4px !important;
+    line-height: 1.2 !important;
+  }
+}
