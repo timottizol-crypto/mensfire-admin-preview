@@ -210,7 +210,10 @@ function initAppForUser() {
 
     buildBottomNav();
     
-        // Открываем первый экран по умолчанию
+        // Reset the one-time Overview entrance for this authenticated app entry.
+    window.dashboardEntrancePlayed = false;
+
+    // Открываем первый экран по умолчанию
     const defaultView = 'viewDashboard';
     const defaultNav = document.querySelector(`.nav-item[data-view="${defaultView}"]`);
     switchView(defaultView, defaultNav);
@@ -578,13 +581,18 @@ function switchView(viewId, navElement) {
     if (viewId === 'viewDashboard' && typeof renderDashboard === 'function') {
         renderDashboard();
         const dashboardView = document.getElementById('viewDashboard');
-        if (dashboardView && window.matchMedia('(min-width: 768px)').matches) {
-            // Restart the entrance only on an actual navigation into Overview.
-            // switchView returns early when Overview is already active.
-            dashboardView.classList.remove('dashboard-entering');
-            void dashboardView.offsetWidth;
-            dashboardView.classList.add('dashboard-entering');
-            window.setTimeout(() => dashboardView.classList.remove('dashboard-entering'), 1500);
+        // The entrance animation is a one-time effect per authenticated app entry.
+        // Switching away from Overview and back must not replay it.
+        if (dashboardView && !window.dashboardEntrancePlayed) {
+            window.dashboardEntrancePlayed = true;
+            if (window.matchMedia('(min-width: 768px)').matches) {
+                dashboardView.classList.remove('dashboard-entering');
+                void dashboardView.offsetWidth;
+                dashboardView.classList.add('dashboard-entering');
+                window.setTimeout(() => dashboardView.classList.remove('dashboard-entering'), 1500);
+            } else {
+                dashboardView.classList.remove('dashboard-entering');
+            }
         } else if (dashboardView) {
             dashboardView.classList.remove('dashboard-entering');
         }
