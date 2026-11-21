@@ -14005,59 +14005,61 @@ html:not(.light-theme) #viewPurchases .inventory-heading > .home-cta-btn:hover {
     max-height: none !important;
   }
 
-  /* Give the revenue chart more vertical room; let KPI cards fill its height. */
+  /* Restore the original chart sizing and normal document flow.
+     The lower panels must start after the complete chart/KPI row, never overlap it. */
   #viewDashboard .dashboard-overview-row {
-    grid-template-columns: minmax(0, 1fr) minmax(0, 1.12fr) !important;
-    align-items: stretch !important;
+    align-items: start !important;
+    height: auto !important;
+    min-height: 0 !important;
+    margin-bottom: 14px !important;
   }
   #viewDashboard .dashboard-overview-row > .dashboard-main-panel {
-    align-self: stretch !important;
-    min-height: 365px !important;
-    height: 100% !important;
+    height: auto !important;
+    min-height: 0 !important;
+    max-height: none !important;
   }
   #viewDashboard #dashboardRevenueChart,
   #viewDashboard #dashboardRevenueChart .dashboard-line-chart {
-    min-height: 0 !important;
     height: auto !important;
+    min-height: 0 !important;
+    max-height: none !important;
   }
   #viewDashboard #dashboardRevenueChart svg,
   #viewDashboard #dashboardRevenueChart .dashboard-line-chart svg {
     display: block !important;
     width: 100% !important;
-    height: 255px !important;
-    min-height: 255px !important;
-    max-height: 255px !important;
-    aspect-ratio: auto !important;
+    height: auto !important;
+    min-height: 0 !important;
+    max-height: none !important;
+    aspect-ratio: 700 / 174 !important;
   }
   #viewDashboard .dashboard-overview-row > .dashboard-kpi-grid {
-    align-self: stretch !important;
-    height: 100% !important;
-    grid-template-rows: repeat(3, minmax(0, 1fr)) !important;
-    grid-auto-rows: unset !important;
+    align-self: start !important;
+    height: auto !important;
+    grid-template-rows: none !important;
+    grid-auto-rows: minmax(76px, auto) !important;
   }
   #viewDashboard .dashboard-kpi-grid > .dashboard-kpi-card {
-    min-height: 0 !important;
-    height: 100% !important;
+    height: auto !important;
+    min-height: 76px !important;
   }
-
-  /* Both lower panels share one grid row and therefore one bottom edge. */
   #viewDashboard .dashboard-content-grid {
-    align-items: stretch !important;
-    grid-auto-rows: 1fr !important;
+    align-items: start !important;
+    grid-auto-rows: auto !important;
+    margin-top: 0 !important;
+    position: relative !important;
   }
   #viewDashboard .dashboard-content-grid > .dashboard-panel {
-    align-self: stretch !important;
-    display: flex !important;
-    flex-direction: column !important;
-    height: 100% !important;
-    min-height: 300px !important;
+    align-self: start !important;
+    height: auto !important;
+    min-height: 0 !important;
     max-height: none !important;
   }
   #viewDashboard #dashboardBookingMix,
   #viewDashboard #dashboardTeamSnapshot {
-    flex: 1 1 auto !important;
-    min-height: 0 !important;
+    flex: 0 0 auto !important;
     height: auto !important;
+    min-height: 0 !important;
     max-height: none !important;
   }
 }
