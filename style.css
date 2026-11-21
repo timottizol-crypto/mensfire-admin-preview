@@ -14484,3 +14484,22 @@ html body .drawer-modal table tbody tr:focus-within > td {
   background: color-mix(in srgb, var(--gold, #d4af37) 25%, transparent) !important;
   border-color: var(--gold, #d4af37) !important;
 }
+
+
+/* Schedule only: white labels on accent-filled selected date/period controls.
+   Booking table/cards and all other sections keep their existing text colors. */
+#viewSchedule > #desktopSchedule .desktop-calendar-tabs > button.active,
+#viewSchedule > #desktopSchedule .desktop-calendar-tabs > button.active *,
+#viewSchedule > #desktopSchedule .calendar-today-btn,
+#viewSchedule > #desktopSchedule .desktop-month-day.selected,
+#viewSchedule .schedule-tabs .tab-btn.active,
+#viewSchedule .schedule-tabs .tab-btn.active *,
+#viewSchedule .schedule-barber-filter button.active,
+#viewSchedule .schedule-barber-filter button.active *,
+#viewSchedule .schedule-barber-filter-mobile button.active,
+#viewSchedule .schedule-barber-filter-mobile button.active *,
+#viewSchedule #scheduleDateSelector .date-selector-item.selected,
+#viewSchedule #scheduleDateSelector .date-selector-item.selected * {
+  color: #fff !important;
+  -webkit-text-fill-color: #fff !important;
+}
