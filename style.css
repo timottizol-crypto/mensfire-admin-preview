@@ -14817,3 +14817,10 @@ html body .drawer-modal table tbody tr:focus-within > td {
         gap: 14px;
     }
 }
+
+/* CLIENTS — tighten the mobile gap between client scope tabs and segment filters. */
+@media (max-width: 767px) {
+    #viewClients #clientsSegmentContainer {
+        margin-top: -64px !important;
+    }
+}
