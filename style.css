@@ -14527,3 +14527,20 @@ html body .drawer-modal table tbody tr:focus-within > td {
     -webkit-overflow-scrolling: touch !important;
   }
 }
+
+
+/* 2026-11-21 mobile tab visibility guard.
+   An inactive workspace must never remain rendered beside the selected one,
+   even if a section-specific responsive rule sets its display property. */
+@media (max-width: 767px) {
+  #appContainer > .view:not(.active) {
+    display: none !important;
+    visibility: hidden !important;
+    pointer-events: none !important;
+  }
+
+  #appContainer > .view.active {
+    visibility: visible !important;
+    pointer-events: auto !important;
+  }
+}
