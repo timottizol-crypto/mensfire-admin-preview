@@ -13845,3 +13845,116 @@ html:not(.light-theme) #viewPurchases .inventory-heading > .home-cta-btn:hover {
     max-width: 100% !important;
   }
 }
+
+
+/* 2026-11-21 theme accent pass: scroll controls, finance periods/dates, schedule tabs and tables.
+   Uses the active --gold token, which is set by the selected Gold/Silver/Bronze theme. */
+
+/* Right-side scroll thumbs and tracks across scrollable panels. */
+* {
+  scrollbar-color: color-mix(in srgb, var(--gold, #d4af37) 58%, transparent) transparent;
+}
+*::-webkit-scrollbar-thumb {
+  background: color-mix(in srgb, var(--gold, #d4af37) 58%, transparent) !important;
+  border: 1px solid color-mix(in srgb, var(--gold, #d4af37) 42%, transparent) !important;
+  border-radius: 99px !important;
+}
+*::-webkit-scrollbar-thumb:hover {
+  background: color-mix(in srgb, var(--gold, #d4af37) 82%, transparent) !important;
+}
+#calendarModal .cal-nav-btn,
+#calendarModal .calendar-year-picker-heading .cal-nav-btn {
+  color: #17191d !important;
+  background: var(--gold, #d4af37) !important;
+  border-color: var(--gold, #d4af37) !important;
+}
+#calendarModal .cal-nav-btn:hover,
+#calendarModal .calendar-year-picker-heading .cal-nav-btn:hover {
+  background: var(--gold-hover, var(--gold, #d4af37)) !important;
+  border-color: var(--gold-hover, var(--gold, #d4af37)) !important;
+}
+
+/* Finance: selected period, selected day, today's marker and date input blocks. */
+#viewFinance .finance-range-presets .finance-range-btn.active,
+#viewFinance .finance-range-presets .finance-range-btn[aria-pressed="true"],
+#viewFinance #financeDateSelector .date-selector-item.selected,
+#viewFinance #financeDateSelector .date-selector-item.selected:hover {
+  color: #17191d !important;
+  -webkit-text-fill-color: #17191d !important;
+  background: var(--gold, #d4af37) !important;
+  border-color: var(--gold, #d4af37) !important;
+  box-shadow: 0 3px 12px color-mix(in srgb, var(--gold, #d4af37) 24%, transparent) !important;
+  font-weight: 800 !important;
+}
+#viewFinance .finance-range-presets .finance-range-btn.active *,
+#viewFinance #financeDateSelector .date-selector-item.selected *,
+#viewFinance #financeDateSelector .date-selector-item.selected .day-name,
+#viewFinance #financeDateSelector .date-selector-item.selected .day-num,
+#viewFinance #financeDateSelector .date-selector-item.selected .date-booking-count {
+  color: #17191d !important;
+  -webkit-text-fill-color: #17191d !important;
+  opacity: 1 !important;
+}
+#viewFinance .finance-range-date {
+  color: #17191d !important;
+  -webkit-text-fill-color: #17191d !important;
+  border-color: color-mix(in srgb, var(--gold, #d4af37) 60%, transparent) !important;
+  background: color-mix(in srgb, var(--gold, #d4af37) 16%, var(--glass-bg, #202124)) !important;
+}
+#viewFinance #financeDateSelector .date-selector-item.is-today:not(.selected) {
+  border-color: color-mix(in srgb, var(--gold, #d4af37) 78%, transparent) !important;
+  background: color-mix(in srgb, var(--gold, #d4af37) 15%, transparent) !important;
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--gold, #d4af37) 18%, transparent) !important;
+}
+#viewFinance #financeDateSelector .date-selector-item.is-today:not(.selected) .day-name {
+  color: var(--gold, #d4af37) !important;
+}
+
+/* Schedule: Today, Day, Week and other selected calendar modes. */
+#viewSchedule > #desktopSchedule .desktop-calendar-tabs > button.active,
+#viewSchedule > #desktopSchedule .calendar-today-btn,
+#viewSchedule .schedule-tabs .tab-btn.active,
+#viewSchedule .schedule-barber-filter button.active,
+#viewSchedule .schedule-barber-filter-mobile button.active,
+#viewSchedule #scheduleDateSelector .date-selector-item.selected {
+  color: #17191d !important;
+  -webkit-text-fill-color: #17191d !important;
+  background: var(--gold, #d4af37) !important;
+  border-color: var(--gold, #d4af37) !important;
+  box-shadow: 0 3px 12px color-mix(in srgb, var(--gold, #d4af37) 22%, transparent) !important;
+  font-weight: 800 !important;
+}
+#viewSchedule > #desktopSchedule .desktop-calendar-tabs > button.active *,
+#viewSchedule .schedule-tabs .tab-btn.active *,
+#viewSchedule .schedule-barber-filter button.active *,
+#viewSchedule .schedule-barber-filter-mobile button.active *,
+#viewSchedule #scheduleDateSelector .date-selector-item.selected * {
+  color: #17191d !important;
+  -webkit-text-fill-color: #17191d !important;
+}
+#viewSchedule > #desktopSchedule .calendar-date-arrow {
+  color: var(--gold, #d4af37) !important;
+  border-color: color-mix(in srgb, var(--gold, #d4af37) 45%, transparent) !important;
+}
+
+/* Finance tables: accent-tinted headers and hover/selected rows without reducing readability. */
+#viewFinance table thead th,
+#viewFinance .finance-table thead th,
+#viewFinance .finance-operations-table thead th {
+  background: color-mix(in srgb, var(--gold, #d4af37) 17%, var(--glass-bg, #202124)) !important;
+  border-color: color-mix(in srgb, var(--gold, #d4af37) 28%, transparent) !important;
+}
+#viewFinance table tbody tr:hover,
+#viewFinance .finance-table tbody tr:hover,
+#viewFinance .finance-operations-table tbody tr:hover {
+  background: color-mix(in srgb, var(--gold, #d4af37) 10%, transparent) !important;
+}
+#viewFinance table tbody tr.is-selected,
+#viewFinance .finance-table tbody tr.is-selected,
+#viewFinance .finance-operations-table tbody tr.is-selected {
+  background: color-mix(in srgb, var(--gold, #d4af37) 16%, transparent) !important;
+}
+#viewFinance table td,
+#viewFinance table th {
+  border-color: color-mix(in srgb, var(--gold, #d4af37) 15%, var(--border-color, transparent)) !important;
+}
