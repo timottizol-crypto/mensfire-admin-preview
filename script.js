@@ -526,6 +526,14 @@ function switchView(viewId, navElement) {
     const newView = document.getElementById(viewId);
     if (newView) newView.classList.add('active', animationClass);
 
+    // On phones, each tab is its own scrollable screen. Reset both possible
+    // scroll containers so Safari cannot leave the previous tab's offset in place.
+    if (window.innerWidth < 768) {
+        const appContainer = document.getElementById('appContainer');
+        if (appContainer) appContainer.scrollTop = 0;
+        if (newView) newView.scrollTop = 0;
+    }
+
     setTimeout(() => {
         if (newView) newView.classList.remove('slide-from-right', 'slide-from-left');
     }, 400);
