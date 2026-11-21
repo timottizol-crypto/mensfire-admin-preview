@@ -578,8 +578,9 @@ function switchView(viewId, navElement) {
     if (viewId === 'viewDashboard' && typeof renderDashboard === 'function') {
         renderDashboard();
         const dashboardView = document.getElementById('viewDashboard');
-        if (dashboardView && window.matchMedia('(min-width: 768px)').matches && !dashboardView.dataset.dashboardEntrancePlayed) {
-            dashboardView.dataset.dashboardEntrancePlayed = 'true';
+        if (dashboardView && window.matchMedia('(min-width: 768px)').matches) {
+            // Restart the entrance only on an actual navigation into Overview.
+            // switchView returns early when Overview is already active.
             dashboardView.classList.remove('dashboard-entering');
             void dashboardView.offsetWidth;
             dashboardView.classList.add('dashboard-entering');
