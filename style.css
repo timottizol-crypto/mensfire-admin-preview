@@ -13647,3 +13647,11 @@ body.profile-view-active .app-header {
     margin-block: 0 !important;
   }
 }
+
+
+/* 2026-11-21 mobile overview: move chart and every following section down */
+@media (max-width: 767px) {
+  #viewDashboard .dashboard-overview-row {
+    margin-top: 12px !important;
+  }
+}
