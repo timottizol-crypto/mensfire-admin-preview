@@ -3662,7 +3662,7 @@ function renderDashboard() {
     const mix=document.getElementById('dashboardBookingMix');
     if(mix){
         const counts=[['Завершено',completed.length,'completed'],['Ожидает',scoped.filter(item=>['pending','confirmed','active'].includes(item.status||'active')).length,'pending'],['Частично оплачено',scoped.filter(item=>{const total=(item.services||[]).reduce((n,s)=>n+Number(s.price||0),0);const p=getBookingPaymentState(item,total);return p.status==='partial';}).length,'partial']];
-        mix.innerHTML='<div class="dashboard-mix-list">'+counts.map(([label,value,cls])=>`<div class="dashboard-mix-row"><span><i class="${cls}"></i>${label}</span><strong>${value}</strong></div>`).join('')+'</div>';
+        mix.innerHTML='<div class="dashboard-mix-list">'+counts.map(([label,value,cls])=>`<div class="dashboard-mix-row"><span><i class="${cls}"></i>${label}</span><strong>${value}</strong></div>`).join('')+`<div class="dashboard-mix-total"><span>Всего записей за период</span><strong>${scoped.length}</strong></div>`+'</div>';
     }
     const team=document.getElementById('dashboardTeamSnapshot');
     if(team){
