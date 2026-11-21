@@ -8595,3 +8595,204 @@ function saveInventoryMovement() {
     renderInventory();
     showToast(type === 'receipt' ? 'Приход зафиксирован' : 'Списание зафиксировано', 'success');
 }
+
+
+/* MENSFIRE CUSTOM SELECTS — keep native select values/events as the source of truth. */
+(function initMensfireCustomSelects() {
+    const SELECTOR = 'select:not(.visually-hidden-select):not([aria-hidden="true"]):not([data-native-select])';
+    let active = null;
+    let menu = null;
+
+    function getLabel(select) {
+        if (select.getAttribute('aria-label')) return select.getAttribute('aria-label');
+        if (select.id) {
+            const label = document.querySelector('label[for="' + CSS.escape(select.id) + '"]');
+            if (label) return label.textContent.trim();
+        }
+        const parentLabel = select.closest('label');
+        return parentLabel ? parentLabel.textContent.trim() : 'Выбрать';
+    }
+
+    function selectedText(select) {
+        if (select.multiple) {
+            const selected = [...select.selectedOptions].map(option => option.textContent.trim());
+            return selected.length ? selected.join(', ') : 'Выбрать';
+        }
+        const option = select.selectedOptions[0];
+        return option ? option.textContent.trim() : (select.options.length ? select.options[0].textContent.trim() : 'Выбрать');
+    }
+
+    function closeMenu() {
+        if (!active) return;
+        if (menu) menu.remove();
+        menu = null;
+        active.button.setAttribute('aria-expanded', 'false');
+        active.wrapper.classList.remove('is-open');
+        active = null;
+    }
+
+    function positionMenu() {
+        if (!active || !menu) return;
+        const rect = active.button.getBoundingClientRect();
+        const margin = 8;
+        const maxHeight = Math.min(280, window.innerHeight - margin * 2);
+        menu.style.maxHeight = maxHeight + 'px';
+        menu.style.minWidth = Math.min(rect.width, window.innerWidth - margin * 2) + 'px';
+        menu.style.width = Math.min(Math.max(rect.width, 190), window.innerWidth - margin * 2) + 'px';
+        const below = window.innerHeight - rect.bottom - margin;
+        const above = rect.top - margin;
+        const openUp = below < Math.min(220, menu.scrollHeight || 220) && above > below;
+        menu.style.left = Math.max(margin, Math.min(rect.left, window.innerWidth - menu.offsetWidth - margin)) + 'px';
+        menu.style.top = openUp
+            ? Math.max(margin, rect.top - Math.min(maxHeight, menu.scrollHeight || maxHeight) - 6) + 'px'
+            : Math.min(window.innerHeight - margin - Math.min(maxHeight, menu.scrollHeight || maxHeight), rect.bottom + 6) + 'px';
+    }
+
+    function syncButton(select) {
+        const wrapper = select._mfCustomSelect;
+        if (!wrapper) return;
+        const button = wrapper.button;
+        button.textContent = selectedText(select);
+        button.title = button.textContent;
+        button.disabled = select.disabled;
+        button.classList.toggle('has-value', Boolean(select.value));
+        button.setAttribute('aria-label', getLabel(select) + ': ' + button.textContent);
+    }
+
+    function renderOptions(select, query) {
+        if (!menu) return;
+        const filter = String(query || '').trim().toLocaleLowerCase('ru');
+        const options = [...select.options];
+        const visible = options.filter(option => !filter || option.textContent.toLocaleLowerCase('ru').includes(filter));
+        const list = menu.querySelector('.mf-select-options');
+        list.innerHTML = '';
+        if (!visible.length) {
+            list.innerHTML = '<div class="mf-select-empty">Ничего не найдено</div>';
+            return;
+        }
+        visible.forEach(option => {
+            const item = document.createElement('button');
+            item.type = 'button';
+            item.className = 'mf-select-option';
+            item.textContent = option.textContent.trim();
+            item.disabled = option.disabled || option.parentElement?.disabled || false;
+            item.setAttribute('role', 'option');
+            item.setAttribute('aria-selected', String(option.selected));
+            if (option.selected) item.classList.add('is-selected');
+            item.addEventListener('click', () => {
+                if (select.multiple) {
+                    option.selected = !option.selected;
+                } else {
+                    select.value = option.value;
+                }
+                select.dispatchEvent(new Event('change', { bubbles: true }));
+                syncButton(select);
+                if (select.multiple) {
+                    item.classList.toggle('is-selected', option.selected);
+                    item.setAttribute('aria-selected', String(option.selected));
+                } else {
+                    closeMenu();
+                }
+            });
+            list.appendChild(item);
+        });
+    }
+
+    function openMenu(select) {
+        if (active && active.select === select) {
+            closeMenu();
+            return;
+        }
+        closeMenu();
+        const wrapper = select._mfCustomSelect;
+        if (!wrapper || select.disabled) return;
+        active = { select, wrapper, button: wrapper.button };
+        menu = document.createElement('div');
+        menu.className = 'mf-select-menu';
+        menu.setAttribute('role', 'listbox');
+        menu.setAttribute('aria-label', getLabel(select));
+        if (select.multiple) menu.setAttribute('aria-multiselectable', 'true');
+        const searchable = select.options.length > 8;
+        menu.innerHTML = (searchable ? '<div class="mf-select-search-wrap"><input class="mf-select-search" type="search" placeholder="Поиск..." autocomplete="off"></div>' : '') +
+            '<div class="mf-select-options"></div>';
+        document.body.appendChild(menu);
+        wrapper.classList.add('is-open');
+        wrapper.button.setAttribute('aria-expanded', 'true');
+        renderOptions(select, '');
+        positionMenu();
+        if (searchable) {
+            const search = menu.querySelector('.mf-select-search');
+            search.addEventListener('input', () => {
+                renderOptions(select, search.value);
+                positionMenu();
+            });
+            search.focus({ preventScroll: true });
+        }
+    }
+
+    function enhance(select) {
+        if (!(select instanceof HTMLSelectElement) || select.matches(SELECTOR) === false || select._mfCustomSelect) return;
+        if (!select.options.length && !select.id && !select.getAttribute('aria-label')) return;
+        const wrapper = document.createElement('span');
+        wrapper.className = 'mf-select-wrap';
+        wrapper.dataset.mfCustomSelect = 'true';
+        select.parentNode.insertBefore(wrapper, select);
+        wrapper.appendChild(select);
+        select.classList.add('mf-native-select-hidden');
+        select.tabIndex = -1;
+        const button = document.createElement('button');
+        button.type = 'button';
+        button.className = 'mf-select-trigger';
+        button.setAttribute('aria-haspopup', 'listbox');
+        button.setAttribute('aria-expanded', 'false');
+        button.addEventListener('click', () => openMenu(select));
+        button.addEventListener('keydown', event => {
+            if (event.key === 'ArrowDown' || event.key === 'Enter' || event.key === ' ') {
+                event.preventDefault();
+                if (!active || active.select !== select) openMenu(select);
+            }
+        });
+        wrapper.appendChild(button);
+        wrapper.button = button;
+        select._mfCustomSelect = wrapper;
+        select.addEventListener('change', () => syncButton(select));
+        syncButton(select);
+    }
+
+    function scan(root) {
+        if (!root) return;
+        if (root.matches && root.matches('select')) enhance(root);
+        if (root.querySelectorAll) root.querySelectorAll('select').forEach(enhance);
+    }
+
+    document.addEventListener('click', event => {
+        if (!active) return;
+        if (menu && menu.contains(event.target)) return;
+        if (active.wrapper.contains(event.target)) return;
+        closeMenu();
+    });
+    document.addEventListener('keydown', event => {
+        if (event.key === 'Escape' && active) {
+            const button = active.button;
+            closeMenu();
+            button.focus({ preventScroll: true });
+        }
+    });
+    window.addEventListener('resize', positionMenu);
+    window.addEventListener('scroll', positionMenu, true);
+
+    scan(document);
+    const observer = new MutationObserver(records => {
+        records.forEach(record => {
+            if (record.type === 'childList') record.addedNodes.forEach(node => {
+                if (node.nodeType === 1) scan(node);
+            });
+        });
+        if (active && active.select.isConnected) {
+            syncButton(active.select);
+            renderOptions(active.select, menu?.querySelector('.mf-select-search')?.value || '');
+            positionMenu();
+        }
+    });
+    observer.observe(document.body, { childList: true, subtree: true });
+})();
