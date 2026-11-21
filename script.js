@@ -583,7 +583,7 @@ function switchView(viewId, navElement) {
             dashboardView.classList.remove('dashboard-entering');
             void dashboardView.offsetWidth;
             dashboardView.classList.add('dashboard-entering');
-            window.setTimeout(() => dashboardView.classList.remove('dashboard-entering'), 1100);
+            window.setTimeout(() => dashboardView.classList.remove('dashboard-entering'), 1500);
         } else if (dashboardView) {
             dashboardView.classList.remove('dashboard-entering');
         }
