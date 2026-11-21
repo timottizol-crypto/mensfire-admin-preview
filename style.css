@@ -13377,133 +13377,166 @@ body.profile-view-active .app-header {
 }
 @media(max-width:360px){#viewDashboard .dashboard-kpi-grid{grid-template-columns:minmax(0,1fr)!important}}
 
-/* 2026-11-21 mobile overview: demo label top-right and strict vertical flow */
+/* Mobile overview layout — single source of truth (phone only) */
 @media (max-width: 767px) {
-  #viewDashboard .dashboard-topline {
-    display: flex !important;
-    flex-direction: column !important;
-    align-items: stretch !important;
-    gap: 12px !important;
-  }
-  #viewDashboard .dashboard-title-period {
-    order: 0 !important;
-    display: flex !important;
-    flex-direction: column !important;
-    align-items: stretch !important;
-    gap: 12px !important;
-  }
-  #viewDashboard .dashboard-title-period > .dashboard-heading {
-    position: relative !important;
+  #viewDashboard {
     display: block !important;
     width: 100% !important;
+    height: auto !important;
     min-height: 0 !important;
-    padding: 0 92px 0 0 !important;
+    max-height: none !important;
+    overflow: visible !important;
+    padding-bottom: 20px !important;
   }
-  #viewDashboard .dashboard-title-period > .dashboard-heading > div {
-    min-width: 0 !important;
-    max-width: 100% !important;
+
+  /* Header, date controls and upcoming bookings must occupy separate rows. */
+  #viewDashboard .dashboard-topline {
+    display: flex !important;
+    position: relative !important;
+    flex-direction: column !important;
+    align-items: stretch !important;
+    justify-content: flex-start !important;
+    gap: 12px !important;
+    width: 100% !important;
+    height: auto !important;
+    min-height: 0 !important;
+    max-height: none !important;
+    margin: 0 0 12px !important;
+    overflow: visible !important;
+  }
+  #viewDashboard .dashboard-title-period {
+    display: flex !important;
+    position: relative !important;
+    flex: 0 0 auto !important;
+    flex-direction: column !important;
+    align-items: stretch !important;
+    gap: 12px !important;
+    width: 100% !important;
+    height: auto !important;
+    min-height: 0 !important;
+    max-height: none !important;
+    margin: 0 !important;
+    overflow: visible !important;
+  }
+  #viewDashboard .dashboard-title-period > .dashboard-heading {
+    display: block !important;
+    position: relative !important;
+    width: 100% !important;
+    height: auto !important;
+    min-height: 0 !important;
+    margin: 0 !important;
+    padding: 0 92px 0 0 !important;
   }
   #viewDashboard .dashboard-title-period .dashboard-demo-tag {
     position: absolute !important;
     top: 0 !important;
     right: 0 !important;
     left: auto !important;
-    align-self: auto !important;
-    margin: 0 !important;
-    white-space: nowrap !important;
   }
   #viewDashboard .dashboard-period-controls {
-    order: 1 !important;
-    width: 100% !important;
-  }
-  #viewDashboard .dashboard-topline > .dashboard-upcoming-panel {
-    order: 2 !important;
-    width: 100% !important;
-  }
-  #viewDashboard .dashboard-overview-row {
-    display: flex !important;
-    flex-direction: column !important;
-    align-items: stretch !important;
-    gap: 12px !important;
-    margin-top: 0 !important;
-  }
-  #viewDashboard .dashboard-overview-row > .dashboard-main-panel {
+    display: block !important;
+    position: relative !important;
+    inset: auto !important;
+    flex: 0 0 auto !important;
     order: 0 !important;
     width: 100% !important;
+    height: auto !important;
+    min-height: 0 !important;
+    max-height: none !important;
+    margin: 0 !important;
+    overflow: visible !important;
   }
-  #viewDashboard .dashboard-overview-row > .dashboard-kpi-grid {
-    order: 1 !important;
-    width: 100% !important;
-  }
-  #viewDashboard .dashboard-content-grid {
-    display: flex !important;
-    flex-direction: column !important;
-    align-items: stretch !important;
-    gap: 12px !important;
-  }
-  #viewDashboard .dashboard-content-grid > .dashboard-panel {
-    width: 100% !important;
-  }
-}
-@media (max-width: 390px) {
-  #viewDashboard .dashboard-title-period > .dashboard-heading {
-    padding-right: 84px !important;
-  }
-  #viewDashboard .dashboard-title-period .dashboard-demo-tag {
-    font-size: 7px !important;
-    padding: 5px 7px !important;
-  }
-}
-
-/* 2026-11-21 mobile overview: compact period and taller revenue chart */
-@media (max-width: 767px) {
-  /* Keep the period picker compact without changing its behavior. */
-  #viewDashboard .dashboard-period-controls .finance-range-toolbar {
-    gap: 6px !important;
-    padding: 8px !important;
-  }
-  #viewDashboard .dashboard-period-controls .finance-range-presets {
-    gap: 6px !important;
-  }
-  #viewDashboard .dashboard-period-controls .finance-range-btn {
-    min-height: 32px !important;
-    height: 32px !important;
-    padding: 5px 9px !important;
-    line-height: 1.1 !important;
-    font-size: 11px !important;
-  }
+  #viewDashboard .dashboard-period-controls .finance-range-toolbar,
   #viewDashboard .dashboard-period-controls .finance-range-fields {
-    min-height: 32px !important;
-    gap: 6px !important;
+    display: flex !important;
+    position: relative !important;
+    inset: auto !important;
+    flex-direction: column !important;
+    width: 100% !important;
+    height: auto !important;
+    min-height: 0 !important;
+    max-height: none !important;
+    margin: 0 !important;
+    overflow: visible !important;
   }
-  #viewDashboard .dashboard-period-controls .finance-range-date {
-    min-height: 30px !important;
-    height: 30px !important;
-    padding: 4px 9px !important;
-    line-height: 1.1 !important;
-    font-size: 11px !important;
+  #viewDashboard .dashboard-period-controls .finance-range-fields[hidden] {
+    display: none !important;
+  }
+  #viewDashboard .dashboard-topline > .dashboard-upcoming-panel {
+    display: flex !important;
+    position: relative !important;
+    inset: auto !important;
+    flex: 0 0 auto !important;
+    order: 1 !important;
+    flex-direction: column !important;
+    gap: 10px !important;
+    width: 100% !important;
+    height: auto !important;
+    min-height: 0 !important;
+    max-height: none !important;
+    margin: 0 !important;
+    padding: 15px !important;
+    overflow: visible !important;
+  }
+  #viewDashboard .dashboard-upcoming-list {
+    display: flex !important;
+    position: relative !important;
+    flex: 0 0 auto !important;
+    flex-direction: column !important;
+    gap: 8px !important;
+    width: 100% !important;
+    height: auto !important;
+    min-height: 0 !important;
+    max-height: none !important;
+    padding: 0 !important;
+    overflow: visible !important;
+  }
+  #viewDashboard .dashboard-upcoming-row {
+    position: relative !important;
+    width: 100% !important;
+    min-height: 0 !important;
+    height: auto !important;
+    max-height: none !important;
+    overflow: visible !important;
   }
 
-  /* Give the chart enough vertical room and keep the next panels below it. */
+  /* Chart and KPI cards form their own vertical section. */
   #viewDashboard .dashboard-overview-row {
     display: flex !important;
+    position: relative !important;
     flex-direction: column !important;
     align-items: stretch !important;
     gap: 12px !important;
+    width: 100% !important;
+    height: auto !important;
+    min-height: 0 !important;
+    max-height: none !important;
+    margin: 0 0 12px !important;
+    overflow: visible !important;
   }
   #viewDashboard .dashboard-overview-row > .dashboard-main-panel {
+    display: block !important;
+    position: relative !important;
+    flex: 0 0 auto !important;
+    order: 0 !important;
+    width: 100% !important;
+    height: auto !important;
     min-height: 300px !important;
-    padding: 15px !important;
+    max-height: none !important;
+    margin: 0 !important;
+    overflow: visible !important;
   }
   #viewDashboard #dashboardRevenueChart,
   #viewDashboard #dashboardRevenueChart .dashboard-line-chart {
+    display: block !important;
+    position: relative !important;
     width: 100% !important;
-    min-height: 245px !important;
     height: auto !important;
+    min-height: 0 !important;
+    max-height: none !important;
     overflow: visible !important;
   }
-  #viewDashboard #dashboardRevenueChart svg,
-  #viewDashboard #dashboardRevenueChart .dashboard-line-chart svg {
+  #viewDashboard #dashboardRevenueChart svg {
     display: block !important;
     width: 100% !important;
     height: 205px !important;
@@ -13513,145 +13546,105 @@ body.profile-view-active .app-header {
     overflow: visible !important;
   }
   #viewDashboard #dashboardRevenueChart .dashboard-chart-summary {
+    position: relative !important;
     margin-top: 8px !important;
   }
   #viewDashboard .dashboard-overview-row > .dashboard-kpi-grid {
+    display: grid !important;
+    position: relative !important;
+    flex: 0 0 auto !important;
     order: 1 !important;
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+    grid-auto-rows: minmax(78px, auto) !important;
+    gap: 8px !important;
     width: 100% !important;
+    height: auto !important;
+    min-height: 0 !important;
+    max-height: none !important;
+    margin: 0 !important;
+    overflow: visible !important;
   }
+  #viewDashboard .dashboard-kpi-card {
+    position: relative !important;
+    width: 100% !important;
+    height: auto !important;
+    min-height: 78px !important;
+    max-height: none !important;
+    overflow: visible !important;
+  }
+
+  /* Booking mix and team panels grow to fit every row; no fixed-height clipping. */
   #viewDashboard .dashboard-content-grid {
     display: flex !important;
+    position: relative !important;
     flex-direction: column !important;
     align-items: stretch !important;
-    margin-top: 0 !important;
     gap: 12px !important;
+    width: 100% !important;
+    height: auto !important;
+    min-height: 0 !important;
+    max-height: none !important;
+    margin: 0 !important;
+    overflow: visible !important;
   }
   #viewDashboard .dashboard-content-grid > .dashboard-panel {
+    display: flex !important;
+    position: relative !important;
+    flex: 0 0 auto !important;
+    flex-direction: column !important;
     width: 100% !important;
+    height: auto !important;
+    min-height: 0 !important;
+    max-height: none !important;
+    margin: 0 !important;
+    padding: 15px !important;
+    overflow: visible !important;
   }
-}
-@media (max-width: 390px) {
-  #viewDashboard .dashboard-period-controls .finance-range-btn {
-    padding-inline: 6px !important;
-    font-size: 10px !important;
+  #viewDashboard #dashboardBookingMix,
+  #viewDashboard #dashboardTeamSnapshot {
+    display: flex !important;
+    position: relative !important;
+    flex: 0 0 auto !important;
+    flex-direction: column !important;
+    gap: 8px !important;
+    width: 100% !important;
+    height: auto !important;
+    min-height: 0 !important;
+    max-height: none !important;
+    margin: 0 !important;
+    overflow: visible !important;
   }
-}
-
-
-/* 2026-11-21 mobile overview: scrollable page and consistent 2px block spacing */
-@media (max-width: 767px) {
-  /* Let the full overview continue vertically and scroll naturally on phones. */
-  #viewDashboard {
+  #viewDashboard .dashboard-mix-list {
+    display: flex !important;
+    flex: 0 0 auto !important;
+    flex-direction: column !important;
+    gap: 12px !important;
     height: auto !important;
     min-height: 0 !important;
     max-height: none !important;
     overflow: visible !important;
   }
-
-  /* Keep exactly 2px between every main dashboard section. */
-  #viewDashboard .dashboard-topline,
-  #viewDashboard .dashboard-title-period,
-  #viewDashboard .dashboard-overview-row,
-  #viewDashboard .dashboard-content-grid {
-    row-gap: 2px !important;
-    column-gap: 2px !important;
-    gap: 2px !important;
-  }
-
-  #viewDashboard .dashboard-topline,
-  #viewDashboard .dashboard-overview-row,
-  #viewDashboard .dashboard-content-grid {
-    margin-top: 0 !important;
-    margin-bottom: 2px !important;
-  }
-
-  /* Apply the same spacing to repeated cards inside dashboard sections. */
-  #viewDashboard .dashboard-kpi-grid,
-  #viewDashboard .dashboard-upcoming-list {
-    row-gap: 2px !important;
-    column-gap: 2px !important;
-    gap: 2px !important;
+  #viewDashboard .dashboard-mix-row,
+  #viewDashboard .dashboard-team-row {
+    position: relative !important;
+    flex: 0 0 auto !important;
+    width: 100% !important;
+    min-height: 48px !important;
+    height: auto !important;
+    max-height: none !important;
+    overflow: visible !important;
   }
 }
 
-
-/* 2026-11-21 mobile overview: enforce 2px spacing between actual sibling blocks */
-@media (max-width: 767px) {
-  #viewDashboard .dashboard-topline {
-    display: flex !important;
-    flex-direction: column !important;
-    gap: 2px !important;
-    margin: 0 0 2px !important;
+@media (max-width: 390px) {
+  #viewDashboard .dashboard-title-period > .dashboard-heading {
+    padding-right: 84px !important;
   }
-
-  #viewDashboard .dashboard-title-period,
-  #viewDashboard .dashboard-overview-row,
-  #viewDashboard .dashboard-content-grid,
+  #viewDashboard .dashboard-title-period .dashboard-demo-tag {
+    font-size: 7px !important;
+    padding: 5px 7px !important;
+  }
   #viewDashboard .dashboard-kpi-grid {
-    gap: 2px !important;
-  }
-
-  #viewDashboard .dashboard-overview-row {
-    display: flex !important;
-    flex-direction: column !important;
-    align-items: stretch !important;
-    margin: 0 0 2px !important;
-  }
-
-  #viewDashboard .dashboard-content-grid {
-    display: flex !important;
-    flex-direction: column !important;
-    align-items: stretch !important;
-    margin: 0 !important;
-  }
-
-  #viewDashboard .dashboard-topline > *,
-  #viewDashboard .dashboard-overview-row > *,
-  #viewDashboard .dashboard-content-grid > * {
-    margin-block: 0 !important;
-  }
-}
-
-
-/* 2026-11-21 mobile overview: 2px gaps on block-flow dashboard sections */
-@media (max-width: 767px) {
-  /* The dashboard root is block-flow, so use margins between its direct sections. */
-  #viewDashboard > .dashboard-topline,
-  #viewDashboard > .dashboard-overview-row,
-  #viewDashboard > .dashboard-content-grid {
-    margin-top: 0 !important;
-    margin-bottom: 2px !important;
-  }
-
-  /* Inner groups are flex columns; gap controls spacing between their cards. */
-  #viewDashboard .dashboard-topline,
-  #viewDashboard .dashboard-title-period,
-  #viewDashboard .dashboard-overview-row,
-  #viewDashboard .dashboard-content-grid,
-  #viewDashboard .dashboard-kpi-grid {
-    row-gap: 2px !important;
-    column-gap: 2px !important;
-    gap: 2px !important;
-  }
-
-  #viewDashboard .dashboard-overview-row,
-  #viewDashboard .dashboard-content-grid {
-    display: flex !important;
-    flex-direction: column !important;
-    align-items: stretch !important;
-  }
-
-  #viewDashboard .dashboard-topline > *,
-  #viewDashboard .dashboard-overview-row > *,
-  #viewDashboard .dashboard-content-grid > * {
-    margin-block: 0 !important;
-  }
-}
-
-
-/* 2026-11-21 mobile overview: move chart and every following section down */
-@media (max-width: 767px) {
-  #viewDashboard .dashboard-overview-row {
-    margin-top: 12px !important;
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
   }
 }
