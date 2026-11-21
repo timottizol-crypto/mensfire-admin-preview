@@ -13772,3 +13772,42 @@ body.profile-view-active .app-header {
   color: #17191d !important;
   -webkit-text-fill-color: #17191d !important;
 }
+
+
+/* Global primary actions follow the selected appearance accent (gold / silver / bronze). */
+html:not(.light-theme) .home-cta-btn,
+html:not(.light-theme) .action-btn-primary,
+html:not(.light-theme) .checkout-btn,
+html:not(.light-theme) .login-btn,
+html:not(.light-theme) .schedule-new-booking-btn {
+  color: #17191d !important;
+  -webkit-text-fill-color: #17191d !important;
+  background: linear-gradient(145deg, var(--gold, #d4af37), var(--gold-hover, #a98229)) !important;
+  border: 1px solid color-mix(in srgb, var(--gold, #d4af37) 72%, white) !important;
+  box-shadow: 0 7px 22px color-mix(in srgb, var(--gold, #d4af37) 20%, transparent), inset 0 1px 0 rgba(255,255,255,.25) !important;
+}
+html:not(.light-theme) .home-cta-btn:hover,
+html:not(.light-theme) .action-btn-primary:hover,
+html:not(.light-theme) .checkout-btn:hover,
+html:not(.light-theme) .login-btn:hover,
+html:not(.light-theme) .schedule-new-booking-btn:hover {
+  filter: brightness(1.07) !important;
+}
+html:not(.light-theme) .home-cta-btn:active,
+html:not(.light-theme) .action-btn-primary:active,
+html:not(.light-theme) .checkout-btn:active,
+html:not(.light-theme) .login-btn:active,
+html:not(.light-theme) .schedule-new-booking-btn:active {
+  background: var(--gold-hover, var(--gold, #d4af37)) !important;
+  transform: scale(.975);
+}
+
+/* Selected options inside booking/service flows use the same accent, not fixed gold. */
+html:not(.light-theme) .booking-barber-choice.is-selected,
+html:not(.light-theme) .data-mode-switch button.is-active,
+html:not(.light-theme) .schedule-barber-filter button.active,
+html:not(.light-theme) .schedule-barber-filter-mobile button.active {
+  color: var(--gold, #d4af37) !important;
+  border-color: color-mix(in srgb, var(--gold, #d4af37) 65%, transparent) !important;
+  background: color-mix(in srgb, var(--gold, #d4af37) 17%, transparent) !important;
+}
