@@ -1067,7 +1067,7 @@ html.light-theme #viewFinance #financeViewTabs .tab-btn.active:hover * {
 
 /* Light theme: keep calendar records, hover states and scrollbars tied to the chosen accent. */
 html.light-theme * {
-  scrollbar-color: color-mix(in srgb, var(--gold, #c79a2a) 62%, transparent) transparent;
+  scrollbar-color: color-mix(in srgb, var(--gold, #c79a2a) 62%, transparent) transparent !important;
 }
 html.light-theme *::-webkit-scrollbar-thumb {
   background: color-mix(in srgb, var(--gold, #c79a2a) 62%, transparent) !important;
