@@ -1619,8 +1619,20 @@ function renderSchedule() {
             const targetDate = selectedScheduleDate;
             
             const canSeeAllStaff = currentUser.role === 'admin';
-            let filteredBookings = bookings.filter(b => b.date === targetDate && (canSeeAllStaff || b.barberId === currentUser.id));
-            let filteredBlocks = timeBlocks.filter(tb => tb.date === targetDate && (canSeeAllStaff || tb.barberId === currentUser.id));
+            // На телефоне применяем выбранного мастера отдельно от проверки прав.
+            // Раньше этот участок учитывал только роль пользователя, поэтому Али видел всех мастеров
+            // даже после нажатия на конкретное имя в фильтре.
+            let filteredBookings = bookings.filter(b =>
+                b.date === targetDate &&
+                b.status !== 'cancelled' &&
+                (canSeeAllStaff || String(b.barberId) === String(currentUser.id)) &&
+                (selectedScheduleBarberFilter === 'all' || String(b.barberId) === String(selectedScheduleBarberFilter))
+            );
+            let filteredBlocks = timeBlocks.filter(tb =>
+                tb.date === targetDate &&
+                (canSeeAllStaff || String(tb.barberId) === String(currentUser.id)) &&
+                (selectedScheduleBarberFilter === 'all' || String(tb.barberId) === String(selectedScheduleBarberFilter))
+            );
 
             let html = '';
 
@@ -2999,6 +3011,31 @@ function renderBookingBarberChoices() {
         });
         container.appendChild(button);
     });
+}
+
+function openMobileScheduleBooking(event) {
+    if (window.innerWidth >= 768) return;
+    if (event) {
+        event.preventDefault();
+        event.stopPropagation();
+    }
+    if (!isAdminUser()) {
+        showToast('Создавать записи может только Али', 'error');
+        return;
+    }
+
+    const modal = document.getElementById('newBookingModal');
+    if (!modal) {
+        showToast('Не удалось открыть форму записи. Обновите страницу.', 'error');
+        return;
+    }
+
+    const opened = openNewBookingModal('', '', selectedScheduleDate);
+    // Мобильный fallback: даже если инициализация услуг/слотов прервётся,
+    // сама форма должна стать видимой и доступной.
+    if (!opened || !modal.classList.contains('active')) {
+        openModal('newBookingModal');
+    }
 }
 
 function openNewBookingModal(barberId = '', time = '', date = selectedScheduleDate) {
