@@ -3588,11 +3588,18 @@ function deleteTimeBlock() {
 
 function switchFinanceTab(tab) {
     if (!requireAdminAction('Просматривать финансы может только Али')) return;
-    currentFinanceTab = ['expenses', 'revenue', 'analytics'].includes(tab) ? tab : 'expenses';
+
+    // Desktop preserves the original two-tab finance experience.
+    // Mobile keeps the newer three independent sections.
+    const isDesktop = window.innerWidth >= 768;
+    currentFinanceTab = isDesktop
+        ? (tab === 'expenses' ? 'expenses' : 'revenue')
+        : (['expenses', 'revenue', 'analytics'].includes(tab) ? tab : 'expenses');
+
     const tabState = {
         tabFinExpenses: currentFinanceTab === 'expenses',
         tabFinRevenue: currentFinanceTab === 'revenue',
-        tabFinAnalytics: currentFinanceTab === 'analytics'
+        tabFinAnalytics: !isDesktop && currentFinanceTab === 'analytics'
     };
     Object.entries(tabState).forEach(([id, active]) => {
         const button = document.getElementById(id);
@@ -3609,11 +3616,12 @@ function switchFinanceTab(tab) {
     if (expenses) expenses.style.display = currentFinanceTab === 'expenses' ? 'block' : 'none';
     if (revenueAnalytics) revenueAnalytics.style.display = currentFinanceTab === 'expenses' ? 'none' : 'flex';
     if (revenueContent) revenueContent.style.display = currentFinanceTab === 'revenue' ? 'flex' : 'none';
-    if (analyticsContent) analyticsContent.style.display = currentFinanceTab === 'analytics' ? 'flex' : 'none';
+    if (analyticsContent) analyticsContent.style.display = currentFinanceTab === 'revenue' && isDesktop
+        ? 'flex'
+        : (!isDesktop && currentFinanceTab === 'analytics' ? 'flex' : 'none');
 
     renderFinance();
 }
-
 function parseReportDate(value) {
     const parts = String(value || '').split('.').map(Number);
     if (parts.length !== 3 || !parts.every(Number.isInteger)) return null;
