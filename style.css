@@ -2232,47 +2232,7 @@ html.light-theme .calendar-day:hover:not(.empty) {
                     max-width 0.3s ease !important;
     }
 
-    /* Клиентский liquid-glass bubble: включён и находится под вкладками. */
-    #bottomNav.bottom-nav {
-        isolation: isolate !important;
-        overflow: visible !important;
-    }
 
-    #bottomNav .nav-bubble {
-        display: block !important;
-        position: absolute !important;
-        z-index: 0 !important;
-        pointer-events: none !important;
-        border-radius: 14px !important;
-        background: rgba(212,175,55,.08) !important;
-        -webkit-backdrop-filter: blur(18px) saturate(200%) brightness(1.12) contrast(1.05) !important;
-        backdrop-filter: blur(18px) saturate(200%) brightness(1.12) contrast(1.05) !important;
-        border: 1px solid rgba(212,175,55,.2) !important;
-        box-shadow:
-            inset 1px 0 1px rgba(255,100,100,.25),
-            inset -1px 0 1px rgba(100,200,255,.25),
-            inset 0 1px 1px rgba(255,255,255,.4),
-            0 0 15px rgba(212,175,55,.15) !important;
-        transform: scale(1);
-        transition:
-            left .25s cubic-bezier(.25,1,.5,1),
-            top .25s cubic-bezier(.25,1,.5,1),
-            width .25s cubic-bezier(.25,1,.5,1),
-            height .25s cubic-bezier(.25,1,.5,1),
-            transform .15s ease-out,
-            border-radius .15s ease-out !important;
-    }
-
-    #bottomNav .nav-bubble.expanding {
-        transform: scale(.7,1.5) !important;
-        border-radius: 50% !important;
-    }
-
-    #bottomNav .nav-bubble.squashing {
-        transform: scale(1.2,.7) !important;
-        border-radius: 999px !important;
-        transition: transform .1s ease-out, border-radius .1s ease-out !important;
-    }
 
     #bottomNav .desktop-nav-toggle {
         display: flex;
@@ -3566,8 +3526,46 @@ html.light-theme .calendar-day:hover:not(.empty) {
         text-overflow: ellipsis !important;
     }
 
+    /* Клиентский liquid-glass bubble: включён и находится под вкладками. */
+    #bottomNav.bottom-nav {
+        isolation: isolate !important;
+        overflow: visible !important;
+    }
+
     #bottomNav .nav-bubble {
-        display: none !important;
+        display: block !important;
+        position: absolute !important;
+        z-index: 0 !important;
+        pointer-events: none !important;
+        border-radius: 14px !important;
+        background: rgba(212,175,55,.08) !important;
+        -webkit-backdrop-filter: blur(18px) saturate(200%) brightness(1.12) contrast(1.05) !important;
+        backdrop-filter: blur(18px) saturate(200%) brightness(1.12) contrast(1.05) !important;
+        border: 1px solid rgba(212,175,55,.2) !important;
+        box-shadow:
+            inset 1px 0 1px rgba(255,100,100,.25),
+            inset -1px 0 1px rgba(100,200,255,.25),
+            inset 0 1px 1px rgba(255,255,255,.4),
+            0 0 15px rgba(212,175,55,.15) !important;
+        transform: scale(1);
+        transition:
+            left .25s cubic-bezier(.25,1,.5,1),
+            top .25s cubic-bezier(.25,1,.5,1),
+            width .25s cubic-bezier(.25,1,.5,1),
+            height .25s cubic-bezier(.25,1,.5,1),
+            transform .15s ease-out,
+            border-radius .15s ease-out !important;
+    }
+
+    #bottomNav .nav-bubble.expanding {
+        transform: scale(.7,1.5) !important;
+        border-radius: 50% !important;
+    }
+
+    #bottomNav .nav-bubble.squashing {
+        transform: scale(1.2,.7) !important;
+        border-radius: 999px !important;
+        transition: transform .1s ease-out, border-radius .1s ease-out !important;
     }
 
     #appContainer .view {
