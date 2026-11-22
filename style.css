@@ -15282,3 +15282,21 @@ html body .drawer-modal table tbody tr:focus-within > td {
     min-height: 42px !important;
   }
 }
+
+
+/* MOBILE UX AUDIT — remove leftover fixed-height constraints from content lists. */
+@media (max-width: 767px) {
+  #viewSchedule #scheduleList {
+    height: auto !important;
+    min-height: 0 !important;
+    max-height: none !important;
+    overflow: visible !important;
+  }
+  #viewServices .service-card-grid {
+    height: auto !important;
+    min-height: 0 !important;
+    max-height: none !important;
+    overflow: visible !important;
+    padding: 0 !important;
+  }
+}
