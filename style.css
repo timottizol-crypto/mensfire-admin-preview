@@ -15568,3 +15568,245 @@ html body .drawer-modal table tbody tr:focus-within > td {
     border-color: rgba(48,60,78,.15) !important; background: rgba(246,248,251,.94) !important;
   }
 }
+
+
+
+/* MOBILE FOLLOW-UP: finance spacing, barber stats page treatment, and services controls. */
+@media (max-width: 767px) {
+  /* Separate the Day / Week / Month cards from the period-result heading. */
+  #viewFinance .finance-period-metrics {
+    margin-top: 15px !important;
+  }
+
+  /* Barber analytics opens as a full-screen, page-like panel on phones,
+     using the same premium glass treatment as the desktop side panel. */
+  #barberStatsModal {
+    align-items: stretch !important;
+    justify-content: flex-end !important;
+    padding: 0 !important;
+    background: rgba(0,0,0,.52) !important;
+    backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
+  }
+  #barberStatsModal .barber-stats-panel {
+    display: block !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    height: 100dvh !important;
+    max-height: 100dvh !important;
+    min-height: 100dvh !important;
+    margin: 0 !important;
+    padding: 22px 16px calc(26px + env(safe-area-inset-bottom)) !important;
+    overflow-y: auto !important;
+    overflow-x: hidden !important;
+    overscroll-behavior: contain !important;
+    border: 0 !important;
+    border-top: 1px solid var(--border-color,rgba(128,128,128,.2)) !important;
+    border-radius: 0 !important;
+    background: color-mix(in srgb,var(--bg-card) 78%,transparent) !important;
+    color: var(--text-main) !important;
+    box-shadow: 0 -12px 45px rgba(0,0,0,.22),inset 0 1px 0 rgba(255,255,255,.12) !important;
+    backdrop-filter: blur(28px) saturate(165%) !important;
+    -webkit-backdrop-filter: blur(28px) saturate(165%) !important;
+    text-align: left !important;
+  }
+  #barberStatsModal .barber-stats-panel > div:first-child {
+    position: sticky !important;
+    top: -22px !important;
+    z-index: 3 !important;
+    margin: -22px -16px 18px !important;
+    padding: 18px 16px 14px !important;
+    background: color-mix(in srgb,var(--bg-card) 94%,transparent) !important;
+    border-bottom: 1px solid var(--border-color,rgba(128,128,128,.16)) !important;
+    backdrop-filter: blur(22px) !important;
+    -webkit-backdrop-filter: blur(22px) !important;
+  }
+  #barberStatsModal .barber-stats-panel > div:first-child h2 {
+    min-width: 0 !important;
+    font-size: 21px !important;
+    line-height: 1.2 !important;
+    overflow-wrap: anywhere !important;
+  }
+  #barberStatsModal .barber-stats-panel [style*="background: rgba(255,255,255,0.03)"] {
+    background: var(--bg-dark) !important;
+    border: 1px solid var(--border-color,rgba(128,128,128,.16)) !important;
+  }
+  #barberStatsModal .barber-stats-salary {
+    padding: 10px !important;
+    border-radius: 12px !important;
+    background: var(--bg-dark) !important;
+    border: 1px solid var(--border-color,rgba(128,128,128,.16)) !important;
+  }
+  #barberStatsModal .barber-stats-salary-value {
+    font-size: 17px !important;
+    font-weight: 800 !important;
+    color: var(--gold) !important;
+  }
+  #barberStatsModal .barber-stats-extra {
+    display: grid !important;
+    gap: 9px !important;
+    margin: 4px 0 18px !important;
+  }
+  #barberStatsModal .barber-stats-section-title {
+    margin: 8px 0 0 !important;
+    color: var(--text-muted) !important;
+    font-size: 10px !important;
+    font-weight: 800 !important;
+    letter-spacing: .09em !important;
+    text-transform: uppercase !important;
+  }
+  #barberStatsModal .barber-stats-extra-grid {
+    display: grid !important;
+    grid-template-columns: repeat(2,minmax(0,1fr)) !important;
+    gap: 8px !important;
+  }
+  #barberStatsModal .barber-stats-extra-card {
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: flex-start !important;
+    justify-content: center !important;
+    gap: 7px !important;
+    min-width: 0 !important;
+    min-height: 68px !important;
+    padding: 11px !important;
+    border: 1px solid var(--border-color,rgba(128,128,128,.16)) !important;
+    border-radius: 12px !important;
+    background: var(--bg-dark) !important;
+  }
+  #barberStatsModal .barber-stats-extra-card span {
+    min-width: 0 !important;
+    color: var(--text-muted) !important;
+    font-size: 10px !important;
+    line-height: 1.25 !important;
+    white-space: normal !important;
+  }
+  #barberStatsModal .barber-stats-extra-card strong {
+    flex: 0 0 auto !important;
+    color: var(--text-main) !important;
+    font-size: clamp(14px,4vw,17px) !important;
+    line-height: 1.15 !important;
+    white-space: normal !important;
+    overflow-wrap: anywhere !important;
+    font-variant-numeric: tabular-nums !important;
+  }
+  #barberStatsModal .barber-stats-top-services,
+  #barberStatsModal .barber-stats-recent-list {
+    display: grid !important;
+    gap: 7px !important;
+  }
+  #barberStatsModal .barber-stats-recent-list {
+    max-height: none !important;
+    overflow: visible !important;
+    padding: 0 !important;
+  }
+  #barberStatsModal .barber-stats-service-row,
+  #barberStatsModal .barber-stats-visit-row {
+    display: flex !important;
+    align-items: center !important;
+    justify-content: space-between !important;
+    gap: 9px !important;
+    padding: 11px !important;
+    border: 1px solid var(--border-color,rgba(128,128,128,.16)) !important;
+    border-radius: 12px !important;
+    background: var(--bg-dark) !important;
+  }
+  #barberStatsModal .barber-stats-service-row span {
+    display: flex !important;
+    align-items: center !important;
+    gap: 8px !important;
+    min-width: 0 !important;
+    overflow: hidden !important;
+    color: var(--text-main) !important;
+    font-size: 11px !important;
+  }
+  #barberStatsModal .barber-stats-service-row i {
+    display: grid !important;
+    place-items: center !important;
+    width: 21px !important;
+    height: 21px !important;
+    flex: 0 0 21px !important;
+    border-radius: 50% !important;
+    background: var(--bg-card) !important;
+    color: var(--gold) !important;
+    font-style: normal !important;
+    font-weight: 800 !important;
+  }
+  #barberStatsModal .barber-stats-service-row strong,
+  #barberStatsModal .barber-stats-visit-row b {
+    flex: 0 0 auto !important;
+    color: var(--gold) !important;
+    font-size: 11px !important;
+    white-space: nowrap !important;
+    font-variant-numeric: tabular-nums !important;
+  }
+  #barberStatsModal .barber-stats-visit-row > div {
+    display: grid !important;
+    min-width: 0 !important;
+    gap: 3px !important;
+  }
+  #barberStatsModal .barber-stats-visit-row strong {
+    overflow: hidden !important;
+    color: var(--text-main) !important;
+    font-size: 11px !important;
+    text-overflow: ellipsis !important;
+    white-space: nowrap !important;
+  }
+  #barberStatsModal .barber-stats-visit-row span,
+  #barberStatsModal .barber-stats-visit-row small {
+    overflow: hidden !important;
+    color: var(--text-muted) !important;
+    font-size: 9px !important;
+    text-overflow: ellipsis !important;
+    white-space: nowrap !important;
+  }
+  #barberStatsModal .barber-stats-empty {
+    padding: 12px !important;
+    color: var(--text-muted) !important;
+    font-size: 11px !important;
+    border: 1px dashed var(--border-color,rgba(128,128,128,.16)) !important;
+    border-radius: 12px !important;
+  }
+  #barberStatsModal .barber-stats-panel > div:last-child {
+    position: sticky !important;
+    bottom: calc(-26px - env(safe-area-inset-bottom)) !important;
+    z-index: 2 !important;
+    margin: 18px -16px calc(-26px - env(safe-area-inset-bottom)) !important;
+    padding: 12px 16px calc(14px + env(safe-area-inset-bottom)) !important;
+    background: color-mix(in srgb,var(--bg-card) 96%,transparent) !important;
+    border-top: 1px solid var(--border-color,rgba(128,128,128,.16)) !important;
+    backdrop-filter: blur(22px) !important;
+    -webkit-backdrop-filter: blur(22px) !important;
+  }
+
+  /* The create-service action is compact; the Top Barber shortcut sits after all catalog blocks. */
+  #viewServices .services-add-cta {
+    width: auto !important;
+    min-width: 0 !important;
+    min-height: 36px !important;
+    height: 36px !important;
+    align-self: flex-start !important;
+    padding: 6px 13px !important;
+  }
+  #viewServices .services-mobile-jump {
+    grid-template-columns: minmax(0,1fr) !important;
+  }
+  #viewServices .services-top-barber-jump {
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    width: 100% !important;
+    min-height: 42px !important;
+    margin: 16px 0 8px !important;
+    padding: 10px 14px !important;
+    border: 1px solid rgba(212,175,55,.34) !important;
+    border-radius: 12px !important;
+    background: linear-gradient(135deg,rgba(212,175,55,.16),rgba(212,175,55,.055)) !important;
+    color: var(--gold) !important;
+    font-size: 12px !important;
+    font-weight: 800 !important;
+    letter-spacing: .02em !important;
+  }
+}
+@media (min-width: 768px) {
+  #viewServices .services-top-barber-jump { display: none !important; }
+}
