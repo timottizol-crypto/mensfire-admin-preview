@@ -16006,3 +16006,57 @@ html body .drawer-modal table tbody tr:focus-within > td {
 .booking-payment-actions .booking-payment-edit{flex:1 1 145px;min-width:0}
 .booking-payment-actions .booking-loyalty-redeem{border-color:rgba(212,175,55,.55);color:var(--gold)}
 @media(max-width:767px){.booking-payment-actions{display:grid;grid-template-columns:1fr}.booking-payment-actions .booking-payment-edit{width:100%}}
+
+
+/* FIX: barber UI and narrow content overflow */
+body.barber-mode .schedule-hours-btn,
+body.barber-mode .schedule-new-booking-btn,
+body.barber-mode #scheduleOverview,
+body.barber-mode #scheduleQuickInfoPanel,
+body.barber-mode .schedule-overview-grid,
+body.barber-mode .schedule-management-actions .schedule-admin-only,
+body.barber-mode .schedule-toolbar .schedule-admin-only {
+    display: none !important;
+}
+
+.booking-history-section,
+.booking-history-list,
+.booking-history-item,
+.booking-history-item > div,
+.booking-history-empty {
+    min-width: 0;
+    max-width: 100%;
+    box-sizing: border-box;
+}
+.booking-history-item > div { overflow-wrap: anywhere; word-break: break-word; }
+.booking-history-item strong,
+.booking-history-item p,
+.booking-history-item small,
+.booking-history-empty {
+    max-width: 100%;
+    overflow-wrap: anywhere;
+    word-break: break-word;
+    white-space: normal;
+}
+
+#clientDetailsMetrics { min-width: 0; max-width: 100%; box-sizing: border-box; }
+#clientDetailsMetrics > span {
+    display: inline-flex;
+    flex: 1 1 145px;
+    min-width: 0;
+    max-width: 100%;
+    align-items: flex-start;
+    gap: 4px;
+    box-sizing: border-box;
+    overflow-wrap: anywhere;
+    word-break: break-word;
+    white-space: normal;
+}
+#clientDetailsMetrics > span b { min-width: 0; overflow-wrap: anywhere; word-break: break-word; }
+@media (max-width: 767px) {
+    #clientDetailsModal .modal-content,
+    #clientDetailsModal .modal-body,
+    #clientDetailsModal .client-details-content { min-width: 0; max-width: 100%; box-sizing: border-box; }
+    #clientDetailsMetrics { display: grid !important; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px !important; }
+    #clientDetailsMetrics > span { min-width: 0; width: 100%; padding: 8px; border-radius: 8px; background: rgba(255,255,255,.035); font-size: 11px; }
+}
