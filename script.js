@@ -357,6 +357,7 @@ function buildBottomNav() {
         { id: 'viewSettings', title: 'Настройки', icon: settingsIcon }
     ];
 
+    document.body.classList.toggle('barber-mode', !admin);
     let navItems = [];
     mobileMoreViewIds = [];
     if (admin) {
@@ -537,6 +538,7 @@ function updateDesktopNavToggle() {
 
 
 function switchView(viewId, navElement) {
+    document.body.classList.toggle('barber-mode', isBarberUser());
     if (isBarberUser() && !['viewSchedule', 'viewProfile'].includes(viewId)) {
         showToast('Этот раздел доступен только Али', 'error');
         return;
