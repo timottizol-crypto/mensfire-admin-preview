@@ -15810,3 +15810,34 @@ html body .drawer-modal table tbody tr:focus-within > td {
 @media (min-width: 768px) {
   #viewServices .services-top-barber-jump { display: none !important; }
 }
+
+
+/* MOBILE ONLY — final spacing and full-width compact service action. */
+@media (max-width: 767px) {
+  #viewFinance .finance-period-metrics {
+    margin-top: 24px !important;
+  }
+
+  #viewServices .services-add-cta {
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    align-self: stretch !important;
+    width: 100% !important;
+    min-width: 100% !important;
+    min-height: 18px !important;
+    height: 18px !important;
+    max-height: 18px !important;
+    margin: 0 !important;
+    padding: 0 8px !important;
+    overflow: hidden !important;
+  }
+  #viewServices .services-add-cta .cta-text,
+  #viewServices .services-add-cta .cta-text span {
+    margin: 0 !important;
+    padding: 0 !important;
+    font-size: 10px !important;
+    line-height: 18px !important;
+    white-space: nowrap !important;
+  }
+}
