@@ -3057,7 +3057,9 @@ function lookupBookingClientByPhone() {
         return (pb?.getTime()||0)-(pa?.getTime()||0);
     })[0];
     if(clientName)document.getElementById('newBookingClient').value=clientName;
-    host.innerHTML='<button type="button" class="booking-client-match" onclick="applyBookingClientMatch(\''+String(match.key).replace(/\\/g,'\\\').replace(/'/g,"\'")+'\')"><span class="booking-client-match-icon">✓</span><span class="booking-client-match-copy"><strong>'+escapeBookingHtml(clientName||'Клиент найден')+'</strong><small>В CRM · '+completed+' завершённых визитов'+(last?' · последний '+escapeBookingHtml(last.date):'')+'</small></span><span class="booking-client-match-tag">'+(completed?'Повторный':'Есть профиль')+'</span></button>';
+    host.innerHTML='<button type="button" class="booking-client-match"><span class="booking-client-match-icon">✓</span><span class="booking-client-match-copy"><strong>'+escapeBookingHtml(clientName||'Клиент найден')+'</strong><small>В CRM · '+completed+' завершённых визитов'+(last?' · последний '+escapeBookingHtml(last.date):'')+'</small></span><span class="booking-client-match-tag">'+(completed?'Повторный':'Есть профиль')+'</span></button>';
+    const matchButton = host.querySelector('.booking-client-match');
+    if (matchButton) matchButton.addEventListener('click', () => applyBookingClientMatch(match.key));
 }
 function applyBookingClientMatch(key) {
     const profile=clientProfiles[key];
@@ -4490,12 +4492,13 @@ function renderClientRetailPurchases(clientBookings = []) {
     if (!root || !selectedClientProfileKey) return;
     const profile = clientProfiles[selectedClientProfileKey] || {};
     const phone = normalizeClientPhone(profile.phone);
-    const sales = clientRetailSales.filter(sale => {
+    const sales = (Array.isArray(clientRetailSales) ? clientRetailSales : []).filter(sale => {
+        if (!sale || typeof sale !== 'object') return false;
         if (sale.clientProfileKey && sale.clientProfileKey === selectedClientProfileKey) return true;
         const salePhone = normalizeClientPhone(sale.clientPhone);
         if (phone.length >= 7 && salePhone.length >= 7) return phone === salePhone;
-        return !salePhone && !phone && sale.clientNameSnapshot && sale.clientNameSnapshot.trim().toLowerCase() === String(profile.clientName || '').trim().toLowerCase();
-    }).sort((a,b) => new Date(b.soldAt || 0) - new Date(a.soldAt || 0));
+        return !salePhone && !phone && typeof sale.clientNameSnapshot === 'string' && sale.clientNameSnapshot.trim().toLowerCase() === String(profile.clientName || '').trim().toLowerCase();
+    }).sort((a,b) => new Date(b?.soldAt || 0) - new Date(a?.soldAt || 0));
     const fmt = value => Math.round(Number(value) || 0).toLocaleString('ru-RU') + ' ₽';
     const dateLabel = value => {
         const date = new Date(value || '');
@@ -6490,7 +6493,8 @@ function createBookingForClient() {
     }
     if (phoneInput && profile.phone) {
         phoneInput.value = profile.phone;
-        phoneInput.dispatchEvent(new Event('input', { bubbles: true }));
+        const lookupHost = document.getElementById('bookingClientLookup');
+        if (lookupHost) lookupHost.innerHTML = '<div class="booking-client-lookup-new">Профиль клиента выбран</div>';
     }
 }
 // --- ПРОФИЛЬ ---
