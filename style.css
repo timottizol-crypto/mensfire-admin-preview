@@ -15910,3 +15910,50 @@ html body .drawer-modal table tbody tr:focus-within > td {
     white-space: nowrap !important;
   }
 }
+
+
+/* MOBILE ONLY — inventory catalog heading must stack normally, never squeeze text vertically. */
+@media (max-width: 767px) {
+  #viewInventory .inventory-catalog-panel > .finance-panel-heading {
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: stretch !important;
+    justify-content: flex-start !important;
+    gap: 10px !important;
+    width: 100% !important;
+    min-width: 0 !important;
+    height: auto !important;
+    min-height: 0 !important;
+    margin: 0 0 16px !important;
+    position: static !important;
+  }
+  #viewInventory .inventory-catalog-panel > .finance-panel-heading > div {
+    display: block !important;
+    flex: 0 0 auto !important;
+    width: 100% !important;
+    min-width: 0 !important;
+    max-width: 100% !important;
+    position: static !important;
+  }
+  #viewInventory .inventory-catalog-panel > .finance-panel-heading h3,
+  #viewInventory .inventory-catalog-panel > .finance-panel-heading p {
+    display: block !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    writing-mode: horizontal-tb !important;
+    word-break: normal !important;
+    overflow-wrap: break-word !important;
+    white-space: normal !important;
+  }
+  #viewInventory .inventory-catalog-panel > .finance-panel-heading .inventory-sync-btn {
+    display: flex !important;
+    flex: 0 0 auto !important;
+    align-self: stretch !important;
+    position: static !important;
+    box-sizing: border-box !important;
+    width: 100% !important;
+    min-width: 100% !important;
+    max-width: 100% !important;
+    margin: 0 !important;
+  }
+}
