@@ -14978,42 +14978,34 @@ html body .drawer-modal table tbody tr:focus-within > td {
   }
 
   #bottomNav .mobile-more-menu:not([hidden]):not(.is-closing) {
-    animation: mobileMoreUnroll 360ms cubic-bezier(.2,.82,.25,1) both;
+    animation: mobileMoreUnroll 320ms cubic-bezier(.22,.75,.25,1) both;
   }
 
   #bottomNav .mobile-more-menu.is-closing {
-    animation: mobileMoreRollUp 230ms cubic-bezier(.4,0,.8,.2) both;
+    animation: mobileMoreRollUp 240ms cubic-bezier(.55,0,.85,.35) both;
     pointer-events: none;
   }
 
+  /* Simple vertical slide: the panel rises from below, then drops back down. */
   @keyframes mobileMoreUnroll {
-    0% {
+    from {
       opacity: 0;
-      transform: perspective(700px) rotateX(-72deg) scaleY(.18) translateY(12px);
-      clip-path: inset(0 0 82% 0 round 18px);
+      transform: translate3d(0, 30px, 0) scale(.97);
     }
-    65% {
+    to {
       opacity: 1;
-      transform: perspective(700px) rotateX(7deg) scaleY(1.025) translateY(-2px);
-      clip-path: inset(0 0 0 0 round 18px);
-    }
-    100% {
-      opacity: 1;
-      transform: perspective(700px) rotateX(0) scaleY(1) translateY(0);
-      clip-path: inset(0 0 0 0 round 18px);
+      transform: translate3d(0, 0, 0) scale(1);
     }
   }
 
   @keyframes mobileMoreRollUp {
-    0% {
+    from {
       opacity: 1;
-      transform: perspective(700px) rotateX(0) scaleY(1);
-      clip-path: inset(0 0 0 0 round 18px);
+      transform: translate3d(0, 0, 0) scale(1);
     }
-    100% {
+    to {
       opacity: 0;
-      transform: perspective(700px) rotateX(-68deg) scaleY(.16) translateY(10px);
-      clip-path: inset(0 0 82% 0 round 18px);
+      transform: translate3d(0, 30px, 0) scale(.97);
     }
   }
 
