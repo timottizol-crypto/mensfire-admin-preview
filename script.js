@@ -5166,15 +5166,17 @@ function renderClientTasksHub() {
     const count = document.getElementById('crmTasksTabCount');
     if (count) count.textContent = String(active.length);
     const filters = [{id:'all',label:'Все',count:rows.length},{id:'overdue',label:'Просроченные',count:overdueCount},{id:'upcoming',label:'Предстоящие',count:upcomingCount},{id:'done',label:'Выполненные',count:rows.length-active.length}];
-    const query = clientsTasksSearchQuery.trim().toLocaleLowerCase('ru-RU');
+    const queryWords = normalizeClientsSearchText(clientsTasksSearchQuery).split(/\\s+/).filter(Boolean);
     const visible = rows.filter(row => {
         if (clientsTasksFilter === 'overdue' && !row.overdue) return false;
         if (clientsTasksFilter === 'upcoming' && (row.task.done || row.overdue)) return false;
         if (clientsTasksFilter === 'done' && !row.task.done) return false;
         if (clientsTasksBarberFilter !== 'all' && row.barberId !== clientsTasksBarberFilter) return false;
-        if (query) {
-            const haystack = [row.name,row.task.title,row.task.author,mockStaff.find(item => String(item.id) === row.barberId)?.name || ''].join(' ').toLocaleLowerCase('ru-RU');
-            if (!haystack.includes(query)) return false;
+        if (queryWords.length) {
+            const assigneeName = mockStaff.find(item => String(item.id) === String(row.task.assigneeId || ''))?.name || '';
+            const searchableWords = [row.name,row.task.title,row.task.author,mockStaff.find(item => String(item.id) === row.barberId)?.name || '',assigneeName]
+                .flatMap(value => normalizeClientsSearchText(value).split(/[^\\p{L}\\p{N}]+/u).filter(Boolean));
+            if (!queryWords.every(queryWord => searchableWords.some(word => word.startsWith(queryWord)))) return false;
         }
         return true;
     });
