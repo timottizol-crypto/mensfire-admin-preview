@@ -1,4 +1,4 @@
-const CACHE_NAME = 'mensfire-admin-v193';
+const CACHE_NAME = 'mensfire-admin-v194-auto';
 const ASSETS = [
   './index.html',
   './style.css',
@@ -12,9 +12,8 @@ self.addEventListener('install', (event) => {
   event.waitUntil(
     caches.open(CACHE_NAME)
       .then((cache) => cache.addAll(ASSETS))
-      .catch((err) => console.error('SW precache failed:', err))
+      .then(() => self.skipWaiting())
   );
-  self.skipWaiting();
 });
 self.addEventListener('activate', (event) => {
   event.waitUntil(
