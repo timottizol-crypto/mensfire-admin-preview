@@ -3544,6 +3544,17 @@ html.light-theme .calendar-day:hover:not(.empty) {
         background: rgba(212,175,55,.1) !important;
     }
 
+    /* Active tab stays transparent so the moving glass bubble remains visible. */
+    #bottomNav .nav-item.active {
+        background: transparent !important;
+        border-color: transparent !important;
+        box-shadow: none !important;
+    }
+
+    #bottomNav .mobile-more-menu[hidden] {
+        display: none !important;
+    }
+
     #bottomNav .nav-item.active svg {
         transform: none !important;
     }
