@@ -2263,6 +2263,7 @@ function getBookingPaymentState(booking, total) {
     const method = methods.length > 1 ? 'mixed' : (methods[0] || booking?.paymentMethod);
     return {
         paid,
+        total: safeTotal,
         status,
         label: status === 'paid' ? 'Оплачено' : status === 'partial' ? 'Частично оплачено' : 'Не оплачено',
         method,
@@ -2281,7 +2282,7 @@ function openBookingPaymentEditor(id) {
     }
     const total = getBookingServiceTotal(booking);
     const paymentState = getBookingPaymentState(booking, total);
-    const balance = Math.max(0, total - paymentState.paid);
+    const balance = Math.max(0, paymentState.total - paymentState.paid);
     if (balance <= 0) return showToast('Запись уже оплачена полностью', 'info');
 
     selectedPaymentBookingId = booking.id;
@@ -2485,9 +2486,10 @@ function openActionModal(id) {
         <div class="booking-detail-row booking-detail-total">
             <span>Стоимость</span><strong>${total.toLocaleString('ru-RU')} ₽</strong>
         </div>
+        ${Math.max(0, Number(booking.loyaltyPointsRedeemed) || 0) > 0 ? '<div class="booking-detail-row"><span>Скидка бонусами</span><strong>−' + Math.max(0, Number(booking.loyaltyPointsRedeemed) || 0).toLocaleString('ru-RU') + ' ₽</strong></div>' : ''}
         <div class="booking-payment-panel">
             <div class="booking-payment-heading"><span>Оплата</span><strong class="payment-state payment-${payment.status}">${payment.label}</strong></div>
-            <div class="booking-payment-meta">Внесено: ${payment.paid.toLocaleString('ru-RU')} ₽ · Остаток: ${Math.max(0, total-payment.paid).toLocaleString('ru-RU')} ₽</div>
+            <div class="booking-payment-meta">Внесено: ${payment.paid.toLocaleString('ru-RU')} ₽ · Остаток: ${Math.max(0, payment.total-payment.paid).toLocaleString('ru-RU')} ₽</div>
             <div class="booking-payment-meta">Способ: ${escapeBookingHtml(payment.methodLabel)}</div>
             ${payment.transactions.length ? '<div class="booking-payment-history">' + payment.transactions.map(item => '<div class="booking-payment-transaction"><span>' + escapeBookingHtml(item.method ? (PAYMENT_METHOD_LABELS[item.method] || item.method) : 'Ранее внесено') + '</span><strong>' + Number(item.amount || 0).toLocaleString('ru-RU') + ' ₽</strong></div>').join('') + '</div>' : ''}
 
