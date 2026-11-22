@@ -16110,3 +16110,35 @@ body.barber-mode .schedule-new-booking-btn { display: none !important; }
         padding: 13px 10px 11px;
     }
 }
+
+
+/* MOBILE NAVIGATION — More pages do not borrow the main-tab glass bubble.
+   The current More page is highlighted with the active theme accent. */
+@media (max-width: 767px) {
+  #bottomNav .nav-bubble {
+    transition: opacity .18s ease, left .25s cubic-bezier(.25,1,.5,1),
+      top .25s cubic-bezier(.25,1,.5,1), width .25s cubic-bezier(.25,1,.5,1),
+      height .25s cubic-bezier(.25,1,.5,1), transform .15s ease-out,
+      border-radius .15s ease-out !important;
+    opacity: 1;
+    visibility: visible;
+  }
+
+  #bottomNav .nav-bubble.is-hidden {
+    opacity: 0 !important;
+    visibility: hidden !important;
+  }
+
+  #bottomNav .mobile-more-item.active {
+    color: var(--gold) !important;
+    border-color: color-mix(in srgb, var(--gold) 48%, transparent) !important;
+    background: color-mix(in srgb, var(--gold) 15%, transparent) !important;
+    box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--gold) 12%, transparent),
+      0 0 14px color-mix(in srgb, var(--gold) 12%, transparent) !important;
+  }
+
+  #bottomNav .mobile-more-item.active svg {
+    fill: currentColor !important;
+    color: var(--gold) !important;
+  }
+}
