@@ -15833,7 +15833,8 @@ html body .drawer-modal table tbody tr:focus-within > td {
 }
 
 
-/* Team period controls: custom date range participates in document flow so following panels move down. */
+/* Team period controls: mobile-only flow layout; desktop layout remains unchanged. */
+@media (max-width: 767px) {
 #viewTeam #teamPeriodControls .clients-range-toolbar {
   display: flex !important;
   flex-wrap: wrap !important;
@@ -15877,6 +15878,8 @@ html body .drawer-modal table tbody tr:focus-within > td {
     min-width: 0 !important;
   }
 }
+}
+
 
 
 /* Barber statistics modal — mobile version mirrors the desktop glass-card hierarchy. */
@@ -16222,4 +16225,70 @@ html body .drawer-modal table tbody tr:focus-within > td {
     font-size: 10px !important;
     white-space: nowrap !important;
   }
+}
+
+
+/* Services screen: compact full-width create action and quick category navigation on phones only. */
+@media (max-width: 767px) {
+  #viewServices > .services-page-heading {
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: stretch !important;
+    gap: 12px !important;
+  }
+  #viewServices .services-add-cta {
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    width: 100% !important;
+    min-width: 0 !important;
+    min-height: 38px !important;
+    height: 38px !important;
+    margin: 0 !important;
+    padding: 6px 12px !important;
+    border-radius: 11px !important;
+    box-sizing: border-box !important;
+    font-size: 13px !important;
+    line-height: 1.1 !important;
+  }
+  #viewServices .services-add-cta .cta-text,
+  #viewServices .services-add-cta .cta-text span {
+    margin: 0 !important;
+    padding: 0 !important;
+    font-size: 13px !important;
+    line-height: 1.1 !important;
+  }
+  #viewServices .services-mobile-jump {
+    display: grid !important;
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+    gap: 9px !important;
+    width: 100% !important;
+    margin: 12px 0 16px !important;
+  }
+  #viewServices .services-mobile-jump button {
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    min-width: 0 !important;
+    min-height: 40px !important;
+    padding: 8px 7px !important;
+    border: 1px solid var(--border-color, rgba(255,255,255,.15)) !important;
+    border-radius: 11px !important;
+    background: rgba(255,255,255,.045) !important;
+    color: var(--text-main) !important;
+    font-size: 11px !important;
+    font-weight: 750 !important;
+    line-height: 1.2 !important;
+    text-align: center !important;
+  }
+  #viewServices .service-group {
+    scroll-margin-top: 18px;
+  }
+  #viewServices .services-mobile-jump button:active {
+    border-color: var(--gold) !important;
+    background: color-mix(in srgb, var(--gold) 13%, transparent) !important;
+  }
+}
+@media (min-width: 768px) {
+  #viewServices .services-mobile-jump { display: none !important; }
 }
