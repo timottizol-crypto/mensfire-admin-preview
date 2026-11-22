@@ -15548,3 +15548,92 @@ html body .drawer-modal table tbody tr:focus-within > td {
     background: rgba(246,248,251,.92) !important;
   }
 }
+
+
+/* Finance mobile: independent date card and three separate section tabs. */
+@media (max-width: 767px) {
+  #viewFinance .finance-header-layout > .finance-date-card {
+    width: 100% !important;
+    min-width: 0 !important;
+    margin: 0 0 10px !important;
+    padding: 5px 4px 8px !important;
+    box-sizing: border-box !important;
+    border: 1px solid rgba(255,255,255,.13) !important;
+    border-radius: 16px !important;
+    background: rgba(255,255,255,.035) !important;
+  }
+  #viewFinance #financeViewTabs.finance-section-tabs {
+    display: grid !important;
+    grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+    gap: 8px !important;
+    width: 100% !important;
+    margin: 0 0 14px !important;
+    padding: 0 !important;
+    background: transparent !important;
+    border: 0 !important;
+    box-shadow: none !important;
+  }
+  #viewFinance .finance-section-tab {
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    min-width: 0 !important;
+    min-height: 44px !important;
+    padding: 9px 5px !important;
+    border: 1px solid rgba(255,255,255,.16) !important;
+    border-radius: 13px !important;
+    background: rgba(255,255,255,.045) !important;
+    color: var(--text-secondary, #b8bdc8) !important;
+    font-size: 12px !important;
+    font-weight: 700 !important;
+    line-height: 1.2 !important;
+    white-space: normal !important;
+    text-align: center !important;
+    overflow-wrap: anywhere !important;
+    box-shadow: none !important;
+  }
+  #viewFinance .finance-section-tab.active {
+    color: #17191d !important;
+    background: linear-gradient(145deg, var(--gold, #d4af37), var(--gold-hover, #a98229)) !important;
+    border-color: rgba(212,175,55,.8) !important;
+  }
+  #viewFinance .finance-subtab-content {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    width: 100%;
+    min-width: 0;
+  }
+  #viewFinance #expensesList {
+    max-height: 246px !important;
+    height: auto !important;
+    min-height: 0 !important;
+    overflow-y: auto !important;
+    overflow-x: hidden !important;
+    overscroll-behavior-y: contain !important;
+    -webkit-overflow-scrolling: touch !important;
+    scrollbar-width: thin !important;
+    padding-right: 6px !important;
+  }
+  #viewFinance #expensesList::-webkit-scrollbar { width: 4px; }
+  #viewFinance #expensesList::-webkit-scrollbar-thumb {
+    background: rgba(212,175,55,.48);
+    border-radius: 8px;
+  }
+  #viewFinance #expensesList > .finance-operation {
+    min-width: 0 !important;
+    box-sizing: border-box !important;
+  }
+  html.light-theme #viewFinance .finance-date-card {
+    background: rgba(255,255,255,.82) !important;
+    border-color: rgba(48,60,78,.16) !important;
+  }
+  html.light-theme #viewFinance .finance-section-tab {
+    background: rgba(255,255,255,.9) !important;
+    border-color: rgba(48,60,78,.2) !important;
+    color: #465164 !important;
+  }
+  html.light-theme #viewFinance .finance-section-tab.active {
+    color: #17191d !important;
+  }
+}
