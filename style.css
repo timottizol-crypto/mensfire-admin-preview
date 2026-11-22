@@ -16060,3 +16060,10 @@ body.barber-mode .schedule-toolbar .schedule-admin-only {
     #clientDetailsMetrics { display: grid !important; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px !important; }
     #clientDetailsMetrics > span { min-width: 0; width: 100%; padding: 8px; border-radius: 8px; background: rgba(255,255,255,.035); font-size: 11px; }
 }
+
+/* Barber: booking management actions are not available in the interface. */
+body.barber-mode #editBookingBtn,
+body.barber-mode #completeBookingBtn,
+body.barber-mode #cancelBookingBtn,
+body.barber-mode .schedule-hours-btn,
+body.barber-mode .schedule-new-booking-btn { display: none !important; }
