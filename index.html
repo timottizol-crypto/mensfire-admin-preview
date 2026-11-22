@@ -19,7 +19,7 @@
         }
     </script>
 
-    <link rel="stylesheet" href="style.css?v=team-period-flow-20261122-1">
+    <link rel="stylesheet" href="style.css?v=barber-stats-mobile-20261122-1">
     <link rel="stylesheet" href="theme-light.css?v=accent-surfaces-audit-20261121-3">
 </head>
 <body class="header-hidden">
@@ -904,18 +904,18 @@
         <!-- Аналитика барбера -->
     <div class="modal" id="barberStatsModal">
         <div class="modal-content barber-stats-panel" style="text-align: left; max-width: 420px; padding: 25px;">
-            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+            <div class="barber-stats-heading" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
                 <h2 id="statsBarberName" style="font-size: 22px; color: var(--gold); margin: 0;">Имя</h2>
                 <button class="close-btn" onclick="closeModal('barberStatsModal')" style="color: #fff; font-size: 24px; background: none; border: none; cursor: pointer;">&times;</button>
             </div>
 
-            <div style="font-size: 12px; color: var(--text-muted); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 10px;">За этот месяц</div>
-            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 20px;">
-                <div style="background: rgba(255,255,255,0.03); padding: 12px; border-radius: 12px; text-align: center;">
+            <div class="barber-stats-section-title">За этот месяц</div>
+            <div class="barber-stats-month-grid" style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 20px;">
+                <div class="barber-stats-month-card" style="background: rgba(255,255,255,0.03); padding: 12px; border-radius: 12px; text-align: center;">
                     <div id="statsMonthVisits" style="font-size: 22px; font-weight: 800; color: var(--gold);">0</div>
                     <div style="font-size: 10px; color: var(--text-muted); margin-top: 3px;">стрижек</div>
                 </div>
-                <div style="background: rgba(255,255,255,0.03); padding: 12px; border-radius: 12px; text-align: center;">
+                <div class="barber-stats-month-card" style="background: rgba(255,255,255,0.03); padding: 12px; border-radius: 12px; text-align: center;">
                     <div id="statsMonthClients" style="font-size: 22px; font-weight: 800; color: var(--gold);">0</div>
                     <div style="font-size: 10px; color: var(--text-muted); margin-top: 3px;">клиентов</div>
                 </div>
@@ -929,26 +929,26 @@
                 </div>
             </div>
 
-            <div style="font-size: 12px; color: var(--text-muted); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 10px;">Сегодня</div>
-            <div style="display: flex; justify-content: space-between; background: rgba(255,255,255,0.03); padding: 12px; border-radius: 12px; margin-bottom: 20px;">
-                <div style="text-align: center; flex: 1;">
+            <div class="barber-stats-section-title">Сегодня</div>
+            <div class="barber-stats-today-grid" style="display: flex; justify-content: space-between; background: rgba(255,255,255,0.03); padding: 12px; border-radius: 12px; margin-bottom: 20px;">
+                <div class="barber-stats-today-item" style="text-align: center; flex: 1;">
                     <div id="statsTodayVisits" style="font-size: 18px; font-weight: 800; color: var(--gold);">0</div>
                     <div style="font-size: 10px; color: var(--text-muted);">стрижек</div>
                 </div>
                 <div style="width: 1px; background: rgba(255,255,255,0.1);"></div>
-                <div style="text-align: center; flex: 1;">
+                <div class="barber-stats-today-item" style="text-align: center; flex: 1;">
                     <div id="statsTodayRevenue" style="font-size: 18px; font-weight: 800; color: var(--text-main);">0 ₽</div>
                     <div style="font-size: 10px; color: var(--text-muted);">выручка</div>
                 </div>
                 <div style="width: 1px; background: rgba(255,255,255,0.1);"></div>
-                <div style="text-align: center; flex: 1;">
+                <div class="barber-stats-today-item" style="text-align: center; flex: 1;">
                     <div id="statsTodaySalary" class="barber-stats-salary-value">0 ₽</div>
                     <div style="font-size: 10px; color: var(--text-muted);">зарплата</div>
                 </div>
             </div>
 
-            <div style="font-size: 12px; color: var(--text-muted); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 10px;">Топ-услуга месяца</div>
-            <div style="background: rgba(255,255,255,0.03); padding: 12px; border-radius: 12px; margin-bottom: 20px; display: flex; justify-content: space-between; align-items: center;">
+            <div class="barber-stats-section-title">Топ-услуга месяца</div>
+            <div class="barber-stats-featured-service" style="background: rgba(255,255,255,0.03); padding: 12px; border-radius: 12px; margin-bottom: 20px; display: flex; justify-content: space-between; align-items: center;">
                 <div id="statsTopService" style="font-size: 14px; font-weight: 700; color: var(--text-main);">-</div>
                 <div id="statsTopServiceCount" style="font-size: 12px; color: var(--gold); font-weight: 800;">0 раз</div>
             </div>
@@ -967,7 +967,7 @@
                 <div id="statsRecentVisits" class="barber-stats-recent-list"></div>
             </section>
 
-            <div style="display: flex; gap: 10px;">
+            <div class="barber-stats-actions" style="display: flex; gap: 10px;">
                 <button class="action-modal-btn action-btn-primary" id="statsResetPinBtn" onclick="" style="margin: 0;">Сбросить PIN</button>
                 <button class="action-modal-btn action-btn-cancel" onclick="closeModal('barberStatsModal')" style="margin: 0;">Закрыть</button>
             </div>
