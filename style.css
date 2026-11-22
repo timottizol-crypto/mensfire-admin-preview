@@ -15491,7 +15491,7 @@ html body .drawer-modal table tbody tr:focus-within > td {
     min-width: 0 !important;
     width: 100% !important;
   }
-  #viewFinance #finTabExpenses .finance-panel:has(.finance-period-metrics) {
+  #viewFinance #finTabExpenses .finance-dashboard-grid > .finance-panel:last-child {
     padding: 16px !important;
   }
   #viewFinance .finance-period-metrics {
