@@ -14953,3 +14953,81 @@ html body .drawer-modal table tbody tr:focus-within > td {
         max-height: 290px !important;
     }
 }
+
+
+/* Mobile More menu: right-aligned vertical unrolling drawer. */
+@media (max-width: 767px) {
+  #bottomNav .mobile-more-menu {
+    position: fixed !important;
+    left: auto !important;
+    right: 12px !important;
+    bottom: calc(12px + env(safe-area-inset-bottom, 0px) + 76px) !important;
+    width: min(280px, calc(100vw - 24px)) !important;
+    max-height: min(62dvh, 520px) !important;
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: stretch !important;
+    grid-template-columns: none !important;
+    gap: 7px !important;
+    transform-origin: bottom right !important;
+    transform-style: preserve-3d;
+    backface-visibility: hidden;
+    will-change: transform, opacity, clip-path;
+    overflow-x: hidden !important;
+    overflow-y: auto !important;
+  }
+
+  #bottomNav .mobile-more-menu:not([hidden]):not(.is-closing) {
+    animation: mobileMoreUnroll 360ms cubic-bezier(.2,.82,.25,1) both;
+  }
+
+  #bottomNav .mobile-more-menu.is-closing {
+    animation: mobileMoreRollUp 230ms cubic-bezier(.4,0,.8,.2) both;
+    pointer-events: none;
+  }
+
+  @keyframes mobileMoreUnroll {
+    0% {
+      opacity: 0;
+      transform: perspective(700px) rotateX(-72deg) scaleY(.18) translateY(12px);
+      clip-path: inset(0 0 82% 0 round 18px);
+    }
+    65% {
+      opacity: 1;
+      transform: perspective(700px) rotateX(7deg) scaleY(1.025) translateY(-2px);
+      clip-path: inset(0 0 0 0 round 18px);
+    }
+    100% {
+      opacity: 1;
+      transform: perspective(700px) rotateX(0) scaleY(1) translateY(0);
+      clip-path: inset(0 0 0 0 round 18px);
+    }
+  }
+
+  @keyframes mobileMoreRollUp {
+    0% {
+      opacity: 1;
+      transform: perspective(700px) rotateX(0) scaleY(1);
+      clip-path: inset(0 0 0 0 round 18px);
+    }
+    100% {
+      opacity: 0;
+      transform: perspective(700px) rotateX(-68deg) scaleY(.16) translateY(10px);
+      clip-path: inset(0 0 82% 0 round 18px);
+    }
+  }
+
+  #bottomNav .mobile-more-item {
+    flex: 0 0 auto !important;
+    width: 100% !important;
+    min-height: 46px !important;
+    font-size: 11px !important;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  #bottomNav .mobile-more-menu:not([hidden]),
+  #bottomNav .mobile-more-menu.is-closing {
+    animation-duration: 1ms !important;
+  }
+}
