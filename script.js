@@ -6545,13 +6545,15 @@ function showClientDetails(name, barberId) {
         if (window.innerWidth < 768) {
             historyContainer.style.maxHeight = '';
             historyContainer.style.minHeight = '0';
-            const firstHistoryCard = historyContainer.querySelector('.client-history-item');
+            const historyCards = historyContainer.querySelectorAll('.client-history-item');
+            const firstHistoryCard = historyCards[0];
             if (firstHistoryCard) {
-                const cardHeight = firstHistoryCard.getBoundingClientRect().height;
+                const firstCardHeight = firstHistoryCard.getBoundingClientRect().height;
+                const secondCardHeight = historyCards[1]?.getBoundingClientRect().height || firstCardHeight;
                 const cardGap = parseFloat(getComputedStyle(firstHistoryCard).marginBottom) || 0;
                 const visibleCardsHeight = myBookings.length > 1
-                    ? cardHeight * 1.5 + cardGap
-                    : cardHeight + cardGap;
+                    ? firstCardHeight + secondCardHeight * 0.5 + cardGap
+                    : firstCardHeight + cardGap;
                 historyContainer.style.maxHeight = Math.ceil(visibleCardsHeight + 10) + 'px';
             }
         } else {
