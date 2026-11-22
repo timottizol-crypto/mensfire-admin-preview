@@ -6564,12 +6564,16 @@ function createBookingForClient() {
     const input = document.getElementById('newBookingClient');
     const phoneInput = document.getElementById('newBookingClientPhone');
     if (input) input.value = resolvedClientName;
-    if (phoneInput && profile.phone) phoneInput.value = profile.phone;
+    if (phoneInput) phoneInput.value = profile.phone || '';
 
     const lookupHost = document.getElementById('bookingClientLookup');
     if (lookupHost) {
         lookupHost.innerHTML = '<div class="booking-client-lookup-new">Профиль клиента выбран</div>';
     }
+
+    // Обе модалки находятся в одном слое. Скрываем карточку клиента
+    // только после успешного открытия формы, чтобы форма не оставалась под ней.
+    closeModal('clientDetailsModal');
 }
 // --- ПРОФИЛЬ ---
 function renderBarberRevenue() {
