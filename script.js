@@ -5465,6 +5465,10 @@ function setClientsTasksFilter(filter) {
 function changeClientsTasksPage(direction) {
     crmTasksCurrentPage = Math.max(1, crmTasksCurrentPage + (Number(direction) < 0 ? -1 : 1));
     renderClientTasksHub();
+    // На телефоне после смены страницы возвращаем список задач к началу.
+    if (window.matchMedia('(max-width: 767px)').matches) {
+        document.querySelector('#clientsTasksHub .crm-tasks-list')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
 }
 
 function updateClientTaskFromHub(profileKey, taskId, action) {
