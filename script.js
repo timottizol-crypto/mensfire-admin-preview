@@ -248,7 +248,7 @@ function renderServices() {
     const active = all.filter(item => item.active !== false);
     const summary = document.getElementById('servicesOverview');
     if (summary) summary.innerHTML = '<div class="service-overview-card"><span>Всего услуг</span><strong>' + all.length + '</strong></div><div class="service-overview-card"><span>Доступно для записи</span><strong>' + active.length + '</strong></div><div class="service-overview-card"><span>Средняя длительность</span><strong>' + Math.round(active.reduce((sum,item)=>sum+getServiceDurationMinutes(item),0)/Math.max(1,active.length)) + ' мин.</strong></div>';
-    container.innerHTML = groups.map(group => '<section class="service-group" id="serviceGroup' + (group.type === 'top' ? 'Top' : 'Barber') + '"><div class="service-group-heading"><div><h3>' + group.title + '</h3><p>' + group.note + '</p></div><button class="finance-text-action" onclick="openServiceEditor(\'' + group.type + '\')">＋ Добавить</button></div><div class="service-card-grid">' +
+    container.innerHTML = groups.map(group => '<section class="service-group"><div class="service-group-heading"><div><h3>' + group.title + '</h3><p>' + group.note + '</p></div><button class="finance-text-action" onclick="openServiceEditor(\'' + group.type + '\')">＋ Добавить</button></div><div class="service-card-grid">' +
         (servicesData[group.type].map(service => '<article class="service-card ' + (service.active === false ? 'is-inactive' : '') + '"><div class="service-card-top"><span class="service-status">' + (service.active === false ? 'Скрыта' : 'Активна') + '</span><span class="service-duration">' + getServiceDurationMinutes(service) + ' мин.</span></div><h4>' + escapeBookingHtml(service.title) + '</h4><strong class="service-price">' + Math.round(Number(service.price)||0).toLocaleString('ru-RU') + ' ₽</strong><div class="service-card-actions"><button type="button" onclick="openServiceEditor(\'' + group.type + '\',\'' + escapeBookingHtml(service.id) + '\')">Изменить</button><button type="button" onclick="toggleServiceActive(\'' + group.type + '\',\'' + escapeBookingHtml(service.id) + '\')">' + (service.active === false ? 'Вернуть' : 'Скрыть') + '</button><button type="button" class="service-delete-btn" onclick="deleteService(\'' + group.type + '\',\'' + escapeBookingHtml(service.id) + '\')">Удалить</button></div></article>').join('') || '<div class="finance-empty">Пока нет услуг в этой категории</div>') + '</div></section>').join('');
 }
 function openServiceEditor(type, id = '') {
@@ -3588,40 +3588,16 @@ function deleteTimeBlock() {
 
 function switchFinanceTab(tab) {
     if (!requireAdminAction('Просматривать финансы может только Али')) return;
+    currentFinanceTab = tab === 'expenses' ? 'expenses' : 'revenue';
+    document.getElementById('tabFinExpenses').classList.toggle('active', currentFinanceTab === 'expenses');
+    document.getElementById('tabFinRevenue').classList.toggle('active', currentFinanceTab === 'revenue');
 
-    // Desktop preserves the original two-tab finance experience.
-    // Mobile keeps the newer three independent sections.
-    const isDesktop = window.innerWidth >= 768;
-    currentFinanceTab = isDesktop
-        ? (tab === 'expenses' ? 'expenses' : 'revenue')
-        : (['expenses', 'revenue', 'analytics'].includes(tab) ? tab : 'expenses');
-
-    const tabState = {
-        tabFinExpenses: currentFinanceTab === 'expenses',
-        tabFinRevenue: currentFinanceTab === 'revenue',
-        tabFinAnalytics: !isDesktop && currentFinanceTab === 'analytics'
-    };
-    Object.entries(tabState).forEach(([id, active]) => {
-        const button = document.getElementById(id);
-        if (button) {
-            button.classList.toggle('active', active);
-            button.setAttribute('aria-selected', active ? 'true' : 'false');
-        }
-    });
-
-    const expenses = document.getElementById('finTabExpenses');
-    const revenueAnalytics = document.getElementById('finTabRevenueAnalytics');
-    const revenueContent = document.getElementById('finTabRevenueContent');
-    const analyticsContent = document.getElementById('finTabAnalyticsContent');
-    if (expenses) expenses.style.display = currentFinanceTab === 'expenses' ? 'block' : 'none';
-    if (revenueAnalytics) revenueAnalytics.style.display = currentFinanceTab === 'expenses' ? 'none' : 'flex';
-    if (revenueContent) revenueContent.style.display = currentFinanceTab === 'revenue' ? 'flex' : 'none';
-    if (analyticsContent) analyticsContent.style.display = currentFinanceTab === 'revenue' && isDesktop
-        ? 'flex'
-        : (!isDesktop && currentFinanceTab === 'analytics' ? 'flex' : 'none');
+    document.getElementById('finTabExpenses').style.display = currentFinanceTab === 'expenses' ? 'block' : 'none';
+    document.getElementById('finTabRevenueAnalytics').style.display = currentFinanceTab === 'revenue' ? 'flex' : 'none';
 
     renderFinance();
 }
+
 function parseReportDate(value) {
     const parts = String(value || '').split('.').map(Number);
     if (parts.length !== 3 || !parts.every(Number.isInteger)) return null;
