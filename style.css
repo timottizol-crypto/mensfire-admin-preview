@@ -14883,3 +14883,57 @@ html body .drawer-modal table tbody tr:focus-within > td {
         max-height: 280px !important;
     }
 }
+
+/* MOBILE SCROLL PARITY — keep the same bounded-list behavior as desktop. */
+@media (max-width: 767px) {
+    /* Client profile lists use the same thresholds and visible heights as desktop. */
+    #clientDetailsModal .client-interaction-history.has-scroll,
+    #clientDetailsModal .client-tasks-list.has-scroll {
+        max-height: 150px !important;
+        overflow-y: auto !important;
+        overflow-x: hidden !important;
+        overscroll-behavior: contain;
+        scrollbar-gutter: stable;
+        padding-right: 7px;
+    }
+    #clientDetailsModal .client-tasks-list.has-scroll {
+        max-height: 190px !important;
+    }
+    #clientDetailsModal .client-timeline-list {
+        max-height: 190px !important;
+        overflow-y: auto !important;
+        overflow-x: hidden !important;
+        overscroll-behavior: contain;
+        scrollbar-gutter: stable;
+        padding-right: 7px;
+    }
+    #clientDetailsModal #clientDetailsHistory {
+        flex: 0 1 auto !important;
+        height: auto !important;
+        min-height: 110px !important;
+        max-height: min(38vh, 360px) !important;
+        overflow-y: auto !important;
+        overflow-x: hidden !important;
+    }
+
+    /* Service catalogue: retain desktop's bounded, internally scrolling grid. */
+    #viewServices .service-card-grid {
+        max-height: 430px !important;
+        overflow-y: auto !important;
+        overflow-x: hidden !important;
+        overscroll-behavior: contain;
+        scrollbar-width: thin;
+        padding: 2px 6px 8px 2px !important;
+    }
+
+    /* Dashboard mix list scrolls inside its panel instead of being clipped. */
+    #viewDashboard #dashboardBookingMix {
+        max-height: 174px !important;
+        min-height: 0 !important;
+        overflow-y: auto !important;
+        overflow-x: hidden !important;
+        overscroll-behavior: contain;
+        scrollbar-width: thin;
+        padding-right: 5px;
+    }
+}
