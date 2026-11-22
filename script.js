@@ -116,6 +116,11 @@ function isBarberUser() {
     return Boolean(currentUser && currentUser.role === 'barber');
 }
 
+function getStaffServiceType(staffId) {
+    const staff = mockStaff.find(person => String(person.id) === String(staffId));
+    return staff && staff.type === 'top' ? 'top' : 'barber';
+}
+
 function requireAdminAction(message = 'Это действие доступно только администратору Али') {
     if (isAdminUser()) return true;
     showToast(message, 'error');
@@ -201,7 +206,7 @@ function initAppForUser() {
     document.body.classList.add(currentUser.role === 'admin' ? 'role-admin' : 'role-barber');
     // Настраиваем профиль
     document.getElementById('profileName').innerText = currentUser.name;
-    document.getElementById('profileRole').innerText = currentUser.role === 'admin' ? 'Главный мастер' : 'Барбер';
+    document.getElementById('profileRole').innerText = currentUser.role === 'admin' ? 'Главный мастер' : (currentUser.type === 'top' ? 'Топ-мастер' : 'Барбер');
     
     document.getElementById('barberRevenueCard').style.display = isAdminUser() ? 'block' : 'none';
     const scheduleActions = document.querySelector('.schedule-management-actions');
@@ -253,7 +258,7 @@ function renderServices() {
     if (!requireAdminAction('Управлять услугами может только Али')) return;
     const container = document.getElementById('servicesCatalog');
     if (!container) return;
-    const groups = [{type:'top',title:'Услуги Али',note:'Прайс главного мастера'},{type:'barber',title:'Услуги барберов',note:'Прайс команды'}];
+    const groups = [{type:'top',title:'Услуги топ-мастеров',note:'Единый прайс для всех мастеров уровня Top Master'},{type:'barber',title:'Услуги барберов',note:'Прайс для мастеров стандартного уровня'}];
     const all = groups.flatMap(group => servicesData[group.type]);
     const active = all.filter(item => item.active !== false);
     const summary = document.getElementById('servicesOverview');
@@ -1132,7 +1137,12 @@ function handleSwipe(startX, startY, endX, endY) {
 // Подгружаем обновленный список мастеров из localStorage (если добавляли новых)
 try {
     const savedStaff = JSON.parse(localStorage.getItem(appStorageKey('mensfire_admin_staff')) || 'null');
-    if (Array.isArray(savedStaff)) mockStaff = savedStaff;
+    if (Array.isArray(savedStaff)) {
+        mockStaff = savedStaff.map(staff => ({
+            ...staff,
+            type: staff.role === 'admin' || staff.type === 'top' ? 'top' : 'barber'
+        }));
+    }
 } catch (error) {
     console.error('Не удалось прочитать список мастеров:', error);
 }
@@ -3280,7 +3290,7 @@ function updateNewBookingServices() {
     const container = document.getElementById('newBookingServicesList');
     if (!barberId || !container) return;
 
-    const catalog = (barberId === 'b_al' ? servicesData.top : servicesData.barber).filter(service => service.active !== false);
+    const catalog = servicesData[getStaffServiceType(barberId)].filter(service => service.active !== false);
 
     container.innerHTML = catalog.map(service => `
         <label class="new-booking-service-option">
@@ -3300,7 +3310,7 @@ function updateNewBookingSummary() {
     const container = document.getElementById('newBookingServicesList');
     if (!barberId || !container) return;
 
-    const catalog = (barberId === 'b_al' ? servicesData.top : servicesData.barber).filter(service => service.active !== false);
+    const catalog = servicesData[getStaffServiceType(barberId)].filter(service => service.active !== false);
 
     const selectedIds = [...container.querySelectorAll('input:checked')]
         .map(input => input.value);
@@ -3343,7 +3353,7 @@ function renderAvailableBookingSlots() {
     const container=document.getElementById('newBookingServicesList');
     const timeInput=document.getElementById('newBookingTime');
     if(!barberId||!dateValue||!container){host.innerHTML='<div class="available-slots-empty">Выберите мастера и дату</div>';return}
-    const catalog=(barberId==='b_al'?servicesData.top:servicesData.barber).filter(service=>service.active!==false);
+    const catalog=servicesData[getStaffServiceType(barberId)].filter(service=>service.active!==false);
     const selectedIds=[...container.querySelectorAll('input:checked')].map(input=>input.value);
     const duration=catalog.filter(service=>selectedIds.includes(String(service.id))).reduce((sum,service)=>sum+getServiceDurationMinutes(service),0);
     if(!duration){host.innerHTML='<div class="available-slots-empty">Сначала выберите услуги</div>';return}
@@ -3410,7 +3420,7 @@ function saveNewBooking() {
     const time = document.getElementById('newBookingTime').value;
     const container = document.getElementById('newBookingServicesList');
 
-    const catalog = (barberId === 'b_al' ? servicesData.top : servicesData.barber).filter(service => service.active !== false);
+    const catalog = servicesData[getStaffServiceType(barberId)].filter(service => service.active !== false);
 
     const selectedIds = [...container.querySelectorAll('input:checked')]
         .map(input => input.value);
@@ -4425,7 +4435,7 @@ function renderTeam() {
         const name = escapeBookingHtml(staff.name);
         const pin = escapeBookingHtml(staff.pin);
         const isAdmin = staff.role === 'admin';
-        const roleLabel = isAdmin ? 'Главный мастер' : 'Барбер';
+        const roleLabel = isAdmin ? 'Главный мастер' : (staff.type === 'top' ? 'Топ-мастер' : 'Барбер');
         const initials = escapeBookingHtml(String(staff.name || '?').trim().slice(0, 1).toUpperCase() || '?');
         const staffBookings = bookings.filter(item => String(item.barberId) === String(staff.id));
         const staffMonthBookings = staffBookings.filter(item => inSelectedPeriod(item.date));
@@ -4443,6 +4453,7 @@ function renderTeam() {
                 <div class="team-actions">
                     <button type="button" class="team-action-btn reset" data-staff-action="edit" data-staff-id="${id}">Изменить имя</button>
                     <button type="button" class="team-action-btn reset" data-staff-action="reset" data-staff-id="${id}">Сменить PIN</button>
+                    ${!isAdmin ? `<button type="button" class="team-action-btn reset" data-staff-action="level" data-staff-id="${id}">${staff.type === 'top' ? 'Понизить до барбера' : 'Повысить до топ-мастера'}</button>` : ''}
                     ${!isAdmin ? `<button type="button" class="team-action-btn delete" data-staff-action="delete" data-staff-id="${id}">Удалить</button>` : ''}
                 </div>
             </article>
@@ -4471,6 +4482,7 @@ function renderTeam() {
                 const id = button.getAttribute('data-staff-id');
                 if (button.getAttribute('data-staff-action') === 'edit') openStaffEditModal(id);
                 if (button.getAttribute('data-staff-action') === 'reset') resetStaffPin(id);
+                if (button.getAttribute('data-staff-action') === 'level') toggleStaffLevel(id);
                 if (button.getAttribute('data-staff-action') === 'delete') deleteStaff(id);
             });
         });
@@ -4506,6 +4518,19 @@ function saveStaffEdit() {
     staffToEditId = null;
     renderTeam();
     showToast('Профиль мастера обновлён', 'success');
+}
+
+function toggleStaffLevel(id) {
+    if (!requireAdminAction('Менять уровень мастеров может только Али')) return;
+    const staff = mockStaff.find(item => String(item.id) === String(id));
+    if (!staff || staff.role === 'admin') return showToast('Уровень главного администратора нельзя изменить', 'error');
+
+    const nextType = staff.type === 'top' ? 'barber' : 'top';
+    const nextLabel = nextType === 'top' ? 'топ-мастер' : 'обычный барбер';
+    staff.type = nextType;
+    localStorage.setItem(appStorageKey('mensfire_admin_staff'), JSON.stringify(mockStaff));
+    renderTeam();
+    showToast(staff.name + ' теперь ' + nextLabel + '. Для новых записей применяется соответствующий прайс.', 'success');
 }
 
 function addStaff() {
