@@ -197,7 +197,8 @@
 
         <!-- ЭКРАН УСЛУГ -->
         <div id="viewServices" class="view services-workspace">
-            <div class="workspace-heading"><div><span class="workspace-eyebrow">MENSFIRE CATALOG</span><h2>Услуги и цены</h2><p>Управление прайсом и длительностью для каждого типа мастера</p></div><button class="home-cta-btn" onclick="openServiceEditor('top')"><div class="cta-text"><span>＋ Новая услуга</span></div></button></div>
+            <div class="workspace-heading services-page-heading"><div><span class="workspace-eyebrow">MENSFIRE CATALOG</span><h2>Услуги и цены</h2><p>Управление прайсом и длительностью для каждого типа мастера</p></div><button type="button" class="home-cta-btn services-add-cta" onclick="openServiceEditor('top')"><div class="cta-text"><span>＋ Новая услуга</span></div></button></div>
+            <nav class="services-mobile-jump" aria-label="Переход к категориям услуг"><button type="button" onclick="document.getElementById('serviceGroupTop')?.scrollIntoView({behavior:'smooth',block:'start'})">Услуги Али</button><button type="button" onclick="document.getElementById('serviceGroupBarber')?.scrollIntoView({behavior:'smooth',block:'start'})">Услуги барберов</button></nav>
             <div id="servicesOverview" class="services-overview-grid"></div>
             <div id="servicesCatalog"></div>
         </div>
