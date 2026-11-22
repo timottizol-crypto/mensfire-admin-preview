@@ -15300,3 +15300,133 @@ html body .drawer-modal table tbody tr:focus-within > td {
     padding: 0 !important;
   }
 }
+
+
+/* MOBILE DEEP AUDIT — finance controls, readable content flow and client history sizing. */
+@media (max-width: 767px) {
+  /* Put the period selector before the date strip; keep each control in its own row. */
+  #viewFinance .finance-header-layout {
+    display: grid !important;
+    grid-template-columns: minmax(0, 1fr) !important;
+    grid-template-areas:
+      "title"
+      "period"
+      "dates" !important;
+    align-items: stretch !important;
+    gap: 9px !important;
+    margin: 0 0 12px !important;
+  }
+  #viewFinance .finance-header-layout > .finance-heading-copy {
+    grid-area: title !important;
+    min-width: 0 !important;
+  }
+  #viewFinance .finance-header-layout > .finance-period-controls {
+    grid-area: period !important;
+    width: 100% !important;
+    min-width: 0 !important;
+  }
+  #viewFinance .finance-header-layout > .finance-date-navigation {
+    grid-area: dates !important;
+    display: grid !important;
+    grid-template-areas:
+      "tabs"
+      "dates" !important;
+    grid-template-columns: minmax(0, 1fr) !important;
+    gap: 7px !important;
+    width: 100% !important;
+    min-width: 0 !important;
+    margin: 0 !important;
+    padding: 0 !important;
+  }
+  #viewFinance #financeViewTabs {
+    grid-area: tabs !important;
+    display: grid !important;
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+    gap: 6px !important;
+    width: 100% !important;
+    margin: 0 !important;
+    padding: 3px !important;
+    box-sizing: border-box !important;
+  }
+  #viewFinance #financeViewTabs .tab-btn {
+    min-width: 0 !important;
+    min-height: 42px !important;
+    height: auto !important;
+    padding: 8px 6px !important;
+    font-size: 11px !important;
+    line-height: 1.25 !important;
+    white-space: normal !important;
+    overflow-wrap: anywhere !important;
+  }
+  #viewFinance #financeDateSelector {
+    grid-area: dates !important;
+    width: 100% !important;
+    min-width: 0 !important;
+    min-height: 0 !important;
+    height: auto !important;
+    margin: 0 !important;
+    padding: 3px 2px 5px !important;
+  }
+  #viewFinance .finance-period-controls .finance-range-toolbar {
+    width: 100% !important;
+    margin: 0 !important;
+    gap: 8px !important;
+  }
+  #viewFinance .finance-period-controls .finance-range-presets {
+    display: grid !important;
+    grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+    width: 100% !important;
+    gap: 5px !important;
+  }
+  #viewFinance .finance-period-controls .finance-range-btn {
+    min-width: 0 !important;
+    min-height: 38px !important;
+    padding: 8px 4px !important;
+    font-size: 11px !important;
+    line-height: 1.2 !important;
+  }
+  #viewFinance .finance-period-controls .finance-range-fields {
+    display: grid !important;
+    grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr) !important;
+    align-items: center !important;
+    width: 100% !important;
+    gap: 6px !important;
+  }
+  #viewFinance .finance-period-controls .finance-range-date {
+    min-width: 0 !important;
+    width: 100% !important;
+    min-height: 38px !important;
+    padding: 7px 5px !important;
+    font-size: 11px !important;
+    line-height: 1.2 !important;
+    white-space: nowrap !important;
+  }
+  #viewFinance .finance-panel-heading {
+    align-items: flex-start !important;
+    gap: 9px !important;
+  }
+  #viewFinance .finance-panel-heading h3 {
+    font-size: 14px !important;
+    line-height: 1.25 !important;
+  }
+  #viewFinance .finance-panel-heading p {
+    font-size: 10px !important;
+    line-height: 1.45 !important;
+  }
+  /* Avoid a second tiny scroll area inside the revenue analytics page. */
+  #viewFinance .finance-popular-services-panel #analyticsTopServicesList {
+    max-height: none !important;
+    overflow: visible !important;
+    padding-right: 0 !important;
+  }
+
+  /* The visit history should grow with its content, not reserve a fixed 290px. */
+  #clientDetailsModal #clientDetailsHistory {
+    flex: 0 1 auto !important;
+    height: auto !important;
+    min-height: 100px !important;
+    max-height: min(38vh, 320px) !important;
+    overflow-y: auto !important;
+    overflow-x: hidden !important;
+  }
+}
