@@ -15436,3 +15436,14 @@ html body .drawer-modal table tbody tr:focus-within > td {
     display: none !important;
   }
 }
+
+@media (max-width: 767px) {
+  /* Overview is a normal page scroll: don't trap the user inside small nested lists. */
+  #viewDashboard .dashboard-topline .dashboard-upcoming-list,
+  #viewDashboard #dashboardBookingMix {
+    max-height: none !important;
+    height: auto !important;
+    overflow: visible !important;
+    overscroll-behavior: auto !important;
+  }
+}
