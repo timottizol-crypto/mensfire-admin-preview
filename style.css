@@ -15211,3 +15211,74 @@ html body .drawer-modal table tbody tr:focus-within > td {
     animation-duration: 1ms !important;
   }
 }
+
+
+/* MOBILE UX AUDIT — compact finance dates and hide desktop-only drawer settings.
+   Intentionally scoped to phones; desktop layout and behavior remain unchanged. */
+@media (max-width: 767px) {
+  /* Finance date strip: remove the oversized reserved height and excess padding. */
+  #viewFinance .finance-header-layout {
+    row-gap: 7px !important;
+    margin-bottom: 12px !important;
+  }
+  #viewFinance .finance-date-navigation {
+    gap: 0 !important;
+    margin: 0 !important;
+  }
+  #viewFinance #financeDateSelector {
+    min-height: 0 !important;
+    height: auto !important;
+    max-height: none !important;
+    margin: 0 !important;
+    padding: 3px 2px 5px !important;
+    align-items: stretch !important;
+    gap: 6px !important;
+  }
+  #viewFinance #financeDateSelector .date-selector-item {
+    box-sizing: border-box !important;
+    flex: 0 0 52px !important;
+    min-width: 52px !important;
+    min-height: 46px !important;
+    height: 46px !important;
+    padding: 6px 5px !important;
+    border-radius: 12px !important;
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: center !important;
+    justify-content: center !important;
+    gap: 3px !important;
+  }
+  #viewFinance #financeDateSelector .date-selector-item .day-name {
+    margin: 0 !important;
+    font-size: 9px !important;
+    line-height: 1.1 !important;
+    white-space: nowrap !important;
+  }
+  #viewFinance #financeDateSelector .date-selector-item .day-num {
+    font-size: 15px !important;
+    line-height: 1 !important;
+  }
+  #viewFinance #financeViewTabs {
+    margin-bottom: 8px !important;
+  }
+
+  /* Drawer stacking is a desktop-only preference, so don't show it on phones. */
+  #viewSettings [aria-labelledby="settingsDrawerTitle"] {
+    display: none !important;
+  }
+  #viewSettings .settings-section {
+    gap: 14px !important;
+    padding: 16px !important;
+  }
+  #viewSettings .settings-section-heading {
+    align-items: flex-start !important;
+  }
+  #viewSettings .settings-section-heading p,
+  #viewSettings .settings-control-copy span {
+    line-height: 1.5 !important;
+    overflow-wrap: break-word !important;
+  }
+  #viewSettings .settings-choice-row > .settings-choice {
+    min-height: 42px !important;
+  }
+}
