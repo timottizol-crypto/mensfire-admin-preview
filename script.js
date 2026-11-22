@@ -456,7 +456,7 @@ function closeMobileMoreMenu() {
             panel.hidden = true;
             panel.classList.remove('is-closing');
             panel._closeTimer = null;
-        }, 240);
+        }, 280);
     }
 
     if (trigger) {
