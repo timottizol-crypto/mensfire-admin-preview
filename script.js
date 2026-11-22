@@ -4026,7 +4026,7 @@ function renderFinance() {
             <div class="finance-operation-icon">↗</div>
             <div class="finance-operation-copy"><strong>${escapeBookingHtml(item.title || 'Расход')}</strong><span>${escapeBookingHtml(item.category || 'Операционные расходы')}</span></div>
             <strong class="finance-negative">−${fmt(item.amount)}</strong>
-        </div>`).join('') : '<div class="finance-empty">Расходов за выбранный день нет</div>';
+        </div>`).join('') : '<div class="finance-empty">Расходов ' + expenseScopeLabel + ' нет</div>';
 
     const summary = document.getElementById('financeExecutiveSummary');
     if (summary) summary.innerHTML = `
@@ -4075,7 +4075,7 @@ function renderFinance() {
         const total = Object.values(paymentTotals).reduce((sum,value) => sum + value, 0);
         methods.innerHTML = Object.entries(paymentTotals).filter(([,value]) => value > 0).sort((a,b) => b[1]-a[1]).map(([key,value]) => `
             <div class="finance-method-row"><div><span>${labels[key]}</span><strong>${fmt(value)}</strong></div><div class="finance-method-track"><i style="width:${total ? value/total*100 : 0}%"></i></div></div>`
-        ).join('') || '<div class="finance-empty">Платежей ${financePeriodMode === 'day' ? 'за месяц' : 'за выбранный период'} пока нет</div>';
+        ).join('') || '<div class="finance-empty">Платежей ' + (financePeriodMode === 'day' ? 'за месяц' : 'за выбранный период') + ' пока нет</div>';
     }
 
     const teamStats = document.getElementById('financeTeamStats');
