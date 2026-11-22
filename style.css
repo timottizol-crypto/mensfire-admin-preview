@@ -15802,3 +15802,32 @@ html body .drawer-modal table tbody tr:focus-within > td {
     border-color: rgba(48,60,78,.18) !important;
   }
 }
+
+
+/* Finance mobile section divider: full-viewport line using the active metallic theme accent. */
+@media (max-width: 767px) {
+  #viewFinance #financeViewTabs.finance-section-tabs {
+    position: relative !important;
+    margin-bottom: 15px !important;
+  }
+  #viewFinance #financeViewTabs.finance-section-tabs::after {
+    content: "" !important;
+    position: absolute !important;
+    top: calc(100% + 7px) !important;
+    left: 50% !important;
+    transform: translateX(-50%) !important;
+    display: block !important;
+    width: 100vw !important;
+    height: 1px !important;
+    pointer-events: none !important;
+    background: linear-gradient(
+      90deg,
+      transparent 0%,
+      color-mix(in srgb, var(--gold, #c69e5b) 24%, transparent) 7%,
+      color-mix(in srgb, var(--gold, #c69e5b) 82%, transparent) 50%,
+      color-mix(in srgb, var(--gold, #c69e5b) 24%, transparent) 93%,
+      transparent 100%
+    ) !important;
+    box-shadow: 0 0 5px color-mix(in srgb, var(--gold, #c69e5b) 22%, transparent) !important;
+  }
+}
