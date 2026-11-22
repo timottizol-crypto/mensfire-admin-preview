@@ -790,6 +790,10 @@ function syncDesktopDrawerStack() {
 }
 
 function openModal(id) {
+    if (isBarberUser() && id === 'clientDetailsModal') {
+        showToast('Карточки клиентов доступны только Али', 'error');
+        return;
+    }
     const modal = document.getElementById(id);
     if (!modal) return;
 
@@ -5789,6 +5793,10 @@ function renderClientsDataQualityAudit(sourceClients) {
 }
 
 function renderClients(tab = 'all') {
+    if (isBarberUser()) {
+        showToast('Раздел клиентов доступен только Али', 'error');
+        return;
+    }
     currentClientsTab = tab;
     renderWaitlist();
     initDesktopClientDirectory();
@@ -6327,6 +6335,10 @@ function renderClientActivitySignals(clientBookings = []) {
 }
 
 function showClientDetails(name, barberId) {
+    if (isBarberUser()) {
+        showToast('Карточки клиентов доступны только Али', 'error');
+        return;
+    }
     const selectedProfile = findClientProfile(name, barberId);
     const selectedPhone = normalizeClientPhone(selectedProfile.profile.phone);
     const mergedClientProfile = { ...selectedProfile.profile };
