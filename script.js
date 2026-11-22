@@ -2238,7 +2238,9 @@ function getBookingCollectedAmount(booking) {
     return booking?.status === 'completed' ? serviceTotal : 0;
 }
 function getBookingPaymentState(booking, total) {
-    const safeTotal = Number.isFinite(Number(total)) ? Math.max(0, Number(total)) : 0;
+    const grossTotal = Number.isFinite(Number(total)) ? Math.max(0, Number(total)) : 0;
+    const redeemed = Math.max(0, Math.floor(Number(booking?.loyaltyPointsRedeemed) || 0));
+    const safeTotal = Math.max(0, grossTotal - redeemed);
     const transactions = Array.isArray(booking?.payments) ? booking.payments : [];
     const transactionTotal = transactions.reduce((sum, item) => {
         const amount = Number(item?.amount);
@@ -2355,6 +2357,54 @@ function saveBookingPayment() {
 }
 
 
+
+function getBookingLoyaltyBookings(targetBooking) {
+    const targetPhone = normalizeClientPhone(targetBooking?.clientPhone || '');
+    const targetName = String(targetBooking?.clientName || '').trim().toLocaleLowerCase('ru');
+    return bookings.filter(item => {
+        const phone = normalizeClientPhone(item?.clientPhone || '');
+        if (targetPhone.length >= 7 && phone.length >= 7) return targetPhone === phone;
+        return Boolean(targetName) && String(item?.clientName || '').trim().toLocaleLowerCase('ru') === targetName;
+    });
+}
+let selectedLoyaltyBookingId = null;
+function openBookingLoyaltyEditor(id) {
+    const booking = bookings.find(item => String(item.id) === String(id));
+    if (!booking || !currentUser) return showToast('Не удалось открыть списание бонусов', 'error');
+    if (booking.status === 'cancelled') return showToast('Нельзя списать бонусы по отменённой записи', 'error');
+    const loyalty = getClientLoyaltyState(getBookingLoyaltyBookings(booking));
+    const total = getBookingServiceTotal(booking);
+    const payment = getBookingPaymentState(booking, total);
+    const alreadyRedeemed = Math.max(0, Math.floor(Number(booking.loyaltyPointsRedeemed) || 0));
+    const maxAvailable = Math.min(loyalty.points, Math.max(0, Math.floor(total - payment.paid - alreadyRedeemed)));
+    if (maxAvailable <= 0) return showToast(loyalty.points <= 0 ? 'У клиента нет доступных бонусов' : 'По этой записи больше нельзя списать бонусы', 'info');
+    selectedLoyaltyBookingId = booking.id;
+    document.getElementById('bookingLoyaltyBalance').textContent = 'Доступно: ' + loyalty.points.toLocaleString('ru-RU') + ' бонусов · Уже списано: ' + alreadyRedeemed.toLocaleString('ru-RU');
+    const input = document.getElementById('bookingLoyaltyAmount');
+    input.value = String(maxAvailable);
+    input.max = String(maxAvailable);
+    openModal('bookingLoyaltyModal');
+}
+function saveBookingLoyaltyRedemption() {
+    const booking = bookings.find(item => String(item.id) === String(selectedLoyaltyBookingId));
+    if (!booking || !currentUser) return showToast('Запись не найдена', 'error');
+    const loyalty = getClientLoyaltyState(getBookingLoyaltyBookings(booking));
+    const total = getBookingServiceTotal(booking);
+    const payment = getBookingPaymentState(booking, total);
+    const alreadyRedeemed = Math.max(0, Math.floor(Number(booking.loyaltyPointsRedeemed) || 0));
+    const maxAvailable = Math.min(loyalty.points, Math.max(0, Math.floor(total - payment.paid - alreadyRedeemed)));
+    const amount = Number(document.getElementById('bookingLoyaltyAmount')?.value);
+    if (!Number.isSafeInteger(amount) || amount <= 0 || amount > maxAvailable) return showToast('Укажи целое число бонусов не больше ' + maxAvailable, 'error');
+    booking.loyaltyPointsRedeemed = alreadyRedeemed + amount;
+    addBookingHistoryEntry(booking, 'Списаны бонусы', amount.toLocaleString('ru-RU') + ' бонусов · скидка ' + amount.toLocaleString('ru-RU') + ' ₽');
+    localStorage.setItem(appStorageKey('mensfire_admin_bookings'), JSON.stringify(bookings));
+    selectedLoyaltyBookingId = null;
+    closeModal('bookingLoyaltyModal');
+    renderSchedule();
+    openActionModal(booking.id);
+    showToast('Бонусы списаны: скидка ' + amount.toLocaleString('ru-RU') + ' ₽', 'success');
+}
+
 function addBookingHistoryEntry(booking, action, details = '') {
     if (!booking) return;
     if (!Array.isArray(booking.history)) booking.history = [];
@@ -2441,7 +2491,7 @@ function openActionModal(id) {
             <div class="booking-payment-meta">Способ: ${escapeBookingHtml(payment.methodLabel)}</div>
             ${payment.transactions.length ? '<div class="booking-payment-history">' + payment.transactions.map(item => '<div class="booking-payment-transaction"><span>' + escapeBookingHtml(item.method ? (PAYMENT_METHOD_LABELS[item.method] || item.method) : 'Ранее внесено') + '</span><strong>' + Number(item.amount || 0).toLocaleString('ru-RU') + ' ₽</strong></div>').join('') + '</div>' : ''}
 
-            ${currentUser && booking.status !== 'cancelled' ? '<button type="button" class="booking-payment-edit" onclick="openBookingPaymentEditor(\'' + escapeBookingHtml(String(booking.id)) + '\')">Добавить оплату</button>' : ''}
+            ${currentUser && booking.status !== 'cancelled' ? '<div class="booking-payment-actions"><button type="button" class="booking-payment-edit" onclick="openBookingPaymentEditor(\\'' + escapeBookingHtml(String(booking.id)) + '\\')">Добавить оплату</button><button type="button" class="booking-payment-edit booking-loyalty-redeem" onclick="openBookingLoyaltyEditor(\\'' + escapeBookingHtml(String(booking.id)) + '\\')">Списать бонусы</button></div>' : ''}
         </div>
         <div class="booking-detail-row">
             <span>Длительность</span><strong>${duration} мин.</strong>
@@ -5988,15 +6038,18 @@ function getClientLoyaltyState(sourceBookings) {
     else if (count < 20) level = { name: 'Серебряный', next: 'Золотой', percent: 2, base: 10, target: 20, color: '#C0C0C0', light: '#8C8C8C' };
     else level = { name: 'Золотой', next: 'Максимум', percent: 3, base: 20, target: 20, color: '#D4AF37', light: '#C79A2A' };
 
-    let points = 0;
+    let earnedPoints = 0;
     const history = eligible.map((item, index) => {
         const rate = index < 10 ? 0.01 : index < 20 ? 0.02 : 0.03;
         const earned = Math.floor(item.total * rate);
-        points += earned;
-        return { ...item, rate, earned, runningPoints: points };
+        earnedPoints += earned;
+        return { ...item, rate, earned, runningPoints: earnedPoints };
     });
+    const redeemedPoints = (Array.isArray(sourceBookings) ? sourceBookings : [])
+        .reduce((sum, booking) => sum + Math.max(0, Math.floor(Number(booking?.loyaltyPointsRedeemed) || 0)), 0);
+    const points = Math.max(0, earnedPoints - redeemedPoints);
     const progress = count >= 20 ? 100 : Math.max(0, Math.min(100, ((count - level.base) / (level.target - level.base)) * 100));
-    return { count, level, points, progress, remaining: Math.max(0, level.target - count), history };
+    return { count, level, points, earnedPoints, redeemedPoints, progress, remaining: Math.max(0, level.target - count), history };
 }
 
 function renderClientLoyaltyPanel(sourceBookings) {
@@ -6017,7 +6070,7 @@ function renderClientLoyaltyPanel(sourceBookings) {
             <div class="client-loyalty-progress"><i style="width:${state.progress}%;background:${state.level.color}"></i></div>
             <div class="client-loyalty-next">${state.count >= 20 ? 'Достигнут максимальный уровень' : 'До уровня «' + state.level.next + '» осталось: ' + state.remaining + ' виз.'}</div>
             <div class="client-loyalty-history-title">Начисления баллов</div>
-            <div class="client-loyalty-disclaimer">Расчёт по тем же правилам, что и в приложении клиента. Списание баллов здесь пока не предусмотрено.</div>
+            <div class="client-loyalty-disclaimer">Баланс уже учитывает списанные бонусы: ${state.redeemedPoints.toLocaleString('ru-RU')} баллов использовано.</div>
             ${history.length ? history.map(item => {
                 const booking = item.booking;
                 const date = escapeBookingHtml(booking.date || 'Дата не указана');
