@@ -16292,3 +16292,53 @@ html body .drawer-modal table tbody tr:focus-within > td {
 @media (min-width: 768px) {
   #viewServices .services-mobile-jump { display: none !important; }
 }
+
+
+/* Desktop finance rollback to the two-tab layout that existed at the start of this chat.
+   The mobile three-tab interface remains unchanged. */
+@media (min-width: 768px) {
+  #viewFinance #financeViewTabs.finance-section-tabs {
+    display: flex !important;
+    flex-wrap: nowrap !important;
+    align-items: center !important;
+    justify-content: flex-start !important;
+    gap: 4px !important;
+    width: auto !important;
+    margin: 0 0 7px !important;
+    padding: 4px !important;
+    border-radius: 13px !important;
+    background: rgba(255,255,255,.035) !important;
+    border: 1px solid var(--border-color, rgba(255,255,255,.08)) !important;
+    box-shadow: none !important;
+  }
+  #viewFinance #financeViewTabs #tabFinAnalytics {
+    display: none !important;
+  }
+  #viewFinance #financeViewTabs #tabFinRevenue .finance-tab-mobile-label {
+    display: none !important;
+  }
+  #viewFinance #financeViewTabs #tabFinRevenue .finance-tab-desktop-label {
+    display: inline !important;
+  }
+  #viewFinance #financeViewTabs .finance-section-tab {
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    min-height: 36px !important;
+    padding: 8px 13px !important;
+    border-radius: 10px !important;
+    font-size: 12px !important;
+    line-height: 1.2 !important;
+    white-space: nowrap !important;
+    overflow-wrap: normal !important;
+    box-shadow: none !important;
+  }
+}
+@media (max-width: 767px) {
+  #viewFinance #financeViewTabs #tabFinRevenue .finance-tab-desktop-label {
+    display: none !important;
+  }
+  #viewFinance #financeViewTabs #tabFinRevenue .finance-tab-mobile-label {
+    display: inline !important;
+  }
+}
