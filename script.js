@@ -6453,15 +6453,44 @@ function copyClientMessageDraft() {
 }
 
 function createBookingForClient() {
-    if (!selectedClientProfileKey) return;
-    const profile = clientProfiles[selectedClientProfileKey] || {};
-    const clientName = profile.clientName || document.getElementById('clientDetailsName')?.textContent || '';
+    const nameElement = document.getElementById('clientDetailsName');
+    const clientName = String(nameElement?.textContent || '').trim();
+    if (!selectedClientProfileKey && clientName) {
+        const masterText = String(document.getElementById('clientDetailsMaster')?.textContent || '');
+        const matchedStaff = (mockStaff || []).find(staff => masterText.includes(staff.name));
+        const fallbackBarberId = String(matchedStaff?.id || currentUser?.id || '');
+        selectedClientProfileKey = findClientProfile(clientName, fallbackBarberId).key;
+    }
+
+    const profile = selectedClientProfileKey ? (clientProfiles[selectedClientProfileKey] || {}) : {};
+    const resolvedClientName = String(profile.clientName || profile.name || clientName).trim();
+    if (!resolvedClientName) {
+        showToast('Не удалось определить клиента. Закройте карточку и откройте её снова.', 'error');
+        return;
+    }
+
+    const bookingModal = document.getElementById('newBookingModal');
+    if (!bookingModal || !document.getElementById('newBookingClient')) {
+        showToast('Форма создания записи недоступна', 'error');
+        return;
+    }
+
     const barberId = String(profile.barberId || currentUser?.id || '');
     openNewBookingModal(barberId);
+
+    // openNewBookingModal может отказать по правам или из-за неполной формы.
+    if (!bookingModal.classList.contains('active')) return;
+
     const input = document.getElementById('newBookingClient');
+    const phoneInput = document.getElementById('newBookingClientPhone');
     if (input) {
-        input.value = clientName;
+        input.value = resolvedClientName;
         input.dispatchEvent(new Event('input', { bubbles: true }));
+        input.dispatchEvent(new Event('change', { bubbles: true }));
+    }
+    if (phoneInput && profile.phone) {
+        phoneInput.value = profile.phone;
+        phoneInput.dispatchEvent(new Event('input', { bubbles: true }));
     }
 }
 // --- ПРОФИЛЬ ---
