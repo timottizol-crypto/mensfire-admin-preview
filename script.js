@@ -2233,7 +2233,25 @@ function getBookingCollectedAmount(booking) {
         const legacyPaid = Number(booking.paidAmount);
         return Math.min(serviceTotal, Number.isFinite(legacyPaid) ? Math.max(0, legacyPaid) : 0);
     }
-    // Статус «Завершена» сам по себе не подтверждает оплату.
+    // Для старых записей сохраняем выручку только по завершённым визитам.
+    // Будущие и незавершённые записи без отметки оплаты не считаем оплаченными.
+    return booking?.status === 'completed' ? serviceTotal : 0;
+}
+function getBookingLoyaltyCollectedAmount(booking) {
+    const serviceTotal = getBookingServiceTotal(booking);
+    const transactions = Array.isArray(booking?.payments) ? booking.payments : [];
+    if (transactions.length) {
+        const collected = transactions.reduce((sum, payment) => {
+            const amount = Number(payment?.amount);
+            return sum + (Number.isFinite(amount) ? Math.max(0, amount) : 0);
+        }, 0);
+        return Math.min(serviceTotal, collected);
+    }
+    if (Object.prototype.hasOwnProperty.call(booking || {}, 'paidAmount')) {
+        const legacyPaid = Number(booking.paidAmount);
+        return Math.min(serviceTotal, Number.isFinite(legacyPaid) ? Math.max(0, legacyPaid) : 0);
+    }
+    // Завершённый статус без записи платежа не даёт права на бонусы.
     return 0;
 }
 function getBookingPaymentState(booking, total) {
@@ -2248,8 +2266,12 @@ function getBookingPaymentState(booking, total) {
     const hasLegacyPaidAmount = Object.prototype.hasOwnProperty.call(booking || {}, 'paidAmount');
     const legacyPaidValue = Number(booking?.paidAmount || 0);
     const legacyPaid = Number.isFinite(legacyPaidValue) ? Math.max(0, legacyPaidValue) : 0;
-    // Завершённый статус не означает оплату: учитываем только сохранённые платежи.
-    const paid = Math.min(safeTotal, transactions.length ? transactionTotal : legacyPaid);
+    // Синхронизируем статус оплаты со старой логикой: завершённые записи
+    // без отдельной истории платежей считаются полностью оплаченными.
+    const fallbackPaid = !transactions.length && !hasLegacyPaidAmount && booking?.status === 'completed'
+        ? safeTotal
+        : legacyPaid;
+    const paid = Math.min(safeTotal, transactions.length ? transactionTotal : fallbackPaid);
     const status = paid <= 0 || safeTotal <= 0 ? 'unpaid' : paid >= safeTotal ? 'paid' : 'partial';
     const methods = [...new Set(transactions
         .filter(item => Number.isFinite(Number(item?.amount)) && Number(item.amount) > 0)
@@ -6012,7 +6034,7 @@ function getClientLoyaltyState(sourceBookings) {
         .map(booking => {
             const serviceTotal = getBookingServiceTotal(booking);
             const redeemed = Math.max(0, Math.floor(Number(booking.loyaltyPointsRedeemed) || 0));
-            const collected = getBookingCollectedAmount(booking);
+            const collected = getBookingLoyaltyCollectedAmount(booking);
             const payableTotal = Math.max(0, serviceTotal - redeemed);
             const isFullyPaid = payableTotal > 0 && collected >= payableTotal;
             const parsedTimestamp = parseClientDateTime(booking);
