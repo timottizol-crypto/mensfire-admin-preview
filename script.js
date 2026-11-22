@@ -2775,6 +2775,7 @@ function renderCalendar() {
                     const target = reportDatePickerTarget;
                     if (target === 'financeStart') { financeRangeStart = thisDateStr; if (parseReportDate(financeRangeStart) > parseReportDate(financeRangeEnd)) financeRangeEnd = thisDateStr; }
                     if (target === 'financeEnd') { financeRangeEnd = thisDateStr; if (parseReportDate(financeRangeEnd) < parseReportDate(financeRangeStart)) financeRangeStart = thisDateStr; }
+                    if (window.innerWidth < 768 && (target === 'financeStart' || target === 'financeEnd')) selectedFinanceDate = financeRangeEnd;
                     if (target === 'clientsStart') { clientsRangeStart = thisDateStr; if (parseReportDate(clientsRangeStart) > parseReportDate(clientsRangeEnd)) clientsRangeEnd = thisDateStr; }
                     if (target === 'clientsEnd') { clientsRangeEnd = thisDateStr; if (parseReportDate(clientsRangeEnd) < parseReportDate(clientsRangeStart)) clientsRangeStart = thisDateStr; }
                     if (target === 'teamStart') { teamRangeStart = thisDateStr; if (parseReportDate(teamRangeStart) > parseReportDate(teamRangeEnd)) teamRangeEnd = thisDateStr; }
@@ -3635,6 +3636,8 @@ function setFinancePeriod(mode) {
             financeRangeEnd = formatReportDate(new Date());
         }
     }
+    // On phones the day strip is hidden in custom mode; anchor day/week KPIs to the visible range end.
+    if (window.innerWidth < 768 && mode === 'custom') selectedFinanceDate = financeRangeEnd;
     renderFinance();
 }
 function setClientsPeriod(mode) {
