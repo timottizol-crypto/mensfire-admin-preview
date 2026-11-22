@@ -15430,3 +15430,9 @@ html body .drawer-modal table tbody tr:focus-within > td {
     overflow-x: hidden !important;
   }
 }
+
+@media (max-width: 767px) {
+  #viewFinance .finance-period-controls .finance-range-fields[hidden] {
+    display: none !important;
+  }
+}
