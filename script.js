@@ -5166,7 +5166,7 @@ function renderClientTasksHub() {
     const count = document.getElementById('crmTasksTabCount');
     if (count) count.textContent = String(active.length);
     const filters = [{id:'all',label:'Все',count:rows.length},{id:'overdue',label:'Просроченные',count:overdueCount},{id:'upcoming',label:'Предстоящие',count:upcomingCount},{id:'done',label:'Выполненные',count:rows.length-active.length}];
-    const queryWords = normalizeClientsSearchText(clientsTasksSearchQuery).split(/\\s+/).filter(Boolean);
+    const queryWords = normalizeClientsSearchText(clientsTasksSearchQuery).split(/\s+/).filter(Boolean);
     const visible = rows.filter(row => {
         if (clientsTasksFilter === 'overdue' && !row.overdue) return false;
         if (clientsTasksFilter === 'upcoming' && (row.task.done || row.overdue)) return false;
@@ -5175,7 +5175,7 @@ function renderClientTasksHub() {
         if (queryWords.length) {
             const assigneeName = mockStaff.find(item => String(item.id) === String(row.task.assigneeId || ''))?.name || '';
             const searchableWords = [row.name,row.task.title,row.task.author,mockStaff.find(item => String(item.id) === row.barberId)?.name || '',assigneeName]
-                .flatMap(value => normalizeClientsSearchText(value).split(/[^\\p{L}\\p{N}]+/u).filter(Boolean));
+                .flatMap(value => normalizeClientsSearchText(value).split(/[^\p{L}\p{N}]+/u).filter(Boolean));
             if (!queryWords.every(queryWord => searchableWords.some(word => word.startsWith(queryWord)))) return false;
         }
         return true;
