@@ -2233,9 +2233,8 @@ function getBookingCollectedAmount(booking) {
         const legacyPaid = Number(booking.paidAmount);
         return Math.min(serviceTotal, Number.isFinite(legacyPaid) ? Math.max(0, legacyPaid) : 0);
     }
-    // Для старых записей сохраняем выручку только по завершённым визитам.
-    // Будущие и незавершённые записи без отметки оплаты не считаем оплаченными.
-    return booking?.status === 'completed' ? serviceTotal : 0;
+    // Статус «Завершена» сам по себе не подтверждает оплату.
+    return 0;
 }
 function getBookingPaymentState(booking, total) {
     const grossTotal = Number.isFinite(Number(total)) ? Math.max(0, Number(total)) : 0;
@@ -2249,12 +2248,8 @@ function getBookingPaymentState(booking, total) {
     const hasLegacyPaidAmount = Object.prototype.hasOwnProperty.call(booking || {}, 'paidAmount');
     const legacyPaidValue = Number(booking?.paidAmount || 0);
     const legacyPaid = Number.isFinite(legacyPaidValue) ? Math.max(0, legacyPaidValue) : 0;
-    // Синхронизируем статус оплаты с общей функцией суммы: старые завершённые
-    // записи без отдельной истории платежей считаются полностью оплаченными.
-    const fallbackPaid = !transactions.length && !hasLegacyPaidAmount && booking?.status === 'completed'
-        ? safeTotal
-        : legacyPaid;
-    const paid = Math.min(safeTotal, transactions.length ? transactionTotal : fallbackPaid);
+    // Завершённый статус не означает оплату: учитываем только сохранённые платежи.
+    const paid = Math.min(safeTotal, transactions.length ? transactionTotal : legacyPaid);
     const status = paid <= 0 || safeTotal <= 0 ? 'unpaid' : paid >= safeTotal ? 'paid' : 'partial';
     const methods = [...new Set(transactions
         .filter(item => Number.isFinite(Number(item?.amount)) && Number(item.amount) > 0)
@@ -6015,22 +6010,22 @@ function getClientLoyaltyState(sourceBookings) {
     const eligible = (Array.isArray(sourceBookings) ? sourceBookings : [])
         .filter(booking => booking && ['active', 'completed'].includes(String(booking.status || '').toLowerCase()))
         .map(booking => {
-            const serviceTotal = (Array.isArray(booking.services) ? booking.services : [])
-                .reduce((sum, service) => {
-                    const amount = Number(service?.price);
-                    return sum + (Number.isFinite(amount) ? Math.max(0, amount) : 0);
-                }, 0);
-            const rawTotal = booking.total;
-            const parsedTotal = rawTotal !== '' && rawTotal != null ? Number(rawTotal) : NaN;
-            const total = Number.isFinite(parsedTotal) && parsedTotal >= 0 ? parsedTotal : serviceTotal;
+            const serviceTotal = getBookingServiceTotal(booking);
+            const redeemed = Math.max(0, Math.floor(Number(booking.loyaltyPointsRedeemed) || 0));
+            const collected = getBookingCollectedAmount(booking);
+            const payableTotal = Math.max(0, serviceTotal - redeemed);
+            const isFullyPaid = payableTotal > 0 && collected >= payableTotal;
             const parsedTimestamp = parseClientDateTime(booking);
             return {
                 booking,
-                total,
+                total: collected,
+                isFullyPaid,
                 timestamp: parsedTimestamp > 0 ? parsedTimestamp : Number.POSITIVE_INFINITY
             };
         })
-        .filter(item => Number.isFinite(item.total) && item.total > 1000)
+        // Баллы и визит в программе лояльности появляются только после полной оплаты.
+        // Сумма начисления считается с реально внесённых денег, без части, закрытой бонусами.
+        .filter(item => item.isFullyPaid && Number.isFinite(item.total) && item.total > 1000)
         // Повторяем порядок клиентского приложения: дата и точное время визита.
         .sort((a, b) => a.timestamp - b.timestamp);
 
