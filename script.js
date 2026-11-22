@@ -112,6 +112,10 @@ function isAdminUser() {
     return Boolean(currentUser && currentUser.role === 'admin');
 }
 
+function isBarberUser() {
+    return Boolean(currentUser && currentUser.role === 'barber');
+}
+
 function requireAdminAction(message = 'Это действие доступно только администратору Али') {
     if (isAdminUser()) return true;
     showToast(message, 'error');
@@ -199,7 +203,11 @@ function initAppForUser() {
     document.getElementById('profileName').innerText = currentUser.name;
     document.getElementById('profileRole').innerText = currentUser.role === 'admin' ? 'Главный мастер' : 'Барбер';
     
-    document.getElementById('barberRevenueCard').style.display = 'block';
+    document.getElementById('barberRevenueCard').style.display = isAdminUser() ? 'block' : 'none';
+    const scheduleActions = document.querySelector('.schedule-management-actions');
+    if (scheduleActions) scheduleActions.style.display = isAdminUser() ? '' : 'none';
+    const newBookingAction = document.querySelector('.schedule-new-booking-btn');
+    if (newBookingAction) newBookingAction.style.display = isAdminUser() ? '' : 'none';
     const backupCard = document.getElementById('profileBackupCard');
     if (backupCard) backupCard.style.display = isAdminUser() ? 'block' : 'none';
     if (isAdminUser()) {
@@ -214,7 +222,7 @@ function initAppForUser() {
     window.dashboardEntrancePlayed = false;
 
     // Открываем первый экран по умолчанию
-    const defaultView = 'viewDashboard';
+    const defaultView = isAdminUser() ? 'viewDashboard' : 'viewSchedule';
     const defaultNav = document.querySelector(`.nav-item[data-view="${defaultView}"]`);
     switchView(defaultView, defaultNav);
     
@@ -366,7 +374,8 @@ function buildBottomNav() {
             viewOrder = allAdminItems.map(item => item.id);
         }
     } else {
-        navItems = [allAdminItems[0], allAdminItems[1], allAdminItems[6], allAdminItems[11]];
+        // Барберам доступны только расписание и личный профиль на любом устройстве.
+        navItems = [allAdminItems[1], allAdminItems[11]];
         viewOrder = navItems.map(item => item.id);
     }
 
@@ -526,6 +535,10 @@ function updateDesktopNavToggle() {
 
 
 function switchView(viewId, navElement) {
+    if (isBarberUser() && !['viewSchedule', 'viewProfile'].includes(viewId)) {
+        showToast('Этот раздел доступен только Али', 'error');
+        return;
+    }
     const currentView = document.querySelector('.view.active');
     if (currentView && currentView.id === viewId) {
         closeMobileMoreMenu();
@@ -1499,11 +1512,14 @@ function renderSchedule() {
             return sum + Math.max(0,total-getBookingPaymentState(item,total).paid);
         },0);
         const overview = document.getElementById('scheduleOverview');
-        if (overview) overview.innerHTML = `
-            <div class="schedule-overview-card"><span>Записей <small>(${completedCount} завершено)</small></span><strong>${visibleBookings.length}</strong></div>
-            <div class="schedule-overview-card"><span>Получено <small>(фактические оплаты)</small></span><strong>${Math.round(collected).toLocaleString('ru-RU')} ₽</strong></div>
-            <div class="schedule-overview-card"><span>К оплате <small>(по записям дня)</small></span><strong>${Math.round(outstanding).toLocaleString('ru-RU')} ₽</strong></div>
-            <div class="schedule-overview-card"><span>Перерывов <small>(заблокировано)</small></span><strong>${visibleBlocks.length}</strong></div>`;
+        if (overview) {
+            overview.innerHTML = isAdminUser() ? `
+                <div class="schedule-overview-card"><span>Записей <small>(${completedCount} завершено)</small></span><strong>${visibleBookings.length}</strong></div>
+                <div class="schedule-overview-card"><span>Получено <small>(фактические оплаты)</small></span><strong>${Math.round(collected).toLocaleString('ru-RU')} ₽</strong></div>
+                <div class="schedule-overview-card"><span>К оплате <small>(по записям дня)</small></span><strong>${Math.round(outstanding).toLocaleString('ru-RU')} ₽</strong></div>
+                <div class="schedule-overview-card"><span>Перерывов <small>(заблокировано)</small></span><strong>${visibleBlocks.length}</strong></div>` : '';
+            overview.style.display = isAdminUser() ? '' : 'none';
+        }
 
         const greetEl = document.getElementById('scheduleGreeting');
         if (greetEl) greetEl.innerText = 'Расписание';
@@ -1567,8 +1583,7 @@ function renderSchedule() {
                             <div class="hb-master" style="font-size: 12px;">${currentUser.role === 'admin' ? escapeBookingHtml((mockStaff.find(s=>s.id === b.barberId)?.name || 'Мастер') + ' · ') : ''}${escapeBookingHtml(b.clientName || 'Клиент')}</div>
                             <div class="booking-card-badges"><i class="booking-origin origin-${getBookingSourceMeta(b).className}">${getBookingSourceMeta(b).label}</i><i class="booking-client-type type-${getLegacyBookingClientType(b) === 'new' ? 'new' : 'returning'}">${getLegacyBookingClientType(b) === 'new' ? 'Новый клиент' : 'Повторный клиент'}</i></div>
                             <div class="hb-services" style="font-size: 11px; white-space: normal;">${servicesText}</div>
-                            <div class="mobile-booking-finance"><strong>${bookingTotal.toLocaleString('ru-RU')} ₽</strong><span>${payState.paid.toLocaleString('ru-RU')} ₽ получено</span><span>${remaining.toLocaleString('ru-RU')} ₽ остаток</span></div>
-                            <span class="calendar-payment-label payment-${payState.status}">${payState.label}</span>
+                            ${isAdminUser() ? `<div class="mobile-booking-finance"><strong>${bookingTotal.toLocaleString('ru-RU')} ₽</strong><span>${payState.paid.toLocaleString('ru-RU')} ₽ получено</span><span>${remaining.toLocaleString('ru-RU')} ₽ остаток</span></div><span class="calendar-payment-label payment-${payState.status}">${payState.label}</span>` : ''}
                         </div>
                         <div style="flex-shrink: 0; margin-left: 10px;">
                             ${statusBadge}
@@ -1817,9 +1832,7 @@ function renderDesktopSchedule() {
                     <button class="${currentScheduleTab === 'bookings' ? 'active' : ''}" onclick="switchScheduleTab('bookings')">Записи</button>
                     <button class="${currentScheduleTab === 'breaks' ? 'active' : ''}" onclick="switchScheduleTab('breaks')">Перерывы</button>
                     <span class="desktop-calendar-action-divider" aria-hidden="true"></span>
-                    <button type="button" class="desktop-calendar-action" onclick="openBlockTimeModal()">Заблокировать время</button>
-                    <button type="button" class="desktop-calendar-action" onclick="openWorkScheduleModal()">Рабочий график</button>
-                    <button type="button" class="desktop-calendar-action desktop-calendar-action-primary" onclick="openNewBookingModal()">＋ Новая запись</button>
+                    ${isAdminUser() ? '<button type="button" class="desktop-calendar-action" onclick="openBlockTimeModal()">Заблокировать время</button><button type="button" class="desktop-calendar-action" onclick="openWorkScheduleModal()">Рабочий график</button><button type="button" class="desktop-calendar-action desktop-calendar-action-primary" onclick="openNewBookingModal()">＋ Новая запись</button>' : ''}
                 </div>
             </div>
             <div class="schedule-filter-info-row">
@@ -1898,9 +1911,7 @@ function renderDesktopSchedule() {
                 <button class="${currentScheduleTab === 'bookings' ? 'active' : ''}" onclick="switchScheduleTab('bookings')">Записи</button>
                 <button class="${currentScheduleTab === 'breaks' ? 'active' : ''}" onclick="switchScheduleTab('breaks')">Перерывы</button>
                 <span class="desktop-calendar-action-divider" aria-hidden="true"></span>
-                    <button type="button" class="desktop-calendar-action" onclick="openBlockTimeModal()">Заблокировать время</button>
-                    <button type="button" class="desktop-calendar-action" onclick="openWorkScheduleModal()">Рабочий график</button>
-                    <button type="button" class="desktop-calendar-action desktop-calendar-action-primary" onclick="openNewBookingModal()">＋ Новая запись</button>
+                    ${isAdminUser() ? '<button type="button" class="desktop-calendar-action" onclick="openBlockTimeModal()">Заблокировать время</button><button type="button" class="desktop-calendar-action" onclick="openWorkScheduleModal()">Рабочий график</button><button type="button" class="desktop-calendar-action desktop-calendar-action-primary" onclick="openNewBookingModal()">＋ Новая запись</button>' : ''}
             </div>
         </div>
         <div class="schedule-filter-info-row">
@@ -2006,7 +2017,7 @@ function renderDesktopSchedule() {
                             <strong class="booking-card-client">${escapeBookingHtml(booking.clientName || 'Клиент')}${getBookingClientType(booking) === 'new' ? '<i class="booking-new-client-inline">НОВЫЙ</i>' : ''}</strong>
                             <span class="booking-card-badges"><i class="booking-origin origin-${getBookingSourceMeta(booking).className}">${getBookingSourceMeta(booking).label}</i></span>
                             <span class="booking-card-service">${serviceNames || 'Услуга не указана'}</span>
-                            <small class="booking-card-meta"><b>${escapeBookingHtml(booking.time || '—')}</b> · ${item.duration} мин. · ${bookingStatusLabel}</small><span class="calendar-payment-label payment-${payState.status}">${payState.label} · ${payState.paid.toLocaleString('ru-RU')} ₽</span>
+                            <small class="booking-card-meta"><b>${escapeBookingHtml(booking.time || '—')}</b> · ${item.duration} мин. · ${bookingStatusLabel}</small>${isAdminUser() ? `<span class="calendar-payment-label payment-${payState.status}">${payState.label} · ${payState.paid.toLocaleString('ru-RU')} ₽</span>` : ''}
                         </button>`;
                 });
             };
@@ -2509,15 +2520,13 @@ function openActionModal(id) {
         <div class="booking-detail-services">
             <span class="booking-detail-section-label">Состав записи</span>
             ${services.length
-                ? services.map(service => `<div class="booking-detail-service"><span>${escapeBookingHtml(service.title || 'Услуга')}</span><strong>${(Number(service.price) || 0).toLocaleString('ru-RU')} ₽</strong></div>`).join('')
+                ? services.map(service => `<div class="booking-detail-service"><span>${escapeBookingHtml(service.title || 'Услуга')}</span>${isAdminUser() ? `<strong>${(Number(service.price) || 0).toLocaleString('ru-RU')} ₽</strong>` : ''}</div>`).join('')
                 : '<div class="booking-detail-service"><span>Услуги не указаны</span></div>'}
         </div>
         <div class="booking-detail-row">
             <span>Количество услуг</span><strong>${services.length}</strong>
         </div>
-        <div class="booking-detail-row booking-detail-total">
-            <span>Стоимость</span><strong>${total.toLocaleString('ru-RU')} ₽</strong>
-        </div>
+        ${isAdminUser() ? `<div class="booking-detail-row booking-detail-total"><span>Стоимость</span><strong>${total.toLocaleString('ru-RU')} ₽</strong></div>
         ${Math.max(0, Number(booking.loyaltyPointsRedeemed) || 0) > 0 ? '<div class="booking-detail-row"><span>Скидка бонусами</span><strong>−' + Math.max(0, Number(booking.loyaltyPointsRedeemed) || 0).toLocaleString('ru-RU') + ' ₽</strong></div>' : ''}
         <div class="booking-payment-panel">
             <div class="booking-payment-heading"><span>Оплата</span><strong class="payment-state payment-${payment.status}">${payment.label}</strong></div>
@@ -2526,7 +2535,7 @@ function openActionModal(id) {
             ${payment.transactions.length ? '<div class="booking-payment-history">' + payment.transactions.map(item => '<div class="booking-payment-transaction"><span>' + escapeBookingHtml(item.method ? (PAYMENT_METHOD_LABELS[item.method] || item.method) : 'Ранее внесено') + '</span><strong>' + Number(item.amount || 0).toLocaleString('ru-RU') + ' ₽</strong></div>').join('') + '</div>' : ''}
 
             ${currentUser && booking.status !== 'cancelled' ? '<div class="booking-payment-actions"><button type="button" class="booking-payment-edit" onclick="openBookingPaymentEditor(\'' + escapeBookingHtml(String(booking.id)) + '\')">Добавить оплату</button><button type="button" class="booking-payment-edit booking-loyalty-redeem" onclick="openBookingLoyaltyEditor(\'' + escapeBookingHtml(String(booking.id)) + '\')">Списать бонусы</button></div>' : ''}
-        </div>
+        </div>` : ''}
         <div class="booking-detail-row">
             <span>Длительность</span><strong>${duration} мин.</strong>
         </div>
@@ -6716,6 +6725,10 @@ function renderBarberRevenue() {
         if (card) card.style.display = 'none';
         return;
     }
+    if (!isAdminUser()) {
+        if (card) card.style.display = 'none';
+        return;
+    }
     if (card) card.style.display = 'block';
     const today = new Date().toLocaleDateString('ru-RU');
     const revenueEl = document.getElementById('barberRevenue');
@@ -6758,9 +6771,15 @@ function renderProfileOverview() {
         const total = (item.services || []).reduce((n,service) => n + Number(service.price || 0),0);
         return sum + Math.max(0,total-getBookingPaymentState(item,total).paid);
     },0);
+    if (!isAdminUser()) {
+        container.innerHTML = '';
+        container.style.display = 'none';
+        return;
+    }
+    container.style.display = '';
     container.innerHTML = `
         <div class="profile-overview-card"><span>Визитов за месяц</span><strong>${completed.length}</strong></div>
-        <div class="profile-overview-card"><span>${isAdminUser() ? 'Получено за месяц' : 'Моя выручка за месяц'}</span><strong>${Math.round(collected).toLocaleString('ru-RU')} ₽</strong></div>
+        <div class="profile-overview-card"><span>Получено за месяц</span><strong>${Math.round(collected).toLocaleString('ru-RU')} ₽</strong></div>
         <div class="profile-overview-card"><span>Клиентов</span><strong>${clients.size}</strong></div>
         <div class="profile-overview-card"><span>Остаток к оплате</span><strong>${Math.round(due).toLocaleString('ru-RU')} ₽</strong></div>`;
 }
