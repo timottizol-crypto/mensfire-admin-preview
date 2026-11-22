@@ -14937,3 +14937,19 @@ html body .drawer-modal table tbody tr:focus-within > td {
         padding-right: 5px;
     }
 }
+
+/* CLIENT DETAILS — give the visit history more vertical room. */
+#clientDetailsModal #clientDetailsHistory {
+    flex: 0 0 320px !important;
+    height: 320px !important;
+    min-height: 320px !important;
+    max-height: 320px !important;
+}
+@media (max-width: 767px) {
+    #clientDetailsModal #clientDetailsHistory {
+        flex: 0 0 290px !important;
+        height: 290px !important;
+        min-height: 290px !important;
+        max-height: 290px !important;
+    }
+}
