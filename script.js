@@ -1670,10 +1670,32 @@ function renderScheduleBarberFilter(staff) {
     return `<div class="schedule-barber-filter" role="group" aria-label="Фильтр по мастерам">${options.map(person => `<button type="button" class="${String(selectedScheduleBarberFilter)===String(person.id)?'active':''}" aria-pressed="${String(selectedScheduleBarberFilter)===String(person.id)}" onclick="setScheduleBarberFilter('${escapeBookingHtml(String(person.id))}')">${escapeBookingHtml(person.name)}</button>`).join('')}</div>`;
 }
 function setScheduleBarberFilter(barberId) {
-    const allowed = currentUser?.role === 'admin' ? ['all', ...mockStaff.map(person => String(person.id))] : [String(currentUser?.id || '')];
-    if (!allowed.includes(String(barberId))) return;
-    selectedScheduleBarberFilter = String(barberId);
-    renderSchedule();
+    const requestedId = String(barberId || '');
+    const allowed = currentUser?.role === 'admin'
+        ? ['all', ...mockStaff.map(person => String(person.id))]
+        : [String(currentUser?.id || '')];
+    if (!allowed.includes(requestedId)) return;
+
+    selectedScheduleBarberFilter = requestedId;
+
+    // Обновляем активное состояние фильтра сразу, не дожидаясь отложенного рендера.
+    document.querySelectorAll('#viewSchedule .schedule-barber-filter button, #viewSchedule .schedule-barber-filter-mobile button').forEach(button => {
+        const isSelected = String(button.getAttribute('onclick') || '').includes("('" + requestedId + "')");
+        button.classList.toggle('active', isSelected);
+        button.setAttribute('aria-pressed', isSelected ? 'true' : 'false');
+    });
+
+    // На ПК календарь строится отдельно от мобильного списка — обновляем его напрямую.
+    if (window.innerWidth >= 768) {
+        try {
+            renderDesktopSchedule();
+        } catch (error) {
+            console.error('Mensfire schedule barber filter error:', error);
+            renderSchedule();
+        }
+    } else {
+        renderSchedule();
+    }
 }
 
 function renderScheduleOverviewPanel() {
@@ -2980,7 +3002,21 @@ function renderBookingBarberChoices() {
 }
 
 function openNewBookingModal(barberId = '', time = '', date = selectedScheduleDate) {
-    if (!requireAdminAction('Создавать записи может только Али')) return;
+    if (!requireAdminAction('Создавать записи может только Али')) return false;
+
+    const modal = document.getElementById('newBookingModal');
+    const title = modal?.querySelector('h2');
+    const submitButton = modal?.querySelector('.checkout-btn');
+    const barberSelect = document.getElementById('newBookingBarber');
+    const dateInput = document.getElementById('newBookingDate');
+    const timeInput = document.getElementById('newBookingTime');
+    const clientInput = document.getElementById('newBookingClient');
+
+    if (!modal || !title || !submitButton || !barberSelect || !dateInput || !timeInput || !clientInput) {
+        showToast('Форма создания записи загружена не полностью. Обновите страницу.', 'error');
+        return false;
+    }
+
     editingBookingId = null;
     editingWaitlistId = null;
     const repeatToggle = document.getElementById('repeatBookingWeekly');
@@ -2988,41 +3024,47 @@ function openNewBookingModal(barberId = '', time = '', date = selectedScheduleDa
     const repeatCountWrap = document.getElementById('bookingRepeatCountWrap');
     if (repeatCountWrap) repeatCountWrap.hidden = true;
 
-    document.querySelector('#newBookingModal h2').textContent = 'Новая запись';
-    document.querySelector('#newBookingModal .checkout-btn').textContent = 'Создать запись';
-    const barberSelect = document.getElementById('newBookingBarber');
-    const dateInput = document.getElementById('newBookingDate');
-    const timeInput = document.getElementById('newBookingTime');
-    const clientInput = document.getElementById('newBookingClient');
-
-    if (!barberSelect || !dateInput || !timeInput || !clientInput) return;
+    title.textContent = 'Новая запись';
+    submitButton.textContent = 'Создать запись';
 
     const availableStaff = currentUser.role === 'admin'
         ? mockStaff
-        : mockStaff.filter(s => s.id === currentUser.id);
+        : mockStaff.filter(person => String(person.id) === String(currentUser.id));
 
-    barberSelect.innerHTML = availableStaff.map(s =>
-        `<option value="${s.id}">${s.name}</option>`
+    barberSelect.innerHTML = availableStaff.map(person =>
+        '<option value="' + escapeBookingHtml(String(person.id)) + '">' + escapeBookingHtml(person.name) + '</option>'
     ).join('');
 
     const defaultBarber = barberId || currentUser.id;
-    if (availableStaff.some(s => s.id === defaultBarber)) {
-        barberSelect.value = defaultBarber;
+    if (availableStaff.some(person => String(person.id) === String(defaultBarber))) {
+        barberSelect.value = String(defaultBarber);
+    } else if (availableStaff.length) {
+        barberSelect.value = String(availableStaff[0].id);
     }
-    renderBookingBarberChoices();
 
-    const parts = date.split('.');
+    const parts = String(date || '').split('.');
     dateInput.value = parts.length === 3 ? date : '';
-
     timeInput.value = time || '10:00';
     clientInput.value = '';
+
     const phoneInput = document.getElementById('newBookingClientPhone');
     if (phoneInput) phoneInput.value = '';
     const lookup = document.getElementById('bookingClientLookup');
     if (lookup) lookup.innerHTML = '';
 
-    updateNewBookingServices();
+    // Показываем форму до построения вспомогательных элементов:
+    // ошибка в слотах/услугах больше не должна делать кнопку полностью нерабочей.
     openModal('newBookingModal');
+
+    try {
+        renderBookingBarberChoices();
+        updateNewBookingServices();
+    } catch (error) {
+        console.error('Mensfire new booking form initialization error:', error);
+        showToast('Форма открыта, но не удалось обновить список услуг или свободного времени.', 'error');
+    }
+
+    return true;
 }
 
 
@@ -6479,22 +6521,17 @@ function createBookingForClient() {
     }
 
     const barberId = String(profile.barberId || currentUser?.id || '');
-    openNewBookingModal(barberId);
-
-    // openNewBookingModal может отказать по правам или из-за неполной формы.
-    if (!bookingModal.classList.contains('active')) return;
+    const opened = openNewBookingModal(barberId);
+    if (!opened) return;
 
     const input = document.getElementById('newBookingClient');
     const phoneInput = document.getElementById('newBookingClientPhone');
-    if (input) {
-        input.value = resolvedClientName;
-        input.dispatchEvent(new Event('input', { bubbles: true }));
-        input.dispatchEvent(new Event('change', { bubbles: true }));
-    }
-    if (phoneInput && profile.phone) {
-        phoneInput.value = profile.phone;
-        const lookupHost = document.getElementById('bookingClientLookup');
-        if (lookupHost) lookupHost.innerHTML = '<div class="booking-client-lookup-new">Профиль клиента выбран</div>';
+    if (input) input.value = resolvedClientName;
+    if (phoneInput && profile.phone) phoneInput.value = profile.phone;
+
+    const lookupHost = document.getElementById('bookingClientLookup');
+    if (lookupHost) {
+        lookupHost.innerHTML = '<div class="booking-client-lookup-new">Профиль клиента выбран</div>';
     }
 }
 // --- ПРОФИЛЬ ---
