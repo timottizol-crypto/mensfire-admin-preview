@@ -141,12 +141,11 @@
                     <h2>Финансы</h2>
                     <p>Контроль выручки, расходов и эффективности команды</p>
                 </div>
-                <div class="finance-date-navigation">
-                    <div class="category-tabs finance-tabs" id="financeViewTabs" role="tablist" aria-label="Разделы финансов">
-                        <button class="tab-btn active" id="tabFinExpenses" onclick="switchFinanceTab('expenses')">Обзор</button>
-                        <button class="tab-btn" id="tabFinRevenue" onclick="switchFinanceTab('revenue')">Выручка и аналитика</button>
-                    </div>
-                    <div class="date-selector finance-date-strip" id="financeDateSelector" aria-label="Быстрый выбор даты"></div>
+                <div class="date-selector finance-date-strip finance-date-card" id="financeDateSelector" aria-label="Быстрый выбор даты"></div>
+                <div class="finance-section-tabs" id="financeViewTabs" role="tablist" aria-label="Разделы финансов">
+                    <button class="finance-section-tab active" id="tabFinExpenses" role="tab" aria-selected="true" onclick="switchFinanceTab('expenses')">Обзор</button>
+                    <button class="finance-section-tab" id="tabFinRevenue" role="tab" aria-selected="false" onclick="switchFinanceTab('revenue')">Выручка</button>
+                    <button class="finance-section-tab" id="tabFinAnalytics" role="tab" aria-selected="false" onclick="switchFinanceTab('analytics')">Аналитика</button>
                 </div>
                 <div class="finance-period-controls">
                     <div class="finance-range-toolbar">
@@ -173,16 +172,20 @@
                 </div>
             </section>
             <section class="fin-tab-content finance-combined-content" id="finTabRevenueAnalytics" style="display:none;">
-                <div class="finance-overview-row">
-                    <div class="finance-kpi-grid finance-revenue-kpis">
-                        <div class="finance-kpi-card finance-kpi-primary"><span class="finance-kpi-label">День</span><strong id="financeToday">0 ₽</strong><small>Поступления за выбранную дату</small></div>
-                        <div class="finance-kpi-card"><span class="finance-kpi-label">Неделя</span><strong id="financeWeek">0 ₽</strong><small>С начала недели</small></div>
-                        <div class="finance-kpi-card"><span class="finance-kpi-label">Месяц</span><strong id="financeMonth">0 ₽</strong><small>С начала месяца</small></div>
+                <div id="finTabRevenueContent" class="finance-subtab-content">
+                    <div class="finance-overview-row">
+                        <div class="finance-kpi-grid finance-revenue-kpis">
+                            <div class="finance-kpi-card finance-kpi-primary"><span class="finance-kpi-label">День</span><strong id="financeToday">0 ₽</strong><small>Поступления за выбранную дату</small></div>
+                            <div class="finance-kpi-card"><span class="finance-kpi-label">Неделя</span><strong id="financeWeek">0 ₽</strong><small>С начала недели</small></div>
+                            <div class="finance-kpi-card"><span class="finance-kpi-label">Месяц</span><strong id="financeMonth">0 ₽</strong><small>С начала месяца</small></div>
+                        </div>
                     </div>
-                    <article class="glass-card finance-panel finance-popular-services-panel"><div class="finance-panel-heading"><div><h3>Популярные услуги</h3><p>Топ услуг по завершённым визитам за выбранный период</p></div></div><div id="analyticsTopServicesList"></div></article>
+                    <article class="glass-card finance-panel finance-team-revenue-panel"><div class="finance-panel-heading"><div><h3>Выручка по мастерам</h3><p>Поступления и завершённые визиты за выбранный период</p></div></div><div id="financeTeamStats"></div></article>
                 </div>
-                <article class="glass-card finance-panel finance-team-revenue-panel"><div class="finance-panel-heading"><div><h3>Выручка по мастерам</h3><p>Поступления и завершённые визиты за выбранный период</p></div></div><div id="financeTeamStats"></div></article>
-                <article class="glass-card finance-panel finance-operations-panel"><div class="finance-panel-heading"><div><h3>Операции за период</h3><p>Статус оплаты по каждой записи в выбранном интервале</p></div></div><div id="analyticsHeaderBlock"></div><div id="analyticsHistoryList"></div></article>
+                <div id="finTabAnalyticsContent" class="finance-subtab-content" style="display:none;">
+                    <article class="glass-card finance-panel finance-popular-services-panel"><div class="finance-panel-heading"><div><h3>Популярные услуги</h3><p>Топ услуг по завершённым визитам за выбранный период</p></div></div><div id="analyticsTopServicesList"></div></article>
+                    <article class="glass-card finance-panel finance-operations-panel"><div class="finance-panel-heading"><div><h3>Операции за период</h3><p>Статус оплаты по каждой записи в выбранном интервале</p></div></div><div id="analyticsHeaderBlock"></div><div id="analyticsHistoryList"></div></article>
+                </div>
             </section>
         </div>
 
