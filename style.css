@@ -12483,7 +12483,6 @@ body.profile-view-active .app-header {
   #viewFinance .finance-period-controls { width:100%!important; max-width:none!important; min-width:0!important; }
   #viewFinance .finance-dashboard-grid,
   #viewFinance .finance-overview-row,
-  #viewFinance .finance-combined-content,
   #viewFinance .finance-team-revenue-panel,
   #viewFinance .finance-operations-panel {
     display:grid!important; grid-template-columns:minmax(0,1fr)!important;
@@ -15854,22 +15853,22 @@ html body .drawer-modal table tbody tr:focus-within > td {
   #viewServices .services-page-heading > .services-add-cta {
     display: flex !important;
     box-sizing: border-box !important;
-    flex: 0 0 18px !important;
+    flex: 0 0 36px !important;
     align-self: stretch !important;
     width: 100% !important;
     min-width: 100% !important;
-    min-height: 18px !important;
-    height: 18px !important;
-    max-height: 18px !important;
-    padding: 0 8px !important;
+    min-height: 36px !important;
+    height: 36px !important;
+    max-height: 36px !important;
+    padding: 0 10px !important;
     margin: 0 !important;
     overflow: hidden !important;
   }
   #viewServices .services-page-heading > .services-add-cta .cta-text,
   #viewServices .services-page-heading > .services-add-cta .cta-text span {
     display: block !important;
-    font-size: 10px !important;
-    line-height: 18px !important;
+    font-size: 12px !important;
+    line-height: 36px !important;
     margin: 0 !important;
     padding: 0 !important;
   }
