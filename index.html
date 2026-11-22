@@ -201,7 +201,7 @@
             <nav class="services-mobile-jump" aria-label="Переход к услугам барберов"><button type="button" onclick="document.getElementById('serviceGroupBarber')?.scrollIntoView({behavior:'smooth',block:'start'})">Услуги барберов</button></nav>
             <div id="servicesOverview" class="services-overview-grid"></div>
             <div id="servicesCatalog"></div>
-            <button type="button" class="services-top-barber-jump" onclick="document.getElementById('serviceGroupTop')?.scrollIntoView({behavior:'smooth',block:'start'})">Топ барбера</button>
+            <button type="button" class="services-top-barber-jump" onclick="document.getElementById('serviceGroupTop')?.scrollIntoView({behavior:'smooth',block:'start'})">Услуги топ-мастеров</button>
         </div>
 
         <!-- ЭКРАН CRM: только задачи и напоминания -->
@@ -530,7 +530,7 @@
             <div class="form-group"><label for="serviceEditorName">Название услуги</label><input id="serviceEditorName" type="text" maxlength="80" placeholder="Например, мужская стрижка"></div>
             <div class="form-group"><label for="serviceEditorPrice">Цена, ₽</label><input id="serviceEditorPrice" type="number" min="1" step="1" inputmode="numeric" placeholder="1500"></div>
             <div class="form-group"><label for="serviceEditorDuration">Длительность, минут</label><input id="serviceEditorDuration" type="number" min="5" max="360" step="5" value="45"></div>
-            <div class="form-group"><label for="serviceEditorCategory">Для кого</label><select id="serviceEditorCategory"><option value="top">Али — главный мастер</option><option value="barber">Барберы</option></select></div>
+            <div class="form-group"><label for="serviceEditorCategory">Для кого</label><select id="serviceEditorCategory"><option value="top">Топ-мастера</option><option value="barber">Барберы</option></select></div>
             <button type="button" class="checkout-btn" onclick="saveService()">Сохранить услугу</button>
             <button type="button" class="btn-cancel" onclick="closeModal('serviceEditorModal')">Отмена</button>
         </div>
