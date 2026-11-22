@@ -15545,7 +15545,9 @@ html body .drawer-modal table tbody tr:focus-within > td {
     display: grid !important; grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
     align-items: stretch !important; gap: 7px !important; width: 100% !important; min-width: 0 !important; margin-top: 0 !important;
   }
+  #viewFinance .finance-period-metrics > :nth-child(3):last-child { grid-column: auto !important; }
   #viewFinance .finance-period-metrics > div {
+    grid-column: auto !important;
     display: flex !important; flex-direction: column !important; align-items: flex-start !important;
     justify-content: center !important; gap: 7px !important; min-width: 0 !important; min-height: 76px !important;
     padding: 10px 8px !important; margin: 0 !important; border: 1px solid rgba(255,255,255,.10) !important;
