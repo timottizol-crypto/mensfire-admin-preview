@@ -15637,3 +15637,124 @@ html body .drawer-modal table tbody tr:focus-within > td {
     color: #17191d !important;
   }
 }
+
+
+/* Finance mobile correction: preserve original header placement; separate controls visually only. */
+@media (max-width: 767px) {
+  #viewFinance .finance-header-layout {
+    grid-template-columns: minmax(0, 1fr) !important;
+    grid-template-areas: "title" "period" "dates" !important;
+    align-items: stretch !important;
+    gap: 9px !important;
+  }
+  #viewFinance .finance-header-layout > .finance-heading-copy {
+    grid-area: title !important;
+    display: block !important;
+    width: 100% !important;
+    min-width: 0 !important;
+    max-width: 100% !important;
+  }
+  #viewFinance .finance-heading-copy h2 {
+    width: 100% !important;
+    max-width: 100% !important;
+    white-space: nowrap !important;
+    overflow-wrap: normal !important;
+    word-break: normal !important;
+    font-size: clamp(25px, 7vw, 34px) !important;
+    line-height: 1.12 !important;
+  }
+  #viewFinance .finance-heading-copy p {
+    max-width: 100% !important;
+    width: 100% !important;
+    overflow-wrap: break-word !important;
+    word-break: normal !important;
+  }
+  #viewFinance .finance-header-layout > .finance-period-controls {
+    grid-area: period !important;
+    width: 100% !important;
+    min-width: 0 !important;
+  }
+  #viewFinance .finance-header-layout > .finance-date-navigation {
+    grid-area: dates !important;
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: stretch !important;
+    gap: 8px !important;
+    width: 100% !important;
+    min-width: 0 !important;
+    margin: 0 !important;
+    padding: 0 !important;
+  }
+  #viewFinance #financeDateSelector {
+    order: 1 !important;
+    width: 100% !important;
+    min-width: 0 !important;
+    min-height: 0 !important;
+    margin: 0 !important;
+    padding: 3px 2px 5px !important;
+  }
+  #viewFinance #financeViewTabs.finance-section-tabs {
+    order: 2 !important;
+    display: grid !important;
+    grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+    gap: 8px !important;
+    width: 100% !important;
+    min-width: 0 !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    background: transparent !important;
+    border: 0 !important;
+    box-shadow: none !important;
+  }
+  #viewFinance .finance-section-tab {
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    min-width: 0 !important;
+    min-height: 44px !important;
+    padding: 9px 5px !important;
+    border: 1px solid rgba(255,255,255,.16) !important;
+    border-radius: 13px !important;
+    background: rgba(255,255,255,.045) !important;
+    color: var(--text-secondary, #b8bdc8) !important;
+    font-size: 12px !important;
+    font-weight: 700 !important;
+    line-height: 1.2 !important;
+    white-space: normal !important;
+    text-align: center !important;
+    overflow-wrap: anywhere !important;
+    box-shadow: none !important;
+  }
+  #viewFinance .finance-section-tab.active {
+    color: #17191d !important;
+    background: linear-gradient(145deg, var(--gold, #d4af37), var(--gold-hover, #a98229)) !important;
+    border-color: rgba(212,175,55,.8) !important;
+  }
+  #viewFinance #finTabExpenses .finance-dashboard-grid > .finance-panel:last-child {
+    margin-top: 0 !important;
+    margin-bottom: 12px !important;
+    padding: 16px !important;
+  }
+  #viewFinance .finance-period-metrics {
+    display: grid !important;
+    grid-template-columns: minmax(0, 1fr) !important;
+    gap: 12px !important;
+    margin-top: 14px !important;
+    margin-bottom: 2px !important;
+    padding-bottom: 2px !important;
+  }
+  #viewFinance .finance-period-metrics > div {
+    margin: 0 !important;
+    min-height: 50px !important;
+    border-radius: 13px !important;
+  }
+  #viewFinance #expensesList {
+    max-height: 246px !important;
+    height: auto !important;
+    min-height: 0 !important;
+    overflow-y: auto !important;
+    overflow-x: hidden !important;
+    overscroll-behavior-y: contain !important;
+    -webkit-overflow-scrolling: touch !important;
+  }
+}
