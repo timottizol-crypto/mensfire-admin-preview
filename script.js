@@ -3997,6 +3997,9 @@ function renderFinance() {
     });
 
     const setText = (id, value) => { const node = document.getElementById(id); if (node) node.textContent = value; };
+    const expenseScopeLabel = financePeriodMode === 'day' ? 'за выбранный день' : financePeriodMode === 'month' ? 'за выбранный месяц' : 'за выбранный период';
+    const expenseHeading = document.querySelector('#finTabExpenses .finance-dashboard-grid > .finance-panel:nth-child(2) .finance-panel-heading p');
+    if (expenseHeading) expenseHeading.textContent = financePeriodMode === 'day' ? 'Операции за выбранный день' : financePeriodMode === 'month' ? 'Операции за выбранный месяц' : 'Операции за выбранный период';
     setText('financeToday', fmt(dayRevenue));
     setText('financeWeek', fmt(weekRevenue));
     setText('financeMonth', fmt(monthRevenue));
@@ -4044,8 +4047,11 @@ function renderFinance() {
         } else if (spanDays > 45) {
             const cursor = new Date(periodStart.getFullYear(),periodStart.getMonth(),1);
             while (cursor < periodEnd && buckets.length < 12) {
-                const start = new Date(cursor), end = new Date(cursor.getFullYear(),cursor.getMonth()+1,1);
-                buckets.push({start,end,label:start.toLocaleDateString('ru-RU',{month:'short',year:'2-digit'}).replace('.','')});
+                const monthStart = new Date(cursor);
+                const monthEnd = new Date(cursor.getFullYear(),cursor.getMonth()+1,1);
+                const start = new Date(Math.max(monthStart.getTime(),periodStart.getTime()));
+                const end = new Date(Math.min(monthEnd.getTime(),periodEnd.getTime()));
+                buckets.push({start,end,label:monthStart.toLocaleDateString('ru-RU',{month:'short',year:'2-digit'}).replace('.','')});
                 cursor.setMonth(cursor.getMonth()+1);
             }
         } else {
@@ -4069,7 +4075,7 @@ function renderFinance() {
         const total = Object.values(paymentTotals).reduce((sum,value) => sum + value, 0);
         methods.innerHTML = Object.entries(paymentTotals).filter(([,value]) => value > 0).sort((a,b) => b[1]-a[1]).map(([key,value]) => `
             <div class="finance-method-row"><div><span>${labels[key]}</span><strong>${fmt(value)}</strong></div><div class="finance-method-track"><i style="width:${total ? value/total*100 : 0}%"></i></div></div>`
-        ).join('') || '<div class="finance-empty">Платежей за этот месяц пока нет</div>';
+        ).join('') || '<div class="finance-empty">Платежей ${financePeriodMode === 'day' ? 'за месяц' : 'за выбранный период'} пока нет</div>';
     }
 
     const teamStats = document.getElementById('financeTeamStats');
@@ -4143,7 +4149,7 @@ function renderFinance() {
         const sorted = Object.entries(serviceCounts).sort((a,b) => b[1].revenue-a[1].revenue);
         const maxServiceRevenue = Math.max(1,...sorted.map(([,data]) => data.revenue));
         topServices.innerHTML = sorted.length ? sorted.map(([name,data],index) => `
-            <div class="finance-service-row finance-service-row-detailed"><span class="finance-service-rank">${index+1}</span><div class="finance-service-copy"><strong>${escapeBookingHtml(name)}</strong><span>${data.count} выполнено за 30 дней</span><div class="finance-service-track"><i style="width:${data.revenue/maxServiceRevenue*100}%"></i></div></div><strong>${fmt(data.revenue)}</strong></div>`
+            <div class="finance-service-row finance-service-row-detailed"><span class="finance-service-rank">${index+1}</span><div class="finance-service-copy"><strong>${escapeBookingHtml(name)}</strong><span>${data.count} выполнено за выбранный период</span><div class="finance-service-track"><i style="width:${data.revenue/maxServiceRevenue*100}%"></i></div></div><strong>${fmt(data.revenue)}</strong></div>`
         ).join('') : '<div class="finance-empty">Статистика появится после завершённых визитов</div>';
     }
 
@@ -4156,7 +4162,7 @@ function renderFinance() {
         });
         const rows = Object.entries(groups).sort((a,b) => b[1]-a[1]);
         const maxExpense = Math.max(1,...rows.map(([,amount]) => amount));
-        expenseBreakdown.innerHTML = rows.length ? '<div class="finance-breakdown-heading">Структура расходов за период</div><div class="finance-expense-breakdown-list">' + rows.map(([label,amount]) => `
+        expenseBreakdown.innerHTML = rows.length ? '<div class="finance-breakdown-heading">Структура расходов ' + expenseScopeLabel + '</div><div class="finance-expense-breakdown-list">' + rows.map(([label,amount]) => `
             <div class="finance-expense-breakdown-row"><div><span>${escapeBookingHtml(label)}</span><strong>${fmt(amount)}</strong></div><div class="finance-expense-track"><i style="width:${amount/maxExpense*100}%"></i></div></div>`
         ).join('') + '</div>' : '<div class="finance-empty">Добавьте расходы, чтобы увидеть структуру</div>';
     }
@@ -4203,15 +4209,23 @@ function addExpense() {
         renderFinance();
         return;
     }
-    const expenseDate = parseReportDate(selectedFinanceDate);
+    let expenseDate = parseReportDate(selectedFinanceDate);
+    if (financePeriodMode === 'custom') {
+        let rangeStart = parseReportDate(financeRangeStart);
+        let rangeEnd = parseReportDate(financeRangeEnd);
+        if (!rangeStart || !rangeEnd) return showToast('Сначала укажите корректный период отчёта', 'error');
+        if (rangeEnd < rangeStart) [rangeStart, rangeEnd] = [rangeEnd, rangeStart];
+        // The day strip is hidden in custom mode: use the visible range end as the clear default.
+        expenseDate = rangeEnd;
+    }
     if (!expenseDate) return showToast('Укажите корректную дату расхода', 'error');
-    expenses.push({ id: Date.now(), title, amount: Math.round(amount * 100) / 100, date: selectedFinanceDate });
+    const expenseDateLabel = formatReportDate(expenseDate);
+    expenses.push({ id: Date.now(), title, amount: Math.round(amount * 100) / 100, date: expenseDateLabel });
     localStorage.setItem(appStorageKey('mensfire_admin_expenses'), JSON.stringify(expenses));
     closeModal('expenseModal');
-    showToast(`Расход добавлен на ${selectedFinanceDate}`, 'success');
+    showToast('Расход добавлен на ' + expenseDateLabel, 'success');
     renderFinance();
 }
-
 function deleteExpense() {
     if (!requireAdminAction('Управлять финансами может только Али')) return;
     if (editingExpenseId == null) return;
