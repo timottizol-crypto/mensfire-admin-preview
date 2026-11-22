@@ -3588,12 +3588,28 @@ function deleteTimeBlock() {
 
 function switchFinanceTab(tab) {
     if (!requireAdminAction('Просматривать финансы может только Али')) return;
-    currentFinanceTab = tab === 'expenses' ? 'expenses' : 'revenue';
-    document.getElementById('tabFinExpenses').classList.toggle('active', currentFinanceTab === 'expenses');
-    document.getElementById('tabFinRevenue').classList.toggle('active', currentFinanceTab === 'revenue');
+    currentFinanceTab = ['expenses', 'revenue', 'analytics'].includes(tab) ? tab : 'expenses';
+    const tabState = {
+        tabFinExpenses: currentFinanceTab === 'expenses',
+        tabFinRevenue: currentFinanceTab === 'revenue',
+        tabFinAnalytics: currentFinanceTab === 'analytics'
+    };
+    Object.entries(tabState).forEach(([id, active]) => {
+        const button = document.getElementById(id);
+        if (button) {
+            button.classList.toggle('active', active);
+            button.setAttribute('aria-selected', active ? 'true' : 'false');
+        }
+    });
 
-    document.getElementById('finTabExpenses').style.display = currentFinanceTab === 'expenses' ? 'block' : 'none';
-    document.getElementById('finTabRevenueAnalytics').style.display = currentFinanceTab === 'revenue' ? 'flex' : 'none';
+    const expenses = document.getElementById('finTabExpenses');
+    const revenueAnalytics = document.getElementById('finTabRevenueAnalytics');
+    const revenueContent = document.getElementById('finTabRevenueContent');
+    const analyticsContent = document.getElementById('finTabAnalyticsContent');
+    if (expenses) expenses.style.display = currentFinanceTab === 'expenses' ? 'block' : 'none';
+    if (revenueAnalytics) revenueAnalytics.style.display = currentFinanceTab === 'expenses' ? 'none' : 'flex';
+    if (revenueContent) revenueContent.style.display = currentFinanceTab === 'revenue' ? 'flex' : 'none';
+    if (analyticsContent) analyticsContent.style.display = currentFinanceTab === 'analytics' ? 'flex' : 'none';
 
     renderFinance();
 }
