@@ -14955,7 +14955,7 @@ html body .drawer-modal table tbody tr:focus-within > td {
 }
 
 
-/* Mobile More menu: connected liquid-glass panel with a soft bubble expansion. */
+/* Mobile More menu: slow liquid-glass morph, anchored above the trigger label. */
 @media (max-width: 767px) {
   #bottomNav.bottom-nav {
     position: fixed !important;
@@ -14983,9 +14983,9 @@ html body .drawer-modal table tbody tr:focus-within > td {
     -webkit-backdrop-filter: blur(18px) saturate(150%) !important;
     backdrop-filter: blur(18px) saturate(150%) !important;
     z-index: 950 !important;
-    /* Keep the scale origin at the "More" button, below the panel's lower edge. */
-    transform-origin: 86% calc(100% + 32px) !important;
-    will-change: transform, opacity;
+    /* The origin sits in the upper part of the More button, above its caption. */
+    transform-origin: 86% calc(100% + 18px) !important;
+    will-change: transform, opacity, border-radius;
     overflow-x: hidden !important;
     overflow-y: auto !important;
   }
@@ -14999,46 +14999,76 @@ html body .drawer-modal table tbody tr:focus-within > td {
   }
 
   #bottomNav .mobile-more-menu:not([hidden]):not(.is-closing) {
-    animation: mobileMoreBubbleOpen 560ms both;
+    animation: mobileMoreBubbleOpen 920ms cubic-bezier(.16, 1, .3, 1) both;
   }
 
   #bottomNav .mobile-more-menu.is-closing {
-    animation: mobileMoreBubbleClose 360ms both;
+    animation: mobileMoreBubbleClose 880ms cubic-bezier(.45, 0, .2, 1) both;
     pointer-events: none;
   }
 
-  /* Elastic rise: a tiny overshoot, soft compression, then a settled glass panel. */
+  /* Gently inflates from the trigger, breathes once, then settles like the demo nav bubble. */
   @keyframes mobileMoreBubbleOpen {
     0% {
-      opacity: .2;
-      transform: translate3d(0, 10px, 0) scale(.16, .08);
+      opacity: 0;
+      border-radius: 50%;
+      transform: translate3d(0, 7px, 0) scale(.075, .045);
     }
-    68% {
+    24% {
+      opacity: .62;
+      border-radius: 48% 48% 24% 24%;
+      transform: translate3d(0, 2px, 0) scale(.34, .22);
+    }
+    52% {
       opacity: 1;
-      transform: translate3d(0, -2px, 0) scale(1.045, 1.035);
+      border-radius: 30px 30px 10px 10px;
+      transform: translate3d(0, -1px, 0) scale(.82, .76);
     }
-    84% {
-      transform: translate3d(0, 1px, 0) scale(.985, .99);
+    74% {
+      border-radius: 23px 23px 0 0;
+      transform: translate3d(0, 0, 0) scale(1.012, 1.018);
+    }
+    88% {
+      transform: translate3d(0, 0, 0) scale(.996, .994);
     }
     100% {
       opacity: 1;
+      border-radius: 20px 20px 0 0;
       transform: translate3d(0, 0, 0) scale(1, 1);
     }
   }
 
-  /* Collapse toward the trigger with a subtle outward pulse before it closes. */
+  /* The panel narrows and flows upward into the button's icon area, never into its text. */
   @keyframes mobileMoreBubbleClose {
     0% {
       opacity: 1;
+      border-radius: 20px 20px 0 0;
       transform: translate3d(0, 0, 0) scale(1, 1);
     }
-    18% {
+    20% {
       opacity: 1;
-      transform: translate3d(0, -1px, 0) scale(1.025, 1.02);
+      border-radius: 24px 24px 8px 8px;
+      transform: translate3d(0, -1px, 0) scale(.94, .88);
+    }
+    48% {
+      opacity: .96;
+      border-radius: 34px 34px 24px 24px;
+      transform: translate3d(0, 0, 0) scale(.76, .62);
+    }
+    72% {
+      opacity: .78;
+      border-radius: 48%;
+      transform: translate3d(0, 2px, 0) scale(.42, .30);
+    }
+    88% {
+      opacity: .42;
+      border-radius: 50%;
+      transform: translate3d(0, 4px, 0) scale(.19, .12);
     }
     100% {
-      opacity: .15;
-      transform: translate3d(0, 10px, 0) scale(.16, .08);
+      opacity: 0;
+      border-radius: 50%;
+      transform: translate3d(0, 6px, 0) scale(.075, .045);
     }
   }
 
