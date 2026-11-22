@@ -2010,7 +2010,7 @@ function renderDesktopSchedule() {
                     const laneWidth = 100 / laneCount;
                     const left = item.lane * laneWidth;
                     html += `
-                        <button type="button" draggable="true" class="desktop-booking-card ${height < 96 ? 'is-compact' : ''} ${height < 66 ? 'is-short' : ''} ${bookingStatus} payment-border-${payState.status}"
+                        <button type="button" draggable="${isAdminUser() ? 'true' : 'false'}" class="desktop-booking-card ${height < 96 ? 'is-compact' : ''} ${height < 66 ? 'is-short' : ''} ${bookingStatus} payment-border-${payState.status}"
                             style="top:${item.top}px;height:${height}px;left:calc(${left}% + 3px);width:calc(${laneWidth}% - 6px);right:auto"
                             ondragstart="event.stopPropagation(); event.dataTransfer.setData('text/plain','${escapeBookingHtml(String(booking.id))}'); event.dataTransfer.effectAllowed='move'; this.classList.add('is-dragging')" ondragend="this.classList.remove('is-dragging'); document.querySelectorAll('.desktop-staff-track.is-drop-target').forEach(track=>track.classList.remove('is-drop-target'))"
                             onclick="event.stopPropagation(); openActionModal('${escapeBookingHtml(String(booking.id))}')">
