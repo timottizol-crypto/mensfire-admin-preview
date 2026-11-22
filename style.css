@@ -16000,3 +16000,9 @@ html body .drawer-modal table tbody tr:focus-within > td {
     visibility: hidden !important;
   }
 }
+
+/* Loyalty redemption controls */
+.booking-payment-actions{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px}
+.booking-payment-actions .booking-payment-edit{flex:1 1 145px;min-width:0}
+.booking-payment-actions .booking-loyalty-redeem{border-color:rgba(212,175,55,.55);color:var(--gold)}
+@media(max-width:767px){.booking-payment-actions{display:grid;grid-template-columns:1fr}.booking-payment-actions .booking-payment-edit{width:100%}}
