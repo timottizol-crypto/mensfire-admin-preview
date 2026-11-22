@@ -439,12 +439,22 @@ function buildBottomNav() {
     initNavBubble();
 }
 
+function syncMobileMoreActiveItem() {
+    const activeView = document.querySelector('.view.active')?.id;
+    document.querySelectorAll('#mobileMoreMenu .mobile-more-item').forEach(item => {
+        const isActive = item.getAttribute('data-view') === activeView;
+        item.classList.toggle('active', isActive);
+        item.setAttribute('aria-current', isActive ? 'page' : 'false');
+    });
+}
+
 function toggleMobileMoreMenu() {
     const panel = document.getElementById('mobileMoreMenu');
     const trigger = document.querySelector('.mobile-more-trigger');
     if (!panel || !trigger) return;
 
     const opening = panel.hidden || panel.classList.contains('is-closing');
+    if (opening) syncMobileMoreActiveItem();
     if (panel._closeTimer) {
         window.clearTimeout(panel._closeTimer);
         panel._closeTimer = null;
@@ -590,13 +600,19 @@ function switchView(viewId, navElement) {
         if (!targetNav && viewId === 'viewSettings' && window.innerWidth >= 768) {
             targetNav = document.querySelector('.nav-item[data-view="viewProfile"]');
         }
-        if (!targetNav && window.innerWidth < 768 && mobileMoreViewIds.includes(viewId)) {
-            targetNav = document.querySelector('.mobile-more-trigger');
-        }
+        const isMobileMoreView = window.innerWidth < 768 && mobileMoreViewIds.includes(viewId);
 
-    if (targetNav) {
+    if (targetNav && !isMobileMoreView) {
         targetNav.classList.add('active');
+        const bubble = document.getElementById('navBubble');
+        if (bubble) bubble.classList.remove('is-hidden');
         updateNavBubble(targetNav);
+    } else if (isMobileMoreView && window.innerWidth < 768) {
+        // Раздел из «Ещё» не занимает одну из трёх основных вкладок:
+        // убираем активное состояние кнопки «Ещё» и скрываем пузырь до возврата.
+        const bubble = document.getElementById('navBubble');
+        if (bubble) bubble.classList.add('is-hidden');
+        syncMobileMoreActiveItem();
     }
     closeMobileMoreMenu();
 
