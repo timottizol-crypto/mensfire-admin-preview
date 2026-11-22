@@ -6539,6 +6539,25 @@ function showClientDetails(name, barberId) {
     const historyContainer = document.getElementById('clientDetailsHistory');
     if (historyContainer) {
         historyContainer.innerHTML = historyHTML || '<div style="color: var(--text-muted); font-size: 13px; text-align: center; padding: 20px 0;">История пуста</div>';
+
+        // На телефоне показываем одну полную карточку и половину следующей.
+        // Если карточка только одна — ограничиваем область её фактической высотой.
+        if (window.innerWidth < 768) {
+            historyContainer.style.maxHeight = '';
+            historyContainer.style.minHeight = '0';
+            const firstHistoryCard = historyContainer.querySelector('.client-history-item');
+            if (firstHistoryCard) {
+                const cardHeight = firstHistoryCard.getBoundingClientRect().height;
+                const cardGap = parseFloat(getComputedStyle(firstHistoryCard).marginBottom) || 0;
+                const visibleCardsHeight = myBookings.length > 1
+                    ? cardHeight * 1.5 + cardGap
+                    : cardHeight + cardGap;
+                historyContainer.style.maxHeight = Math.ceil(visibleCardsHeight + 10) + 'px';
+            }
+        } else {
+            historyContainer.style.maxHeight = '';
+            historyContainer.style.minHeight = '';
+        }
     }
 
     try {
