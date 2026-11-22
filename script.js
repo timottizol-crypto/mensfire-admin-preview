@@ -426,8 +426,20 @@ function toggleMobileMoreMenu() {
     const panel = document.getElementById('mobileMoreMenu');
     const trigger = document.querySelector('.mobile-more-trigger');
     if (!panel || !trigger) return;
-    const opening = panel.hidden;
-    panel.hidden = !opening;
+
+    const opening = panel.hidden || panel.classList.contains('is-closing');
+    if (panel._closeTimer) {
+        window.clearTimeout(panel._closeTimer);
+        panel._closeTimer = null;
+    }
+
+    if (opening) {
+        panel.classList.remove('is-closing');
+        panel.hidden = false;
+    } else {
+        closeMobileMoreMenu();
+    }
+
     trigger.setAttribute('aria-expanded', opening ? 'true' : 'false');
     const activeView = document.querySelector('.view.active')?.id;
     trigger.classList.toggle('active', opening || mobileMoreViewIds.includes(activeView));
@@ -436,7 +448,17 @@ function toggleMobileMoreMenu() {
 function closeMobileMoreMenu() {
     const panel = document.getElementById('mobileMoreMenu');
     const trigger = document.querySelector('.mobile-more-trigger');
-    if (panel) panel.hidden = true;
+
+    if (panel && !panel.hidden) {
+        if (panel._closeTimer) window.clearTimeout(panel._closeTimer);
+        panel.classList.add('is-closing');
+        panel._closeTimer = window.setTimeout(() => {
+            panel.hidden = true;
+            panel.classList.remove('is-closing');
+            panel._closeTimer = null;
+        }, 240);
+    }
+
     if (trigger) {
         trigger.setAttribute('aria-expanded', 'false');
         const activeView = document.querySelector('.view.active')?.id;
