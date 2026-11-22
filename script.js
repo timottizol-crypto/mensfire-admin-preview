@@ -205,7 +205,9 @@ function initAppForUser() {
     
     document.getElementById('barberRevenueCard').style.display = isAdminUser() ? 'block' : 'none';
     const scheduleActions = document.querySelector('.schedule-management-actions');
-    if (scheduleActions) scheduleActions.style.display = isAdminUser() ? '' : 'none';
+    if (scheduleActions) scheduleActions.style.display = '';
+    const scheduleHoursAction = document.querySelector('.schedule-hours-btn');
+    if (scheduleHoursAction) scheduleHoursAction.style.display = isAdminUser() ? '' : 'none';
     const newBookingAction = document.querySelector('.schedule-new-booking-btn');
     if (newBookingAction) newBookingAction.style.display = isAdminUser() ? '' : 'none';
     const backupCard = document.getElementById('profileBackupCard');
@@ -1832,7 +1834,7 @@ function renderDesktopSchedule() {
                     <button class="${currentScheduleTab === 'bookings' ? 'active' : ''}" onclick="switchScheduleTab('bookings')">Записи</button>
                     <button class="${currentScheduleTab === 'breaks' ? 'active' : ''}" onclick="switchScheduleTab('breaks')">Перерывы</button>
                     <span class="desktop-calendar-action-divider" aria-hidden="true"></span>
-                    ${isAdminUser() ? '<button type="button" class="desktop-calendar-action" onclick="openBlockTimeModal()">Заблокировать время</button><button type="button" class="desktop-calendar-action" onclick="openWorkScheduleModal()">Рабочий график</button><button type="button" class="desktop-calendar-action desktop-calendar-action-primary" onclick="openNewBookingModal()">＋ Новая запись</button>' : ''}
+                    <button type="button" class="desktop-calendar-action" onclick="openBlockTimeModal()">Заблокировать время</button>${isAdminUser() ? '<button type="button" class="desktop-calendar-action" onclick="openWorkScheduleModal()">Рабочий график</button><button type="button" class="desktop-calendar-action desktop-calendar-action-primary" onclick="openNewBookingModal()">＋ Новая запись</button>' : ''}
                 </div>
             </div>
             <div class="schedule-filter-info-row">
@@ -1911,7 +1913,7 @@ function renderDesktopSchedule() {
                 <button class="${currentScheduleTab === 'bookings' ? 'active' : ''}" onclick="switchScheduleTab('bookings')">Записи</button>
                 <button class="${currentScheduleTab === 'breaks' ? 'active' : ''}" onclick="switchScheduleTab('breaks')">Перерывы</button>
                 <span class="desktop-calendar-action-divider" aria-hidden="true"></span>
-                    ${isAdminUser() ? '<button type="button" class="desktop-calendar-action" onclick="openBlockTimeModal()">Заблокировать время</button><button type="button" class="desktop-calendar-action" onclick="openWorkScheduleModal()">Рабочий график</button><button type="button" class="desktop-calendar-action desktop-calendar-action-primary" onclick="openNewBookingModal()">＋ Новая запись</button>' : ''}
+                    <button type="button" class="desktop-calendar-action" onclick="openBlockTimeModal()">Заблокировать время</button>${isAdminUser() ? '<button type="button" class="desktop-calendar-action" onclick="openWorkScheduleModal()">Рабочий график</button><button type="button" class="desktop-calendar-action desktop-calendar-action-primary" onclick="openNewBookingModal()">＋ Новая запись</button>' : ''}
             </div>
         </div>
         <div class="schedule-filter-info-row">
