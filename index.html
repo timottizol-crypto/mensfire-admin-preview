@@ -628,6 +628,17 @@
         </div>
     </div>
 
+    <!-- Списание бонусов клиента -->
+    <div class="modal" id="bookingLoyaltyModal">
+        <div class="modal-content">
+            <div class="booking-detail-heading"><h2>Списать бонусы</h2><button class="close-btn" type="button" onclick="closeModal('bookingLoyaltyModal')">&times;</button></div>
+            <p id="bookingLoyaltyBalance" class="payment-balance-label"></p>
+            <div class="form-group"><label for="bookingLoyaltyAmount">Количество бонусов (1 бонус = 1 ₽)</label><input type="number" id="bookingLoyaltyAmount" min="1" step="1" inputmode="numeric" placeholder="0"></div>
+            <button type="button" class="checkout-btn" onclick="saveBookingLoyaltyRedemption()">Подтвердить списание</button>
+            <button type="button" class="btn-cancel" style="margin-top:10px" onclick="closeModal('bookingLoyaltyModal')">Отмена</button>
+        </div>
+    </div>
+
     <!-- Добавление расхода -->
     <div class="modal" id="expenseModal">
         <div class="modal-content">
