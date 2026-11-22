@@ -15957,3 +15957,46 @@ html body .drawer-modal table tbody tr:focus-within > td {
     margin: 0 !important;
   }
 }
+
+
+/* MOBILE ONLY — restore visible purchase tabs and disable hidden legacy header hit areas. */
+@media (max-width: 767px) {
+  #viewPurchases.active {
+    padding-top: calc(24px + env(safe-area-inset-top, 0px)) !important;
+    min-width: 0 !important;
+  }
+  #viewPurchases .purchase-workspace-tabs {
+    position: relative !important;
+    inset: auto !important;
+    display: flex !important;
+    align-items: stretch !important;
+    width: 100% !important;
+    min-width: 0 !important;
+    min-height: 48px !important;
+    height: auto !important;
+    padding: 4px !important;
+    margin: 0 0 18px !important;
+    overflow: visible !important;
+    box-sizing: border-box !important;
+    z-index: 1 !important;
+  }
+  #viewPurchases .purchase-workspace-tab {
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    flex: 1 1 0 !important;
+    min-width: 0 !important;
+    min-height: 40px !important;
+    height: auto !important;
+    padding: 10px 8px !important;
+    font-size: 12px !important;
+    line-height: 1.25 !important;
+    white-space: normal !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+  }
+  body.header-hidden .app-header .header-pill {
+    pointer-events: none !important;
+    visibility: hidden !important;
+  }
+}
