@@ -1047,5 +1047,71 @@
     </div>
 
     <script src="script.js?v=finance-mobile-audit-20261122-8"></script>
+    <script>
+        // Автоматически проверяем обновления PWA и применяем их в безопасный момент.
+        (() => {
+            if (!('serviceWorker' in navigator)) return;
+
+            let updateReloadPending = false;
+            let reloadScheduled = false;
+            let hadController = Boolean(navigator.serviceWorker.controller);
+
+            const hasBlockingWork = () => {
+                const activeElement = document.activeElement;
+                const editingField = activeElement && /^(INPUT|TEXTAREA|SELECT)$/.test(activeElement.tagName);
+                const visibleModal = Array.from(document.querySelectorAll('.modal')).some(modal => {
+                    const style = getComputedStyle(modal);
+                    return style.display !== 'none' && style.visibility !== 'hidden' &&
+                        (modal.classList.contains('active') || modal.getAttribute('aria-hidden') === 'false' ||
+                         modal.getBoundingClientRect().height > 0);
+                });
+                return editingField || visibleModal || document.visibilityState !== 'visible';
+            };
+
+            const reloadWhenSafe = () => {
+                if (!updateReloadPending || reloadScheduled || hasBlockingWork()) return;
+                reloadScheduled = true;
+                window.setTimeout(() => {
+                    reloadScheduled = false;
+                    if (!updateReloadPending || hasBlockingWork()) return;
+                    updateReloadPending = false;
+                    window.location.reload();
+                }, 1200);
+            };
+
+            navigator.serviceWorker.addEventListener('controllerchange', () => {
+                if (!hadController) {
+                    hadController = true;
+                    return;
+                }
+                updateReloadPending = true;
+                reloadWhenSafe();
+            });
+
+            ['focusout', 'click'].forEach(eventName => {
+                document.addEventListener(eventName, () => {
+                    if (updateReloadPending) reloadWhenSafe();
+                }, true);
+            });
+            document.addEventListener('visibilitychange', reloadWhenSafe);
+            window.addEventListener('focus', reloadWhenSafe);
+
+            window.addEventListener('load', async () => {
+                try {
+                    const registration = await navigator.serviceWorker.register('./sw.js', {
+                        scope: './',
+                        updateViaCache: 'none'
+                    });
+                    const checkForUpdate = () => registration.update().catch(error => {
+                        console.warn('Не удалось проверить обновление MENSFIRE:', error);
+                    });
+                    checkForUpdate();
+                    window.setInterval(checkForUpdate, 60 * 1000);
+                } catch (error) {
+                    console.warn('Не удалось запустить автообновление MENSFIRE:', error);
+                }
+            });
+        })();
+    </script>
 </body>
 </html>
