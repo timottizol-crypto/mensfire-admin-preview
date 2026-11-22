@@ -15831,3 +15831,49 @@ html body .drawer-modal table tbody tr:focus-within > td {
     box-shadow: 0 0 5px color-mix(in srgb, var(--gold, #c69e5b) 22%, transparent) !important;
   }
 }
+
+
+/* Team period controls: custom date range participates in document flow so following panels move down. */
+#viewTeam #teamPeriodControls .clients-range-toolbar {
+  display: flex !important;
+  flex-wrap: wrap !important;
+  align-items: flex-start !important;
+  row-gap: 9px !important;
+  min-width: 0 !important;
+}
+#viewTeam #teamPeriodControls .clients-range-toolbar .finance-range-fields {
+  position: static !important;
+  inset: auto !important;
+  order: 2 !important;
+  display: flex !important;
+  flex: 0 0 100% !important;
+  width: 100% !important;
+  max-width: 100% !important;
+  min-width: 0 !important;
+  box-sizing: border-box !important;
+  margin: 0 !important;
+}
+#viewTeam #teamPeriodControls .clients-range-toolbar .finance-range-fields[hidden] {
+  display: none !important;
+}
+@media (max-width: 520px) {
+  #viewTeam #teamPeriodControls .clients-range-toolbar .finance-range-presets {
+    display: grid !important;
+    grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+    flex: 0 0 100% !important;
+    width: 100% !important;
+  }
+  #viewTeam #teamPeriodControls .clients-range-toolbar .finance-range-fields:not([hidden]) {
+    gap: 7px !important;
+    padding: 8px !important;
+    border: 1px solid var(--glass-border, rgba(255,255,255,.14)) !important;
+    border-radius: 12px !important;
+    background: var(--card-bg, #202020) !important;
+    box-shadow: 0 8px 20px rgba(0,0,0,.18) !important;
+  }
+  #viewTeam #teamPeriodControls .clients-range-toolbar .finance-range-date {
+    flex: 1 1 0 !important;
+    width: 0 !important;
+    min-width: 0 !important;
+  }
+}
