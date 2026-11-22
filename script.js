@@ -3999,7 +3999,7 @@ function renderFinance() {
     const setText = (id, value) => { const node = document.getElementById(id); if (node) node.textContent = value; };
     const expenseScopeLabel = financePeriodMode === 'day' ? 'за выбранный день' : financePeriodMode === 'month' ? 'за выбранный месяц' : 'за выбранный период';
     const expenseHeading = document.querySelector('#finTabExpenses .finance-dashboard-grid > .finance-panel:nth-child(2) .finance-panel-heading p');
-    if (expenseHeading) expenseHeading.textContent = financePeriodMode === 'day' ? 'Операции за выбранный день' : financePeriodMode === 'month' ? 'Операции за выбранный месяц' : 'Операции за выбранный период';
+    if (window.innerWidth < 768 && expenseHeading) expenseHeading.textContent = financePeriodMode === 'day' ? 'Операции за выбранный день' : financePeriodMode === 'month' ? 'Операции за выбранный месяц' : 'Операции за выбранный период';
     setText('financeToday', fmt(dayRevenue));
     setText('financeWeek', fmt(weekRevenue));
     setText('financeMonth', fmt(monthRevenue));
@@ -4020,6 +4020,7 @@ function renderFinance() {
     const paymentSubtitle = document.querySelector('#finTabExpenses .finance-panel:nth-child(3) .finance-panel-heading p');
     if (paymentSubtitle) paymentSubtitle.textContent = financePeriodMode === 'day' ? 'Распределение поступлений за месяц' : 'Распределение поступлений за период';
 
+    const expenseEmptyMessage = window.innerWidth < 768 ? `<div class="finance-empty">Расходов ${expenseScopeLabel} нет</div>` : '<div class="finance-empty">Расходов за выбранный день нет</div>';
     const expensesList = document.getElementById('expensesList');
     if (expensesList) expensesList.innerHTML = dayExpenses.length ? dayExpenses.map(item => `
         <div class="finance-operation finance-expense-operation-clickable" role="button" tabindex="0" onclick='openExpenseEditModal(${JSON.stringify(String(item.id)).replace(/'/g, '&#39;')})' onkeydown='if(event.key==="Enter"||event.key===" "){event.preventDefault();openExpenseEditModal(${JSON.stringify(String(item.id)).replace(/'/g, '&#39;')})}' aria-label="Изменить расход">
@@ -4049,8 +4050,8 @@ function renderFinance() {
             while (cursor < periodEnd && buckets.length < 12) {
                 const monthStart = new Date(cursor);
                 const monthEnd = new Date(cursor.getFullYear(),cursor.getMonth()+1,1);
-                const start = new Date(Math.max(monthStart.getTime(),periodStart.getTime()));
-                const end = new Date(Math.min(monthEnd.getTime(),periodEnd.getTime()));
+                const start = window.innerWidth < 768 ? new Date(Math.max(monthStart.getTime(),periodStart.getTime())) : monthStart;
+                const end = window.innerWidth < 768 ? new Date(Math.min(monthEnd.getTime(),periodEnd.getTime())) : monthEnd;
                 buckets.push({start,end,label:monthStart.toLocaleDateString('ru-RU',{month:'short',year:'2-digit'}).replace('.','')});
                 cursor.setMonth(cursor.getMonth()+1);
             }
@@ -4075,7 +4076,7 @@ function renderFinance() {
         const total = Object.values(paymentTotals).reduce((sum,value) => sum + value, 0);
         methods.innerHTML = Object.entries(paymentTotals).filter(([,value]) => value > 0).sort((a,b) => b[1]-a[1]).map(([key,value]) => `
             <div class="finance-method-row"><div><span>${labels[key]}</span><strong>${fmt(value)}</strong></div><div class="finance-method-track"><i style="width:${total ? value/total*100 : 0}%"></i></div></div>`
-        ).join('') || '<div class="finance-empty">Платежей ' + (financePeriodMode === 'day' ? 'за месяц' : 'за выбранный период') + ' пока нет</div>';
+        ).join('') || (window.innerWidth < 768 ? '<div class="finance-empty">Платежей ' + (financePeriodMode === 'day' ? 'за месяц' : 'за выбранный период') + ' пока нет</div>' : '<div class="finance-empty">Платежей за этот месяц пока нет</div>');
     }
 
     const teamStats = document.getElementById('financeTeamStats');
@@ -4149,7 +4150,7 @@ function renderFinance() {
         const sorted = Object.entries(serviceCounts).sort((a,b) => b[1].revenue-a[1].revenue);
         const maxServiceRevenue = Math.max(1,...sorted.map(([,data]) => data.revenue));
         topServices.innerHTML = sorted.length ? sorted.map(([name,data],index) => `
-            <div class="finance-service-row finance-service-row-detailed"><span class="finance-service-rank">${index+1}</span><div class="finance-service-copy"><strong>${escapeBookingHtml(name)}</strong><span>${data.count} выполнено за выбранный период</span><div class="finance-service-track"><i style="width:${data.revenue/maxServiceRevenue*100}%"></i></div></div><strong>${fmt(data.revenue)}</strong></div>`
+            <div class="finance-service-row finance-service-row-detailed"><span class="finance-service-rank">${index+1}</span><div class="finance-service-copy"><strong>${escapeBookingHtml(name)}</strong><span>${data.count} ${window.innerWidth < 768 ? 'выполнено за выбранный период' : 'выполнено за 30 дней'}</span><div class="finance-service-track"><i style="width:${data.revenue/maxServiceRevenue*100}%"></i></div></div><strong>${fmt(data.revenue)}</strong></div>`
         ).join('') : '<div class="finance-empty">Статистика появится после завершённых визитов</div>';
     }
 
@@ -4162,7 +4163,8 @@ function renderFinance() {
         });
         const rows = Object.entries(groups).sort((a,b) => b[1]-a[1]);
         const maxExpense = Math.max(1,...rows.map(([,amount]) => amount));
-        expenseBreakdown.innerHTML = rows.length ? '<div class="finance-breakdown-heading">Структура расходов ' + expenseScopeLabel + '</div><div class="finance-expense-breakdown-list">' + rows.map(([label,amount]) => `
+        const breakdownTitle = window.innerWidth < 768 ? 'Структура расходов ' + expenseScopeLabel : 'Структура расходов за период';
+        expenseBreakdown.innerHTML = rows.length ? '<div class="finance-breakdown-heading">' + breakdownTitle + '</div><div class="finance-expense-breakdown-list">' + rows.map(([label,amount]) => `
             <div class="finance-expense-breakdown-row"><div><span>${escapeBookingHtml(label)}</span><strong>${fmt(amount)}</strong></div><div class="finance-expense-track"><i style="width:${amount/maxExpense*100}%"></i></div></div>`
         ).join('') + '</div>' : '<div class="finance-empty">Добавьте расходы, чтобы увидеть структуру</div>';
     }
@@ -4210,7 +4212,7 @@ function addExpense() {
         return;
     }
     let expenseDate = parseReportDate(selectedFinanceDate);
-    if (financePeriodMode === 'custom') {
+    if (window.innerWidth < 768 && financePeriodMode === 'custom') {
         let rangeStart = parseReportDate(financeRangeStart);
         let rangeEnd = parseReportDate(financeRangeEnd);
         if (!rangeStart || !rangeEnd) return showToast('Сначала укажите корректный период отчёта', 'error');
