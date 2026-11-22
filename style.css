@@ -15841,3 +15841,36 @@ html body .drawer-modal table tbody tr:focus-within > td {
     white-space: nowrap !important;
   }
 }
+
+
+/* MOBILE HOTFIX — force visible spacing and refresh the deployed stylesheet. */
+@media (max-width: 767px) {
+  #viewFinance .finance-dashboard-grid > .finance-panel:last-child > .finance-panel-heading {
+    margin-bottom: 26px !important;
+  }
+  #viewFinance .finance-dashboard-grid > .finance-panel:last-child .finance-period-metrics {
+    margin-top: 0 !important;
+  }
+  #viewServices .services-page-heading > .services-add-cta {
+    display: flex !important;
+    box-sizing: border-box !important;
+    flex: 0 0 18px !important;
+    align-self: stretch !important;
+    width: 100% !important;
+    min-width: 100% !important;
+    min-height: 18px !important;
+    height: 18px !important;
+    max-height: 18px !important;
+    padding: 0 8px !important;
+    margin: 0 !important;
+    overflow: hidden !important;
+  }
+  #viewServices .services-page-heading > .services-add-cta .cta-text,
+  #viewServices .services-page-heading > .services-add-cta .cta-text span {
+    display: block !important;
+    font-size: 10px !important;
+    line-height: 18px !important;
+    margin: 0 !important;
+    padding: 0 !important;
+  }
+}
