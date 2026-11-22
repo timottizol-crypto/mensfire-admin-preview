@@ -2377,13 +2377,28 @@ function saveBookingPayment() {
 
 
 function getBookingLoyaltyBookings(targetBooking) {
-    const targetPhone = normalizeClientPhone(targetBooking?.clientPhone || '');
-    const targetName = String(targetBooking?.clientName || '').trim().toLocaleLowerCase('ru');
-    return bookings.filter(item => {
-        const phone = normalizeClientPhone(item?.clientPhone || '');
-        if (targetPhone.length >= 7 && phone.length >= 7) return targetPhone === phone;
-        return Boolean(targetName) && String(item?.clientName || '').trim().toLocaleLowerCase('ru') === targetName;
-    });
+    if (!targetBooking) return [];
+    // Используем тот же источник телефона профиля, что и карточка клиента CRM.
+    // Поле clientPhone в старых записях часто пустое, поэтому сравнение только
+    // по нему приводило к объединению разных клиентов с одинаковым именем.
+    const targetProfile = findClientProfile(targetBooking.clientName, targetBooking.barberId).profile || {};
+    const targetPhone = normalizeClientPhone(targetProfile.phone || targetBooking.clientPhone || '');
+    const targetName = String(targetBooking.clientName || '').trim().toLocaleLowerCase('ru');
+    const targetBarberId = String(targetBooking.barberId || '');
+    if (targetPhone.length >= 7) {
+        return bookings.filter(item => {
+            const profile = findClientProfile(item.clientName, item.barberId).profile || {};
+            const phone = normalizeClientPhone(profile.phone || item.clientPhone || '');
+            return phone.length >= 7 && phone === targetPhone;
+        });
+    }
+    // Без подтверждённого телефона сохраняем разделение по имени И мастеру,
+    // как при формировании карточек в разделе «Клиенты».
+    return bookings.filter(item =>
+        Boolean(targetName) &&
+        String(item.clientName || '').trim().toLocaleLowerCase('ru') === targetName &&
+        String(item.barberId || '') === targetBarberId
+    );
 }
 let selectedLoyaltyBookingId = null;
 function openBookingLoyaltyEditor(id) {
