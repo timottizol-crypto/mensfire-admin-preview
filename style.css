@@ -16739,3 +16739,52 @@ body.barber-mode .schedule-new-booking-btn { display: none !important; }
   visibility: hidden !important;
   pointer-events: none !important;
 }
+
+
+/* Desktop splash: clean brand-only screen on every desktop width.
+   Mobile keeps its existing photographic splash background. */
+@media (min-width: 768px) {
+  #splashScreen {
+    background: #0a0a0a !important;
+    isolation: isolate !important;
+  }
+
+  #splashScreen::before {
+    background: #0a0a0a !important;
+    z-index: -1 !important;
+  }
+
+  #splashScreen .splash-content {
+    display: flex !important;
+    position: relative !important;
+    z-index: 2 !important;
+    width: 100% !important;
+    opacity: 1 !important;
+    visibility: visible !important;
+    transform: none !important;
+    animation: none !important;
+  }
+
+  #splashScreen .splash-title-wrapper {
+    display: inline-block !important;
+    opacity: 1 !important;
+    visibility: visible !important;
+  }
+
+  #splashScreen .splash-title {
+    display: block !important;
+    color: #fff !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+  }
+
+  #splashScreen .splash-line {
+    z-index: 3 !important;
+    visibility: visible !important;
+  }
+
+  #splashScreen .splash-greeting-oval,
+  #splashScreen .splash-loader {
+    display: none !important;
+  }
+}
