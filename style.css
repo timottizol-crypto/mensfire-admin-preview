@@ -16267,3 +16267,158 @@ body.barber-mode .schedule-new-booking-btn { display: none !important; }
     min-height: 230px !important;
   }
 }
+
+
+/* MENSFIRE — definitive desktop dashboard reflow.
+   The dashboard is a vertical flex view: its sections must not shrink
+   to the viewport height and overlap their own contents. */
+@media (min-width: 768px) {
+  #viewDashboard.active {
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: stretch !important;
+    justify-content: flex-start !important;
+    height: auto !important;
+    min-height: 100dvh !important;
+    max-height: none !important;
+    overflow-x: hidden !important;
+    overflow-y: auto !important;
+    padding-bottom: 32px !important;
+  }
+
+  #viewDashboard.active > .dashboard-topline,
+  #viewDashboard.active > .dashboard-overview-row,
+  #viewDashboard.active > .dashboard-content-grid {
+    flex: 0 0 auto !important;
+    width: 100% !important;
+    min-width: 0 !important;
+    min-height: max-content !important;
+    height: auto !important;
+    max-height: none !important;
+    position: relative !important;
+    overflow: visible !important;
+    transform: none !important;
+  }
+
+  #viewDashboard .dashboard-topline {
+    grid-template-columns: minmax(0, 1fr) minmax(300px, 1.05fr) !important;
+    grid-template-rows: auto !important;
+    align-items: stretch !important;
+    gap: 14px !important;
+    margin-bottom: 16px !important;
+  }
+
+  #viewDashboard .dashboard-title-period {
+    display: flex !important;
+    flex-direction: column !important;
+    justify-content: flex-start !important;
+    gap: 14px !important;
+    min-width: 0 !important;
+    min-height: 0 !important;
+    height: auto !important;
+  }
+
+  #viewDashboard .dashboard-period-controls,
+  #viewDashboard .dashboard-period-controls .finance-range-toolbar {
+    flex: 0 0 auto !important;
+    width: 100% !important;
+    height: auto !important;
+    min-height: 0 !important;
+    max-height: none !important;
+  }
+
+  #viewDashboard .dashboard-topline .dashboard-upcoming-panel {
+    align-self: stretch !important;
+    height: auto !important;
+    min-height: 190px !important;
+    max-height: none !important;
+    margin: 0 !important;
+  }
+
+  #viewDashboard .dashboard-overview-row {
+    display: grid !important;
+    grid-template-columns: minmax(0, .9fr) minmax(0, 1.1fr) !important;
+    grid-template-rows: auto !important;
+    grid-auto-rows: auto !important;
+    align-items: stretch !important;
+    align-content: start !important;
+    gap: 14px !important;
+    margin: 0 0 16px !important;
+  }
+
+  #viewDashboard .dashboard-overview-row > .dashboard-main-panel {
+    grid-column: auto !important;
+    align-self: stretch !important;
+    height: auto !important;
+    min-height: 270px !important;
+    max-height: none !important;
+  }
+
+  #viewDashboard #dashboardRevenueChart {
+    min-height: 170px !important;
+    height: auto !important;
+  }
+
+  #viewDashboard #dashboardRevenueChart .dashboard-line-chart {
+    min-height: 150px !important;
+    height: auto !important;
+    max-height: none !important;
+  }
+
+  #viewDashboard #dashboardRevenueChart svg,
+  #viewDashboard #dashboardRevenueChart .dashboard-line-chart svg {
+    display: block !important;
+    width: 100% !important;
+    height: auto !important;
+    max-height: none !important;
+    aspect-ratio: 700 / 174 !important;
+  }
+
+  #viewDashboard .dashboard-overview-row > .dashboard-kpi-grid {
+    display: grid !important;
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+    grid-template-rows: repeat(3, minmax(84px, auto)) !important;
+    grid-auto-rows: minmax(84px, auto) !important;
+    align-content: start !important;
+    align-self: stretch !important;
+    height: auto !important;
+    min-height: 0 !important;
+    gap: 10px !important;
+    margin: 0 !important;
+  }
+
+  #viewDashboard .dashboard-kpi-grid > .dashboard-kpi-card {
+    height: auto !important;
+    min-height: 84px !important;
+    max-height: none !important;
+  }
+
+  #viewDashboard .dashboard-content-grid {
+    display: grid !important;
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+    grid-template-rows: auto !important;
+    grid-auto-rows: minmax(260px, auto) !important;
+    align-items: stretch !important;
+    align-content: start !important;
+    gap: 14px !important;
+    margin: 0 !important;
+  }
+
+  #viewDashboard .dashboard-content-grid > .dashboard-panel {
+    grid-column: auto !important;
+    align-self: stretch !important;
+    height: auto !important;
+    min-height: 260px !important;
+    max-height: none !important;
+  }
+}
+
+@media (min-width: 768px) and (max-width: 900px) {
+  #viewDashboard .dashboard-overview-row,
+  #viewDashboard .dashboard-content-grid {
+    grid-template-columns: minmax(0, 1fr) !important;
+  }
+  #viewDashboard .dashboard-overview-row > .dashboard-main-panel {
+    min-height: 240px !important;
+  }
+}
