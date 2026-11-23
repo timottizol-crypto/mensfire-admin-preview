@@ -7633,7 +7633,7 @@ html.light-theme :is(input,textarea,select) {
 
 /* Dashboard layout source of truth: content-driven rows, no absolute positioning. */
 #viewDashboard, #viewDashboard * { box-sizing: border-box; }
-#viewDashboard {
+#viewDashboard.active {
   display: flex; flex-direction: column; align-items: stretch;
   width: 100%; min-width: 0; height: auto; min-height: 100dvh;
   max-height: none; overflow: visible; padding-bottom: 28px;
@@ -7729,6 +7729,27 @@ html.light-theme :is(input,textarea,select) {
   width: 100%; min-width: 0; height: auto; min-height: 270px;
   max-height: none; margin: 0; overflow: hidden;
 }
+/* Revenue chart drawing styles live with the chart structure. */
+#viewDashboard .dashboard-line-chart { width: 100%; min-height: 150px; padding: 5px 2px 0; }
+#viewDashboard .dashboard-chart-gridline { stroke: rgba(255,255,255,.09); stroke-width: 1; stroke-dasharray: 3 6; }
+#viewDashboard .dashboard-chart-area { fill: rgba(212,175,55,.13); }
+#viewDashboard .dashboard-chart-line {
+  fill: none; stroke: #d4af37; stroke-width: 3; stroke-linecap: round;
+  stroke-linejoin: round; filter: drop-shadow(0 2px 5px rgba(212,175,55,.2));
+}
+#viewDashboard .dashboard-chart-point { fill: #f0d27a; stroke: #171717; stroke-width: 2; }
+#viewDashboard .dashboard-chart-point-halo { fill: rgba(212,175,55,.12); stroke: none; }
+#viewDashboard .dashboard-chart-date { fill: var(--text-muted); font-size: 11px; }
+#viewDashboard .dashboard-chart-summary {
+  display: flex; justify-content: space-between; align-items: center;
+  padding: 0 7px; margin-top: -1px; color: var(--text-muted); font-size: 9px;
+}
+#viewDashboard .dashboard-chart-summary strong { color: var(--text-main); font-size: 11px; }
+@media (max-width: 767px) {
+  #viewDashboard .dashboard-line-chart { min-height: 132px; }
+  #viewDashboard .dashboard-chart-date { font-size: 10px; }
+}
+
 #viewDashboard #dashboardRevenueChart,
 #viewDashboard #dashboardRevenueChart .dashboard-line-chart {
   display: block; position: relative; width: 100%; min-width: 0;
