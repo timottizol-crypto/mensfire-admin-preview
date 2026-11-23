@@ -16689,3 +16689,51 @@ body.barber-mode .schedule-new-booking-btn { display: none !important; }
     overflow-wrap: anywhere !important;
   }
 }
+
+
+/* MENSFIRE — compact accent selectors on laptop-sized desktop screens. */
+@media (min-width: 768px) and (max-width: 1450px) {
+  #viewSettings .settings-accent-options {
+    gap: 8px !important;
+  }
+
+  #viewSettings .settings-accent-options .settings-accent-choice {
+    min-height: 50px !important;
+    height: auto !important;
+    padding: 7px 6px !important;
+    gap: 7px !important;
+    font-size: 10px !important;
+    line-height: 1.2 !important;
+  }
+
+  #viewSettings .settings-accent-options .accent-swatch {
+    width: 18px !important;
+    height: 18px !important;
+    flex-basis: 18px !important;
+  }
+}
+
+/* The branded splash artwork must also appear on laptop/desktop,
+   not only inside the mobile breakpoint. */
+#splashScreen::before {
+  background:
+    linear-gradient(rgba(0,0,0,.58), rgba(0,0,0,.86)),
+    var(--bg-image) center center / cover no-repeat !important;
+  z-index: 0 !important;
+}
+
+#splashScreen .splash-content,
+#splashScreen .splash-loader {
+  z-index: 1 !important;
+}
+
+#splashScreen.active {
+  display: flex !important;
+  opacity: 1 !important;
+  visibility: visible !important;
+  pointer-events: auto !important;
+}
+
+#splashScreen.hidden {
+  pointer-events: none !important;
+}
