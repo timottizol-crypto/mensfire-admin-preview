@@ -16142,3 +16142,128 @@ body.barber-mode .schedule-new-booking-btn { display: none !important; }
     color: var(--gold) !important;
   }
 }
+
+
+/* MENSFIRE — laptop viewport fit (14-inch / reduced browser height).
+   Desktop-only: keep the navigation fully reachable without F11 and
+   let the business overview rows size from their content instead of overlapping. */
+@media (min-width: 768px) {
+  /* The sidebar has a fixed viewport frame; its navigation items compact
+     with available height and can scroll only on exceptionally short screens. */
+  #bottomNav.bottom-nav {
+    top: 12px !important;
+    bottom: 12px !important;
+    height: auto !important;
+    max-height: calc(100dvh - 24px) !important;
+    box-sizing: border-box !important;
+    gap: clamp(2px, .75vh, 8px) !important;
+    padding: clamp(8px, 1.5vh, 18px) 10px !important;
+    overflow-x: hidden !important;
+    overflow-y: auto !important;
+    overscroll-behavior: contain;
+    scrollbar-width: none;
+  }
+  #bottomNav.bottom-nav::-webkit-scrollbar { display: none; }
+  #bottomNav .desktop-nav-toggle {
+    flex: 0 0 auto !important;
+    min-height: clamp(34px, 6vh, 46px) !important;
+    height: clamp(34px, 6vh, 46px) !important;
+    margin-bottom: clamp(2px, 1vh, 14px) !important;
+    padding-top: 0 !important;
+    padding-bottom: 0 !important;
+  }
+  #bottomNav .nav-item {
+    flex: 0 0 auto !important;
+    height: clamp(34px, calc((100dvh - 300px) / 11), 48px) !important;
+    min-height: clamp(34px, calc((100dvh - 300px) / 11), 48px) !important;
+  }
+}
+
+/* Keep the laptop overview in normal document flow. */
+@media (min-width: 768px) and (max-width: 1440px) {
+  #viewDashboard.active {
+    min-width: 0 !important;
+    min-height: 0 !important;
+    height: 100dvh !important;
+    overflow-x: hidden !important;
+    overflow-y: auto !important;
+    align-content: start !important;
+    padding-bottom: 28px !important;
+    scrollbar-width: thin;
+  }
+  #viewDashboard .dashboard-topline,
+  #viewDashboard .dashboard-overview-row,
+  #viewDashboard .dashboard-content-grid {
+    box-sizing: border-box !important;
+    min-width: 0 !important;
+    min-height: 0 !important;
+    height: auto !important;
+    max-height: none !important;
+    position: relative !important;
+    overflow: visible !important;
+  }
+  #viewDashboard .dashboard-overview-row {
+    grid-template-rows: auto !important;
+    grid-auto-rows: auto !important;
+    align-items: start !important;
+    align-content: start !important;
+    margin-bottom: 22px !important;
+  }
+  #viewDashboard .dashboard-overview-row > .dashboard-main-panel {
+    box-sizing: border-box !important;
+    height: auto !important;
+    min-height: 250px !important;
+    max-height: none !important;
+    align-self: start !important;
+  }
+  #viewDashboard #dashboardRevenueChart,
+  #viewDashboard #dashboardRevenueChart .dashboard-line-chart {
+    height: auto !important;
+    min-height: 0 !important;
+    max-height: none !important;
+  }
+  #viewDashboard #dashboardRevenueChart svg,
+  #viewDashboard #dashboardRevenueChart .dashboard-line-chart svg {
+    display: block !important;
+    width: 100% !important;
+    height: auto !important;
+    min-height: 0 !important;
+    max-height: none !important;
+    aspect-ratio: 700 / 174 !important;
+  }
+  #viewDashboard .dashboard-overview-row > .dashboard-kpi-grid {
+    height: auto !important;
+    min-height: 0 !important;
+    grid-template-rows: none !important;
+    grid-auto-rows: minmax(76px, auto) !important;
+    align-content: start !important;
+    align-self: start !important;
+  }
+  #viewDashboard .dashboard-kpi-grid > .dashboard-kpi-card {
+    height: auto !important;
+    min-height: 76px !important;
+  }
+  #viewDashboard .dashboard-content-grid {
+    grid-auto-rows: 260px !important;
+    align-items: stretch !important;
+    margin-top: 0 !important;
+  }
+  #viewDashboard .dashboard-content-grid > .dashboard-panel {
+    height: 260px !important;
+    min-height: 260px !important;
+    max-height: 260px !important;
+    align-self: stretch !important;
+  }
+}
+
+/* At narrower laptop widths, stack overview sections before they become cramped. */
+@media (min-width: 768px) and (max-width: 1050px) {
+  #viewDashboard .dashboard-topline,
+  #viewDashboard .dashboard-overview-row,
+  #viewDashboard .dashboard-content-grid {
+    grid-template-columns: minmax(0, 1fr) !important;
+  }
+  #viewDashboard .dashboard-overview-row > .dashboard-main-panel {
+    min-height: 230px !important;
+  }
+}
