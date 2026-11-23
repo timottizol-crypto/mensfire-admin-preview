@@ -16653,3 +16653,39 @@ body.barber-mode .schedule-new-booking-btn { display: none !important; }
     padding-right: 4px !important;
   }
 }
+
+
+/* Desktop settings: give accent-color choices more room and clearer labels. */
+@media (min-width: 768px) {
+  #viewSettings .settings-accent-options {
+    grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+    gap: 12px !important;
+    align-items: stretch !important;
+  }
+
+  #viewSettings .settings-accent-options .settings-accent-choice {
+    display: flex !important;
+    flex-direction: row !important;
+    align-items: center !important;
+    justify-content: center !important;
+    gap: 10px !important;
+    width: 100% !important;
+    min-width: 0 !important;
+    min-height: 76px !important;
+    padding: 12px 10px !important;
+    font-size: 12px !important;
+    line-height: 1.35 !important;
+    white-space: normal !important;
+  }
+
+  #viewSettings .settings-accent-options .accent-swatch {
+    width: 24px !important;
+    height: 24px !important;
+    flex: 0 0 24px !important;
+  }
+
+  #viewSettings .settings-accent-options .settings-accent-choice span {
+    min-width: 0 !important;
+    overflow-wrap: anywhere !important;
+  }
+}
