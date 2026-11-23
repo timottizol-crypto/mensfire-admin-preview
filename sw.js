@@ -1,4 +1,4 @@
-const CACHE_NAME = 'mensfire-admin-v198-dashboard-flow';
+const CACHE_NAME = 'mensfire-admin-v199-layout-restored-client-rays';
 const ASSETS = [
   './index.html',
   './style.css',
