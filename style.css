@@ -16727,13 +16727,15 @@ body.barber-mode .schedule-new-booking-btn { display: none !important; }
   z-index: 1 !important;
 }
 
-#splashScreen.active {
+#splashScreen.active:not(.hidden) {
   display: flex !important;
-  opacity: 1 !important;
-  visibility: visible !important;
+  opacity: 1;
+  visibility: visible;
   pointer-events: auto !important;
 }
 
 #splashScreen.hidden {
+  opacity: 0 !important;
+  visibility: hidden !important;
   pointer-events: none !important;
 }
