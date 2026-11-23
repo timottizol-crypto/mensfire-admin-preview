@@ -16422,3 +16422,95 @@ body.barber-mode .schedule-new-booking-btn { display: none !important; }
     min-height: 240px !important;
   }
 }
+
+
+/* MENSFIRE — keep desktop schedule controls on one line on 14-inch laptops.
+   Overrides the older <=1250px rule that deliberately wrapped the tabs. */
+@media (min-width: 768px) and (max-width: 1250px) {
+  #viewSchedule > #desktopSchedule .desktop-calendar-toolbar {
+    display: flex !important;
+    flex-wrap: nowrap !important;
+    align-items: center !important;
+    justify-content: space-between !important;
+    gap: 6px !important;
+    padding: 8px 9px !important;
+    min-height: 48px !important;
+    box-sizing: border-box !important;
+  }
+
+  #viewSchedule > #desktopSchedule .desktop-calendar-date-controls {
+    display: flex !important;
+    flex: 0 0 auto !important;
+    flex-wrap: nowrap !important;
+    align-items: center !important;
+    gap: 4px !important;
+    min-width: max-content !important;
+  }
+
+  #viewSchedule > #desktopSchedule .desktop-calendar-date-controls strong {
+    font-size: 13px !important;
+    line-height: 1.1 !important;
+    white-space: nowrap !important;
+  }
+
+  #viewSchedule > #desktopSchedule .desktop-calendar-date-controls .calendar-date-arrow {
+    flex: 0 0 29px !important;
+    width: 29px !important;
+    min-width: 29px !important;
+    height: 30px !important;
+  }
+
+  #viewSchedule > #desktopSchedule .desktop-calendar-date-controls .calendar-today-btn {
+    flex: 0 0 auto !important;
+    width: auto !important;
+    min-width: 0 !important;
+    height: 30px !important;
+    padding: 0 8px !important;
+    font-size: 10px !important;
+    white-space: nowrap !important;
+  }
+
+  #viewSchedule > #desktopSchedule .desktop-calendar-tabs {
+    display: flex !important;
+    flex: 0 1 auto !important;
+    flex-wrap: nowrap !important;
+    align-items: center !important;
+    justify-content: flex-end !important;
+    gap: 3px !important;
+    min-width: 0 !important;
+    margin-left: auto !important;
+    padding: 3px !important;
+    white-space: nowrap !important;
+  }
+
+  #viewSchedule > #desktopSchedule .desktop-calendar-tabs > button {
+    flex: 0 1 auto !important;
+    min-width: 0 !important;
+    width: auto !important;
+    height: 30px !important;
+    min-height: 30px !important;
+    padding: 0 7px !important;
+    font-size: 9px !important;
+    line-height: 1 !important;
+    white-space: nowrap !important;
+  }
+
+  #viewSchedule > #desktopSchedule .desktop-calendar-tabs .desktop-calendar-info-toggle {
+    flex: 0 0 32px !important;
+    width: 32px !important;
+    min-width: 32px !important;
+    padding: 0 !important;
+  }
+
+  #viewSchedule > #desktopSchedule .desktop-calendar-tabs .desktop-calendar-action {
+    flex: 0 1 auto !important;
+    min-width: 0 !important;
+    padding: 0 7px !important;
+    font-size: 9px !important;
+  }
+
+  #viewSchedule > #desktopSchedule .desktop-calendar-action-divider {
+    flex: 0 0 1px !important;
+    margin: 0 1px !important;
+  }
+}
